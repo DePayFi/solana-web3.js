@@ -5,7 +5,7 @@ A webpack browser pre-built which can be used in rollup as UMD and ESM.
 ## Development
 
 ```
-npm run-script build
+yarn build
 ```
 
 ```
