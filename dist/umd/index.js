@@ -1,7 +1,7 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto'), require('buffer'), require('events'), require('https'), require('http'), require('net'), require('tls'), require('stream'), require('url'), require('zlib'), require('fs'), require('path'), require('os')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'crypto', 'buffer', 'events', 'https', 'http', 'net', 'tls', 'stream', 'url', 'zlib', 'fs', 'path', 'os'], factory) :
-	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.SolanaWeb3js = {}, global.require$$5, global.Buffer, global.require$$0$6, global.require$$1$1, global.require$$2$1, global.require$$3, global.require$$4, global.require$$0$5, global.require$$7, global.require$$0$4, global.require$$0$3, global.require$$1, global.require$$2));
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.SolanaWeb3js = {}, global.require$$5, global.buffer, global.require$$0$6, global.require$$1$1, global.require$$2$1, global.require$$3, global.require$$4, global.require$$0$5, global.require$$7, global.require$$0$4, global.require$$0$3, global.require$$1, global.require$$2));
 })(this, (function (exports, require$$5, require$$0$2, require$$0$6, require$$1$1, require$$2$1, require$$3, require$$4, require$$0$5, require$$7, require$$0$4, require$$0$3, require$$1, require$$2) { 'use strict';
 
 	function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }

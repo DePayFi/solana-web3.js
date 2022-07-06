@@ -37,9 +37,6 @@ export default {
     commonjs({
       include: 'node_modules/**'
     }),
-    nodePolyfills({
-      buffer: 'Buffer'
-    }),
     nodeResolve({
       browser: true,
       dedupe: ['bn.js', 'buffer'],
