@@ -1,6 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs'
 import globals from './rollup.globals.js'
 import json from '@rollup/plugin-json'
+import nodePolyfills from 'rollup-plugin-polyfill-node'
 import pkg from './package.json'
 import replace from '@rollup/plugin-replace'
 import resolve from '@rollup/plugin-node-resolve'
@@ -35,6 +36,9 @@ export default {
     }),
     commonjs({
       include: 'node_modules/**'
+    }),
+    nodePolyfills({
+      buffer: 'Buffer'
     }),
     nodeResolve({
       browser: true,
