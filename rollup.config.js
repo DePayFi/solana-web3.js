@@ -22,7 +22,8 @@ export default {
       file: 'dist/umd/index.js'
     },
   ],
-  external: [],
+  external: [
+  ],
   plugins: [
     json(),
     sucrase({
@@ -39,7 +40,6 @@ export default {
       browser: true,
       dedupe: ['bn.js', 'buffer'],
       extensions: ['.js', 'ts'],
-      preferBuiltins: false
     }),
     replace({
       'process.env.NODE_ENV': JSON.stringify( 'production' ),
