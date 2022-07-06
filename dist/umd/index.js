@@ -5797,7 +5797,7 @@
 		})(module, commonjsGlobal);
 	} (bn$1));
 
-	var BN$9 = bn$1.exports;
+	var BN$8 = bn$1.exports;
 
 	var safeBuffer = {exports: {}};
 
@@ -5994,7 +5994,7 @@
 
 	var bs58 = basex(ALPHABET);
 
-	var lib$1 = {};
+	var lib = {};
 
 	var encoding_lib = {};
 
@@ -6362,9 +6362,9 @@
 	 *     defaults to 'utf-8'.
 	 * @param {Object=} options
 	 */
-	function TextEncoder$1(encoding, options) {
-	  if (!(this instanceof TextEncoder$1))
-	    return new TextEncoder$1(encoding, options);
+	function TextEncoder(encoding, options) {
+	  if (!(this instanceof TextEncoder))
+	    return new TextEncoder(encoding, options);
 	  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
 	  if (encoding !== DEFAULT_ENCODING) {
 	    throw new Error('Encoding not supported. Only utf-8 is supported');
@@ -6381,7 +6381,7 @@
 	  Object.defineProperty(this, 'encoding', {value: 'utf-8'});
 	}
 
-	TextEncoder$1.prototype = {
+	TextEncoder.prototype = {
 	  /**
 	   * @param {string=} opt_string The string to encode.
 	   * @param {Object=} options
@@ -6636,7 +6636,7 @@
 	  };
 	}
 
-	encoding_lib.TextEncoder = TextEncoder$1;
+	encoding_lib.TextEncoder = TextEncoder;
 	encoding_lib.TextDecoder = TextDecoder$1;
 
 	var __createBinding = (commonjsGlobal && commonjsGlobal.__createBinding) || (Object.create ? (function(o, m, k, k2) {
@@ -6667,8 +6667,8 @@
 	var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
 	    return (mod && mod.__esModule) ? mod : { "default": mod };
 	};
-	Object.defineProperty(lib$1, "__esModule", { value: true });
-	var deserializeUnchecked_1 = lib$1.deserializeUnchecked = deserialize_1 = lib$1.deserialize = serialize_1 = lib$1.serialize = lib$1.BinaryReader = lib$1.BinaryWriter = lib$1.BorshError = lib$1.baseDecode = lib$1.baseEncode = void 0;
+	Object.defineProperty(lib, "__esModule", { value: true });
+	var deserializeUnchecked_1 = lib.deserializeUnchecked = deserialize_1 = lib.deserialize = serialize_1 = lib.serialize = lib.BinaryReader = lib.BinaryWriter = lib.BorshError = lib.baseDecode = lib.baseEncode = void 0;
 	const bn_js_1 = __importDefault(bn$1.exports);
 	const bs58_1 = __importDefault(bs58);
 	// TODO: Make sure this polyfill not included when not required
@@ -6681,11 +6681,11 @@
 	    }
 	    return bs58_1.default.encode(Buffer.from(value));
 	}
-	lib$1.baseEncode = baseEncode;
+	lib.baseEncode = baseEncode;
 	function baseDecode(value) {
 	    return Buffer.from(bs58_1.default.decode(value));
 	}
-	lib$1.baseDecode = baseDecode;
+	lib.baseDecode = baseDecode;
 	const INITIAL_LENGTH = 1024;
 	class BorshError extends Error {
 	    constructor(message) {
@@ -6699,7 +6699,7 @@
 	        this.message = this.originalMessage + ": " + this.fieldPath.join(".");
 	    }
 	}
-	lib$1.BorshError = BorshError;
+	lib.BorshError = BorshError;
 	/// Binary encoder.
 	class BinaryWriter {
 	    constructor() {
@@ -6772,7 +6772,7 @@
 	        return this.buf.subarray(0, this.length);
 	    }
 	}
-	lib$1.BinaryWriter = BinaryWriter;
+	lib.BinaryWriter = BinaryWriter;
 	function handlingRangeError(target, propertyKey, propertyDescriptor) {
 	    const originalMethod = propertyDescriptor.value;
 	    propertyDescriptor.value = function (...args) {
@@ -6887,7 +6887,7 @@
 	__decorate([
 	    handlingRangeError
 	], BinaryReader.prototype, "readArray", null);
-	lib$1.BinaryReader = BinaryReader;
+	lib.BinaryReader = BinaryReader;
 	function capitalizeFirstLetter(string) {
 	    return string.charAt(0).toUpperCase() + string.slice(1);
 	}
@@ -6989,7 +6989,7 @@
 	    serializeStruct(schema, obj, writer);
 	    return writer.toArray();
 	}
-	var serialize_1 = lib$1.serialize = serialize;
+	var serialize_1 = lib.serialize = serialize;
 	function deserializeField(schema, fieldName, fieldType, reader) {
 	    try {
 	        if (typeof fieldType === "string") {
@@ -7071,13 +7071,13 @@
 	    }
 	    return result;
 	}
-	var deserialize_1 = lib$1.deserialize = deserialize;
+	var deserialize_1 = lib.deserialize = deserialize;
 	/// Deserializes object from bytes using schema, without checking the length read
 	function deserializeUnchecked(schema, classType, buffer, Reader = BinaryReader) {
 	    const reader = new Reader(buffer);
 	    return deserializeStruct(schema, classType, reader);
 	}
-	deserializeUnchecked_1 = lib$1.deserializeUnchecked = deserializeUnchecked;
+	deserializeUnchecked_1 = lib.deserializeUnchecked = deserializeUnchecked;
 
 	var Layout$1 = {};
 
@@ -9670,7 +9670,7 @@
 
 
 	  assert(value) {
-	    return assert$o(value, this);
+	    return assert$n(value, this);
 	  }
 	  /**
 	   * Create a value with the struct's coercion logic, then validate it.
@@ -9716,7 +9716,7 @@
 	 * Assert that a value passes a struct, throwing if it doesn't.
 	 */
 
-	function assert$o(value, struct) {
+	function assert$n(value, struct) {
 	  const result = validate$1(value, struct);
 
 	  if (result[0]) {
@@ -18664,344 +18664,7 @@
 	  callback(null, response);
 	};
 
-	const errors = {
-	  IMPOSSIBLE_CASE: 'Impossible case. Please create issue.',
-	  TWEAK_ADD:
-	    'The tweak was out of range or the resulted private key is invalid',
-	  TWEAK_MUL: 'The tweak was out of range or equal to zero',
-	  CONTEXT_RANDOMIZE_UNKNOW: 'Unknow error on context randomization',
-	  SECKEY_INVALID: 'Private Key is invalid',
-	  PUBKEY_PARSE: 'Public Key could not be parsed',
-	  PUBKEY_SERIALIZE: 'Public Key serialization error',
-	  PUBKEY_COMBINE: 'The sum of the public keys is not valid',
-	  SIG_PARSE: 'Signature could not be parsed',
-	  SIGN: 'The nonce generation function failed, or the private key was invalid',
-	  RECOVER: 'Public key could not be recover',
-	  ECDH: 'Scalar was invalid (zero or overflow)'
-	};
-
-	function assert$n (cond, msg) {
-	  if (!cond) throw new Error(msg)
-	}
-
-	function isUint8Array (name, value, length) {
-	  assert$n(value instanceof Uint8Array, `Expected ${name} to be an Uint8Array`);
-
-	  if (length !== undefined) {
-	    if (Array.isArray(length)) {
-	      const numbers = length.join(', ');
-	      const msg = `Expected ${name} to be an Uint8Array with length [${numbers}]`;
-	      assert$n(length.includes(value.length), msg);
-	    } else {
-	      const msg = `Expected ${name} to be an Uint8Array with length ${length}`;
-	      assert$n(value.length === length, msg);
-	    }
-	  }
-	}
-
-	function isCompressed (value) {
-	  assert$n(toTypeString(value) === 'Boolean', 'Expected compressed to be a Boolean');
-	}
-
-	function getAssertedOutput (output = (len) => new Uint8Array(len), length) {
-	  if (typeof output === 'function') output = output(length);
-	  isUint8Array('output', output, length);
-	  return output
-	}
-
-	function toTypeString (value) {
-	  return Object.prototype.toString.call(value).slice(8, -1)
-	}
-
-	var lib = (secp256k1) => {
-	  return {
-	    contextRandomize (seed) {
-	      assert$n(
-	        seed === null || seed instanceof Uint8Array,
-	        'Expected seed to be an Uint8Array or null'
-	      );
-	      if (seed !== null) isUint8Array('seed', seed, 32);
-
-	      switch (secp256k1.contextRandomize(seed)) {
-	        case 1:
-	          throw new Error(errors.CONTEXT_RANDOMIZE_UNKNOW)
-	      }
-	    },
-
-	    privateKeyVerify (seckey) {
-	      isUint8Array('private key', seckey, 32);
-
-	      return secp256k1.privateKeyVerify(seckey) === 0
-	    },
-
-	    privateKeyNegate (seckey) {
-	      isUint8Array('private key', seckey, 32);
-
-	      switch (secp256k1.privateKeyNegate(seckey)) {
-	        case 0:
-	          return seckey
-	        case 1:
-	          throw new Error(errors.IMPOSSIBLE_CASE)
-	      }
-	    },
-
-	    privateKeyTweakAdd (seckey, tweak) {
-	      isUint8Array('private key', seckey, 32);
-	      isUint8Array('tweak', tweak, 32);
-
-	      switch (secp256k1.privateKeyTweakAdd(seckey, tweak)) {
-	        case 0:
-	          return seckey
-	        case 1:
-	          throw new Error(errors.TWEAK_ADD)
-	      }
-	    },
-
-	    privateKeyTweakMul (seckey, tweak) {
-	      isUint8Array('private key', seckey, 32);
-	      isUint8Array('tweak', tweak, 32);
-
-	      switch (secp256k1.privateKeyTweakMul(seckey, tweak)) {
-	        case 0:
-	          return seckey
-	        case 1:
-	          throw new Error(errors.TWEAK_MUL)
-	      }
-	    },
-
-	    publicKeyVerify (pubkey) {
-	      isUint8Array('public key', pubkey, [33, 65]);
-
-	      return secp256k1.publicKeyVerify(pubkey) === 0
-	    },
-
-	    publicKeyCreate (seckey, compressed = true, output) {
-	      isUint8Array('private key', seckey, 32);
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.publicKeyCreate(output, seckey)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.SECKEY_INVALID)
-	        case 2:
-	          throw new Error(errors.PUBKEY_SERIALIZE)
-	      }
-	    },
-
-	    publicKeyConvert (pubkey, compressed = true, output) {
-	      isUint8Array('public key', pubkey, [33, 65]);
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.publicKeyConvert(output, pubkey)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.PUBKEY_PARSE)
-	        case 2:
-	          throw new Error(errors.PUBKEY_SERIALIZE)
-	      }
-	    },
-
-	    publicKeyNegate (pubkey, compressed = true, output) {
-	      isUint8Array('public key', pubkey, [33, 65]);
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.publicKeyNegate(output, pubkey)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.PUBKEY_PARSE)
-	        case 2:
-	          throw new Error(errors.IMPOSSIBLE_CASE)
-	        case 3:
-	          throw new Error(errors.PUBKEY_SERIALIZE)
-	      }
-	    },
-
-	    publicKeyCombine (pubkeys, compressed = true, output) {
-	      assert$n(Array.isArray(pubkeys), 'Expected public keys to be an Array');
-	      assert$n(pubkeys.length > 0, 'Expected public keys array will have more than zero items');
-	      for (const pubkey of pubkeys) {
-	        isUint8Array('public key', pubkey, [33, 65]);
-	      }
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.publicKeyCombine(output, pubkeys)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.PUBKEY_PARSE)
-	        case 2:
-	          throw new Error(errors.PUBKEY_COMBINE)
-	        case 3:
-	          throw new Error(errors.PUBKEY_SERIALIZE)
-	      }
-	    },
-
-	    publicKeyTweakAdd (pubkey, tweak, compressed = true, output) {
-	      isUint8Array('public key', pubkey, [33, 65]);
-	      isUint8Array('tweak', tweak, 32);
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.publicKeyTweakAdd(output, pubkey, tweak)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.PUBKEY_PARSE)
-	        case 2:
-	          throw new Error(errors.TWEAK_ADD)
-	      }
-	    },
-
-	    publicKeyTweakMul (pubkey, tweak, compressed = true, output) {
-	      isUint8Array('public key', pubkey, [33, 65]);
-	      isUint8Array('tweak', tweak, 32);
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.publicKeyTweakMul(output, pubkey, tweak)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.PUBKEY_PARSE)
-	        case 2:
-	          throw new Error(errors.TWEAK_MUL)
-	      }
-	    },
-
-	    signatureNormalize (sig) {
-	      isUint8Array('signature', sig, 64);
-
-	      switch (secp256k1.signatureNormalize(sig)) {
-	        case 0:
-	          return sig
-	        case 1:
-	          throw new Error(errors.SIG_PARSE)
-	      }
-	    },
-
-	    signatureExport (sig, output) {
-	      isUint8Array('signature', sig, 64);
-	      output = getAssertedOutput(output, 72);
-
-	      const obj = { output, outputlen: 72 };
-	      switch (secp256k1.signatureExport(obj, sig)) {
-	        case 0:
-	          return output.slice(0, obj.outputlen)
-	        case 1:
-	          throw new Error(errors.SIG_PARSE)
-	        case 2:
-	          throw new Error(errors.IMPOSSIBLE_CASE)
-	      }
-	    },
-
-	    signatureImport (sig, output) {
-	      isUint8Array('signature', sig);
-	      output = getAssertedOutput(output, 64);
-
-	      switch (secp256k1.signatureImport(output, sig)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.SIG_PARSE)
-	        case 2:
-	          throw new Error(errors.IMPOSSIBLE_CASE)
-	      }
-	    },
-
-	    ecdsaSign (msg32, seckey, options = {}, output) {
-	      isUint8Array('message', msg32, 32);
-	      isUint8Array('private key', seckey, 32);
-	      assert$n(toTypeString(options) === 'Object', 'Expected options to be an Object');
-	      if (options.data !== undefined) isUint8Array('options.data', options.data);
-	      if (options.noncefn !== undefined) assert$n(toTypeString(options.noncefn) === 'Function', 'Expected options.noncefn to be a Function');
-	      output = getAssertedOutput(output, 64);
-
-	      const obj = { signature: output, recid: null };
-	      switch (secp256k1.ecdsaSign(obj, msg32, seckey, options.data, options.noncefn)) {
-	        case 0:
-	          return obj
-	        case 1:
-	          throw new Error(errors.SIGN)
-	        case 2:
-	          throw new Error(errors.IMPOSSIBLE_CASE)
-	      }
-	    },
-
-	    ecdsaVerify (sig, msg32, pubkey) {
-	      isUint8Array('signature', sig, 64);
-	      isUint8Array('message', msg32, 32);
-	      isUint8Array('public key', pubkey, [33, 65]);
-
-	      switch (secp256k1.ecdsaVerify(sig, msg32, pubkey)) {
-	        case 0:
-	          return true
-	        case 3:
-	          return false
-	        case 1:
-	          throw new Error(errors.SIG_PARSE)
-	        case 2:
-	          throw new Error(errors.PUBKEY_PARSE)
-	      }
-	    },
-
-	    ecdsaRecover (sig, recid, msg32, compressed = true, output) {
-	      isUint8Array('signature', sig, 64);
-	      assert$n(
-	        toTypeString(recid) === 'Number' &&
-	          recid >= 0 &&
-	          recid <= 3,
-	        'Expected recovery id to be a Number within interval [0, 3]'
-	      );
-	      isUint8Array('message', msg32, 32);
-	      isCompressed(compressed);
-	      output = getAssertedOutput(output, compressed ? 33 : 65);
-
-	      switch (secp256k1.ecdsaRecover(output, sig, recid, msg32)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.SIG_PARSE)
-	        case 2:
-	          throw new Error(errors.RECOVER)
-	        case 3:
-	          throw new Error(errors.IMPOSSIBLE_CASE)
-	      }
-	    },
-
-	    ecdh (pubkey, seckey, options = {}, output) {
-	      isUint8Array('public key', pubkey, [33, 65]);
-	      isUint8Array('private key', seckey, 32);
-	      assert$n(toTypeString(options) === 'Object', 'Expected options to be an Object');
-	      if (options.data !== undefined) isUint8Array('options.data', options.data);
-	      if (options.hashfn !== undefined) {
-	        assert$n(toTypeString(options.hashfn) === 'Function', 'Expected options.hashfn to be a Function');
-	        if (options.xbuf !== undefined) isUint8Array('options.xbuf', options.xbuf, 32);
-	        if (options.ybuf !== undefined) isUint8Array('options.ybuf', options.ybuf, 32);
-	        isUint8Array('output', output);
-	      } else {
-	        output = getAssertedOutput(output, 32);
-	      }
-
-	      switch (secp256k1.ecdh(output, pubkey, seckey, options.data, options.hashfn, options.xbuf, options.ybuf)) {
-	        case 0:
-	          return output
-	        case 1:
-	          throw new Error(errors.PUBKEY_PARSE)
-	        case 2:
-	          throw new Error(errors.ECDH)
-	      }
-	    }
-	  }
-	};
-
-	var elliptic$2 = {};
+	var elliptic = {};
 
 	var name = "elliptic";
 	var version$3 = "6.5.4";
@@ -22788,7 +22451,7 @@
 
 	var curve = {};
 
-	var BN$8 = bn.exports;
+	var BN$7 = bn.exports;
 	var utils$u = utils$w;
 	var getNAF = utils$u.getNAF;
 	var getJSF = utils$u.getJSF;
@@ -22796,18 +22459,18 @@
 
 	function BaseCurve(type, conf) {
 	  this.type = type;
-	  this.p = new BN$8(conf.p, 16);
+	  this.p = new BN$7(conf.p, 16);
 
 	  // Use Montgomery, when there is no fast reduction for the prime
-	  this.red = conf.prime ? BN$8.red(conf.prime) : BN$8.mont(this.p);
+	  this.red = conf.prime ? BN$7.red(conf.prime) : BN$7.mont(this.p);
 
 	  // Useful for many curves
-	  this.zero = new BN$8(0).toRed(this.red);
-	  this.one = new BN$8(1).toRed(this.red);
-	  this.two = new BN$8(2).toRed(this.red);
+	  this.zero = new BN$7(0).toRed(this.red);
+	  this.one = new BN$7(1).toRed(this.red);
+	  this.two = new BN$7(2).toRed(this.red);
 
 	  // Curve configuration, optional
-	  this.n = conf.n && new BN$8(conf.n, 16);
+	  this.n = conf.n && new BN$7(conf.n, 16);
 	  this.g = conf.g && this.pointFromJSON(conf.g, conf.gRed);
 
 	  // Temporary arrays
@@ -23219,7 +22882,7 @@
 	} (inherits$5));
 
 	var utils$t = utils$w;
-	var BN$7 = bn.exports;
+	var BN$6 = bn.exports;
 	var inherits$4 = inherits$5.exports;
 	var Base$2 = base;
 
@@ -23228,8 +22891,8 @@
 	function ShortCurve(conf) {
 	  Base$2.call(this, 'short', conf);
 
-	  this.a = new BN$7(conf.a, 16).toRed(this.red);
-	  this.b = new BN$7(conf.b, 16).toRed(this.red);
+	  this.a = new BN$6(conf.a, 16).toRed(this.red);
+	  this.b = new BN$6(conf.b, 16).toRed(this.red);
 	  this.tinv = this.two.redInvm();
 
 	  this.zeroA = this.a.fromRed().cmpn(0) === 0;
@@ -23252,7 +22915,7 @@
 	  var beta;
 	  var lambda;
 	  if (conf.beta) {
-	    beta = new BN$7(conf.beta, 16).toRed(this.red);
+	    beta = new BN$6(conf.beta, 16).toRed(this.red);
 	  } else {
 	    var betas = this._getEndoRoots(this.p);
 	    // Choose the smallest beta
@@ -23260,7 +22923,7 @@
 	    beta = beta.toRed(this.red);
 	  }
 	  if (conf.lambda) {
-	    lambda = new BN$7(conf.lambda, 16);
+	    lambda = new BN$6(conf.lambda, 16);
 	  } else {
 	    // Choose the lambda that is matching selected beta
 	    var lambdas = this._getEndoRoots(this.n);
@@ -23277,8 +22940,8 @@
 	  if (conf.basis) {
 	    basis = conf.basis.map(function(vec) {
 	      return {
-	        a: new BN$7(vec.a, 16),
-	        b: new BN$7(vec.b, 16),
+	        a: new BN$6(vec.a, 16),
+	        b: new BN$6(vec.b, 16),
 	      };
 	    });
 	  } else {
@@ -23296,11 +22959,11 @@
 	  // Find roots of for x^2 + x + 1 in F
 	  // Root = (-1 +- Sqrt(-3)) / 2
 	  //
-	  var red = num === this.p ? this.red : BN$7.mont(num);
-	  var tinv = new BN$7(2).toRed(red).redInvm();
+	  var red = num === this.p ? this.red : BN$6.mont(num);
+	  var tinv = new BN$6(2).toRed(red).redInvm();
 	  var ntinv = tinv.redNeg();
 
-	  var s = new BN$7(3).toRed(red).redNeg().redSqrt().redMul(tinv);
+	  var s = new BN$6(3).toRed(red).redNeg().redSqrt().redMul(tinv);
 
 	  var l1 = ntinv.redAdd(s).fromRed();
 	  var l2 = ntinv.redSub(s).fromRed();
@@ -23315,10 +22978,10 @@
 	  // Run EGCD, until r(L + 1) < aprxSqrt
 	  var u = lambda;
 	  var v = this.n.clone();
-	  var x1 = new BN$7(1);
-	  var y1 = new BN$7(0);
-	  var x2 = new BN$7(0);
-	  var y2 = new BN$7(1);
+	  var x1 = new BN$6(1);
+	  var y1 = new BN$6(0);
+	  var x2 = new BN$6(0);
+	  var y2 = new BN$6(1);
 
 	  // NOTE: all vectors are roots of: a + b * lambda = 0 (mod n)
 	  var a0;
@@ -23403,7 +23066,7 @@
 	};
 
 	ShortCurve.prototype.pointFromX = function pointFromX(x, odd) {
-	  x = new BN$7(x, 16);
+	  x = new BN$6(x, 16);
 	  if (!x.red)
 	    x = x.toRed(this.red);
 
@@ -23473,8 +23136,8 @@
 	    this.y = null;
 	    this.inf = true;
 	  } else {
-	    this.x = new BN$7(x, 16);
-	    this.y = new BN$7(y, 16);
+	    this.x = new BN$6(x, 16);
+	    this.y = new BN$6(y, 16);
 	    // Force redgomery representation when loading from JSON
 	    if (isRed) {
 	      this.x.forceRed(this.curve.red);
@@ -23638,7 +23301,7 @@
 	};
 
 	Point$2.prototype.mul = function mul(k) {
-	  k = new BN$7(k, 16);
+	  k = new BN$6(k, 16);
 	  if (this.isInfinity())
 	    return this;
 	  else if (this._hasDoubles(k))
@@ -23710,11 +23373,11 @@
 	  if (x === null && y === null && z === null) {
 	    this.x = this.curve.one;
 	    this.y = this.curve.one;
-	    this.z = new BN$7(0);
+	    this.z = new BN$6(0);
 	  } else {
-	    this.x = new BN$7(x, 16);
-	    this.y = new BN$7(y, 16);
-	    this.z = new BN$7(z, 16);
+	    this.x = new BN$6(x, 16);
+	    this.y = new BN$6(y, 16);
+	    this.z = new BN$6(z, 16);
 	  }
 	  if (!this.x.red)
 	    this.x = this.x.toRed(this.curve.red);
@@ -24099,7 +23762,7 @@
 	};
 
 	JPoint.prototype.mul = function mul(k, kbase) {
-	  k = new BN$7(k, kbase);
+	  k = new BN$6(k, kbase);
 
 	  return this.curve._wnafMul(this, k);
 	};
@@ -24155,7 +23818,7 @@
 	  return this.z.cmpn(0) === 0;
 	};
 
-	var BN$6 = bn.exports;
+	var BN$5 = bn.exports;
 	var inherits$3 = inherits$5.exports;
 	var Base$1 = base;
 
@@ -24164,10 +23827,10 @@
 	function MontCurve(conf) {
 	  Base$1.call(this, 'mont', conf);
 
-	  this.a = new BN$6(conf.a, 16).toRed(this.red);
-	  this.b = new BN$6(conf.b, 16).toRed(this.red);
-	  this.i4 = new BN$6(4).toRed(this.red).redInvm();
-	  this.two = new BN$6(2).toRed(this.red);
+	  this.a = new BN$5(conf.a, 16).toRed(this.red);
+	  this.b = new BN$5(conf.b, 16).toRed(this.red);
+	  this.i4 = new BN$5(4).toRed(this.red).redInvm();
+	  this.two = new BN$5(2).toRed(this.red);
 	  this.a24 = this.i4.redMul(this.a.redAdd(this.two));
 	}
 	inherits$3(MontCurve, Base$1);
@@ -24188,8 +23851,8 @@
 	    this.x = this.curve.one;
 	    this.z = this.curve.zero;
 	  } else {
-	    this.x = new BN$6(x, 16);
-	    this.z = new BN$6(z, 16);
+	    this.x = new BN$5(x, 16);
+	    this.z = new BN$5(z, 16);
 	    if (!this.x.red)
 	      this.x = this.x.toRed(this.curve.red);
 	    if (!this.z.red)
@@ -24333,7 +23996,7 @@
 	};
 
 	var utils$r = utils$w;
-	var BN$5 = bn.exports;
+	var BN$4 = bn.exports;
 	var inherits$2 = inherits$5.exports;
 	var Base = base;
 
@@ -24347,11 +24010,11 @@
 
 	  Base.call(this, 'edwards', conf);
 
-	  this.a = new BN$5(conf.a, 16).umod(this.red.m);
+	  this.a = new BN$4(conf.a, 16).umod(this.red.m);
 	  this.a = this.a.toRed(this.red);
-	  this.c = new BN$5(conf.c, 16).toRed(this.red);
+	  this.c = new BN$4(conf.c, 16).toRed(this.red);
 	  this.c2 = this.c.redSqr();
-	  this.d = new BN$5(conf.d, 16).toRed(this.red);
+	  this.d = new BN$4(conf.d, 16).toRed(this.red);
 	  this.dd = this.d.redAdd(this.d);
 
 	  assert$j(!this.twisted || this.c.fromRed().cmpn(1) === 0);
@@ -24380,7 +24043,7 @@
 	};
 
 	EdwardsCurve.prototype.pointFromX = function pointFromX(x, odd) {
-	  x = new BN$5(x, 16);
+	  x = new BN$4(x, 16);
 	  if (!x.red)
 	    x = x.toRed(this.red);
 
@@ -24401,7 +24064,7 @@
 	};
 
 	EdwardsCurve.prototype.pointFromY = function pointFromY(y, odd) {
-	  y = new BN$5(y, 16);
+	  y = new BN$4(y, 16);
 	  if (!y.red)
 	    y = y.toRed(this.red);
 
@@ -24452,10 +24115,10 @@
 	    this.t = this.curve.zero;
 	    this.zOne = true;
 	  } else {
-	    this.x = new BN$5(x, 16);
-	    this.y = new BN$5(y, 16);
-	    this.z = z ? new BN$5(z, 16) : this.curve.one;
-	    this.t = t && new BN$5(t, 16);
+	    this.x = new BN$4(x, 16);
+	    this.y = new BN$4(y, 16);
+	    this.z = z ? new BN$4(z, 16) : this.curve.one;
+	    this.t = t && new BN$4(t, 16);
 	    if (!this.x.red)
 	      this.x = this.x.toRed(this.curve.red);
 	    if (!this.y.red)
@@ -27098,7 +26761,7 @@
 	  return utils$g.encode(res, enc);
 	};
 
-	var BN$4 = bn.exports;
+	var BN$3 = bn.exports;
 	var utils$f = utils$w;
 	var assert$c = utils$f.assert;
 
@@ -27172,7 +26835,7 @@
 	};
 
 	KeyPair$3.prototype._importPrivate = function _importPrivate(key, enc) {
-	  this.priv = new BN$4(key, enc || 16);
+	  this.priv = new BN$3(key, enc || 16);
 
 	  // Ensure that the priv won't be bigger than n, otherwise we may fail
 	  // in fixed multiplication method
@@ -27218,7 +26881,7 @@
 	         ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
 	};
 
-	var BN$3 = bn.exports;
+	var BN$2 = bn.exports;
 
 	var utils$e = utils$w;
 	var assert$b = utils$e.assert;
@@ -27231,8 +26894,8 @@
 	    return;
 
 	  assert$b(options.r && options.s, 'Signature without r or s');
-	  this.r = new BN$3(options.r, 16);
-	  this.s = new BN$3(options.s, 16);
+	  this.r = new BN$2(options.r, 16);
+	  this.s = new BN$2(options.s, 16);
 	  if (options.recoveryParam === undefined)
 	    this.recoveryParam = null;
 	  else
@@ -27334,8 +26997,8 @@
 	    }
 	  }
 
-	  this.r = new BN$3(r);
-	  this.s = new BN$3(s);
+	  this.r = new BN$2(r);
+	  this.s = new BN$2(s);
 	  this.recoveryParam = null;
 
 	  return true;
@@ -27383,7 +27046,7 @@
 	  return utils$e.encode(res, enc);
 	};
 
-	var BN$2 = bn.exports;
+	var BN$1 = bn.exports;
 	var HmacDRBG = hmacDrbg;
 	var utils$d = utils$w;
 	var curves$1 = curves$2;
@@ -27450,9 +27113,9 @@
 	  });
 
 	  var bytes = this.n.byteLength();
-	  var ns2 = this.n.sub(new BN$2(2));
+	  var ns2 = this.n.sub(new BN$1(2));
 	  for (;;) {
-	    var priv = new BN$2(drbg.generate(bytes));
+	    var priv = new BN$1(drbg.generate(bytes));
 	    if (priv.cmp(ns2) > 0)
 	      continue;
 
@@ -27480,7 +27143,7 @@
 	    options = {};
 
 	  key = this.keyFromPrivate(key, enc);
-	  msg = this._truncateToN(new BN$2(msg, 16));
+	  msg = this._truncateToN(new BN$1(msg, 16));
 
 	  // Zero-extend key to provide enough entropy
 	  var bytes = this.n.byteLength();
@@ -27499,12 +27162,12 @@
 	  });
 
 	  // Number of bytes to generate
-	  var ns1 = this.n.sub(new BN$2(1));
+	  var ns1 = this.n.sub(new BN$1(1));
 
 	  for (var iter = 0; ; iter++) {
 	    var k = options.k ?
 	      options.k(iter) :
-	      new BN$2(drbg.generate(this.n.byteLength()));
+	      new BN$1(drbg.generate(this.n.byteLength()));
 	    k = this._truncateToN(k, true);
 	    if (k.cmpn(1) <= 0 || k.cmp(ns1) >= 0)
 	      continue;
@@ -27537,7 +27200,7 @@
 	};
 
 	EC$1.prototype.verify = function verify(msg, signature, key, enc) {
-	  msg = this._truncateToN(new BN$2(msg, 16));
+	  msg = this._truncateToN(new BN$1(msg, 16));
 	  key = this.keyFromPublic(key, enc);
 	  signature = new Signature$2(signature, 'hex');
 
@@ -27581,7 +27244,7 @@
 	  signature = new Signature$2(signature, enc);
 
 	  var n = this.n;
-	  var e = new BN$2(msg);
+	  var e = new BN$1(msg);
 	  var r = signature.r;
 	  var s = signature.s;
 
@@ -27719,7 +27382,7 @@
 
 	var key = KeyPair$1;
 
-	var BN$1 = bn.exports;
+	var BN = bn.exports;
 	var utils$b = utils$w;
 	var assert$8 = utils$b.assert;
 	var cachedProperty = utils$b.cachedProperty;
@@ -27750,7 +27413,7 @@
 
 	  if (eddsa.isPoint(sig.R))
 	    this._R = sig.R;
-	  if (sig.S instanceof BN$1)
+	  if (sig.S instanceof BN)
 	    this._S = sig.S;
 
 	  this._Rencoded = Array.isArray(sig.R) ? sig.R : sig.Rencoded;
@@ -27913,414 +27576,18 @@
 		// Protocols
 		elliptic.ec = ec$1;
 		elliptic.eddsa = eddsa;
-	} (elliptic$2));
+	} (elliptic));
 
-	const EC = elliptic$2.ec;
+	const EC = elliptic.ec;
 
 	const ec = new EC('secp256k1');
 	const ecparams = ec.curve;
 
 	// Hack, we can not use bn.js@5, while elliptic uses bn.js@4
 	// See https://github.com/indutny/elliptic/issues/191#issuecomment-569888758
-	const BN = ecparams.n.constructor;
+	ecparams.n.constructor;
 
-	function loadCompressedPublicKey (first, xbuf) {
-	  let x = new BN(xbuf);
-
-	  // overflow
-	  if (x.cmp(ecparams.p) >= 0) return null
-	  x = x.toRed(ecparams.red);
-
-	  // compute corresponding Y
-	  let y = x.redSqr().redIMul(x).redIAdd(ecparams.b).redSqrt();
-	  if ((first === 0x03) !== y.isOdd()) y = y.redNeg();
-
-	  return ec.keyPair({ pub: { x: x, y: y } })
-	}
-
-	function loadUncompressedPublicKey (first, xbuf, ybuf) {
-	  let x = new BN(xbuf);
-	  let y = new BN(ybuf);
-
-	  // overflow
-	  if (x.cmp(ecparams.p) >= 0 || y.cmp(ecparams.p) >= 0) return null
-
-	  x = x.toRed(ecparams.red);
-	  y = y.toRed(ecparams.red);
-
-	  // is odd flag
-	  if ((first === 0x06 || first === 0x07) && y.isOdd() !== (first === 0x07)) return null
-
-	  // x*x*x + b = y*y
-	  const x3 = x.redSqr().redIMul(x);
-	  if (!y.redSqr().redISub(x3.redIAdd(ecparams.b)).isZero()) return null
-
-	  return ec.keyPair({ pub: { x: x, y: y } })
-	}
-
-	function loadPublicKey (pubkey) {
-	  // length should be validated in interface
-	  const first = pubkey[0];
-	  switch (first) {
-	    case 0x02:
-	    case 0x03:
-	      if (pubkey.length !== 33) return null
-	      return loadCompressedPublicKey(first, pubkey.subarray(1, 33))
-	    case 0x04:
-	    case 0x06:
-	    case 0x07:
-	      if (pubkey.length !== 65) return null
-	      return loadUncompressedPublicKey(first, pubkey.subarray(1, 33), pubkey.subarray(33, 65))
-	    default:
-	      return null
-	  }
-	}
-
-	function savePublicKey (output, point) {
-	  const pubkey = point.encode(null, output.length === 33);
-	  // Loop should be faster because we do not need create extra Uint8Array
-	  // output.set(new Uint8Array(pubkey))
-	  for (let i = 0; i < output.length; ++i) output[i] = pubkey[i];
-	}
-
-	var elliptic$1 = {
-	  contextRandomize () {
-	    return 0
-	  },
-
-	  privateKeyVerify (seckey) {
-	    const bn = new BN(seckey);
-	    return bn.cmp(ecparams.n) < 0 && !bn.isZero() ? 0 : 1
-	  },
-
-	  privateKeyNegate (seckey) {
-	    const bn = new BN(seckey);
-	    const negate = ecparams.n.sub(bn).umod(ecparams.n).toArrayLike(Uint8Array, 'be', 32);
-	    seckey.set(negate);
-	    return 0
-	  },
-
-	  privateKeyTweakAdd (seckey, tweak) {
-	    const bn = new BN(tweak);
-	    if (bn.cmp(ecparams.n) >= 0) return 1
-
-	    bn.iadd(new BN(seckey));
-	    if (bn.cmp(ecparams.n) >= 0) bn.isub(ecparams.n);
-	    if (bn.isZero()) return 1
-
-	    const tweaked = bn.toArrayLike(Uint8Array, 'be', 32);
-	    seckey.set(tweaked);
-
-	    return 0
-	  },
-
-	  privateKeyTweakMul (seckey, tweak) {
-	    let bn = new BN(tweak);
-	    if (bn.cmp(ecparams.n) >= 0 || bn.isZero()) return 1
-
-	    bn.imul(new BN(seckey));
-	    if (bn.cmp(ecparams.n) >= 0) bn = bn.umod(ecparams.n);
-
-	    const tweaked = bn.toArrayLike(Uint8Array, 'be', 32);
-	    seckey.set(tweaked);
-
-	    return 0
-	  },
-
-	  publicKeyVerify (pubkey) {
-	    const pair = loadPublicKey(pubkey);
-	    return pair === null ? 1 : 0
-	  },
-
-	  publicKeyCreate (output, seckey) {
-	    const bn = new BN(seckey);
-	    if (bn.cmp(ecparams.n) >= 0 || bn.isZero()) return 1
-
-	    const point = ec.keyFromPrivate(seckey).getPublic();
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  publicKeyConvert (output, pubkey) {
-	    const pair = loadPublicKey(pubkey);
-	    if (pair === null) return 1
-
-	    const point = pair.getPublic();
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  publicKeyNegate (output, pubkey) {
-	    const pair = loadPublicKey(pubkey);
-	    if (pair === null) return 1
-
-	    const point = pair.getPublic();
-	    point.y = point.y.redNeg();
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  publicKeyCombine (output, pubkeys) {
-	    const pairs = new Array(pubkeys.length);
-	    for (let i = 0; i < pubkeys.length; ++i) {
-	      pairs[i] = loadPublicKey(pubkeys[i]);
-	      if (pairs[i] === null) return 1
-	    }
-
-	    let point = pairs[0].getPublic();
-	    for (let i = 1; i < pairs.length; ++i) point = point.add(pairs[i].pub);
-	    if (point.isInfinity()) return 2
-
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  publicKeyTweakAdd (output, pubkey, tweak) {
-	    const pair = loadPublicKey(pubkey);
-	    if (pair === null) return 1
-
-	    tweak = new BN(tweak);
-	    if (tweak.cmp(ecparams.n) >= 0) return 2
-
-	    const point = pair.getPublic().add(ecparams.g.mul(tweak));
-	    if (point.isInfinity()) return 2
-
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  publicKeyTweakMul (output, pubkey, tweak) {
-	    const pair = loadPublicKey(pubkey);
-	    if (pair === null) return 1
-
-	    tweak = new BN(tweak);
-	    if (tweak.cmp(ecparams.n) >= 0 || tweak.isZero()) return 2
-
-	    const point = pair.getPublic().mul(tweak);
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  signatureNormalize (sig) {
-	    const r = new BN(sig.subarray(0, 32));
-	    const s = new BN(sig.subarray(32, 64));
-	    if (r.cmp(ecparams.n) >= 0 || s.cmp(ecparams.n) >= 0) return 1
-
-	    if (s.cmp(ec.nh) === 1) {
-	      sig.set(ecparams.n.sub(s).toArrayLike(Uint8Array, 'be', 32), 32);
-	    }
-
-	    return 0
-	  },
-
-	  // Copied 1-to-1 from https://github.com/bitcoinjs/bip66/blob/master/index.js
-	  // Adapted for Uint8Array instead Buffer
-	  signatureExport (obj, sig) {
-	    const sigR = sig.subarray(0, 32);
-	    const sigS = sig.subarray(32, 64);
-	    if (new BN(sigR).cmp(ecparams.n) >= 0) return 1
-	    if (new BN(sigS).cmp(ecparams.n) >= 0) return 1
-
-	    const { output } = obj;
-
-	    // Prepare R
-	    let r = output.subarray(4, 4 + 33);
-	    r[0] = 0x00;
-	    r.set(sigR, 1);
-
-	    let lenR = 33;
-	    let posR = 0;
-	    for (; lenR > 1 && r[posR] === 0x00 && !(r[posR + 1] & 0x80); --lenR, ++posR);
-
-	    r = r.subarray(posR);
-	    if (r[0] & 0x80) return 1
-	    if (lenR > 1 && (r[0] === 0x00) && !(r[1] & 0x80)) return 1
-
-	    // Prepare S
-	    let s = output.subarray(6 + 33, 6 + 33 + 33);
-	    s[0] = 0x00;
-	    s.set(sigS, 1);
-
-	    let lenS = 33;
-	    let posS = 0;
-	    for (; lenS > 1 && s[posS] === 0x00 && !(s[posS + 1] & 0x80); --lenS, ++posS);
-
-	    s = s.subarray(posS);
-	    if (s[0] & 0x80) return 1
-	    if (lenS > 1 && (s[0] === 0x00) && !(s[1] & 0x80)) return 1
-
-	    // Set output length for return
-	    obj.outputlen = 6 + lenR + lenS;
-
-	    // Output in specified format
-	    // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
-	    output[0] = 0x30;
-	    output[1] = obj.outputlen - 2;
-	    output[2] = 0x02;
-	    output[3] = r.length;
-	    output.set(r, 4);
-	    output[4 + lenR] = 0x02;
-	    output[5 + lenR] = s.length;
-	    output.set(s, 6 + lenR);
-
-	    return 0
-	  },
-
-	  // Copied 1-to-1 from https://github.com/bitcoinjs/bip66/blob/master/index.js
-	  // Adapted for Uint8Array instead Buffer
-	  signatureImport (output, sig) {
-	    if (sig.length < 8) return 1
-	    if (sig.length > 72) return 1
-	    if (sig[0] !== 0x30) return 1
-	    if (sig[1] !== sig.length - 2) return 1
-	    if (sig[2] !== 0x02) return 1
-
-	    const lenR = sig[3];
-	    if (lenR === 0) return 1
-	    if (5 + lenR >= sig.length) return 1
-	    if (sig[4 + lenR] !== 0x02) return 1
-
-	    const lenS = sig[5 + lenR];
-	    if (lenS === 0) return 1
-	    if ((6 + lenR + lenS) !== sig.length) return 1
-
-	    if (sig[4] & 0x80) return 1
-	    if (lenR > 1 && (sig[4] === 0x00) && !(sig[5] & 0x80)) return 1
-
-	    if (sig[lenR + 6] & 0x80) return 1
-	    if (lenS > 1 && (sig[lenR + 6] === 0x00) && !(sig[lenR + 7] & 0x80)) return 1
-
-	    let sigR = sig.subarray(4, 4 + lenR);
-	    if (sigR.length === 33 && sigR[0] === 0x00) sigR = sigR.subarray(1);
-	    if (sigR.length > 32) return 1
-
-	    let sigS = sig.subarray(6 + lenR);
-	    if (sigS.length === 33 && sigS[0] === 0x00) sigS = sigS.slice(1);
-	    if (sigS.length > 32) throw new Error('S length is too long')
-
-	    let r = new BN(sigR);
-	    if (r.cmp(ecparams.n) >= 0) r = new BN(0);
-
-	    let s = new BN(sig.subarray(6 + lenR));
-	    if (s.cmp(ecparams.n) >= 0) s = new BN(0);
-
-	    output.set(r.toArrayLike(Uint8Array, 'be', 32), 0);
-	    output.set(s.toArrayLike(Uint8Array, 'be', 32), 32);
-
-	    return 0
-	  },
-
-	  ecdsaSign (obj, message, seckey, data, noncefn) {
-	    if (noncefn) {
-	      const _noncefn = noncefn;
-	      noncefn = (counter) => {
-	        const nonce = _noncefn(message, seckey, null, data, counter);
-
-	        const isValid = nonce instanceof Uint8Array && nonce.length === 32;
-	        if (!isValid) throw new Error('This is the way')
-
-	        return new BN(nonce)
-	      };
-	    }
-
-	    const d = new BN(seckey);
-	    if (d.cmp(ecparams.n) >= 0 || d.isZero()) return 1
-
-	    let sig;
-	    try {
-	      sig = ec.sign(message, seckey, { canonical: true, k: noncefn, pers: data });
-	    } catch (err) {
-	      return 1
-	    }
-
-	    obj.signature.set(sig.r.toArrayLike(Uint8Array, 'be', 32), 0);
-	    obj.signature.set(sig.s.toArrayLike(Uint8Array, 'be', 32), 32);
-	    obj.recid = sig.recoveryParam;
-
-	    return 0
-	  },
-
-	  ecdsaVerify (sig, msg32, pubkey) {
-	    const sigObj = { r: sig.subarray(0, 32), s: sig.subarray(32, 64) };
-
-	    const sigr = new BN(sigObj.r);
-	    const sigs = new BN(sigObj.s);
-	    if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) return 1
-	    if (sigs.cmp(ec.nh) === 1 || sigr.isZero() || sigs.isZero()) return 3
-
-	    const pair = loadPublicKey(pubkey);
-	    if (pair === null) return 2
-
-	    const point = pair.getPublic();
-	    const isValid = ec.verify(msg32, sigObj, point);
-	    return isValid ? 0 : 3
-	  },
-
-	  ecdsaRecover (output, sig, recid, msg32) {
-	    const sigObj = { r: sig.slice(0, 32), s: sig.slice(32, 64) };
-
-	    const sigr = new BN(sigObj.r);
-	    const sigs = new BN(sigObj.s);
-	    if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) return 1
-
-	    if (sigr.isZero() || sigs.isZero()) return 2
-
-	    // Can throw `throw new Error('Unable to find sencond key candinate');`
-	    let point;
-	    try {
-	      point = ec.recoverPubKey(msg32, sigObj, recid);
-	    } catch (err) {
-	      return 2
-	    }
-
-	    savePublicKey(output, point);
-
-	    return 0
-	  },
-
-	  ecdh (output, pubkey, seckey, data, hashfn, xbuf, ybuf) {
-	    const pair = loadPublicKey(pubkey);
-	    if (pair === null) return 1
-
-	    const scalar = new BN(seckey);
-	    if (scalar.cmp(ecparams.n) >= 0 || scalar.isZero()) return 2
-
-	    const point = pair.getPublic().mul(scalar);
-
-	    if (hashfn === undefined) {
-	      const data = point.encode(null, true);
-	      const sha256 = ec.hash().update(data).digest();
-	      for (let i = 0; i < 32; ++i) output[i] = sha256[i];
-	    } else {
-	      if (!xbuf) xbuf = new Uint8Array(32);
-	      const x = point.getX().toArray('be', 32);
-	      for (let i = 0; i < 32; ++i) xbuf[i] = x[i];
-
-	      if (!ybuf) ybuf = new Uint8Array(32);
-	      const y = point.getY().toArray('be', 32);
-	      for (let i = 0; i < 32; ++i) ybuf[i] = y[i];
-
-	      const hash = hashfn(xbuf, ybuf, data);
-
-	      const isValid = hash instanceof Uint8Array && hash.length === output.length;
-	      if (!isValid) return 2
-
-	      output.set(hash);
-	    }
-
-	    return 0
-	  }
-	};
-
-	var elliptic = lib(elliptic$1);
-
-	var sha3$1 = {exports: {}};
+	var sha3 = {exports: {}};
 
 	/**
 	 * [js-sha3]{@link https://github.com/emn178/js-sha3}
@@ -28973,9 +28240,7 @@
 		    }
 		  }
 		})();
-	} (sha3$1));
-
-	var sha3 = sha3$1.exports;
+	} (sha3));
 
 	const toBuffer = arr => {
 	  if (require$$0$2.Buffer.isBuffer(arr)) {
@@ -30710,23 +29975,6 @@
 	  }
 
 	} // Class representing a Rust-compatible enum, since enums are only strings or
-	// numbers in pure JS
-
-	class Enum extends Struct {
-	  constructor(properties) {
-	    super(properties);
-	    this.enum = '';
-
-	    if (Object.keys(properties).length !== 1) {
-	      throw new Error('Enum can only take single value');
-	    }
-
-	    Object.keys(properties).map(key => {
-	      this.enum = key;
-	    });
-	  }
-
-	}
 	const SOLANA_SCHEMA = new Map();
 
 	/**
@@ -30768,9 +30016,9 @@
 	          throw new Error(`Invalid public key input`);
 	        }
 
-	        this._bn = new BN$9(decoded);
+	        this._bn = new BN$8(decoded);
 	      } else {
-	        this._bn = new BN$9(value);
+	        this._bn = new BN$8(value);
 	      }
 
 	      if (this._bn.byteLength() > 32) {
@@ -30865,7 +30113,7 @@
 	    });
 	    buffer = require$$0$2.Buffer.concat([buffer, programId.toBuffer(), require$$0$2.Buffer.from('ProgramDerivedAddress')]);
 	    let hash = sha256(new Uint8Array(buffer)).slice(2);
-	    let publicKeyBytes = new BN$9(hash, 16).toArray(undefined, 32);
+	    let publicKeyBytes = new BN$8(hash, 16).toArray(undefined, 32);
 
 	    if (is_on_curve(publicKeyBytes)) {
 	      throw new Error(`Invalid seeds, address must fall off the curve`);
@@ -30990,52 +30238,7 @@
 	  return naclLowLevel.crypto_verify_32(c, 0, d, 0);
 	}
 
-	/**
-	 * An account key pair (public and secret keys).
-	 *
-	 * @deprecated since v1.10.0, please use {@link Keypair} instead.
-	 */
-
-	class Account {
-	  /** @internal */
-
-	  /**
-	   * Create a new Account object
-	   *
-	   * If the secretKey parameter is not provided a new key pair is randomly
-	   * created for the account
-	   *
-	   * @param secretKey Secret key for the account
-	   */
-	  constructor(secretKey) {
-	    this._keypair = void 0;
-
-	    if (secretKey) {
-	      this._keypair = nacl.sign.keyPair.fromSecretKey(toBuffer(secretKey));
-	    } else {
-	      this._keypair = nacl.sign.keyPair();
-	    }
-	  }
-	  /**
-	   * The public key for this account
-	   */
-
-
-	  get publicKey() {
-	    return new PublicKey(this._keypair.publicKey);
-	  }
-	  /**
-	   * The **unencrypted** secret key for this account
-	   */
-
-
-	  get secretKey() {
-	    return toBuffer(this._keypair.secretKey);
-	  }
-
-	}
-
-	const BPF_LOADER_DEPRECATED_PROGRAM_ID = new PublicKey('BPFLoader1111111111111111111111111111111111');
+	new PublicKey('BPFLoader1111111111111111111111111111111111');
 
 	/**
 	 * Maximum over-the-wire size of a Transaction
@@ -31107,17 +30310,6 @@
 	const voteInit = (property = 'voteInit') => {
 	  return struct([publicKey('nodePubkey'), publicKey('authorizedVoter'), publicKey('authorizedWithdrawer'), u8('commission')], property);
 	};
-	function getAlloc(type, fields) {
-	  let alloc = 0;
-	  type.layout.fields.forEach(item => {
-	    if (item.span >= 0) {
-	      alloc += item.span;
-	    } else if (typeof item.alloc === 'function') {
-	      alloc += item.alloc(fields[item.property]);
-	    }
-	  });
-	  return alloc;
-	}
 
 	function decodeLength(bytes) {
 	  let len = 0;
@@ -31304,7 +30496,7 @@
 	  }
 	}
 
-	exports.TransactionStatus = void 0;
+	let TransactionStatus;
 	/**
 	 * Default (empty) signature
 	 */
@@ -31313,7 +30505,7 @@
 	  TransactionStatus[TransactionStatus["BLOCKHEIGHT_EXCEEDED"] = 0] = "BLOCKHEIGHT_EXCEEDED";
 	  TransactionStatus[TransactionStatus["PROCESSED"] = 1] = "PROCESSED";
 	  TransactionStatus[TransactionStatus["TIMED_OUT"] = 2] = "TIMED_OUT";
-	})(exports.TransactionStatus || (exports.TransactionStatus = {}));
+	})(TransactionStatus || (TransactionStatus = {}));
 
 	const DEFAULT_SIGNATURE = require$$0$2.Buffer.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
 	/**
@@ -32032,85 +31224,19 @@
 
 	}
 
-	const SYSVAR_CLOCK_PUBKEY = new PublicKey('SysvarC1ock11111111111111111111111111111111');
-	const SYSVAR_EPOCH_SCHEDULE_PUBKEY = new PublicKey('SysvarEpochSchedu1e111111111111111111111111');
-	const SYSVAR_INSTRUCTIONS_PUBKEY = new PublicKey('Sysvar1nstructions1111111111111111111111111');
-	const SYSVAR_RECENT_BLOCKHASHES_PUBKEY = new PublicKey('SysvarRecentB1ockHashes11111111111111111111');
-	const SYSVAR_RENT_PUBKEY = new PublicKey('SysvarRent111111111111111111111111111111111');
-	const SYSVAR_REWARDS_PUBKEY = new PublicKey('SysvarRewards111111111111111111111111111111');
-	const SYSVAR_SLOT_HASHES_PUBKEY = new PublicKey('SysvarS1otHashes111111111111111111111111111');
-	const SYSVAR_SLOT_HISTORY_PUBKEY = new PublicKey('SysvarS1otHistory11111111111111111111111111');
-	const SYSVAR_STAKE_HISTORY_PUBKEY = new PublicKey('SysvarStakeHistory1111111111111111111111111');
-
-	/**
-	 * Sign, send and confirm a transaction.
-	 *
-	 * If `commitment` option is not specified, defaults to 'max' commitment.
-	 *
-	 * @param {Connection} connection
-	 * @param {Transaction} transaction
-	 * @param {Array<Signer>} signers
-	 * @param {ConfirmOptions} [options]
-	 * @returns {Promise<TransactionSignature>}
-	 */
-	async function sendAndConfirmTransaction(connection, transaction, signers, options) {
-	  const sendOptions = options && {
-	    skipPreflight: options.skipPreflight,
-	    preflightCommitment: options.preflightCommitment || options.commitment,
-	    maxRetries: options.maxRetries,
-	    minContextSlot: options.minContextSlot
-	  };
-	  const signature = await connection.sendTransaction(transaction, signers, sendOptions);
-	  const status = transaction.recentBlockhash != null && transaction.lastValidBlockHeight != null ? (await connection.confirmTransaction({
-	    signature: signature,
-	    blockhash: transaction.recentBlockhash,
-	    lastValidBlockHeight: transaction.lastValidBlockHeight
-	  }, options && options.commitment)).value : (await connection.confirmTransaction(signature, options && options.commitment)).value;
-
-	  if (status.err) {
-	    throw new Error(`Transaction ${signature} failed (${JSON.stringify(status)})`);
-	  }
-
-	  return signature;
-	}
+	new PublicKey('SysvarC1ock11111111111111111111111111111111');
+	new PublicKey('SysvarEpochSchedu1e111111111111111111111111');
+	new PublicKey('Sysvar1nstructions1111111111111111111111111');
+	new PublicKey('SysvarRecentB1ockHashes11111111111111111111');
+	new PublicKey('SysvarRent111111111111111111111111111111111');
+	new PublicKey('SysvarRewards111111111111111111111111111111');
+	new PublicKey('SysvarS1otHashes111111111111111111111111111');
+	new PublicKey('SysvarS1otHistory11111111111111111111111111');
+	new PublicKey('SysvarStakeHistory1111111111111111111111111');
 
 	// zzz
 	function sleep(ms) {
 	  return new Promise(resolve => setTimeout(resolve, ms));
-	}
-
-	/**
-	 * Populate a buffer of instruction data using an InstructionType
-	 * @internal
-	 */
-	function encodeData(type, fields) {
-	  const allocLength = type.layout.span >= 0 ? type.layout.span : getAlloc(type, fields);
-	  const data = require$$0$2.Buffer.alloc(allocLength);
-	  const layoutFields = Object.assign({
-	    instruction: type.index
-	  }, fields);
-	  type.layout.encode(layoutFields, data);
-	  return data;
-	}
-	/**
-	 * Decode instruction data buffer using an InstructionType
-	 * @internal
-	 */
-
-	function decodeData(type, buffer) {
-	  let data;
-
-	  try {
-	    data = type.layout.decode(buffer);
-	  } catch (err) {
-	    throw new Error('invalid instruction; ' + err);
-	  }
-
-	  if (data.instruction !== type.index) {
-	    throw new Error(`invalid instruction; instruction index mismatch ${data.instruction} != ${type.index}`);
-	  }
-
-	  return data;
 	}
 
 	/**
@@ -32131,7 +31257,7 @@
 	 */
 
 	const NonceAccountLayout = struct([u32('version'), u32('state'), publicKey('authorizedPubkey'), publicKey('nonce'), struct([FeeCalculatorLayout], 'feeCalculator')]);
-	const NONCE_ACCOUNT_LENGTH = NonceAccountLayout.span;
+	NonceAccountLayout.span;
 
 	/**
 	 * NonceAccount class
@@ -32198,289 +31324,6 @@
 	};
 
 	const u64 = bigInt(8);
-
-	/**
-	 * Create account system transaction params
-	 */
-
-	/**
-	 * System Instruction class
-	 */
-	class SystemInstruction {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Decode a system instruction and retrieve the instruction type.
-	   */
-
-
-	  static decodeInstructionType(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const instructionTypeLayout = u32('instruction');
-	    const typeIndex = instructionTypeLayout.decode(instruction.data);
-	    let type;
-
-	    for (const [ixType, layout] of Object.entries(SYSTEM_INSTRUCTION_LAYOUTS)) {
-	      if (layout.index == typeIndex) {
-	        type = ixType;
-	        break;
-	      }
-	    }
-
-	    if (!type) {
-	      throw new Error('Instruction type incorrect; not a SystemInstruction');
-	    }
-
-	    return type;
-	  }
-	  /**
-	   * Decode a create account system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeCreateAccount(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 2);
-	    const {
-	      lamports,
-	      space,
-	      programId
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Create, instruction.data);
-	    return {
-	      fromPubkey: instruction.keys[0].pubkey,
-	      newAccountPubkey: instruction.keys[1].pubkey,
-	      lamports,
-	      space,
-	      programId: new PublicKey(programId)
-	    };
-	  }
-	  /**
-	   * Decode a transfer system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeTransfer(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 2);
-	    const {
-	      lamports
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Transfer, instruction.data);
-	    return {
-	      fromPubkey: instruction.keys[0].pubkey,
-	      toPubkey: instruction.keys[1].pubkey,
-	      lamports
-	    };
-	  }
-	  /**
-	   * Decode a transfer with seed system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeTransferWithSeed(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    const {
-	      lamports,
-	      seed,
-	      programId
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.TransferWithSeed, instruction.data);
-	    return {
-	      fromPubkey: instruction.keys[0].pubkey,
-	      basePubkey: instruction.keys[1].pubkey,
-	      toPubkey: instruction.keys[2].pubkey,
-	      lamports,
-	      seed,
-	      programId: new PublicKey(programId)
-	    };
-	  }
-	  /**
-	   * Decode an allocate system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAllocate(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 1);
-	    const {
-	      space
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Allocate, instruction.data);
-	    return {
-	      accountPubkey: instruction.keys[0].pubkey,
-	      space
-	    };
-	  }
-	  /**
-	   * Decode an allocate with seed system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAllocateWithSeed(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 1);
-	    const {
-	      base,
-	      seed,
-	      space,
-	      programId
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AllocateWithSeed, instruction.data);
-	    return {
-	      accountPubkey: instruction.keys[0].pubkey,
-	      basePubkey: new PublicKey(base),
-	      seed,
-	      space,
-	      programId: new PublicKey(programId)
-	    };
-	  }
-	  /**
-	   * Decode an assign system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAssign(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 1);
-	    const {
-	      programId
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Assign, instruction.data);
-	    return {
-	      accountPubkey: instruction.keys[0].pubkey,
-	      programId: new PublicKey(programId)
-	    };
-	  }
-	  /**
-	   * Decode an assign with seed system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAssignWithSeed(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 1);
-	    const {
-	      base,
-	      seed,
-	      programId
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AssignWithSeed, instruction.data);
-	    return {
-	      accountPubkey: instruction.keys[0].pubkey,
-	      basePubkey: new PublicKey(base),
-	      seed,
-	      programId: new PublicKey(programId)
-	    };
-	  }
-	  /**
-	   * Decode a create account with seed system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeCreateWithSeed(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 2);
-	    const {
-	      base,
-	      seed,
-	      lamports,
-	      space,
-	      programId
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.CreateWithSeed, instruction.data);
-	    return {
-	      fromPubkey: instruction.keys[0].pubkey,
-	      newAccountPubkey: instruction.keys[1].pubkey,
-	      basePubkey: new PublicKey(base),
-	      seed,
-	      lamports,
-	      space,
-	      programId: new PublicKey(programId)
-	    };
-	  }
-	  /**
-	   * Decode a nonce initialize system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeNonceInitialize(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    const {
-	      authorized
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.InitializeNonceAccount, instruction.data);
-	    return {
-	      noncePubkey: instruction.keys[0].pubkey,
-	      authorizedPubkey: new PublicKey(authorized)
-	    };
-	  }
-	  /**
-	   * Decode a nonce advance system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeNonceAdvance(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AdvanceNonceAccount, instruction.data);
-	    return {
-	      noncePubkey: instruction.keys[0].pubkey,
-	      authorizedPubkey: instruction.keys[2].pubkey
-	    };
-	  }
-	  /**
-	   * Decode a nonce withdraw system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeNonceWithdraw(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 5);
-	    const {
-	      lamports
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.WithdrawNonceAccount, instruction.data);
-	    return {
-	      noncePubkey: instruction.keys[0].pubkey,
-	      toPubkey: instruction.keys[1].pubkey,
-	      authorizedPubkey: instruction.keys[4].pubkey,
-	      lamports
-	    };
-	  }
-	  /**
-	   * Decode a nonce authorize system instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeNonceAuthorize(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 2);
-	    const {
-	      authorized
-	    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AuthorizeNonceAccount, instruction.data);
-	    return {
-	      noncePubkey: instruction.keys[0].pubkey,
-	      authorizedPubkey: instruction.keys[1].pubkey,
-	      newAuthorizedPubkey: new PublicKey(authorized)
-	    };
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkProgramId(programId) {
-	    if (!programId.equals(SystemProgram.programId)) {
-	      throw new Error('invalid instruction; programId is not SystemProgram');
-	    }
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkKeyLength(keys, expectedLength) {
-	    if (keys.length < expectedLength) {
-	      throw new Error(`invalid instruction; found ${keys.length} keys, expected at least ${expectedLength}`);
-	    }
-	  }
-
-	}
 	/**
 	 * An enumeration of valid SystemInstructionType's
 	 */
@@ -32489,7 +31332,7 @@
 	 * An enumeration of valid system InstructionType's
 	 * @internal
 	 */
-	const SYSTEM_INSTRUCTION_LAYOUTS = Object.freeze({
+	Object.freeze({
 	  Create: {
 	    index: 0,
 	    layout: struct([u32('instruction'), ns64('lamports'), ns64('space'), publicKey('programId')])
@@ -32543,684 +31386,9 @@
 	    layout: struct([u32('instruction')])
 	  }
 	});
-	/**
-	 * Factory class for transactions to interact with the System program
-	 */
+	new PublicKey('11111111111111111111111111111111');
 
-	class SystemProgram {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Public key that identifies the System program
-	   */
-
-
-	  /**
-	   * Generate a transaction instruction that creates a new account
-	   */
-	  static createAccount(params) {
-	    const type = SYSTEM_INSTRUCTION_LAYOUTS.Create;
-	    const data = encodeData(type, {
-	      lamports: params.lamports,
-	      space: params.space,
-	      programId: toBuffer(params.programId.toBuffer())
-	    });
-	    return new TransactionInstruction({
-	      keys: [{
-	        pubkey: params.fromPubkey,
-	        isSigner: true,
-	        isWritable: true
-	      }, {
-	        pubkey: params.newAccountPubkey,
-	        isSigner: true,
-	        isWritable: true
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction instruction that transfers lamports from one account to another
-	   */
-
-
-	  static transfer(params) {
-	    let data;
-	    let keys;
-
-	    if ('basePubkey' in params) {
-	      const type = SYSTEM_INSTRUCTION_LAYOUTS.TransferWithSeed;
-	      data = encodeData(type, {
-	        lamports: BigInt(params.lamports),
-	        seed: params.seed,
-	        programId: toBuffer(params.programId.toBuffer())
-	      });
-	      keys = [{
-	        pubkey: params.fromPubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: params.basePubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }, {
-	        pubkey: params.toPubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }];
-	    } else {
-	      const type = SYSTEM_INSTRUCTION_LAYOUTS.Transfer;
-	      data = encodeData(type, {
-	        lamports: BigInt(params.lamports)
-	      });
-	      keys = [{
-	        pubkey: params.fromPubkey,
-	        isSigner: true,
-	        isWritable: true
-	      }, {
-	        pubkey: params.toPubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }];
-	    }
-
-	    return new TransactionInstruction({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction instruction that assigns an account to a program
-	   */
-
-
-	  static assign(params) {
-	    let data;
-	    let keys;
-
-	    if ('basePubkey' in params) {
-	      const type = SYSTEM_INSTRUCTION_LAYOUTS.AssignWithSeed;
-	      data = encodeData(type, {
-	        base: toBuffer(params.basePubkey.toBuffer()),
-	        seed: params.seed,
-	        programId: toBuffer(params.programId.toBuffer())
-	      });
-	      keys = [{
-	        pubkey: params.accountPubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: params.basePubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }];
-	    } else {
-	      const type = SYSTEM_INSTRUCTION_LAYOUTS.Assign;
-	      data = encodeData(type, {
-	        programId: toBuffer(params.programId.toBuffer())
-	      });
-	      keys = [{
-	        pubkey: params.accountPubkey,
-	        isSigner: true,
-	        isWritable: true
-	      }];
-	    }
-
-	    return new TransactionInstruction({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction instruction that creates a new account at
-	   *   an address generated with `from`, a seed, and programId
-	   */
-
-
-	  static createAccountWithSeed(params) {
-	    const type = SYSTEM_INSTRUCTION_LAYOUTS.CreateWithSeed;
-	    const data = encodeData(type, {
-	      base: toBuffer(params.basePubkey.toBuffer()),
-	      seed: params.seed,
-	      lamports: params.lamports,
-	      space: params.space,
-	      programId: toBuffer(params.programId.toBuffer())
-	    });
-	    let keys = [{
-	      pubkey: params.fromPubkey,
-	      isSigner: true,
-	      isWritable: true
-	    }, {
-	      pubkey: params.newAccountPubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }];
-
-	    if (params.basePubkey != params.fromPubkey) {
-	      keys.push({
-	        pubkey: params.basePubkey,
-	        isSigner: true,
-	        isWritable: false
-	      });
-	    }
-
-	    return new TransactionInstruction({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction that creates a new Nonce account
-	   */
-
-
-	  static createNonceAccount(params) {
-	    const transaction = new Transaction();
-
-	    if ('basePubkey' in params && 'seed' in params) {
-	      transaction.add(SystemProgram.createAccountWithSeed({
-	        fromPubkey: params.fromPubkey,
-	        newAccountPubkey: params.noncePubkey,
-	        basePubkey: params.basePubkey,
-	        seed: params.seed,
-	        lamports: params.lamports,
-	        space: NONCE_ACCOUNT_LENGTH,
-	        programId: this.programId
-	      }));
-	    } else {
-	      transaction.add(SystemProgram.createAccount({
-	        fromPubkey: params.fromPubkey,
-	        newAccountPubkey: params.noncePubkey,
-	        lamports: params.lamports,
-	        space: NONCE_ACCOUNT_LENGTH,
-	        programId: this.programId
-	      }));
-	    }
-
-	    const initParams = {
-	      noncePubkey: params.noncePubkey,
-	      authorizedPubkey: params.authorizedPubkey
-	    };
-	    transaction.add(this.nonceInitialize(initParams));
-	    return transaction;
-	  }
-	  /**
-	   * Generate an instruction to initialize a Nonce account
-	   */
-
-
-	  static nonceInitialize(params) {
-	    const type = SYSTEM_INSTRUCTION_LAYOUTS.InitializeNonceAccount;
-	    const data = encodeData(type, {
-	      authorized: toBuffer(params.authorizedPubkey.toBuffer())
-	    });
-	    const instructionData = {
-	      keys: [{
-	        pubkey: params.noncePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: SYSVAR_RENT_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    };
-	    return new TransactionInstruction(instructionData);
-	  }
-	  /**
-	   * Generate an instruction to advance the nonce in a Nonce account
-	   */
-
-
-	  static nonceAdvance(params) {
-	    const type = SYSTEM_INSTRUCTION_LAYOUTS.AdvanceNonceAccount;
-	    const data = encodeData(type);
-	    const instructionData = {
-	      keys: [{
-	        pubkey: params.noncePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: params.authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    };
-	    return new TransactionInstruction(instructionData);
-	  }
-	  /**
-	   * Generate a transaction instruction that withdraws lamports from a Nonce account
-	   */
-
-
-	  static nonceWithdraw(params) {
-	    const type = SYSTEM_INSTRUCTION_LAYOUTS.WithdrawNonceAccount;
-	    const data = encodeData(type, {
-	      lamports: params.lamports
-	    });
-	    return new TransactionInstruction({
-	      keys: [{
-	        pubkey: params.noncePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: params.toPubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: SYSVAR_RENT_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: params.authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction instruction that authorizes a new PublicKey as the authority
-	   * on a Nonce account.
-	   */
-
-
-	  static nonceAuthorize(params) {
-	    const type = SYSTEM_INSTRUCTION_LAYOUTS.AuthorizeNonceAccount;
-	    const data = encodeData(type, {
-	      authorized: toBuffer(params.newAuthorizedPubkey.toBuffer())
-	    });
-	    return new TransactionInstruction({
-	      keys: [{
-	        pubkey: params.noncePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: params.authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction instruction that allocates space in an account without funding
-	   */
-
-
-	  static allocate(params) {
-	    let data;
-	    let keys;
-
-	    if ('basePubkey' in params) {
-	      const type = SYSTEM_INSTRUCTION_LAYOUTS.AllocateWithSeed;
-	      data = encodeData(type, {
-	        base: toBuffer(params.basePubkey.toBuffer()),
-	        seed: params.seed,
-	        space: params.space,
-	        programId: toBuffer(params.programId.toBuffer())
-	      });
-	      keys = [{
-	        pubkey: params.accountPubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: params.basePubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }];
-	    } else {
-	      const type = SYSTEM_INSTRUCTION_LAYOUTS.Allocate;
-	      data = encodeData(type, {
-	        space: params.space
-	      });
-	      keys = [{
-	        pubkey: params.accountPubkey,
-	        isSigner: true,
-	        isWritable: true
-	      }];
-	    }
-
-	    return new TransactionInstruction({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	}
-	SystemProgram.programId = new PublicKey('11111111111111111111111111111111');
-
-	// rest of the Transaction fields
-	//
-	// TODO: replace 300 with a proper constant for the size of the other
-	// Transaction fields
-
-	const CHUNK_SIZE = PACKET_DATA_SIZE - 300;
-	/**
-	 * Program loader interface
-	 */
-
-	class Loader {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Amount of program data placed in each load Transaction
-	   */
-
-
-	  /**
-	   * Minimum number of signatures required to load a program not including
-	   * retries
-	   *
-	   * Can be used to calculate transaction fees
-	   */
-	  static getMinNumSignatures(dataLength) {
-	    return 2 * ( // Every transaction requires two signatures (payer + program)
-	    Math.ceil(dataLength / Loader.chunkSize) + 1 + // Add one for Create transaction
-	    1) // Add one for Finalize transaction
-	    ;
-	  }
-	  /**
-	   * Loads a generic program
-	   *
-	   * @param connection The connection to use
-	   * @param payer System account that pays to load the program
-	   * @param program Account to load the program into
-	   * @param programId Public key that identifies the loader
-	   * @param data Program octets
-	   * @return true if program was loaded successfully, false if program was already loaded
-	   */
-
-
-	  static async load(connection, payer, program, programId, data) {
-	    {
-	      const balanceNeeded = await connection.getMinimumBalanceForRentExemption(data.length); // Fetch program account info to check if it has already been created
-
-	      const programInfo = await connection.getAccountInfo(program.publicKey, 'confirmed');
-	      let transaction = null;
-
-	      if (programInfo !== null) {
-	        if (programInfo.executable) {
-	          console.error('Program load failed, account is already executable');
-	          return false;
-	        }
-
-	        if (programInfo.data.length !== data.length) {
-	          transaction = transaction || new Transaction();
-	          transaction.add(SystemProgram.allocate({
-	            accountPubkey: program.publicKey,
-	            space: data.length
-	          }));
-	        }
-
-	        if (!programInfo.owner.equals(programId)) {
-	          transaction = transaction || new Transaction();
-	          transaction.add(SystemProgram.assign({
-	            accountPubkey: program.publicKey,
-	            programId
-	          }));
-	        }
-
-	        if (programInfo.lamports < balanceNeeded) {
-	          transaction = transaction || new Transaction();
-	          transaction.add(SystemProgram.transfer({
-	            fromPubkey: payer.publicKey,
-	            toPubkey: program.publicKey,
-	            lamports: balanceNeeded - programInfo.lamports
-	          }));
-	        }
-	      } else {
-	        transaction = new Transaction().add(SystemProgram.createAccount({
-	          fromPubkey: payer.publicKey,
-	          newAccountPubkey: program.publicKey,
-	          lamports: balanceNeeded > 0 ? balanceNeeded : 1,
-	          space: data.length,
-	          programId
-	        }));
-	      } // If the account is already created correctly, skip this step
-	      // and proceed directly to loading instructions
-
-
-	      if (transaction !== null) {
-	        await sendAndConfirmTransaction(connection, transaction, [payer, program], {
-	          commitment: 'confirmed'
-	        });
-	      }
-	    }
-	    const dataLayout = struct([u32('instruction'), u32('offset'), u32('bytesLength'), u32('bytesLengthPadding'), seq(u8('byte'), offset(u32(), -8), 'bytes')]);
-	    const chunkSize = Loader.chunkSize;
-	    let offset$1 = 0;
-	    let array = data;
-	    let transactions = [];
-
-	    while (array.length > 0) {
-	      const bytes = array.slice(0, chunkSize);
-	      const data = require$$0$2.Buffer.alloc(chunkSize + 16);
-	      dataLayout.encode({
-	        instruction: 0,
-	        // Load instruction
-	        offset: offset$1,
-	        bytes: bytes,
-	        bytesLength: 0,
-	        bytesLengthPadding: 0
-	      }, data);
-	      const transaction = new Transaction().add({
-	        keys: [{
-	          pubkey: program.publicKey,
-	          isSigner: true,
-	          isWritable: true
-	        }],
-	        programId,
-	        data
-	      });
-	      transactions.push(sendAndConfirmTransaction(connection, transaction, [payer, program], {
-	        commitment: 'confirmed'
-	      })); // Delay between sends in an attempt to reduce rate limit errors
-
-	      if (connection._rpcEndpoint.includes('solana.com')) {
-	        const REQUESTS_PER_SECOND = 4;
-	        await sleep(1000 / REQUESTS_PER_SECOND);
-	      }
-
-	      offset$1 += chunkSize;
-	      array = array.slice(chunkSize);
-	    }
-
-	    await Promise.all(transactions); // Finalize the account loaded with program data for execution
-
-	    {
-	      const dataLayout = struct([u32('instruction')]);
-	      const data = require$$0$2.Buffer.alloc(dataLayout.span);
-	      dataLayout.encode({
-	        instruction: 1 // Finalize instruction
-
-	      }, data);
-	      const transaction = new Transaction().add({
-	        keys: [{
-	          pubkey: program.publicKey,
-	          isSigner: true,
-	          isWritable: true
-	        }, {
-	          pubkey: SYSVAR_RENT_PUBKEY,
-	          isSigner: false,
-	          isWritable: false
-	        }],
-	        programId,
-	        data
-	      });
-	      await sendAndConfirmTransaction(connection, transaction, [payer, program], {
-	        commitment: 'confirmed'
-	      });
-	    } // success
-
-	    return true;
-	  }
-
-	}
-	Loader.chunkSize = CHUNK_SIZE;
-
-	const BPF_LOADER_PROGRAM_ID = new PublicKey('BPFLoader2111111111111111111111111111111111');
-	/**
-	 * Factory class for transactions to interact with a program loader
-	 */
-
-	class BpfLoader {
-	  /**
-	   * Minimum number of signatures required to load a program not including
-	   * retries
-	   *
-	   * Can be used to calculate transaction fees
-	   */
-	  static getMinNumSignatures(dataLength) {
-	    return Loader.getMinNumSignatures(dataLength);
-	  }
-	  /**
-	   * Load a BPF program
-	   *
-	   * @param connection The connection to use
-	   * @param payer Account that will pay program loading fees
-	   * @param program Account to load the program into
-	   * @param elf The entire ELF containing the BPF program
-	   * @param loaderProgramId The program id of the BPF loader to use
-	   * @return true if program was loaded successfully, false if program was already loaded
-	   */
-
-
-	  static load(connection, payer, program, elf, loaderProgramId) {
-	    return Loader.load(connection, payer, program, loaderProgramId, elf);
-	  }
-
-	}
-
-	/**
-	 * Compute Budget Instruction class
-	 */
-
-	class ComputeBudgetInstruction {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Decode a compute budget instruction and retrieve the instruction type.
-	   */
-
-
-	  static decodeInstructionType(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const instructionTypeLayout = u8('instruction');
-	    const typeIndex = instructionTypeLayout.decode(instruction.data);
-	    let type;
-
-	    for (const [ixType, layout] of Object.entries(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS)) {
-	      if (layout.index == typeIndex) {
-	        type = ixType;
-	        break;
-	      }
-	    }
-
-	    if (!type) {
-	      throw new Error('Instruction type incorrect; not a ComputeBudgetInstruction');
-	    }
-
-	    return type;
-	  }
-	  /**
-	   * Decode request units compute budget instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeRequestUnits(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const {
-	      units,
-	      additionalFee
-	    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestUnits, instruction.data);
-	    return {
-	      units,
-	      additionalFee
-	    };
-	  }
-	  /**
-	   * Decode request heap frame compute budget instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeRequestHeapFrame(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const {
-	      bytes
-	    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestHeapFrame, instruction.data);
-	    return {
-	      bytes
-	    };
-	  }
-	  /**
-	   * Decode set compute unit limit compute budget instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeSetComputeUnitLimit(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const {
-	      units
-	    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitLimit, instruction.data);
-	    return {
-	      units
-	    };
-	  }
-	  /**
-	   * Decode set compute unit price compute budget instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeSetComputeUnitPrice(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const {
-	      microLamports
-	    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitPrice, instruction.data);
-	    return {
-	      microLamports
-	    };
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkProgramId(programId) {
-	    if (!programId.equals(ComputeBudgetProgram.programId)) {
-	      throw new Error('invalid instruction; programId is not ComputeBudgetProgram');
-	    }
-	  }
-
-	}
+	new PublicKey('BPFLoader2111111111111111111111111111111111');
 	/**
 	 * An enumeration of valid ComputeBudgetInstructionType's
 	 */
@@ -33229,7 +31397,7 @@
 	 * An enumeration of valid ComputeBudget InstructionType's
 	 * @internal
 	 */
-	const COMPUTE_BUDGET_INSTRUCTION_LAYOUTS = Object.freeze({
+	Object.freeze({
 	  RequestUnits: {
 	    index: 0,
 	    layout: struct([u8('instruction'), u32('units'), u32('additionalFee')])
@@ -33247,64 +31415,7 @@
 	    layout: struct([u8('instruction'), u64('microLamports')])
 	  }
 	});
-	/**
-	 * Factory class for transaction instructions to interact with the Compute Budget program
-	 */
-
-	class ComputeBudgetProgram {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Public key that identifies the Compute Budget program
-	   */
-
-
-	  static requestUnits(params) {
-	    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestUnits;
-	    const data = encodeData(type, params);
-	    return new TransactionInstruction({
-	      keys: [],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	  static requestHeapFrame(params) {
-	    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestHeapFrame;
-	    const data = encodeData(type, params);
-	    return new TransactionInstruction({
-	      keys: [],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	  static setComputeUnitLimit(params) {
-	    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitLimit;
-	    const data = encodeData(type, params);
-	    return new TransactionInstruction({
-	      keys: [],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	  static setComputeUnitPrice(params) {
-	    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitPrice;
-	    const data = encodeData(type, {
-	      microLamports: BigInt(params.microLamports)
-	    });
-	    return new TransactionInstruction({
-	      keys: [],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	}
-	ComputeBudgetProgram.programId = new PublicKey('ComputeBudget111111111111111111111111111111');
+	new PublicKey('ComputeBudget111111111111111111111111111111');
 
 	var objToString = Object.prototype.toString;
 	var objKeys = Object.keys || function(obj) {
@@ -33486,26 +31597,6 @@
 	  }
 
 	} // Keep in sync with client/src/rpc_custom_errors.rs
-	// Typescript `enums` thwart tree-shaking. See https://bargsten.org/jsts/enums/
-
-	const SolanaJSONRPCErrorCode = {
-	  JSON_RPC_SERVER_ERROR_BLOCK_CLEANED_UP: -32001,
-	  JSON_RPC_SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE: -32002,
-	  JSON_RPC_SERVER_ERROR_TRANSACTION_SIGNATURE_VERIFICATION_FAILURE: -32003,
-	  JSON_RPC_SERVER_ERROR_BLOCK_NOT_AVAILABLE: -32004,
-	  JSON_RPC_SERVER_ERROR_NODE_UNHEALTHY: -32005,
-	  JSON_RPC_SERVER_ERROR_TRANSACTION_PRECOMPILE_VERIFICATION_FAILURE: -32006,
-	  JSON_RPC_SERVER_ERROR_SLOT_SKIPPED: -32007,
-	  JSON_RPC_SERVER_ERROR_NO_SNAPSHOT: -32008,
-	  JSON_RPC_SERVER_ERROR_LONG_TERM_STORAGE_SLOT_SKIPPED: -32009,
-	  JSON_RPC_SERVER_ERROR_KEY_EXCLUDED_FROM_SECONDARY_INDEX: -32010,
-	  JSON_RPC_SERVER_ERROR_TRANSACTION_HISTORY_NOT_AVAILABLE: -32011,
-	  JSON_RPC_SCAN_ERROR: -32012,
-	  JSON_RPC_SERVER_ERROR_TRANSACTION_SIGNATURE_LEN_MISMATCH: -32013,
-	  JSON_RPC_SERVER_ERROR_BLOCK_STATUS_NOT_AVAILABLE_YET: -32014,
-	  JSON_RPC_SERVER_ERROR_UNSUPPORTED_TRANSACTION_VERSION: -32015,
-	  JSON_RPC_SERVER_ERROR_MIN_CONTEXT_SLOT_NOT_REACHED: -32016
-	};
 	class SolanaJSONRPCError extends Error {
 	  constructor({
 	    code,
@@ -35108,7 +33199,7 @@
 	          };
 	          done = true;
 	          resolve({
-	            __type: exports.TransactionStatus.PROCESSED,
+	            __type: TransactionStatus.PROCESSED,
 	            response
 	          });
 	        }, subscriptionCommitment);
@@ -35133,7 +33224,7 @@
 	        }
 
 	        timeoutId = setTimeout(() => resolve({
-	          __type: exports.TransactionStatus.TIMED_OUT,
+	          __type: TransactionStatus.TIMED_OUT,
 	          timeoutMs
 	        }), timeoutMs);
 	      } else {
@@ -35160,7 +33251,7 @@
 	          }
 
 	          resolve({
-	            __type: exports.TransactionStatus.BLOCKHEIGHT_EXCEEDED
+	            __type: TransactionStatus.BLOCKHEIGHT_EXCEEDED
 	          });
 	        })();
 	      }
@@ -35171,14 +33262,14 @@
 	      const outcome = await Promise.race([confirmationPromise, expiryPromise]);
 
 	      switch (outcome.__type) {
-	        case exports.TransactionStatus.BLOCKHEIGHT_EXCEEDED:
+	        case TransactionStatus.BLOCKHEIGHT_EXCEEDED:
 	          throw new TransactionExpiredBlockheightExceededError(rawSignature);
 
-	        case exports.TransactionStatus.PROCESSED:
+	        case TransactionStatus.PROCESSED:
 	          result = outcome.response;
 	          break;
 
-	        case exports.TransactionStatus.TIMED_OUT:
+	        case TransactionStatus.TIMED_OUT:
 	          throw new TransactionExpiredTimeoutError(rawSignature, outcome.timeoutMs / 1000);
 	      }
 	    } finally {
@@ -37195,215 +35286,19 @@
 	  }
 
 	}
-
-	/**
-	 * Keypair signer interface
-	 */
-
-	/**
-	 * An account keypair used for signing transactions.
-	 */
-	class Keypair {
-	  /**
-	   * Create a new keypair instance.
-	   * Generate random keypair if no {@link Ed25519Keypair} is provided.
-	   *
-	   * @param keypair ed25519 keypair
-	   */
-	  constructor(keypair) {
-	    this._keypair = void 0;
-
-	    if (keypair) {
-	      this._keypair = keypair;
-	    } else {
-	      this._keypair = nacl.sign.keyPair();
-	    }
-	  }
-	  /**
-	   * Generate a new random keypair
-	   */
-
-
-	  static generate() {
-	    return new Keypair(nacl.sign.keyPair());
-	  }
-	  /**
-	   * Create a keypair from a raw secret key byte array.
-	   *
-	   * This method should only be used to recreate a keypair from a previously
-	   * generated secret key. Generating keypairs from a random seed should be done
-	   * with the {@link Keypair.fromSeed} method.
-	   *
-	   * @throws error if the provided secret key is invalid and validation is not skipped.
-	   *
-	   * @param secretKey secret key byte array
-	   * @param options: skip secret key validation
-	   */
-
-
-	  static fromSecretKey(secretKey, options) {
-	    const keypair = nacl.sign.keyPair.fromSecretKey(secretKey);
-
-	    if (!options || !options.skipValidation) {
-	      const encoder = new TextEncoder();
-	      const signData = encoder.encode('@solana/web3.js-validation-v1');
-	      const signature = nacl.sign.detached(signData, keypair.secretKey);
-
-	      if (!nacl.sign.detached.verify(signData, signature, keypair.publicKey)) {
-	        throw new Error('provided secretKey is invalid');
-	      }
-	    }
-
-	    return new Keypair(keypair);
-	  }
-	  /**
-	   * Generate a keypair from a 32 byte seed.
-	   *
-	   * @param seed seed byte array
-	   */
-
-
-	  static fromSeed(seed) {
-	    return new Keypair(nacl.sign.keyPair.fromSeed(seed));
-	  }
-	  /**
-	   * The public key for this keypair
-	   */
-
-
-	  get publicKey() {
-	    return new PublicKey(this._keypair.publicKey);
-	  }
-	  /**
-	   * The raw secret key for this keypair
-	   */
-
-
-	  get secretKey() {
-	    return this._keypair.secretKey;
-	  }
-
-	}
-
-	const PRIVATE_KEY_BYTES$1 = 64;
-	const PUBLIC_KEY_BYTES$1 = 32;
-	const SIGNATURE_BYTES = 64;
 	/**
 	 * Params for creating an ed25519 instruction using a public key
 	 */
 
-	const ED25519_INSTRUCTION_LAYOUT = struct([u8('numSignatures'), u8('padding'), u16('signatureOffset'), u16('signatureInstructionIndex'), u16('publicKeyOffset'), u16('publicKeyInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u16('messageInstructionIndex')]);
-	class Ed25519Program {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Public key that identifies the ed25519 program
-	   */
-
-
-	  /**
-	   * Create an ed25519 instruction with a public key and signature. The
-	   * public key must be a buffer that is 32 bytes long, and the signature
-	   * must be a buffer of 64 bytes.
-	   */
-	  static createInstructionWithPublicKey(params) {
-	    const {
-	      publicKey,
-	      message,
-	      signature,
-	      instructionIndex
-	    } = params;
-	    assert(publicKey.length === PUBLIC_KEY_BYTES$1, `Public Key must be ${PUBLIC_KEY_BYTES$1} bytes but received ${publicKey.length} bytes`);
-	    assert(signature.length === SIGNATURE_BYTES, `Signature must be ${SIGNATURE_BYTES} bytes but received ${signature.length} bytes`);
-	    const publicKeyOffset = ED25519_INSTRUCTION_LAYOUT.span;
-	    const signatureOffset = publicKeyOffset + publicKey.length;
-	    const messageDataOffset = signatureOffset + signature.length;
-	    const numSignatures = 1;
-	    const instructionData = require$$0$2.Buffer.alloc(messageDataOffset + message.length);
-	    const index = instructionIndex == null ? 0xffff // An index of `u16::MAX` makes it default to the current instruction.
-	    : instructionIndex;
-	    ED25519_INSTRUCTION_LAYOUT.encode({
-	      numSignatures,
-	      padding: 0,
-	      signatureOffset,
-	      signatureInstructionIndex: index,
-	      publicKeyOffset,
-	      publicKeyInstructionIndex: index,
-	      messageDataOffset,
-	      messageDataSize: message.length,
-	      messageInstructionIndex: index
-	    }, instructionData);
-	    instructionData.fill(publicKey, publicKeyOffset);
-	    instructionData.fill(signature, signatureOffset);
-	    instructionData.fill(message, messageDataOffset);
-	    return new TransactionInstruction({
-	      keys: [],
-	      programId: Ed25519Program.programId,
-	      data: instructionData
-	    });
-	  }
-	  /**
-	   * Create an ed25519 instruction with a private key. The private key
-	   * must be a buffer that is 64 bytes long.
-	   */
-
-
-	  static createInstructionWithPrivateKey(params) {
-	    const {
-	      privateKey,
-	      message,
-	      instructionIndex
-	    } = params;
-	    assert(privateKey.length === PRIVATE_KEY_BYTES$1, `Private key must be ${PRIVATE_KEY_BYTES$1} bytes but received ${privateKey.length} bytes`);
-
-	    try {
-	      const keypair = Keypair.fromSecretKey(privateKey);
-	      const publicKey = keypair.publicKey.toBytes();
-	      const signature = nacl.sign.detached(message, keypair.secretKey);
-	      return this.createInstructionWithPublicKey({
-	        publicKey,
-	        message,
-	        signature,
-	        instructionIndex
-	      });
-	    } catch (error) {
-	      throw new Error(`Error creating instruction; ${error}`);
-	    }
-	  }
-
-	}
-	Ed25519Program.programId = new PublicKey('Ed25519SigVerify111111111111111111111111111');
+	struct([u8('numSignatures'), u8('padding'), u16('signatureOffset'), u16('signatureInstructionIndex'), u16('publicKeyOffset'), u16('publicKeyInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u16('messageInstructionIndex')]);
+	new PublicKey('Ed25519SigVerify111111111111111111111111111');
 
 	/**
 	 * Address of the stake config account which configures the rate
 	 * of stake warmup and cooldown as well as the slashing penalty.
 	 */
 
-	const STAKE_CONFIG_ID = new PublicKey('StakeConfig11111111111111111111111111111111');
-	/**
-	 * Stake account authority info
-	 */
-
-	class Authorized {
-	  /** stake authority */
-
-	  /** withdraw authority */
-
-	  /**
-	   * Create a new Authorized object
-	   * @param staker the stake authority
-	   * @param withdrawer the withdraw authority
-	   */
-	  constructor(staker, withdrawer) {
-	    this.staker = void 0;
-	    this.withdrawer = void 0;
-	    this.staker = staker;
-	    this.withdrawer = withdrawer;
-	  }
-
-	}
+	new PublicKey('StakeConfig11111111111111111111111111111111');
 
 	/**
 	 * Stake account lockup info
@@ -37433,223 +35328,6 @@
 
 	}
 	Lockup.default = new Lockup(0, 0, PublicKey.default);
-
-	/**
-	 * Stake Instruction class
-	 */
-	class StakeInstruction {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Decode a stake instruction and retrieve the instruction type.
-	   */
-
-
-	  static decodeInstructionType(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const instructionTypeLayout = u32('instruction');
-	    const typeIndex = instructionTypeLayout.decode(instruction.data);
-	    let type;
-
-	    for (const [ixType, layout] of Object.entries(STAKE_INSTRUCTION_LAYOUTS)) {
-	      if (layout.index == typeIndex) {
-	        type = ixType;
-	        break;
-	      }
-	    }
-
-	    if (!type) {
-	      throw new Error('Instruction type incorrect; not a StakeInstruction');
-	    }
-
-	    return type;
-	  }
-	  /**
-	   * Decode a initialize stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeInitialize(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 2);
-	    const {
-	      authorized,
-	      lockup
-	    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Initialize, instruction.data);
-	    return {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      authorized: new Authorized(new PublicKey(authorized.staker), new PublicKey(authorized.withdrawer)),
-	      lockup: new Lockup(lockup.unixTimestamp, lockup.epoch, new PublicKey(lockup.custodian))
-	    };
-	  }
-	  /**
-	   * Decode a delegate stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeDelegate(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 6);
-	    decodeData(STAKE_INSTRUCTION_LAYOUTS.Delegate, instruction.data);
-	    return {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      votePubkey: instruction.keys[1].pubkey,
-	      authorizedPubkey: instruction.keys[5].pubkey
-	    };
-	  }
-	  /**
-	   * Decode an authorize stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAuthorize(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    const {
-	      newAuthorized,
-	      stakeAuthorizationType
-	    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Authorize, instruction.data);
-	    const o = {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      authorizedPubkey: instruction.keys[2].pubkey,
-	      newAuthorizedPubkey: new PublicKey(newAuthorized),
-	      stakeAuthorizationType: {
-	        index: stakeAuthorizationType
-	      }
-	    };
-
-	    if (instruction.keys.length > 3) {
-	      o.custodianPubkey = instruction.keys[3].pubkey;
-	    }
-
-	    return o;
-	  }
-	  /**
-	   * Decode an authorize-with-seed stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAuthorizeWithSeed(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 2);
-	    const {
-	      newAuthorized,
-	      stakeAuthorizationType,
-	      authoritySeed,
-	      authorityOwner
-	    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.AuthorizeWithSeed, instruction.data);
-	    const o = {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      authorityBase: instruction.keys[1].pubkey,
-	      authoritySeed: authoritySeed,
-	      authorityOwner: new PublicKey(authorityOwner),
-	      newAuthorizedPubkey: new PublicKey(newAuthorized),
-	      stakeAuthorizationType: {
-	        index: stakeAuthorizationType
-	      }
-	    };
-
-	    if (instruction.keys.length > 3) {
-	      o.custodianPubkey = instruction.keys[3].pubkey;
-	    }
-
-	    return o;
-	  }
-	  /**
-	   * Decode a split stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeSplit(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    const {
-	      lamports
-	    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Split, instruction.data);
-	    return {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      splitStakePubkey: instruction.keys[1].pubkey,
-	      authorizedPubkey: instruction.keys[2].pubkey,
-	      lamports
-	    };
-	  }
-	  /**
-	   * Decode a merge stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeMerge(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    decodeData(STAKE_INSTRUCTION_LAYOUTS.Merge, instruction.data);
-	    return {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      sourceStakePubKey: instruction.keys[1].pubkey,
-	      authorizedPubkey: instruction.keys[4].pubkey
-	    };
-	  }
-	  /**
-	   * Decode a withdraw stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeWithdraw(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 5);
-	    const {
-	      lamports
-	    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Withdraw, instruction.data);
-	    const o = {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      toPubkey: instruction.keys[1].pubkey,
-	      authorizedPubkey: instruction.keys[4].pubkey,
-	      lamports
-	    };
-
-	    if (instruction.keys.length > 5) {
-	      o.custodianPubkey = instruction.keys[5].pubkey;
-	    }
-
-	    return o;
-	  }
-	  /**
-	   * Decode a deactivate stake instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeDeactivate(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    decodeData(STAKE_INSTRUCTION_LAYOUTS.Deactivate, instruction.data);
-	    return {
-	      stakePubkey: instruction.keys[0].pubkey,
-	      authorizedPubkey: instruction.keys[2].pubkey
-	    };
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkProgramId(programId) {
-	    if (!programId.equals(StakeProgram.programId)) {
-	      throw new Error('invalid instruction; programId is not StakeProgram');
-	    }
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkKeyLength(keys, expectedLength) {
-	    if (keys.length < expectedLength) {
-	      throw new Error(`invalid instruction; found ${keys.length} keys, expected at least ${expectedLength}`);
-	    }
-	  }
-
-	}
 	/**
 	 * An enumeration of valid StakeInstructionType's
 	 */
@@ -37658,7 +35336,7 @@
 	 * An enumeration of valid stake InstructionType's
 	 * @internal
 	 */
-	const STAKE_INSTRUCTION_LAYOUTS = Object.freeze({
+	Object.freeze({
 	  Initialize: {
 	    index: 0,
 	    layout: struct([u32('instruction'), authorized(), lockup()])
@@ -37699,7 +35377,7 @@
 	/**
 	 * An enumeration of valid StakeAuthorizationLayout's
 	 */
-	const StakeAuthorizationLayout = Object.freeze({
+	Object.freeze({
 	  Staker: {
 	    index: 0
 	  },
@@ -37707,928 +35385,42 @@
 	    index: 1
 	  }
 	});
-	/**
-	 * Factory class for transactions to interact with the Stake program
-	 */
-
-	class StakeProgram {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Public key that identifies the Stake program
-	   */
-
-
-	  /**
-	   * Generate an Initialize instruction to add to a Stake Create transaction
-	   */
-	  static initialize(params) {
-	    const {
-	      stakePubkey,
-	      authorized,
-	      lockup: maybeLockup
-	    } = params;
-	    const lockup = maybeLockup || Lockup.default;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Initialize;
-	    const data = encodeData(type, {
-	      authorized: {
-	        staker: toBuffer(authorized.staker.toBuffer()),
-	        withdrawer: toBuffer(authorized.withdrawer.toBuffer())
-	      },
-	      lockup: {
-	        unixTimestamp: lockup.unixTimestamp,
-	        epoch: lockup.epoch,
-	        custodian: toBuffer(lockup.custodian.toBuffer())
-	      }
-	    });
-	    const instructionData = {
-	      keys: [{
-	        pubkey: stakePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_RENT_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    };
-	    return new TransactionInstruction(instructionData);
-	  }
-	  /**
-	   * Generate a Transaction that creates a new Stake account at
-	   *   an address generated with `from`, a seed, and the Stake programId
-	   */
-
-
-	  static createAccountWithSeed(params) {
-	    const transaction = new Transaction();
-	    transaction.add(SystemProgram.createAccountWithSeed({
-	      fromPubkey: params.fromPubkey,
-	      newAccountPubkey: params.stakePubkey,
-	      basePubkey: params.basePubkey,
-	      seed: params.seed,
-	      lamports: params.lamports,
-	      space: this.space,
-	      programId: this.programId
-	    }));
-	    const {
-	      stakePubkey,
-	      authorized,
-	      lockup
-	    } = params;
-	    return transaction.add(this.initialize({
-	      stakePubkey,
-	      authorized,
-	      lockup
-	    }));
-	  }
-	  /**
-	   * Generate a Transaction that creates a new Stake account
-	   */
-
-
-	  static createAccount(params) {
-	    const transaction = new Transaction();
-	    transaction.add(SystemProgram.createAccount({
-	      fromPubkey: params.fromPubkey,
-	      newAccountPubkey: params.stakePubkey,
-	      lamports: params.lamports,
-	      space: this.space,
-	      programId: this.programId
-	    }));
-	    const {
-	      stakePubkey,
-	      authorized,
-	      lockup
-	    } = params;
-	    return transaction.add(this.initialize({
-	      stakePubkey,
-	      authorized,
-	      lockup
-	    }));
-	  }
-	  /**
-	   * Generate a Transaction that delegates Stake tokens to a validator
-	   * Vote PublicKey. This transaction can also be used to redelegate Stake
-	   * to a new validator Vote PublicKey.
-	   */
-
-
-	  static delegate(params) {
-	    const {
-	      stakePubkey,
-	      authorizedPubkey,
-	      votePubkey
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Delegate;
-	    const data = encodeData(type);
-	    return new Transaction().add({
-	      keys: [{
-	        pubkey: stakePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: votePubkey,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: SYSVAR_CLOCK_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: SYSVAR_STAKE_HISTORY_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: STAKE_CONFIG_ID,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a Transaction that authorizes a new PublicKey as Staker
-	   * or Withdrawer on the Stake account.
-	   */
-
-
-	  static authorize(params) {
-	    const {
-	      stakePubkey,
-	      authorizedPubkey,
-	      newAuthorizedPubkey,
-	      stakeAuthorizationType,
-	      custodianPubkey
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Authorize;
-	    const data = encodeData(type, {
-	      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
-	      stakeAuthorizationType: stakeAuthorizationType.index
-	    });
-	    const keys = [{
-	      pubkey: stakePubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: SYSVAR_CLOCK_PUBKEY,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: authorizedPubkey,
-	      isSigner: true,
-	      isWritable: false
-	    }];
-
-	    if (custodianPubkey) {
-	      keys.push({
-	        pubkey: custodianPubkey,
-	        isSigner: false,
-	        isWritable: false
-	      });
-	    }
-
-	    return new Transaction().add({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a Transaction that authorizes a new PublicKey as Staker
-	   * or Withdrawer on the Stake account.
-	   */
-
-
-	  static authorizeWithSeed(params) {
-	    const {
-	      stakePubkey,
-	      authorityBase,
-	      authoritySeed,
-	      authorityOwner,
-	      newAuthorizedPubkey,
-	      stakeAuthorizationType,
-	      custodianPubkey
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.AuthorizeWithSeed;
-	    const data = encodeData(type, {
-	      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
-	      stakeAuthorizationType: stakeAuthorizationType.index,
-	      authoritySeed: authoritySeed,
-	      authorityOwner: toBuffer(authorityOwner.toBuffer())
-	    });
-	    const keys = [{
-	      pubkey: stakePubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: authorityBase,
-	      isSigner: true,
-	      isWritable: false
-	    }, {
-	      pubkey: SYSVAR_CLOCK_PUBKEY,
-	      isSigner: false,
-	      isWritable: false
-	    }];
-
-	    if (custodianPubkey) {
-	      keys.push({
-	        pubkey: custodianPubkey,
-	        isSigner: false,
-	        isWritable: false
-	      });
-	    }
-
-	    return new Transaction().add({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static splitInstruction(params) {
-	    const {
-	      stakePubkey,
-	      authorizedPubkey,
-	      splitStakePubkey,
-	      lamports
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Split;
-	    const data = encodeData(type, {
-	      lamports
-	    });
-	    return new TransactionInstruction({
-	      keys: [{
-	        pubkey: stakePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: splitStakePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a Transaction that splits Stake tokens into another stake account
-	   */
-
-
-	  static split(params) {
-	    const transaction = new Transaction();
-	    transaction.add(SystemProgram.createAccount({
-	      fromPubkey: params.authorizedPubkey,
-	      newAccountPubkey: params.splitStakePubkey,
-	      lamports: 0,
-	      space: this.space,
-	      programId: this.programId
-	    }));
-	    return transaction.add(this.splitInstruction(params));
-	  }
-	  /**
-	   * Generate a Transaction that splits Stake tokens into another account
-	   * derived from a base public key and seed
-	   */
-
-
-	  static splitWithSeed(params) {
-	    const {
-	      stakePubkey,
-	      authorizedPubkey,
-	      splitStakePubkey,
-	      basePubkey,
-	      seed,
-	      lamports
-	    } = params;
-	    const transaction = new Transaction();
-	    transaction.add(SystemProgram.allocate({
-	      accountPubkey: splitStakePubkey,
-	      basePubkey,
-	      seed,
-	      space: this.space,
-	      programId: this.programId
-	    }));
-	    return transaction.add(this.splitInstruction({
-	      stakePubkey,
-	      authorizedPubkey,
-	      splitStakePubkey,
-	      lamports
-	    }));
-	  }
-	  /**
-	   * Generate a Transaction that merges Stake accounts.
-	   */
-
-
-	  static merge(params) {
-	    const {
-	      stakePubkey,
-	      sourceStakePubKey,
-	      authorizedPubkey
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Merge;
-	    const data = encodeData(type);
-	    return new Transaction().add({
-	      keys: [{
-	        pubkey: stakePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: sourceStakePubKey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_CLOCK_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: SYSVAR_STAKE_HISTORY_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a Transaction that withdraws deactivated Stake tokens.
-	   */
-
-
-	  static withdraw(params) {
-	    const {
-	      stakePubkey,
-	      authorizedPubkey,
-	      toPubkey,
-	      lamports,
-	      custodianPubkey
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Withdraw;
-	    const data = encodeData(type, {
-	      lamports
-	    });
-	    const keys = [{
-	      pubkey: stakePubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: toPubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: SYSVAR_CLOCK_PUBKEY,
-	      isSigner: false,
-	      isWritable: false
-	    }, {
-	      pubkey: SYSVAR_STAKE_HISTORY_PUBKEY,
-	      isSigner: false,
-	      isWritable: false
-	    }, {
-	      pubkey: authorizedPubkey,
-	      isSigner: true,
-	      isWritable: false
-	    }];
-
-	    if (custodianPubkey) {
-	      keys.push({
-	        pubkey: custodianPubkey,
-	        isSigner: false,
-	        isWritable: false
-	      });
-	    }
-
-	    return new Transaction().add({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a Transaction that deactivates Stake tokens.
-	   */
-
-
-	  static deactivate(params) {
-	    const {
-	      stakePubkey,
-	      authorizedPubkey
-	    } = params;
-	    const type = STAKE_INSTRUCTION_LAYOUTS.Deactivate;
-	    const data = encodeData(type);
-	    return new Transaction().add({
-	      keys: [{
-	        pubkey: stakePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_CLOCK_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: authorizedPubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	}
-	StakeProgram.programId = new PublicKey('Stake11111111111111111111111111111111111111');
-	StakeProgram.space = 200;
-
-	const {
-	  publicKeyCreate,
-	  ecdsaSign
-	} = elliptic;
-	const PRIVATE_KEY_BYTES = 32;
-	const ETHEREUM_ADDRESS_BYTES = 20;
-	const PUBLIC_KEY_BYTES = 64;
-	const SIGNATURE_OFFSETS_SERIALIZED_SIZE = 11;
+	new PublicKey('Stake11111111111111111111111111111111111111');
 	/**
 	 * Params for creating an secp256k1 instruction using a public key
 	 */
 
-	const SECP256K1_INSTRUCTION_LAYOUT = struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
-	class Secp256k1Program {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Public key that identifies the secp256k1 program
-	   */
+	struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
+	new PublicKey('KeccakSecp256k11111111111111111111111111111');
 
-
-	  /**
-	   * Construct an Ethereum address from a secp256k1 public key buffer.
-	   * @param {Buffer} publicKey a 64 byte secp256k1 public key buffer
-	   */
-	  static publicKeyToEthAddress(publicKey) {
-	    assert(publicKey.length === PUBLIC_KEY_BYTES, `Public key must be ${PUBLIC_KEY_BYTES} bytes but received ${publicKey.length} bytes`);
-
-	    try {
-	      return require$$0$2.Buffer.from(sha3.keccak_256.update(toBuffer(publicKey)).digest()).slice(-ETHEREUM_ADDRESS_BYTES);
-	    } catch (error) {
-	      throw new Error(`Error constructing Ethereum address: ${error}`);
-	    }
-	  }
-	  /**
-	   * Create an secp256k1 instruction with a public key. The public key
-	   * must be a buffer that is 64 bytes long.
-	   */
-
-
-	  static createInstructionWithPublicKey(params) {
-	    const {
-	      publicKey,
-	      message,
-	      signature,
-	      recoveryId,
-	      instructionIndex
-	    } = params;
-	    return Secp256k1Program.createInstructionWithEthAddress({
-	      ethAddress: Secp256k1Program.publicKeyToEthAddress(publicKey),
-	      message,
-	      signature,
-	      recoveryId,
-	      instructionIndex
-	    });
-	  }
-	  /**
-	   * Create an secp256k1 instruction with an Ethereum address. The address
-	   * must be a hex string or a buffer that is 20 bytes long.
-	   */
-
-
-	  static createInstructionWithEthAddress(params) {
-	    const {
-	      ethAddress: rawAddress,
-	      message,
-	      signature,
-	      recoveryId,
-	      instructionIndex = 0
-	    } = params;
-	    let ethAddress;
-
-	    if (typeof rawAddress === 'string') {
-	      if (rawAddress.startsWith('0x')) {
-	        ethAddress = require$$0$2.Buffer.from(rawAddress.substr(2), 'hex');
-	      } else {
-	        ethAddress = require$$0$2.Buffer.from(rawAddress, 'hex');
-	      }
-	    } else {
-	      ethAddress = rawAddress;
-	    }
-
-	    assert(ethAddress.length === ETHEREUM_ADDRESS_BYTES, `Address must be ${ETHEREUM_ADDRESS_BYTES} bytes but received ${ethAddress.length} bytes`);
-	    const dataStart = 1 + SIGNATURE_OFFSETS_SERIALIZED_SIZE;
-	    const ethAddressOffset = dataStart;
-	    const signatureOffset = dataStart + ethAddress.length;
-	    const messageDataOffset = signatureOffset + signature.length + 1;
-	    const numSignatures = 1;
-	    const instructionData = require$$0$2.Buffer.alloc(SECP256K1_INSTRUCTION_LAYOUT.span + message.length);
-	    SECP256K1_INSTRUCTION_LAYOUT.encode({
-	      numSignatures,
-	      signatureOffset,
-	      signatureInstructionIndex: instructionIndex,
-	      ethAddressOffset,
-	      ethAddressInstructionIndex: instructionIndex,
-	      messageDataOffset,
-	      messageDataSize: message.length,
-	      messageInstructionIndex: instructionIndex,
-	      signature: toBuffer(signature),
-	      ethAddress: toBuffer(ethAddress),
-	      recoveryId
-	    }, instructionData);
-	    instructionData.fill(toBuffer(message), SECP256K1_INSTRUCTION_LAYOUT.span);
-	    return new TransactionInstruction({
-	      keys: [],
-	      programId: Secp256k1Program.programId,
-	      data: instructionData
-	    });
-	  }
-	  /**
-	   * Create an secp256k1 instruction with a private key. The private key
-	   * must be a buffer that is 32 bytes long.
-	   */
-
-
-	  static createInstructionWithPrivateKey(params) {
-	    const {
-	      privateKey: pkey,
-	      message,
-	      instructionIndex
-	    } = params;
-	    assert(pkey.length === PRIVATE_KEY_BYTES, `Private key must be ${PRIVATE_KEY_BYTES} bytes but received ${pkey.length} bytes`);
-
-	    try {
-	      const privateKey = toBuffer(pkey);
-	      const publicKey = publicKeyCreate(privateKey, false).slice(1); // throw away leading byte
-
-	      const messageHash = require$$0$2.Buffer.from(sha3.keccak_256.update(toBuffer(message)).digest());
-	      const {
-	        signature,
-	        recid: recoveryId
-	      } = ecdsaSign(messageHash, privateKey);
-	      return this.createInstructionWithPublicKey({
-	        publicKey,
-	        message,
-	        signature,
-	        recoveryId,
-	        instructionIndex
-	      });
-	    } catch (error) {
-	      throw new Error(`Error creating instruction; ${error}`);
-	    }
-	  }
-
-	}
-	Secp256k1Program.programId = new PublicKey('KeccakSecp256k11111111111111111111111111111');
-
-	const VALIDATOR_INFO_KEY = new PublicKey('Va1idator1nfo111111111111111111111111111111');
+	new PublicKey('Va1idator1nfo111111111111111111111111111111');
 	/**
 	 * @internal
 	 */
 
-	const InfoString = type({
+	type({
 	  name: string(),
 	  website: optional(string()),
 	  details: optional(string()),
 	  keybaseUsername: optional(string())
 	});
-	/**
-	 * ValidatorInfo class
-	 */
 
-	class ValidatorInfo {
-	  /**
-	   * validator public key
-	   */
-
-	  /**
-	   * validator information
-	   */
-
-	  /**
-	   * Construct a valid ValidatorInfo
-	   *
-	   * @param key validator public key
-	   * @param info validator information
-	   */
-	  constructor(key, info) {
-	    this.key = void 0;
-	    this.info = void 0;
-	    this.key = key;
-	    this.info = info;
-	  }
-	  /**
-	   * Deserialize ValidatorInfo from the config account data. Exactly two config
-	   * keys are required in the data.
-	   *
-	   * @param buffer config account data
-	   * @return null if info was not found
-	   */
-
-
-	  static fromConfigData(buffer) {
-	    const PUBKEY_LENGTH = 32;
-	    let byteArray = [...buffer];
-	    const configKeyCount = decodeLength(byteArray);
-	    if (configKeyCount !== 2) return null;
-	    const configKeys = [];
-
-	    for (let i = 0; i < 2; i++) {
-	      const publicKey = new PublicKey(byteArray.slice(0, PUBKEY_LENGTH));
-	      byteArray = byteArray.slice(PUBKEY_LENGTH);
-	      const isSigner = byteArray.slice(0, 1)[0] === 1;
-	      byteArray = byteArray.slice(1);
-	      configKeys.push({
-	        publicKey,
-	        isSigner
-	      });
-	    }
-
-	    if (configKeys[0].publicKey.equals(VALIDATOR_INFO_KEY)) {
-	      if (configKeys[1].isSigner) {
-	        const rawInfo = rustString().decode(require$$0$2.Buffer.from(byteArray));
-	        const info = JSON.parse(rawInfo);
-	        assert$o(info, InfoString);
-	        return new ValidatorInfo(configKeys[1].publicKey, info);
-	      }
-	    }
-
-	    return null;
-	  }
-
-	}
-
-	const VOTE_PROGRAM_ID = new PublicKey('Vote111111111111111111111111111111111111111');
+	new PublicKey('Vote111111111111111111111111111111111111111');
 
 	/**
 	 * See https://github.com/solana-labs/solana/blob/8a12ed029cfa38d4a45400916c2463fb82bbec8c/programs/vote_api/src/vote_state.rs#L68-L88
 	 *
 	 * @internal
 	 */
-	const VoteAccountLayout = struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
+	struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
 	seq(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
 	seq(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
 	seq(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
-
-	/**
-	 * VoteAccount class
-	 */
-	class VoteAccount {
-	  /**
-	   * @internal
-	   */
-	  constructor(args) {
-	    this.nodePubkey = void 0;
-	    this.authorizedWithdrawer = void 0;
-	    this.commission = void 0;
-	    this.rootSlot = void 0;
-	    this.votes = void 0;
-	    this.authorizedVoters = void 0;
-	    this.priorVoters = void 0;
-	    this.epochCredits = void 0;
-	    this.lastTimestamp = void 0;
-	    this.nodePubkey = args.nodePubkey;
-	    this.authorizedWithdrawer = args.authorizedWithdrawer;
-	    this.commission = args.commission;
-	    this.rootSlot = args.rootSlot;
-	    this.votes = args.votes;
-	    this.authorizedVoters = args.authorizedVoters;
-	    this.priorVoters = args.priorVoters;
-	    this.epochCredits = args.epochCredits;
-	    this.lastTimestamp = args.lastTimestamp;
-	  }
-	  /**
-	   * Deserialize VoteAccount from the account data.
-	   *
-	   * @param buffer account data
-	   * @return VoteAccount
-	   */
-
-
-	  static fromAccountData(buffer) {
-	    const versionOffset = 4;
-	    const va = VoteAccountLayout.decode(toBuffer(buffer), versionOffset);
-	    let rootSlot = va.rootSlot;
-
-	    if (!va.rootSlotValid) {
-	      rootSlot = null;
-	    }
-
-	    return new VoteAccount({
-	      nodePubkey: new PublicKey(va.nodePubkey),
-	      authorizedWithdrawer: new PublicKey(va.authorizedWithdrawer),
-	      commission: va.commission,
-	      votes: va.votes,
-	      rootSlot,
-	      authorizedVoters: va.authorizedVoters.map(parseAuthorizedVoter),
-	      priorVoters: getPriorVoters(va.priorVoters),
-	      epochCredits: va.epochCredits,
-	      lastTimestamp: va.lastTimestamp
-	    });
-	  }
-
-	}
-
-	function parseAuthorizedVoter({
-	  authorizedVoter,
-	  epoch
-	}) {
-	  return {
-	    epoch,
-	    authorizedVoter: new PublicKey(authorizedVoter)
-	  };
-	}
-
-	function parsePriorVoters({
-	  authorizedPubkey,
-	  epochOfLastAuthorizedSwitch,
-	  targetEpoch
-	}) {
-	  return {
-	    authorizedPubkey: new PublicKey(authorizedPubkey),
-	    epochOfLastAuthorizedSwitch,
-	    targetEpoch
-	  };
-	}
-
-	function getPriorVoters({
-	  buf,
-	  idx,
-	  isEmpty
-	}) {
-	  if (isEmpty) {
-	    return [];
-	  }
-
-	  return [...buf.slice(idx + 1).map(parsePriorVoters), ...buf.slice(0, idx).map(parsePriorVoters)];
-	}
-
-	/**
-	 * Vote account info
-	 */
-
-	class VoteInit {
-	  /** [0, 100] */
-	  constructor(nodePubkey, authorizedVoter, authorizedWithdrawer, commission) {
-	    this.nodePubkey = void 0;
-	    this.authorizedVoter = void 0;
-	    this.authorizedWithdrawer = void 0;
-	    this.commission = void 0;
-	    this.nodePubkey = nodePubkey;
-	    this.authorizedVoter = authorizedVoter;
-	    this.authorizedWithdrawer = authorizedWithdrawer;
-	    this.commission = commission;
-	  }
-
-	}
-	/**
-	 * Create vote account transaction params
-	 */
-
-	/**
-	 * Vote Instruction class
-	 */
-	class VoteInstruction {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Decode a vote instruction and retrieve the instruction type.
-	   */
-
-
-	  static decodeInstructionType(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    const instructionTypeLayout = u32('instruction');
-	    const typeIndex = instructionTypeLayout.decode(instruction.data);
-	    let type;
-
-	    for (const [ixType, layout] of Object.entries(VOTE_INSTRUCTION_LAYOUTS)) {
-	      if (layout.index == typeIndex) {
-	        type = ixType;
-	        break;
-	      }
-	    }
-
-	    if (!type) {
-	      throw new Error('Instruction type incorrect; not a VoteInstruction');
-	    }
-
-	    return type;
-	  }
-	  /**
-	   * Decode an initialize vote instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeInitializeAccount(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 4);
-	    const {
-	      voteInit
-	    } = decodeData(VOTE_INSTRUCTION_LAYOUTS.InitializeAccount, instruction.data);
-	    return {
-	      votePubkey: instruction.keys[0].pubkey,
-	      nodePubkey: instruction.keys[3].pubkey,
-	      voteInit: new VoteInit(new PublicKey(voteInit.nodePubkey), new PublicKey(voteInit.authorizedVoter), new PublicKey(voteInit.authorizedWithdrawer), voteInit.commission)
-	    };
-	  }
-	  /**
-	   * Decode an authorize instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeAuthorize(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    const {
-	      newAuthorized,
-	      voteAuthorizationType
-	    } = decodeData(VOTE_INSTRUCTION_LAYOUTS.Authorize, instruction.data);
-	    return {
-	      votePubkey: instruction.keys[0].pubkey,
-	      authorizedPubkey: instruction.keys[2].pubkey,
-	      newAuthorizedPubkey: new PublicKey(newAuthorized),
-	      voteAuthorizationType: {
-	        index: voteAuthorizationType
-	      }
-	    };
-	  }
-	  /**
-	   * Decode a withdraw instruction and retrieve the instruction params.
-	   */
-
-
-	  static decodeWithdraw(instruction) {
-	    this.checkProgramId(instruction.programId);
-	    this.checkKeyLength(instruction.keys, 3);
-	    const {
-	      lamports
-	    } = decodeData(VOTE_INSTRUCTION_LAYOUTS.Withdraw, instruction.data);
-	    return {
-	      votePubkey: instruction.keys[0].pubkey,
-	      authorizedWithdrawerPubkey: instruction.keys[2].pubkey,
-	      lamports,
-	      toPubkey: instruction.keys[1].pubkey
-	    };
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkProgramId(programId) {
-	    if (!programId.equals(VoteProgram.programId)) {
-	      throw new Error('invalid instruction; programId is not VoteProgram');
-	    }
-	  }
-	  /**
-	   * @internal
-	   */
-
-
-	  static checkKeyLength(keys, expectedLength) {
-	    if (keys.length < expectedLength) {
-	      throw new Error(`invalid instruction; found ${keys.length} keys, expected at least ${expectedLength}`);
-	    }
-	  }
-
-	}
 	/**
 	 * An enumeration of valid VoteInstructionType's
 	 */
 
-	const VOTE_INSTRUCTION_LAYOUTS = Object.freeze({
+	Object.freeze({
 	  InitializeAccount: {
 	    index: 0,
 	    layout: struct([u32('instruction'), voteInit()])
@@ -38649,7 +35441,7 @@
 	/**
 	 * An enumeration of valid VoteAuthorization layouts.
 	 */
-	const VoteAuthorizationLayout = Object.freeze({
+	Object.freeze({
 	  Voter: {
 	    index: 0
 	  },
@@ -38657,304 +35449,9 @@
 	    index: 1
 	  }
 	});
-	/**
-	 * Factory class for transactions to interact with the Vote program
-	 */
+	new PublicKey('Vote111111111111111111111111111111111111111');
 
-	class VoteProgram {
-	  /**
-	   * @internal
-	   */
-	  constructor() {}
-	  /**
-	   * Public key that identifies the Vote program
-	   */
-
-
-	  /**
-	   * Generate an Initialize instruction.
-	   */
-	  static initializeAccount(params) {
-	    const {
-	      votePubkey,
-	      nodePubkey,
-	      voteInit
-	    } = params;
-	    const type = VOTE_INSTRUCTION_LAYOUTS.InitializeAccount;
-	    const data = encodeData(type, {
-	      voteInit: {
-	        nodePubkey: toBuffer(voteInit.nodePubkey.toBuffer()),
-	        authorizedVoter: toBuffer(voteInit.authorizedVoter.toBuffer()),
-	        authorizedWithdrawer: toBuffer(voteInit.authorizedWithdrawer.toBuffer()),
-	        commission: voteInit.commission
-	      }
-	    });
-	    const instructionData = {
-	      keys: [{
-	        pubkey: votePubkey,
-	        isSigner: false,
-	        isWritable: true
-	      }, {
-	        pubkey: SYSVAR_RENT_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: SYSVAR_CLOCK_PUBKEY,
-	        isSigner: false,
-	        isWritable: false
-	      }, {
-	        pubkey: nodePubkey,
-	        isSigner: true,
-	        isWritable: false
-	      }],
-	      programId: this.programId,
-	      data
-	    };
-	    return new TransactionInstruction(instructionData);
-	  }
-	  /**
-	   * Generate a transaction that creates a new Vote account.
-	   */
-
-
-	  static createAccount(params) {
-	    const transaction = new Transaction();
-	    transaction.add(SystemProgram.createAccount({
-	      fromPubkey: params.fromPubkey,
-	      newAccountPubkey: params.votePubkey,
-	      lamports: params.lamports,
-	      space: this.space,
-	      programId: this.programId
-	    }));
-	    return transaction.add(this.initializeAccount({
-	      votePubkey: params.votePubkey,
-	      nodePubkey: params.voteInit.nodePubkey,
-	      voteInit: params.voteInit
-	    }));
-	  }
-	  /**
-	   * Generate a transaction that authorizes a new Voter or Withdrawer on the Vote account.
-	   */
-
-
-	  static authorize(params) {
-	    const {
-	      votePubkey,
-	      authorizedPubkey,
-	      newAuthorizedPubkey,
-	      voteAuthorizationType
-	    } = params;
-	    const type = VOTE_INSTRUCTION_LAYOUTS.Authorize;
-	    const data = encodeData(type, {
-	      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
-	      voteAuthorizationType: voteAuthorizationType.index
-	    });
-	    const keys = [{
-	      pubkey: votePubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: SYSVAR_CLOCK_PUBKEY,
-	      isSigner: false,
-	      isWritable: false
-	    }, {
-	      pubkey: authorizedPubkey,
-	      isSigner: true,
-	      isWritable: false
-	    }];
-	    return new Transaction().add({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-	  /**
-	   * Generate a transaction to withdraw from a Vote account.
-	   */
-
-
-	  static withdraw(params) {
-	    const {
-	      votePubkey,
-	      authorizedWithdrawerPubkey,
-	      lamports,
-	      toPubkey
-	    } = params;
-	    const type = VOTE_INSTRUCTION_LAYOUTS.Withdraw;
-	    const data = encodeData(type, {
-	      lamports
-	    });
-	    const keys = [{
-	      pubkey: votePubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: toPubkey,
-	      isSigner: false,
-	      isWritable: true
-	    }, {
-	      pubkey: authorizedWithdrawerPubkey,
-	      isSigner: true,
-	      isWritable: false
-	    }];
-	    return new Transaction().add({
-	      keys,
-	      programId: this.programId,
-	      data
-	    });
-	  }
-
-	}
-	VoteProgram.programId = new PublicKey('Vote111111111111111111111111111111111111111');
-	VoteProgram.space = 3731;
-
-	/**
-	 * Send and confirm a raw transaction
-	 *
-	 * If `commitment` option is not specified, defaults to 'max' commitment.
-	 *
-	 * @param {Connection} connection
-	 * @param {Buffer} rawTransaction
-	 * @param {BlockheightBasedTransactionConfirmationStrategy} confirmationStrategy
-	 * @param {ConfirmOptions} [options]
-	 * @returns {Promise<TransactionSignature>}
-	 */
-
-	/**
-	 * @deprecated Calling `sendAndConfirmRawTransaction()` without a `confirmationStrategy`
-	 * is no longer supported and will be removed in a future version.
-	 */
-	// eslint-disable-next-line no-redeclare
-	// eslint-disable-next-line no-redeclare
-	async function sendAndConfirmRawTransaction(connection, rawTransaction, confirmationStrategyOrConfirmOptions, maybeConfirmOptions) {
-	  let confirmationStrategy;
-	  let options;
-
-	  if (confirmationStrategyOrConfirmOptions && Object.prototype.hasOwnProperty.call(confirmationStrategyOrConfirmOptions, 'lastValidBlockHeight')) {
-	    confirmationStrategy = confirmationStrategyOrConfirmOptions;
-	    options = maybeConfirmOptions;
-	  } else {
-	    options = confirmationStrategyOrConfirmOptions;
-	  }
-
-	  const sendOptions = options && {
-	    skipPreflight: options.skipPreflight,
-	    preflightCommitment: options.preflightCommitment || options.commitment,
-	    minContextSlot: options.minContextSlot
-	  };
-	  const signature = await connection.sendRawTransaction(rawTransaction, sendOptions);
-	  const commitment = options && options.commitment;
-	  const confirmationPromise = confirmationStrategy ? connection.confirmTransaction(confirmationStrategy, commitment) : connection.confirmTransaction(signature, commitment);
-	  const status = (await confirmationPromise).value;
-
-	  if (status.err) {
-	    throw new Error(`Raw transaction ${signature} failed (${JSON.stringify(status)})`);
-	  }
-
-	  return signature;
-	}
-
-	const endpoint = {
-	  http: {
-	    devnet: 'http://api.devnet.solana.com',
-	    testnet: 'http://api.testnet.solana.com',
-	    'mainnet-beta': 'http://api.mainnet-beta.solana.com/'
-	  },
-	  https: {
-	    devnet: 'https://api.devnet.solana.com',
-	    testnet: 'https://api.testnet.solana.com',
-	    'mainnet-beta': 'https://api.mainnet-beta.solana.com/'
-	  }
-	};
-
-	/**
-	 * Retrieves the RPC API URL for the specified cluster
-	 */
-	function clusterApiUrl(cluster, tls) {
-	  const key = tls === false ? 'http' : 'https';
-
-	  if (!cluster) {
-	    return endpoint[key]['devnet'];
-	  }
-
-	  const url = endpoint[key][cluster];
-
-	  if (!url) {
-	    throw new Error(`Unknown ${key} cluster: ${cluster}`);
-	  }
-
-	  return url;
-	}
-
-	/**
-	 * There are 1-billion lamports in one SOL
-	 */
-
-	const LAMPORTS_PER_SOL = 1000000000;
-
-	exports.Account = Account;
-	exports.Authorized = Authorized;
-	exports.BLOCKHASH_CACHE_TIMEOUT_MS = BLOCKHASH_CACHE_TIMEOUT_MS;
-	exports.BPF_LOADER_DEPRECATED_PROGRAM_ID = BPF_LOADER_DEPRECATED_PROGRAM_ID;
-	exports.BPF_LOADER_PROGRAM_ID = BPF_LOADER_PROGRAM_ID;
-	exports.BpfLoader = BpfLoader;
-	exports.COMPUTE_BUDGET_INSTRUCTION_LAYOUTS = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS;
-	exports.ComputeBudgetInstruction = ComputeBudgetInstruction;
-	exports.ComputeBudgetProgram = ComputeBudgetProgram;
 	exports.Connection = Connection;
-	exports.Ed25519Program = Ed25519Program;
-	exports.Enum = Enum;
-	exports.EpochSchedule = EpochSchedule;
-	exports.FeeCalculatorLayout = FeeCalculatorLayout;
-	exports.Keypair = Keypair;
-	exports.LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
-	exports.Loader = Loader;
-	exports.Lockup = Lockup;
-	exports.MAX_SEED_LENGTH = MAX_SEED_LENGTH;
-	exports.Message = Message;
-	exports.NONCE_ACCOUNT_LENGTH = NONCE_ACCOUNT_LENGTH;
-	exports.NonceAccount = NonceAccount;
-	exports.PACKET_DATA_SIZE = PACKET_DATA_SIZE;
-	exports.PublicKey = PublicKey;
-	exports.SIGNATURE_LENGTH_IN_BYTES = SIGNATURE_LENGTH_IN_BYTES;
-	exports.SOLANA_SCHEMA = SOLANA_SCHEMA;
-	exports.STAKE_CONFIG_ID = STAKE_CONFIG_ID;
-	exports.STAKE_INSTRUCTION_LAYOUTS = STAKE_INSTRUCTION_LAYOUTS;
-	exports.SYSTEM_INSTRUCTION_LAYOUTS = SYSTEM_INSTRUCTION_LAYOUTS;
-	exports.SYSVAR_CLOCK_PUBKEY = SYSVAR_CLOCK_PUBKEY;
-	exports.SYSVAR_EPOCH_SCHEDULE_PUBKEY = SYSVAR_EPOCH_SCHEDULE_PUBKEY;
-	exports.SYSVAR_INSTRUCTIONS_PUBKEY = SYSVAR_INSTRUCTIONS_PUBKEY;
-	exports.SYSVAR_RECENT_BLOCKHASHES_PUBKEY = SYSVAR_RECENT_BLOCKHASHES_PUBKEY;
-	exports.SYSVAR_RENT_PUBKEY = SYSVAR_RENT_PUBKEY;
-	exports.SYSVAR_REWARDS_PUBKEY = SYSVAR_REWARDS_PUBKEY;
-	exports.SYSVAR_SLOT_HASHES_PUBKEY = SYSVAR_SLOT_HASHES_PUBKEY;
-	exports.SYSVAR_SLOT_HISTORY_PUBKEY = SYSVAR_SLOT_HISTORY_PUBKEY;
-	exports.SYSVAR_STAKE_HISTORY_PUBKEY = SYSVAR_STAKE_HISTORY_PUBKEY;
-	exports.Secp256k1Program = Secp256k1Program;
-	exports.SendTransactionError = SendTransactionError;
-	exports.SolanaJSONRPCError = SolanaJSONRPCError;
-	exports.SolanaJSONRPCErrorCode = SolanaJSONRPCErrorCode;
-	exports.StakeAuthorizationLayout = StakeAuthorizationLayout;
-	exports.StakeInstruction = StakeInstruction;
-	exports.StakeProgram = StakeProgram;
-	exports.Struct = Struct;
-	exports.SystemInstruction = SystemInstruction;
-	exports.SystemProgram = SystemProgram;
-	exports.Transaction = Transaction;
-	exports.TransactionExpiredBlockheightExceededError = TransactionExpiredBlockheightExceededError;
-	exports.TransactionExpiredTimeoutError = TransactionExpiredTimeoutError;
-	exports.TransactionInstruction = TransactionInstruction;
-	exports.VALIDATOR_INFO_KEY = VALIDATOR_INFO_KEY;
-	exports.VOTE_PROGRAM_ID = VOTE_PROGRAM_ID;
-	exports.ValidatorInfo = ValidatorInfo;
-	exports.VoteAccount = VoteAccount;
-	exports.VoteAuthorizationLayout = VoteAuthorizationLayout;
-	exports.VoteInit = VoteInit;
-	exports.VoteInstruction = VoteInstruction;
-	exports.VoteProgram = VoteProgram;
-	exports.clusterApiUrl = clusterApiUrl;
-	exports.sendAndConfirmRawTransaction = sendAndConfirmRawTransaction;
-	exports.sendAndConfirmTransaction = sendAndConfirmTransaction;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 
