@@ -1,16 +1,5 @@
-import require$$5 from 'crypto';
-import require$$0$2, { Buffer as Buffer$1 } from 'buffer';
-import require$$0$6 from 'events';
-import require$$1$1 from 'https';
-import require$$2$1 from 'http';
-import require$$3 from 'net';
-import require$$4 from 'tls';
-import require$$0$5 from 'stream';
-import require$$7 from 'url';
-import require$$0$4 from 'zlib';
-import require$$0$3 from 'fs';
-import require$$1 from 'path';
-import require$$2 from 'os';
+import { serialize, deserialize, deserializeUnchecked } from 'borsh';
+import { toBigIntLE, toBufferLE } from 'bigint-buffer';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -40,6 +29,15 @@ function commonjsRequire(path) {
 }
 
 var naclFast = {exports: {}};
+
+var _polyfillNode_crypto = {};
+
+var _polyfillNode_crypto$1 = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	'default': _polyfillNode_crypto
+});
+
+var require$$0$3 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_crypto$1);
 
 (function (module) {
 	(function(nacl) {
@@ -2420,7 +2418,7 @@ var naclFast = {exports: {}};
 	    });
 	  } else if (typeof commonjsRequire !== 'undefined') {
 	    // Node.js.
-	    crypto = require$$5;
+	    crypto = require$$0$3;
 	    if (crypto && crypto.randomBytes) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -2436,7 +2434,2002 @@ var naclFast = {exports: {}};
 
 var nacl = naclFast.exports;
 
-var bn$1 = {exports: {}};
+var global$1 = (typeof global !== "undefined" ? global :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window : {});
+
+var lookup = [];
+var revLookup = [];
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
+var inited = false;
+function init () {
+  inited = true;
+  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  for (var i = 0, len = code.length; i < len; ++i) {
+    lookup[i] = code[i];
+    revLookup[code.charCodeAt(i)] = i;
+  }
+
+  revLookup['-'.charCodeAt(0)] = 62;
+  revLookup['_'.charCodeAt(0)] = 63;
+}
+
+function toByteArray (b64) {
+  if (!inited) {
+    init();
+  }
+  var i, j, l, tmp, placeHolders, arr;
+  var len = b64.length;
+
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // the number of equal signs (place holders)
+  // if there are two placeholders, than the two characters before it
+  // represent one byte
+  // if there is only one, then the three characters before it represent 2 bytes
+  // this is just a cheap hack to not do indexOf twice
+  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
+
+  // base64 is 4/3 + up to two characters of the original data
+  arr = new Arr(len * 3 / 4 - placeHolders);
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  l = placeHolders > 0 ? len - 4 : len;
+
+  var L = 0;
+
+  for (i = 0, j = 0; i < l; i += 4, j += 3) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)];
+    arr[L++] = (tmp >> 16) & 0xFF;
+    arr[L++] = (tmp >> 8) & 0xFF;
+    arr[L++] = tmp & 0xFF;
+  }
+
+  if (placeHolders === 2) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4);
+    arr[L++] = tmp & 0xFF;
+  } else if (placeHolders === 1) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2);
+    arr[L++] = (tmp >> 8) & 0xFF;
+    arr[L++] = tmp & 0xFF;
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp;
+  var output = [];
+  for (var i = start; i < end; i += 3) {
+    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2]);
+    output.push(tripletToBase64(tmp));
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  if (!inited) {
+    init();
+  }
+  var tmp;
+  var len = uint8.length;
+  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
+  var output = '';
+  var parts = [];
+  var maxChunkLength = 16383; // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)));
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1];
+    output += lookup[tmp >> 2];
+    output += lookup[(tmp << 4) & 0x3F];
+    output += '==';
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + (uint8[len - 1]);
+    output += lookup[tmp >> 10];
+    output += lookup[(tmp >> 4) & 0x3F];
+    output += lookup[(tmp << 2) & 0x3F];
+    output += '=';
+  }
+
+  parts.push(output);
+
+  return parts.join('')
+}
+
+function read (buffer, offset, isLE, mLen, nBytes) {
+  var e, m;
+  var eLen = nBytes * 8 - mLen - 1;
+  var eMax = (1 << eLen) - 1;
+  var eBias = eMax >> 1;
+  var nBits = -7;
+  var i = isLE ? (nBytes - 1) : 0;
+  var d = isLE ? -1 : 1;
+  var s = buffer[offset + i];
+
+  i += d;
+
+  e = s & ((1 << (-nBits)) - 1);
+  s >>= (-nBits);
+  nBits += eLen;
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  m = e & ((1 << (-nBits)) - 1);
+  e >>= (-nBits);
+  nBits += mLen;
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+
+  if (e === 0) {
+    e = 1 - eBias;
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
+  } else {
+    m = m + Math.pow(2, mLen);
+    e = e - eBias;
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
+
+function write (buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c;
+  var eLen = nBytes * 8 - mLen - 1;
+  var eMax = (1 << eLen) - 1;
+  var eBias = eMax >> 1;
+  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0);
+  var i = isLE ? 0 : (nBytes - 1);
+  var d = isLE ? 1 : -1;
+  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+
+  value = Math.abs(value);
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0;
+    e = eMax;
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2);
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--;
+      c *= 2;
+    }
+    if (e + eBias >= 1) {
+      value += rt / c;
+    } else {
+      value += rt * Math.pow(2, 1 - eBias);
+    }
+    if (value * c >= 2) {
+      e++;
+      c /= 2;
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0;
+      e = eMax;
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen);
+      e = e + eBias;
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+      e = 0;
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+
+  e = (e << mLen) | m;
+  eLen += mLen;
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+
+  buffer[offset + i - d] |= s * 128;
+}
+
+var toString = {}.toString;
+
+var isArray = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+
+var INSPECT_MAX_BYTES = 50;
+
+/**
+ * If `Buffer.TYPED_ARRAY_SUPPORT`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (most compatible, even IE6)
+ *
+ * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
+ * Opera 11.6+, iOS 4.2+.
+ *
+ * Due to various browser bugs, sometimes the Object implementation will be used even
+ * when the browser supports typed arrays.
+ *
+ * Note:
+ *
+ *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
+ *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
+ *
+ *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
+ *
+ *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
+ *     incorrect length in some situations.
+
+ * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
+ * get the Object implementation, which is slower but behaves correctly.
+ */
+Buffer.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
+  ? global$1.TYPED_ARRAY_SUPPORT
+  : true;
+
+/*
+ * Export kMaxLength after typed array support is determined.
+ */
+var _kMaxLength = kMaxLength();
+
+function kMaxLength () {
+  return Buffer.TYPED_ARRAY_SUPPORT
+    ? 0x7fffffff
+    : 0x3fffffff
+}
+
+function createBuffer (that, length) {
+  if (kMaxLength() < length) {
+    throw new RangeError('Invalid typed array length')
+  }
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = new Uint8Array(length);
+    that.__proto__ = Buffer.prototype;
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    if (that === null) {
+      that = new Buffer(length);
+    }
+    that.length = length;
+  }
+
+  return that
+}
+
+/**
+ * The Buffer constructor returns instances of `Uint8Array` that have their
+ * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
+ * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
+ * and the `Uint8Array` methods. Square bracket notation works as expected -- it
+ * returns a single octet.
+ *
+ * The `Uint8Array` prototype remains unmodified.
+ */
+
+function Buffer (arg, encodingOrOffset, length) {
+  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
+    return new Buffer(arg, encodingOrOffset, length)
+  }
+
+  // Common case.
+  if (typeof arg === 'number') {
+    if (typeof encodingOrOffset === 'string') {
+      throw new Error(
+        'If encoding is specified then the first argument must be a string'
+      )
+    }
+    return allocUnsafe(this, arg)
+  }
+  return from(this, arg, encodingOrOffset, length)
+}
+
+Buffer.poolSize = 8192; // not used by this implementation
+
+// TODO: Legacy, not needed anymore. Remove in next major version.
+Buffer._augment = function (arr) {
+  arr.__proto__ = Buffer.prototype;
+  return arr
+};
+
+function from (that, value, encodingOrOffset, length) {
+  if (typeof value === 'number') {
+    throw new TypeError('"value" argument must not be a number')
+  }
+
+  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
+    return fromArrayBuffer(that, value, encodingOrOffset, length)
+  }
+
+  if (typeof value === 'string') {
+    return fromString(that, value, encodingOrOffset)
+  }
+
+  return fromObject(that, value)
+}
+
+/**
+ * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
+ * if value is a number.
+ * Buffer.from(str[, encoding])
+ * Buffer.from(array)
+ * Buffer.from(buffer)
+ * Buffer.from(arrayBuffer[, byteOffset[, length]])
+ **/
+Buffer.from = function (value, encodingOrOffset, length) {
+  return from(null, value, encodingOrOffset, length)
+};
+
+if (Buffer.TYPED_ARRAY_SUPPORT) {
+  Buffer.prototype.__proto__ = Uint8Array.prototype;
+  Buffer.__proto__ = Uint8Array;
+}
+
+function assertSize (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('"size" argument must be a number')
+  } else if (size < 0) {
+    throw new RangeError('"size" argument must not be negative')
+  }
+}
+
+function alloc (that, size, fill, encoding) {
+  assertSize(size);
+  if (size <= 0) {
+    return createBuffer(that, size)
+  }
+  if (fill !== undefined) {
+    // Only pay attention to encoding if it's a string. This
+    // prevents accidentally sending in a number that would
+    // be interpretted as a start offset.
+    return typeof encoding === 'string'
+      ? createBuffer(that, size).fill(fill, encoding)
+      : createBuffer(that, size).fill(fill)
+  }
+  return createBuffer(that, size)
+}
+
+/**
+ * Creates a new filled Buffer instance.
+ * alloc(size[, fill[, encoding]])
+ **/
+Buffer.alloc = function (size, fill, encoding) {
+  return alloc(null, size, fill, encoding)
+};
+
+function allocUnsafe (that, size) {
+  assertSize(size);
+  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0);
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < size; ++i) {
+      that[i] = 0;
+    }
+  }
+  return that
+}
+
+/**
+ * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
+ * */
+Buffer.allocUnsafe = function (size) {
+  return allocUnsafe(null, size)
+};
+/**
+ * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
+ */
+Buffer.allocUnsafeSlow = function (size) {
+  return allocUnsafe(null, size)
+};
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') {
+    encoding = 'utf8';
+  }
+
+  if (!Buffer.isEncoding(encoding)) {
+    throw new TypeError('"encoding" must be a valid string encoding')
+  }
+
+  var length = byteLength(string, encoding) | 0;
+  that = createBuffer(that, length);
+
+  var actual = that.write(string, encoding);
+
+  if (actual !== length) {
+    // Writing a hex string, for example, that contains invalid characters will
+    // cause everything after the first invalid character to be ignored. (e.g.
+    // 'abxxcd' will be treated as 'ab')
+    that = that.slice(0, actual);
+  }
+
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = array.length < 0 ? 0 : checked(array.length) | 0;
+  that = createBuffer(that, length);
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255;
+  }
+  return that
+}
+
+function fromArrayBuffer (that, array, byteOffset, length) {
+  array.byteLength; // this throws if `array` is not a valid ArrayBuffer
+
+  if (byteOffset < 0 || array.byteLength < byteOffset) {
+    throw new RangeError('\'offset\' is out of bounds')
+  }
+
+  if (array.byteLength < byteOffset + (length || 0)) {
+    throw new RangeError('\'length\' is out of bounds')
+  }
+
+  if (byteOffset === undefined && length === undefined) {
+    array = new Uint8Array(array);
+  } else if (length === undefined) {
+    array = new Uint8Array(array, byteOffset);
+  } else {
+    array = new Uint8Array(array, byteOffset, length);
+  }
+
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = array;
+    that.__proto__ = Buffer.prototype;
+  } else {
+    // Fallback: Return an object instance of the Buffer class
+    that = fromArrayLike(that, array);
+  }
+  return that
+}
+
+function fromObject (that, obj) {
+  if (internalIsBuffer(obj)) {
+    var len = checked(obj.length) | 0;
+    that = createBuffer(that, len);
+
+    if (that.length === 0) {
+      return that
+    }
+
+    obj.copy(that, 0, 0, len);
+    return that
+  }
+
+  if (obj) {
+    if ((typeof ArrayBuffer !== 'undefined' &&
+        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
+      if (typeof obj.length !== 'number' || isnan(obj.length)) {
+        return createBuffer(that, 0)
+      }
+      return fromArrayLike(that, obj)
+    }
+
+    if (obj.type === 'Buffer' && isArray(obj.data)) {
+      return fromArrayLike(that, obj.data)
+    }
+  }
+
+  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength()` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength()) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
+  }
+  return length | 0
+}
+
+function SlowBuffer (length) {
+  if (+length != length) { // eslint-disable-line eqeqeq
+    length = 0;
+  }
+  return Buffer.alloc(+length)
+}
+Buffer.isBuffer = isBuffer;
+function internalIsBuffer (b) {
+  return !!(b != null && b._isBuffer)
+}
+
+Buffer.compare = function compare (a, b) {
+  if (!internalIsBuffer(a) || !internalIsBuffer(b)) {
+    throw new TypeError('Arguments must be Buffers')
+  }
+
+  if (a === b) return 0
+
+  var x = a.length;
+  var y = b.length;
+
+  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    if (a[i] !== b[i]) {
+      x = a[i];
+      y = b[i];
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+};
+
+Buffer.isEncoding = function isEncoding (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'latin1':
+    case 'binary':
+    case 'base64':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+};
+
+Buffer.concat = function concat (list, length) {
+  if (!isArray(list)) {
+    throw new TypeError('"list" argument must be an Array of Buffers')
+  }
+
+  if (list.length === 0) {
+    return Buffer.alloc(0)
+  }
+
+  var i;
+  if (length === undefined) {
+    length = 0;
+    for (i = 0; i < list.length; ++i) {
+      length += list[i].length;
+    }
+  }
+
+  var buffer = Buffer.allocUnsafe(length);
+  var pos = 0;
+  for (i = 0; i < list.length; ++i) {
+    var buf = list[i];
+    if (!internalIsBuffer(buf)) {
+      throw new TypeError('"list" argument must be an Array of Buffers')
+    }
+    buf.copy(buffer, pos);
+    pos += buf.length;
+  }
+  return buffer
+};
+
+function byteLength (string, encoding) {
+  if (internalIsBuffer(string)) {
+    return string.length
+  }
+  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
+      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
+    return string.byteLength
+  }
+  if (typeof string !== 'string') {
+    string = '' + string;
+  }
+
+  var len = string.length;
+  if (len === 0) return 0
+
+  // Use a for loop to avoid recursion
+  var loweredCase = false;
+  for (;;) {
+    switch (encoding) {
+      case 'ascii':
+      case 'latin1':
+      case 'binary':
+        return len
+      case 'utf8':
+      case 'utf-8':
+      case undefined:
+        return utf8ToBytes(string).length
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return len * 2
+      case 'hex':
+        return len >>> 1
+      case 'base64':
+        return base64ToBytes(string).length
+      default:
+        if (loweredCase) return utf8ToBytes(string).length // assume utf8
+        encoding = ('' + encoding).toLowerCase();
+        loweredCase = true;
+    }
+  }
+}
+Buffer.byteLength = byteLength;
+
+function slowToString (encoding, start, end) {
+  var loweredCase = false;
+
+  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  // property of a typed array.
+
+  // This behaves neither like String nor Uint8Array in that we set start/end
+  // to their upper/lower bounds if the value passed is out of range.
+  // undefined is handled specially as per ECMA-262 6th Edition,
+  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
+  if (start === undefined || start < 0) {
+    start = 0;
+  }
+  // Return early if start > this.length. Done here to prevent potential uint32
+  // coercion fail below.
+  if (start > this.length) {
+    return ''
+  }
+
+  if (end === undefined || end > this.length) {
+    end = this.length;
+  }
+
+  if (end <= 0) {
+    return ''
+  }
+
+  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  end >>>= 0;
+  start >>>= 0;
+
+  if (end <= start) {
+    return ''
+  }
+
+  if (!encoding) encoding = 'utf8';
+
+  while (true) {
+    switch (encoding) {
+      case 'hex':
+        return hexSlice(this, start, end)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Slice(this, start, end)
+
+      case 'ascii':
+        return asciiSlice(this, start, end)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Slice(this, start, end)
+
+      case 'base64':
+        return base64Slice(this, start, end)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return utf16leSlice(this, start, end)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = (encoding + '').toLowerCase();
+        loweredCase = true;
+    }
+  }
+}
+
+// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
+// Buffer instances.
+Buffer.prototype._isBuffer = true;
+
+function swap (b, n, m) {
+  var i = b[n];
+  b[n] = b[m];
+  b[m] = i;
+}
+
+Buffer.prototype.swap16 = function swap16 () {
+  var len = this.length;
+  if (len % 2 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 16-bits')
+  }
+  for (var i = 0; i < len; i += 2) {
+    swap(this, i, i + 1);
+  }
+  return this
+};
+
+Buffer.prototype.swap32 = function swap32 () {
+  var len = this.length;
+  if (len % 4 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 32-bits')
+  }
+  for (var i = 0; i < len; i += 4) {
+    swap(this, i, i + 3);
+    swap(this, i + 1, i + 2);
+  }
+  return this
+};
+
+Buffer.prototype.swap64 = function swap64 () {
+  var len = this.length;
+  if (len % 8 !== 0) {
+    throw new RangeError('Buffer size must be a multiple of 64-bits')
+  }
+  for (var i = 0; i < len; i += 8) {
+    swap(this, i, i + 7);
+    swap(this, i + 1, i + 6);
+    swap(this, i + 2, i + 5);
+    swap(this, i + 3, i + 4);
+  }
+  return this
+};
+
+Buffer.prototype.toString = function toString () {
+  var length = this.length | 0;
+  if (length === 0) return ''
+  if (arguments.length === 0) return utf8Slice(this, 0, length)
+  return slowToString.apply(this, arguments)
+};
+
+Buffer.prototype.equals = function equals (b) {
+  if (!internalIsBuffer(b)) throw new TypeError('Argument must be a Buffer')
+  if (this === b) return true
+  return Buffer.compare(this, b) === 0
+};
+
+Buffer.prototype.inspect = function inspect () {
+  var str = '';
+  var max = INSPECT_MAX_BYTES;
+  if (this.length > 0) {
+    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ');
+    if (this.length > max) str += ' ... ';
+  }
+  return '<Buffer ' + str + '>'
+};
+
+Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+  if (!internalIsBuffer(target)) {
+    throw new TypeError('Argument must be a Buffer')
+  }
+
+  if (start === undefined) {
+    start = 0;
+  }
+  if (end === undefined) {
+    end = target ? target.length : 0;
+  }
+  if (thisStart === undefined) {
+    thisStart = 0;
+  }
+  if (thisEnd === undefined) {
+    thisEnd = this.length;
+  }
+
+  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
+    throw new RangeError('out of range index')
+  }
+
+  if (thisStart >= thisEnd && start >= end) {
+    return 0
+  }
+  if (thisStart >= thisEnd) {
+    return -1
+  }
+  if (start >= end) {
+    return 1
+  }
+
+  start >>>= 0;
+  end >>>= 0;
+  thisStart >>>= 0;
+  thisEnd >>>= 0;
+
+  if (this === target) return 0
+
+  var x = thisEnd - thisStart;
+  var y = end - start;
+  var len = Math.min(x, y);
+
+  var thisCopy = this.slice(thisStart, thisEnd);
+  var targetCopy = target.slice(start, end);
+
+  for (var i = 0; i < len; ++i) {
+    if (thisCopy[i] !== targetCopy[i]) {
+      x = thisCopy[i];
+      y = targetCopy[i];
+      break
+    }
+  }
+
+  if (x < y) return -1
+  if (y < x) return 1
+  return 0
+};
+
+// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
+// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
+//
+// Arguments:
+// - buffer - a Buffer to search
+// - val - a string, Buffer, or number
+// - byteOffset - an index into `buffer`; will be clamped to an int32
+// - encoding - an optional encoding, relevant is val is a string
+// - dir - true for indexOf, false for lastIndexOf
+function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
+  // Empty buffer means no match
+  if (buffer.length === 0) return -1
+
+  // Normalize byteOffset
+  if (typeof byteOffset === 'string') {
+    encoding = byteOffset;
+    byteOffset = 0;
+  } else if (byteOffset > 0x7fffffff) {
+    byteOffset = 0x7fffffff;
+  } else if (byteOffset < -0x80000000) {
+    byteOffset = -0x80000000;
+  }
+  byteOffset = +byteOffset;  // Coerce to Number.
+  if (isNaN(byteOffset)) {
+    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
+    byteOffset = dir ? 0 : (buffer.length - 1);
+  }
+
+  // Normalize byteOffset: negative offsets start from the end of the buffer
+  if (byteOffset < 0) byteOffset = buffer.length + byteOffset;
+  if (byteOffset >= buffer.length) {
+    if (dir) return -1
+    else byteOffset = buffer.length - 1;
+  } else if (byteOffset < 0) {
+    if (dir) byteOffset = 0;
+    else return -1
+  }
+
+  // Normalize val
+  if (typeof val === 'string') {
+    val = Buffer.from(val, encoding);
+  }
+
+  // Finally, search either indexOf (if dir is true) or lastIndexOf
+  if (internalIsBuffer(val)) {
+    // Special case: looking for empty string/buffer always fails
+    if (val.length === 0) {
+      return -1
+    }
+    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
+  } else if (typeof val === 'number') {
+    val = val & 0xFF; // Search for a byte value [0-255]
+    if (Buffer.TYPED_ARRAY_SUPPORT &&
+        typeof Uint8Array.prototype.indexOf === 'function') {
+      if (dir) {
+        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
+      } else {
+        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
+      }
+    }
+    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+  }
+
+  throw new TypeError('val must be string, number or Buffer')
+}
+
+function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
+  var indexSize = 1;
+  var arrLength = arr.length;
+  var valLength = val.length;
+
+  if (encoding !== undefined) {
+    encoding = String(encoding).toLowerCase();
+    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
+        encoding === 'utf16le' || encoding === 'utf-16le') {
+      if (arr.length < 2 || val.length < 2) {
+        return -1
+      }
+      indexSize = 2;
+      arrLength /= 2;
+      valLength /= 2;
+      byteOffset /= 2;
+    }
+  }
+
+  function read (buf, i) {
+    if (indexSize === 1) {
+      return buf[i]
+    } else {
+      return buf.readUInt16BE(i * indexSize)
+    }
+  }
+
+  var i;
+  if (dir) {
+    var foundIndex = -1;
+    for (i = byteOffset; i < arrLength; i++) {
+      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
+        if (foundIndex === -1) foundIndex = i;
+        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
+      } else {
+        if (foundIndex !== -1) i -= i - foundIndex;
+        foundIndex = -1;
+      }
+    }
+  } else {
+    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength;
+    for (i = byteOffset; i >= 0; i--) {
+      var found = true;
+      for (var j = 0; j < valLength; j++) {
+        if (read(arr, i + j) !== read(val, j)) {
+          found = false;
+          break
+        }
+      }
+      if (found) return i
+    }
+  }
+
+  return -1
+}
+
+Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
+  return this.indexOf(val, byteOffset, encoding) !== -1
+};
+
+Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
+};
+
+Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
+};
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0;
+  var remaining = buf.length - offset;
+  if (!length) {
+    length = remaining;
+  } else {
+    length = Number(length);
+    if (length > remaining) {
+      length = remaining;
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length;
+  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2;
+  }
+  for (var i = 0; i < length; ++i) {
+    var parsed = parseInt(string.substr(i * 2, 2), 16);
+    if (isNaN(parsed)) return i
+    buf[offset + i] = parsed;
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+function asciiWrite (buf, string, offset, length) {
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
+}
+
+function latin1Write (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
+}
+
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
+}
+
+Buffer.prototype.write = function write (string, offset, length, encoding) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8';
+    length = this.length;
+    offset = 0;
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset;
+    length = this.length;
+    offset = 0;
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0;
+    if (isFinite(length)) {
+      length = length | 0;
+      if (encoding === undefined) encoding = 'utf8';
+    } else {
+      encoding = length;
+      length = undefined;
+    }
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
+    throw new Error(
+      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
+    )
+  }
+
+  var remaining = this.length - offset;
+  if (length === undefined || length > remaining) length = remaining;
+
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+    throw new RangeError('Attempt to write outside buffer bounds')
+  }
+
+  if (!encoding) encoding = 'utf8';
+
+  var loweredCase = false;
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'latin1':
+      case 'binary':
+        return latin1Write(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase();
+        loweredCase = true;
+    }
+  }
+};
+
+Buffer.prototype.toJSON = function toJSON () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+};
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return fromByteArray(buf)
+  } else {
+    return fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  end = Math.min(buf.length, end);
+  var res = [];
+
+  var i = start;
+  while (i < end) {
+    var firstByte = buf[i];
+    var codePoint = null;
+    var bytesPerSequence = (firstByte > 0xEF) ? 4
+      : (firstByte > 0xDF) ? 3
+      : (firstByte > 0xBF) ? 2
+      : 1;
+
+    if (i + bytesPerSequence <= end) {
+      var secondByte, thirdByte, fourthByte, tempCodePoint;
+
+      switch (bytesPerSequence) {
+        case 1:
+          if (firstByte < 0x80) {
+            codePoint = firstByte;
+          }
+          break
+        case 2:
+          secondByte = buf[i + 1];
+          if ((secondByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F);
+            if (tempCodePoint > 0x7F) {
+              codePoint = tempCodePoint;
+            }
+          }
+          break
+        case 3:
+          secondByte = buf[i + 1];
+          thirdByte = buf[i + 2];
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F);
+            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
+              codePoint = tempCodePoint;
+            }
+          }
+          break
+        case 4:
+          secondByte = buf[i + 1];
+          thirdByte = buf[i + 2];
+          fourthByte = buf[i + 3];
+          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
+            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F);
+            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
+              codePoint = tempCodePoint;
+            }
+          }
+      }
+    }
+
+    if (codePoint === null) {
+      // we did not generate a valid codePoint so insert a
+      // replacement char (U+FFFD) and advance only 1 byte
+      codePoint = 0xFFFD;
+      bytesPerSequence = 1;
+    } else if (codePoint > 0xFFFF) {
+      // encode to utf16 (surrogate pair dance)
+      codePoint -= 0x10000;
+      res.push(codePoint >>> 10 & 0x3FF | 0xD800);
+      codePoint = 0xDC00 | codePoint & 0x3FF;
+    }
+
+    res.push(codePoint);
+    i += bytesPerSequence;
+  }
+
+  return decodeCodePointsArray(res)
+}
+
+// Based on http://stackoverflow.com/a/22747272/680742, the browser with
+// the lowest limit is Chrome, with 0x10000 args.
+// We go 1 magnitude less, for safety
+var MAX_ARGUMENTS_LENGTH = 0x1000;
+
+function decodeCodePointsArray (codePoints) {
+  var len = codePoints.length;
+  if (len <= MAX_ARGUMENTS_LENGTH) {
+    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
+  }
+
+  // Decode in chunks to avoid "call stack size exceeded".
+  var res = '';
+  var i = 0;
+  while (i < len) {
+    res += String.fromCharCode.apply(
+      String,
+      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
+    );
+  }
+  return res
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = '';
+  end = Math.min(buf.length, end);
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i] & 0x7F);
+  }
+  return ret
+}
+
+function latin1Slice (buf, start, end) {
+  var ret = '';
+  end = Math.min(buf.length, end);
+
+  for (var i = start; i < end; ++i) {
+    ret += String.fromCharCode(buf[i]);
+  }
+  return ret
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length;
+
+  if (!start || start < 0) start = 0;
+  if (!end || end < 0 || end > len) end = len;
+
+  var out = '';
+  for (var i = start; i < end; ++i) {
+    out += toHex$1(buf[i]);
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end);
+  var res = '';
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);
+  }
+  return res
+}
+
+Buffer.prototype.slice = function slice (start, end) {
+  var len = this.length;
+  start = ~~start;
+  end = end === undefined ? len : ~~end;
+
+  if (start < 0) {
+    start += len;
+    if (start < 0) start = 0;
+  } else if (start > len) {
+    start = len;
+  }
+
+  if (end < 0) {
+    end += len;
+    if (end < 0) end = 0;
+  } else if (end > len) {
+    end = len;
+  }
+
+  if (end < start) end = start;
+
+  var newBuf;
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    newBuf = this.subarray(start, end);
+    newBuf.__proto__ = Buffer.prototype;
+  } else {
+    var sliceLen = end - start;
+    newBuf = new Buffer(sliceLen, undefined);
+    for (var i = 0; i < sliceLen; ++i) {
+      newBuf[i] = this[i + start];
+    }
+  }
+
+  return newBuf
+};
+
+/*
+ * Need to make sure that buffer isn't trying to write out of bounds.
+ */
+function checkOffset (offset, ext, length) {
+  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
+  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
+}
+
+Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0;
+  byteLength = byteLength | 0;
+  if (!noAssert) checkOffset(offset, byteLength, this.length);
+
+  var val = this[offset];
+  var mul = 1;
+  var i = 0;
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul;
+  }
+
+  return val
+};
+
+Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0;
+  byteLength = byteLength | 0;
+  if (!noAssert) {
+    checkOffset(offset, byteLength, this.length);
+  }
+
+  var val = this[offset + --byteLength];
+  var mul = 1;
+  while (byteLength > 0 && (mul *= 0x100)) {
+    val += this[offset + --byteLength] * mul;
+  }
+
+  return val
+};
+
+Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length);
+  return this[offset]
+};
+
+Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length);
+  return this[offset] | (this[offset + 1] << 8)
+};
+
+Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length);
+  return (this[offset] << 8) | this[offset + 1]
+};
+
+Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length);
+
+  return ((this[offset]) |
+      (this[offset + 1] << 8) |
+      (this[offset + 2] << 16)) +
+      (this[offset + 3] * 0x1000000)
+};
+
+Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length);
+
+  return (this[offset] * 0x1000000) +
+    ((this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    this[offset + 3])
+};
+
+Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+  offset = offset | 0;
+  byteLength = byteLength | 0;
+  if (!noAssert) checkOffset(offset, byteLength, this.length);
+
+  var val = this[offset];
+  var mul = 1;
+  var i = 0;
+  while (++i < byteLength && (mul *= 0x100)) {
+    val += this[offset + i] * mul;
+  }
+  mul *= 0x80;
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+
+  return val
+};
+
+Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+  offset = offset | 0;
+  byteLength = byteLength | 0;
+  if (!noAssert) checkOffset(offset, byteLength, this.length);
+
+  var i = byteLength;
+  var mul = 1;
+  var val = this[offset + --i];
+  while (i > 0 && (mul *= 0x100)) {
+    val += this[offset + --i] * mul;
+  }
+  mul *= 0x80;
+
+  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+
+  return val
+};
+
+Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 1, this.length);
+  if (!(this[offset] & 0x80)) return (this[offset])
+  return ((0xff - this[offset] + 1) * -1)
+};
+
+Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length);
+  var val = this[offset] | (this[offset + 1] << 8);
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+};
+
+Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 2, this.length);
+  var val = this[offset + 1] | (this[offset] << 8);
+  return (val & 0x8000) ? val | 0xFFFF0000 : val
+};
+
+Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length);
+
+  return (this[offset]) |
+    (this[offset + 1] << 8) |
+    (this[offset + 2] << 16) |
+    (this[offset + 3] << 24)
+};
+
+Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length);
+
+  return (this[offset] << 24) |
+    (this[offset + 1] << 16) |
+    (this[offset + 2] << 8) |
+    (this[offset + 3])
+};
+
+Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length);
+  return read(this, offset, true, 23, 4)
+};
+
+Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 4, this.length);
+  return read(this, offset, false, 23, 4)
+};
+
+Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length);
+  return read(this, offset, true, 52, 8)
+};
+
+Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+  if (!noAssert) checkOffset(offset, 8, this.length);
+  return read(this, offset, false, 52, 8)
+};
+
+function checkInt (buf, value, offset, ext, max, min) {
+  if (!internalIsBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
+  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+}
+
+Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  byteLength = byteLength | 0;
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
+    checkInt(this, value, offset, byteLength, maxBytes, 0);
+  }
+
+  var mul = 1;
+  var i = 0;
+  this[offset] = value & 0xFF;
+  while (++i < byteLength && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF;
+  }
+
+  return offset + byteLength
+};
+
+Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  byteLength = byteLength | 0;
+  if (!noAssert) {
+    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
+    checkInt(this, value, offset, byteLength, maxBytes, 0);
+  }
+
+  var i = byteLength - 1;
+  var mul = 1;
+  this[offset + i] = value & 0xFF;
+  while (--i >= 0 && (mul *= 0x100)) {
+    this[offset + i] = (value / mul) & 0xFF;
+  }
+
+  return offset + byteLength
+};
+
+Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
+  this[offset] = (value & 0xff);
+  return offset + 1
+};
+
+function objectWriteUInt16 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffff + value + 1;
+  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
+    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+      (littleEndian ? i : 1 - i) * 8;
+  }
+}
+
+Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff);
+    this[offset + 1] = (value >>> 8);
+  } else {
+    objectWriteUInt16(this, value, offset, true);
+  }
+  return offset + 2
+};
+
+Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8);
+    this[offset + 1] = (value & 0xff);
+  } else {
+    objectWriteUInt16(this, value, offset, false);
+  }
+  return offset + 2
+};
+
+function objectWriteUInt32 (buf, value, offset, littleEndian) {
+  if (value < 0) value = 0xffffffff + value + 1;
+  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
+    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff;
+  }
+}
+
+Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset + 3] = (value >>> 24);
+    this[offset + 2] = (value >>> 16);
+    this[offset + 1] = (value >>> 8);
+    this[offset] = (value & 0xff);
+  } else {
+    objectWriteUInt32(this, value, offset, true);
+  }
+  return offset + 4
+};
+
+Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24);
+    this[offset + 1] = (value >>> 16);
+    this[offset + 2] = (value >>> 8);
+    this[offset + 3] = (value & 0xff);
+  } else {
+    objectWriteUInt32(this, value, offset, false);
+  }
+  return offset + 4
+};
+
+Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1);
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit);
+  }
+
+  var i = 0;
+  var mul = 1;
+  var sub = 0;
+  this[offset] = value & 0xFF;
+  while (++i < byteLength && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
+      sub = 1;
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF;
+  }
+
+  return offset + byteLength
+};
+
+Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) {
+    var limit = Math.pow(2, 8 * byteLength - 1);
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit);
+  }
+
+  var i = byteLength - 1;
+  var mul = 1;
+  var sub = 0;
+  this[offset + i] = value & 0xFF;
+  while (--i >= 0 && (mul *= 0x100)) {
+    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
+      sub = 1;
+    }
+    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF;
+  }
+
+  return offset + byteLength
+};
+
+Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
+  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
+  if (value < 0) value = 0xff + value + 1;
+  this[offset] = (value & 0xff);
+  return offset + 1
+};
+
+Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff);
+    this[offset + 1] = (value >>> 8);
+  } else {
+    objectWriteUInt16(this, value, offset, true);
+  }
+  return offset + 2
+};
+
+Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 8);
+    this[offset + 1] = (value & 0xff);
+  } else {
+    objectWriteUInt16(this, value, offset, false);
+  }
+  return offset + 2
+};
+
+Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value & 0xff);
+    this[offset + 1] = (value >>> 8);
+    this[offset + 2] = (value >>> 16);
+    this[offset + 3] = (value >>> 24);
+  } else {
+    objectWriteUInt32(this, value, offset, true);
+  }
+  return offset + 4
+};
+
+Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+  value = +value;
+  offset = offset | 0;
+  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
+  if (value < 0) value = 0xffffffff + value + 1;
+  if (Buffer.TYPED_ARRAY_SUPPORT) {
+    this[offset] = (value >>> 24);
+    this[offset + 1] = (value >>> 16);
+    this[offset + 2] = (value >>> 8);
+    this[offset + 3] = (value & 0xff);
+  } else {
+    objectWriteUInt32(this, value, offset, false);
+  }
+  return offset + 4
+};
+
+function checkIEEE754 (buf, value, offset, ext, max, min) {
+  if (offset + ext > buf.length) throw new RangeError('Index out of range')
+  if (offset < 0) throw new RangeError('Index out of range')
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 4);
+  }
+  write(buf, value, offset, littleEndian, 23, 4);
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+};
+
+Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+};
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    checkIEEE754(buf, value, offset, 8);
+  }
+  write(buf, value, offset, littleEndian, 52, 8);
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+};
+
+Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+};
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
+  if (!start) start = 0;
+  if (!end && end !== 0) end = this.length;
+  if (targetStart >= target.length) targetStart = target.length;
+  if (!targetStart) targetStart = 0;
+  if (end > 0 && end < start) end = start;
+
+  // Copy 0 bytes; we're done
+  if (end === start) return 0
+  if (target.length === 0 || this.length === 0) return 0
+
+  // Fatal error conditions
+  if (targetStart < 0) {
+    throw new RangeError('targetStart out of bounds')
+  }
+  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
+  if (end < 0) throw new RangeError('sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length) end = this.length;
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start;
+  }
+
+  var len = end - start;
+  var i;
+
+  if (this === target && start < targetStart && targetStart < end) {
+    // descending copy from end
+    for (i = len - 1; i >= 0; --i) {
+      target[i + targetStart] = this[i + start];
+    }
+  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
+    // ascending copy from start
+    for (i = 0; i < len; ++i) {
+      target[i + targetStart] = this[i + start];
+    }
+  } else {
+    Uint8Array.prototype.set.call(
+      target,
+      this.subarray(start, start + len),
+      targetStart
+    );
+  }
+
+  return len
+};
+
+// Usage:
+//    buffer.fill(number[, offset[, end]])
+//    buffer.fill(buffer[, offset[, end]])
+//    buffer.fill(string[, offset[, end]][, encoding])
+Buffer.prototype.fill = function fill (val, start, end, encoding) {
+  // Handle string cases:
+  if (typeof val === 'string') {
+    if (typeof start === 'string') {
+      encoding = start;
+      start = 0;
+      end = this.length;
+    } else if (typeof end === 'string') {
+      encoding = end;
+      end = this.length;
+    }
+    if (val.length === 1) {
+      var code = val.charCodeAt(0);
+      if (code < 256) {
+        val = code;
+      }
+    }
+    if (encoding !== undefined && typeof encoding !== 'string') {
+      throw new TypeError('encoding must be a string')
+    }
+    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
+      throw new TypeError('Unknown encoding: ' + encoding)
+    }
+  } else if (typeof val === 'number') {
+    val = val & 255;
+  }
+
+  // Invalid ranges are not set to a default, so can range check early.
+  if (start < 0 || this.length < start || this.length < end) {
+    throw new RangeError('Out of range index')
+  }
+
+  if (end <= start) {
+    return this
+  }
+
+  start = start >>> 0;
+  end = end === undefined ? this.length : end >>> 0;
+
+  if (!val) val = 0;
+
+  var i;
+  if (typeof val === 'number') {
+    for (i = start; i < end; ++i) {
+      this[i] = val;
+    }
+  } else {
+    var bytes = internalIsBuffer(val)
+      ? val
+      : utf8ToBytes(new Buffer(val, encoding).toString());
+    var len = bytes.length;
+    for (i = 0; i < end - start; ++i) {
+      this[i + start] = bytes[i % len];
+    }
+  }
+
+  return this
+};
+
+// HELPER FUNCTIONS
+// ================
+
+var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g;
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '');
+  // Node converts strings with length < 2 to ''
+  if (str.length < 2) return ''
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '=';
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+function toHex$1 (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (string, units) {
+  units = units || Infinity;
+  var codePoint;
+  var length = string.length;
+  var leadSurrogate = null;
+  var bytes = [];
+
+  for (var i = 0; i < length; ++i) {
+    codePoint = string.charCodeAt(i);
+
+    // is surrogate component
+    if (codePoint > 0xD7FF && codePoint < 0xE000) {
+      // last char was a lead
+      if (!leadSurrogate) {
+        // no lead yet
+        if (codePoint > 0xDBFF) {
+          // unexpected trail
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
+          continue
+        } else if (i + 1 === length) {
+          // unpaired lead
+          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
+          continue
+        }
+
+        // valid lead
+        leadSurrogate = codePoint;
+
+        continue
+      }
+
+      // 2 leads in a row
+      if (codePoint < 0xDC00) {
+        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
+        leadSurrogate = codePoint;
+        continue
+      }
+
+      // valid surrogate pair
+      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000;
+    } else if (leadSurrogate) {
+      // valid bmp char, but last char was a lead
+      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
+    }
+
+    leadSurrogate = null;
+
+    // encode utf8
+    if (codePoint < 0x80) {
+      if ((units -= 1) < 0) break
+      bytes.push(codePoint);
+    } else if (codePoint < 0x800) {
+      if ((units -= 2) < 0) break
+      bytes.push(
+        codePoint >> 0x6 | 0xC0,
+        codePoint & 0x3F | 0x80
+      );
+    } else if (codePoint < 0x10000) {
+      if ((units -= 3) < 0) break
+      bytes.push(
+        codePoint >> 0xC | 0xE0,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      );
+    } else if (codePoint < 0x110000) {
+      if ((units -= 4) < 0) break
+      bytes.push(
+        codePoint >> 0x12 | 0xF0,
+        codePoint >> 0xC & 0x3F | 0x80,
+        codePoint >> 0x6 & 0x3F | 0x80,
+        codePoint & 0x3F | 0x80
+      );
+    } else {
+      throw new Error('Invalid code point')
+    }
+  }
+
+  return bytes
+}
+
+function asciiToBytes (str) {
+  var byteArray = [];
+  for (var i = 0; i < str.length; ++i) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF);
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str, units) {
+  var c, hi, lo;
+  var byteArray = [];
+  for (var i = 0; i < str.length; ++i) {
+    if ((units -= 2) < 0) break
+
+    c = str.charCodeAt(i);
+    hi = c >> 8;
+    lo = c % 256;
+    byteArray.push(lo);
+    byteArray.push(hi);
+  }
+
+  return byteArray
+}
+
+
+function base64ToBytes (str) {
+  return toByteArray(base64clean(str))
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; ++i) {
+    if ((i + offset >= dst.length) || (i >= src.length)) break
+    dst[i + offset] = src[i];
+  }
+  return i
+}
+
+function isnan (val) {
+  return val !== val // eslint-disable-line no-self-compare
+}
+
+
+// the following is from is-buffer, also by Feross Aboukhadijeh and with same lisence
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+function isBuffer(obj) {
+  return obj != null && (!!obj._isBuffer || isFastBuffer(obj) || isSlowBuffer(obj))
+}
+
+function isFastBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0))
+}
+
+var _polyfillNode_buffer = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	Buffer: Buffer,
+	INSPECT_MAX_BYTES: INSPECT_MAX_BYTES,
+	SlowBuffer: SlowBuffer,
+	isBuffer: isBuffer,
+	kMaxLength: _kMaxLength
+});
+
+var bn = {exports: {}};
+
+var require$$0$2 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_buffer);
 
 (function (module) {
 	(function (module, exports) {
@@ -2493,7 +4486,7 @@ var bn$1 = {exports: {}};
 	    if (typeof window !== 'undefined' && typeof window.Buffer !== 'undefined') {
 	      Buffer = window.Buffer;
 	    } else {
-	      Buffer = require('buffer').Buffer;
+	      Buffer = require$$0$2.Buffer;
 	    }
 	  } catch (e) {
 	  }
@@ -5787,9 +7780,9 @@ var bn$1 = {exports: {}};
 	    return res._forceRed(this);
 	  };
 	})(module, commonjsGlobal);
-} (bn$1));
+} (bn));
 
-var BN$8 = bn$1.exports;
+var BN = bn.exports;
 
 var safeBuffer = {exports: {}};
 
@@ -5869,7 +7862,7 @@ var safeBuffer = {exports: {}};
 // file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 // @ts-ignore
 var _Buffer = safeBuffer.exports.Buffer;
-function base$1 (ALPHABET) {
+function base (ALPHABET) {
   if (ALPHABET.length >= 255) { throw new TypeError('Alphabet too long') }
   var BASE_MAP = new Uint8Array(256);
   for (var j = 0; j < BASE_MAP.length; j++) {
@@ -5979,3074 +7972,14 @@ function base$1 (ALPHABET) {
     decode: decode
   }
 }
-var src = base$1;
+var src = base;
 
 var basex = src;
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 
 var bs58 = basex(ALPHABET);
 
-var global$1 = (typeof global !== "undefined" ? global :
-  typeof self !== "undefined" ? self :
-  typeof window !== "undefined" ? window : {});
-
-var lookup = [];
-var revLookup = [];
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
-var inited = false;
-function init () {
-  inited = true;
-  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-  for (var i = 0, len = code.length; i < len; ++i) {
-    lookup[i] = code[i];
-    revLookup[code.charCodeAt(i)] = i;
-  }
-
-  revLookup['-'.charCodeAt(0)] = 62;
-  revLookup['_'.charCodeAt(0)] = 63;
-}
-
-function toByteArray (b64) {
-  if (!inited) {
-    init();
-  }
-  var i, j, l, tmp, placeHolders, arr;
-  var len = b64.length;
-
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // the number of equal signs (place holders)
-  // if there are two placeholders, than the two characters before it
-  // represent one byte
-  // if there is only one, then the three characters before it represent 2 bytes
-  // this is just a cheap hack to not do indexOf twice
-  placeHolders = b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;
-
-  // base64 is 4/3 + up to two characters of the original data
-  arr = new Arr(len * 3 / 4 - placeHolders);
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  l = placeHolders > 0 ? len - 4 : len;
-
-  var L = 0;
-
-  for (i = 0, j = 0; i < l; i += 4, j += 3) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)];
-    arr[L++] = (tmp >> 16) & 0xFF;
-    arr[L++] = (tmp >> 8) & 0xFF;
-    arr[L++] = tmp & 0xFF;
-  }
-
-  if (placeHolders === 2) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4);
-    arr[L++] = tmp & 0xFF;
-  } else if (placeHolders === 1) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2);
-    arr[L++] = (tmp >> 8) & 0xFF;
-    arr[L++] = tmp & 0xFF;
-  }
-
-  return arr
-}
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
-}
-
-function encodeChunk (uint8, start, end) {
-  var tmp;
-  var output = [];
-  for (var i = start; i < end; i += 3) {
-    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2]);
-    output.push(tripletToBase64(tmp));
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  if (!inited) {
-    init();
-  }
-  var tmp;
-  var len = uint8.length;
-  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
-  var output = '';
-  var parts = [];
-  var maxChunkLength = 16383; // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)));
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1];
-    output += lookup[tmp >> 2];
-    output += lookup[(tmp << 4) & 0x3F];
-    output += '==';
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + (uint8[len - 1]);
-    output += lookup[tmp >> 10];
-    output += lookup[(tmp >> 4) & 0x3F];
-    output += lookup[(tmp << 2) & 0x3F];
-    output += '=';
-  }
-
-  parts.push(output);
-
-  return parts.join('')
-}
-
-function read (buffer, offset, isLE, mLen, nBytes) {
-  var e, m;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var nBits = -7;
-  var i = isLE ? (nBytes - 1) : 0;
-  var d = isLE ? -1 : 1;
-  var s = buffer[offset + i];
-
-  i += d;
-
-  e = s & ((1 << (-nBits)) - 1);
-  s >>= (-nBits);
-  nBits += eLen;
-  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
-
-  m = e & ((1 << (-nBits)) - 1);
-  e >>= (-nBits);
-  nBits += mLen;
-  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
-
-  if (e === 0) {
-    e = 1 - eBias;
-  } else if (e === eMax) {
-    return m ? NaN : ((s ? -1 : 1) * Infinity)
-  } else {
-    m = m + Math.pow(2, mLen);
-    e = e - eBias;
-  }
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
-}
-
-function write (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0);
-  var i = isLE ? 0 : (nBytes - 1);
-  var d = isLE ? 1 : -1;
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
-
-  value = Math.abs(value);
-
-  if (isNaN(value) || value === Infinity) {
-    m = isNaN(value) ? 1 : 0;
-    e = eMax;
-  } else {
-    e = Math.floor(Math.log(value) / Math.LN2);
-    if (value * (c = Math.pow(2, -e)) < 1) {
-      e--;
-      c *= 2;
-    }
-    if (e + eBias >= 1) {
-      value += rt / c;
-    } else {
-      value += rt * Math.pow(2, 1 - eBias);
-    }
-    if (value * c >= 2) {
-      e++;
-      c /= 2;
-    }
-
-    if (e + eBias >= eMax) {
-      m = 0;
-      e = eMax;
-    } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen);
-      e = e + eBias;
-    } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
-      e = 0;
-    }
-  }
-
-  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
-
-  e = (e << mLen) | m;
-  eLen += mLen;
-  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
-
-  buffer[offset + i - d] |= s * 128;
-}
-
-var toString = {}.toString;
-
-var isArray = Array.isArray || function (arr) {
-  return toString.call(arr) == '[object Array]';
-};
-
-/*!
- * The buffer module from node.js, for the browser.
- *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * @license  MIT
- */
-
-var INSPECT_MAX_BYTES = 50;
-
-/**
- * If `Buffer.TYPED_ARRAY_SUPPORT`:
- *   === true    Use Uint8Array implementation (fastest)
- *   === false   Use Object implementation (most compatible, even IE6)
- *
- * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
- * Opera 11.6+, iOS 4.2+.
- *
- * Due to various browser bugs, sometimes the Object implementation will be used even
- * when the browser supports typed arrays.
- *
- * Note:
- *
- *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,
- *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
- *
- *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
- *
- *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
- *     incorrect length in some situations.
-
- * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
- * get the Object implementation, which is slower but behaves correctly.
- */
-Buffer.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
-  ? global$1.TYPED_ARRAY_SUPPORT
-  : true;
-
-/*
- * Export kMaxLength after typed array support is determined.
- */
-kMaxLength();
-
-function kMaxLength () {
-  return Buffer.TYPED_ARRAY_SUPPORT
-    ? 0x7fffffff
-    : 0x3fffffff
-}
-
-function createBuffer (that, length) {
-  if (kMaxLength() < length) {
-    throw new RangeError('Invalid typed array length')
-  }
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    // Return an augmented `Uint8Array` instance, for best performance
-    that = new Uint8Array(length);
-    that.__proto__ = Buffer.prototype;
-  } else {
-    // Fallback: Return an object instance of the Buffer class
-    if (that === null) {
-      that = new Buffer(length);
-    }
-    that.length = length;
-  }
-
-  return that
-}
-
-/**
- * The Buffer constructor returns instances of `Uint8Array` that have their
- * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of
- * `Uint8Array`, so the returned instances will have all the node `Buffer` methods
- * and the `Uint8Array` methods. Square bracket notation works as expected -- it
- * returns a single octet.
- *
- * The `Uint8Array` prototype remains unmodified.
- */
-
-function Buffer (arg, encodingOrOffset, length) {
-  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {
-    return new Buffer(arg, encodingOrOffset, length)
-  }
-
-  // Common case.
-  if (typeof arg === 'number') {
-    if (typeof encodingOrOffset === 'string') {
-      throw new Error(
-        'If encoding is specified then the first argument must be a string'
-      )
-    }
-    return allocUnsafe(this, arg)
-  }
-  return from(this, arg, encodingOrOffset, length)
-}
-
-Buffer.poolSize = 8192; // not used by this implementation
-
-// TODO: Legacy, not needed anymore. Remove in next major version.
-Buffer._augment = function (arr) {
-  arr.__proto__ = Buffer.prototype;
-  return arr
-};
-
-function from (that, value, encodingOrOffset, length) {
-  if (typeof value === 'number') {
-    throw new TypeError('"value" argument must not be a number')
-  }
-
-  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {
-    return fromArrayBuffer(that, value, encodingOrOffset, length)
-  }
-
-  if (typeof value === 'string') {
-    return fromString(that, value, encodingOrOffset)
-  }
-
-  return fromObject(that, value)
-}
-
-/**
- * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
- * if value is a number.
- * Buffer.from(str[, encoding])
- * Buffer.from(array)
- * Buffer.from(buffer)
- * Buffer.from(arrayBuffer[, byteOffset[, length]])
- **/
-Buffer.from = function (value, encodingOrOffset, length) {
-  return from(null, value, encodingOrOffset, length)
-};
-
-if (Buffer.TYPED_ARRAY_SUPPORT) {
-  Buffer.prototype.__proto__ = Uint8Array.prototype;
-  Buffer.__proto__ = Uint8Array;
-}
-
-function assertSize (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('"size" argument must be a number')
-  } else if (size < 0) {
-    throw new RangeError('"size" argument must not be negative')
-  }
-}
-
-function alloc (that, size, fill, encoding) {
-  assertSize(size);
-  if (size <= 0) {
-    return createBuffer(that, size)
-  }
-  if (fill !== undefined) {
-    // Only pay attention to encoding if it's a string. This
-    // prevents accidentally sending in a number that would
-    // be interpretted as a start offset.
-    return typeof encoding === 'string'
-      ? createBuffer(that, size).fill(fill, encoding)
-      : createBuffer(that, size).fill(fill)
-  }
-  return createBuffer(that, size)
-}
-
-/**
- * Creates a new filled Buffer instance.
- * alloc(size[, fill[, encoding]])
- **/
-Buffer.alloc = function (size, fill, encoding) {
-  return alloc(null, size, fill, encoding)
-};
-
-function allocUnsafe (that, size) {
-  assertSize(size);
-  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0);
-  if (!Buffer.TYPED_ARRAY_SUPPORT) {
-    for (var i = 0; i < size; ++i) {
-      that[i] = 0;
-    }
-  }
-  return that
-}
-
-/**
- * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
- * */
-Buffer.allocUnsafe = function (size) {
-  return allocUnsafe(null, size)
-};
-/**
- * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
- */
-Buffer.allocUnsafeSlow = function (size) {
-  return allocUnsafe(null, size)
-};
-
-function fromString (that, string, encoding) {
-  if (typeof encoding !== 'string' || encoding === '') {
-    encoding = 'utf8';
-  }
-
-  if (!Buffer.isEncoding(encoding)) {
-    throw new TypeError('"encoding" must be a valid string encoding')
-  }
-
-  var length = byteLength(string, encoding) | 0;
-  that = createBuffer(that, length);
-
-  var actual = that.write(string, encoding);
-
-  if (actual !== length) {
-    // Writing a hex string, for example, that contains invalid characters will
-    // cause everything after the first invalid character to be ignored. (e.g.
-    // 'abxxcd' will be treated as 'ab')
-    that = that.slice(0, actual);
-  }
-
-  return that
-}
-
-function fromArrayLike (that, array) {
-  var length = array.length < 0 ? 0 : checked(array.length) | 0;
-  that = createBuffer(that, length);
-  for (var i = 0; i < length; i += 1) {
-    that[i] = array[i] & 255;
-  }
-  return that
-}
-
-function fromArrayBuffer (that, array, byteOffset, length) {
-  array.byteLength; // this throws if `array` is not a valid ArrayBuffer
-
-  if (byteOffset < 0 || array.byteLength < byteOffset) {
-    throw new RangeError('\'offset\' is out of bounds')
-  }
-
-  if (array.byteLength < byteOffset + (length || 0)) {
-    throw new RangeError('\'length\' is out of bounds')
-  }
-
-  if (byteOffset === undefined && length === undefined) {
-    array = new Uint8Array(array);
-  } else if (length === undefined) {
-    array = new Uint8Array(array, byteOffset);
-  } else {
-    array = new Uint8Array(array, byteOffset, length);
-  }
-
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    // Return an augmented `Uint8Array` instance, for best performance
-    that = array;
-    that.__proto__ = Buffer.prototype;
-  } else {
-    // Fallback: Return an object instance of the Buffer class
-    that = fromArrayLike(that, array);
-  }
-  return that
-}
-
-function fromObject (that, obj) {
-  if (internalIsBuffer(obj)) {
-    var len = checked(obj.length) | 0;
-    that = createBuffer(that, len);
-
-    if (that.length === 0) {
-      return that
-    }
-
-    obj.copy(that, 0, 0, len);
-    return that
-  }
-
-  if (obj) {
-    if ((typeof ArrayBuffer !== 'undefined' &&
-        obj.buffer instanceof ArrayBuffer) || 'length' in obj) {
-      if (typeof obj.length !== 'number' || isnan(obj.length)) {
-        return createBuffer(that, 0)
-      }
-      return fromArrayLike(that, obj)
-    }
-
-    if (obj.type === 'Buffer' && isArray(obj.data)) {
-      return fromArrayLike(that, obj.data)
-    }
-  }
-
-  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.')
-}
-
-function checked (length) {
-  // Note: cannot use `length < kMaxLength()` here because that fails when
-  // length is NaN (which is otherwise coerced to zero.)
-  if (length >= kMaxLength()) {
-    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
-                         'size: 0x' + kMaxLength().toString(16) + ' bytes')
-  }
-  return length | 0
-}
-Buffer.isBuffer = isBuffer;
-function internalIsBuffer (b) {
-  return !!(b != null && b._isBuffer)
-}
-
-Buffer.compare = function compare (a, b) {
-  if (!internalIsBuffer(a) || !internalIsBuffer(b)) {
-    throw new TypeError('Arguments must be Buffers')
-  }
-
-  if (a === b) return 0
-
-  var x = a.length;
-  var y = b.length;
-
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
-    if (a[i] !== b[i]) {
-      x = a[i];
-      y = b[i];
-      break
-    }
-  }
-
-  if (x < y) return -1
-  if (y < x) return 1
-  return 0
-};
-
-Buffer.isEncoding = function isEncoding (encoding) {
-  switch (String(encoding).toLowerCase()) {
-    case 'hex':
-    case 'utf8':
-    case 'utf-8':
-    case 'ascii':
-    case 'latin1':
-    case 'binary':
-    case 'base64':
-    case 'ucs2':
-    case 'ucs-2':
-    case 'utf16le':
-    case 'utf-16le':
-      return true
-    default:
-      return false
-  }
-};
-
-Buffer.concat = function concat (list, length) {
-  if (!isArray(list)) {
-    throw new TypeError('"list" argument must be an Array of Buffers')
-  }
-
-  if (list.length === 0) {
-    return Buffer.alloc(0)
-  }
-
-  var i;
-  if (length === undefined) {
-    length = 0;
-    for (i = 0; i < list.length; ++i) {
-      length += list[i].length;
-    }
-  }
-
-  var buffer = Buffer.allocUnsafe(length);
-  var pos = 0;
-  for (i = 0; i < list.length; ++i) {
-    var buf = list[i];
-    if (!internalIsBuffer(buf)) {
-      throw new TypeError('"list" argument must be an Array of Buffers')
-    }
-    buf.copy(buffer, pos);
-    pos += buf.length;
-  }
-  return buffer
-};
-
-function byteLength (string, encoding) {
-  if (internalIsBuffer(string)) {
-    return string.length
-  }
-  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' &&
-      (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {
-    return string.byteLength
-  }
-  if (typeof string !== 'string') {
-    string = '' + string;
-  }
-
-  var len = string.length;
-  if (len === 0) return 0
-
-  // Use a for loop to avoid recursion
-  var loweredCase = false;
-  for (;;) {
-    switch (encoding) {
-      case 'ascii':
-      case 'latin1':
-      case 'binary':
-        return len
-      case 'utf8':
-      case 'utf-8':
-      case undefined:
-        return utf8ToBytes(string).length
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return len * 2
-      case 'hex':
-        return len >>> 1
-      case 'base64':
-        return base64ToBytes(string).length
-      default:
-        if (loweredCase) return utf8ToBytes(string).length // assume utf8
-        encoding = ('' + encoding).toLowerCase();
-        loweredCase = true;
-    }
-  }
-}
-Buffer.byteLength = byteLength;
-
-function slowToString (encoding, start, end) {
-  var loweredCase = false;
-
-  // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
-  // property of a typed array.
-
-  // This behaves neither like String nor Uint8Array in that we set start/end
-  // to their upper/lower bounds if the value passed is out of range.
-  // undefined is handled specially as per ECMA-262 6th Edition,
-  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.
-  if (start === undefined || start < 0) {
-    start = 0;
-  }
-  // Return early if start > this.length. Done here to prevent potential uint32
-  // coercion fail below.
-  if (start > this.length) {
-    return ''
-  }
-
-  if (end === undefined || end > this.length) {
-    end = this.length;
-  }
-
-  if (end <= 0) {
-    return ''
-  }
-
-  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
-  end >>>= 0;
-  start >>>= 0;
-
-  if (end <= start) {
-    return ''
-  }
-
-  if (!encoding) encoding = 'utf8';
-
-  while (true) {
-    switch (encoding) {
-      case 'hex':
-        return hexSlice(this, start, end)
-
-      case 'utf8':
-      case 'utf-8':
-        return utf8Slice(this, start, end)
-
-      case 'ascii':
-        return asciiSlice(this, start, end)
-
-      case 'latin1':
-      case 'binary':
-        return latin1Slice(this, start, end)
-
-      case 'base64':
-        return base64Slice(this, start, end)
-
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return utf16leSlice(this, start, end)
-
-      default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
-        encoding = (encoding + '').toLowerCase();
-        loweredCase = true;
-    }
-  }
-}
-
-// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
-// Buffer instances.
-Buffer.prototype._isBuffer = true;
-
-function swap (b, n, m) {
-  var i = b[n];
-  b[n] = b[m];
-  b[m] = i;
-}
-
-Buffer.prototype.swap16 = function swap16 () {
-  var len = this.length;
-  if (len % 2 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 16-bits')
-  }
-  for (var i = 0; i < len; i += 2) {
-    swap(this, i, i + 1);
-  }
-  return this
-};
-
-Buffer.prototype.swap32 = function swap32 () {
-  var len = this.length;
-  if (len % 4 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 32-bits')
-  }
-  for (var i = 0; i < len; i += 4) {
-    swap(this, i, i + 3);
-    swap(this, i + 1, i + 2);
-  }
-  return this
-};
-
-Buffer.prototype.swap64 = function swap64 () {
-  var len = this.length;
-  if (len % 8 !== 0) {
-    throw new RangeError('Buffer size must be a multiple of 64-bits')
-  }
-  for (var i = 0; i < len; i += 8) {
-    swap(this, i, i + 7);
-    swap(this, i + 1, i + 6);
-    swap(this, i + 2, i + 5);
-    swap(this, i + 3, i + 4);
-  }
-  return this
-};
-
-Buffer.prototype.toString = function toString () {
-  var length = this.length | 0;
-  if (length === 0) return ''
-  if (arguments.length === 0) return utf8Slice(this, 0, length)
-  return slowToString.apply(this, arguments)
-};
-
-Buffer.prototype.equals = function equals (b) {
-  if (!internalIsBuffer(b)) throw new TypeError('Argument must be a Buffer')
-  if (this === b) return true
-  return Buffer.compare(this, b) === 0
-};
-
-Buffer.prototype.inspect = function inspect () {
-  var str = '';
-  var max = INSPECT_MAX_BYTES;
-  if (this.length > 0) {
-    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ');
-    if (this.length > max) str += ' ... ';
-  }
-  return '<Buffer ' + str + '>'
-};
-
-Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
-  if (!internalIsBuffer(target)) {
-    throw new TypeError('Argument must be a Buffer')
-  }
-
-  if (start === undefined) {
-    start = 0;
-  }
-  if (end === undefined) {
-    end = target ? target.length : 0;
-  }
-  if (thisStart === undefined) {
-    thisStart = 0;
-  }
-  if (thisEnd === undefined) {
-    thisEnd = this.length;
-  }
-
-  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {
-    throw new RangeError('out of range index')
-  }
-
-  if (thisStart >= thisEnd && start >= end) {
-    return 0
-  }
-  if (thisStart >= thisEnd) {
-    return -1
-  }
-  if (start >= end) {
-    return 1
-  }
-
-  start >>>= 0;
-  end >>>= 0;
-  thisStart >>>= 0;
-  thisEnd >>>= 0;
-
-  if (this === target) return 0
-
-  var x = thisEnd - thisStart;
-  var y = end - start;
-  var len = Math.min(x, y);
-
-  var thisCopy = this.slice(thisStart, thisEnd);
-  var targetCopy = target.slice(start, end);
-
-  for (var i = 0; i < len; ++i) {
-    if (thisCopy[i] !== targetCopy[i]) {
-      x = thisCopy[i];
-      y = targetCopy[i];
-      break
-    }
-  }
-
-  if (x < y) return -1
-  if (y < x) return 1
-  return 0
-};
-
-// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,
-// OR the last index of `val` in `buffer` at offset <= `byteOffset`.
-//
-// Arguments:
-// - buffer - a Buffer to search
-// - val - a string, Buffer, or number
-// - byteOffset - an index into `buffer`; will be clamped to an int32
-// - encoding - an optional encoding, relevant is val is a string
-// - dir - true for indexOf, false for lastIndexOf
-function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
-  // Empty buffer means no match
-  if (buffer.length === 0) return -1
-
-  // Normalize byteOffset
-  if (typeof byteOffset === 'string') {
-    encoding = byteOffset;
-    byteOffset = 0;
-  } else if (byteOffset > 0x7fffffff) {
-    byteOffset = 0x7fffffff;
-  } else if (byteOffset < -0x80000000) {
-    byteOffset = -0x80000000;
-  }
-  byteOffset = +byteOffset;  // Coerce to Number.
-  if (isNaN(byteOffset)) {
-    // byteOffset: it it's undefined, null, NaN, "foo", etc, search whole buffer
-    byteOffset = dir ? 0 : (buffer.length - 1);
-  }
-
-  // Normalize byteOffset: negative offsets start from the end of the buffer
-  if (byteOffset < 0) byteOffset = buffer.length + byteOffset;
-  if (byteOffset >= buffer.length) {
-    if (dir) return -1
-    else byteOffset = buffer.length - 1;
-  } else if (byteOffset < 0) {
-    if (dir) byteOffset = 0;
-    else return -1
-  }
-
-  // Normalize val
-  if (typeof val === 'string') {
-    val = Buffer.from(val, encoding);
-  }
-
-  // Finally, search either indexOf (if dir is true) or lastIndexOf
-  if (internalIsBuffer(val)) {
-    // Special case: looking for empty string/buffer always fails
-    if (val.length === 0) {
-      return -1
-    }
-    return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
-  } else if (typeof val === 'number') {
-    val = val & 0xFF; // Search for a byte value [0-255]
-    if (Buffer.TYPED_ARRAY_SUPPORT &&
-        typeof Uint8Array.prototype.indexOf === 'function') {
-      if (dir) {
-        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
-      } else {
-        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
-      }
-    }
-    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
-  }
-
-  throw new TypeError('val must be string, number or Buffer')
-}
-
-function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
-  var indexSize = 1;
-  var arrLength = arr.length;
-  var valLength = val.length;
-
-  if (encoding !== undefined) {
-    encoding = String(encoding).toLowerCase();
-    if (encoding === 'ucs2' || encoding === 'ucs-2' ||
-        encoding === 'utf16le' || encoding === 'utf-16le') {
-      if (arr.length < 2 || val.length < 2) {
-        return -1
-      }
-      indexSize = 2;
-      arrLength /= 2;
-      valLength /= 2;
-      byteOffset /= 2;
-    }
-  }
-
-  function read (buf, i) {
-    if (indexSize === 1) {
-      return buf[i]
-    } else {
-      return buf.readUInt16BE(i * indexSize)
-    }
-  }
-
-  var i;
-  if (dir) {
-    var foundIndex = -1;
-    for (i = byteOffset; i < arrLength; i++) {
-      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
-        if (foundIndex === -1) foundIndex = i;
-        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize
-      } else {
-        if (foundIndex !== -1) i -= i - foundIndex;
-        foundIndex = -1;
-      }
-    }
-  } else {
-    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength;
-    for (i = byteOffset; i >= 0; i--) {
-      var found = true;
-      for (var j = 0; j < valLength; j++) {
-        if (read(arr, i + j) !== read(val, j)) {
-          found = false;
-          break
-        }
-      }
-      if (found) return i
-    }
-  }
-
-  return -1
-}
-
-Buffer.prototype.includes = function includes (val, byteOffset, encoding) {
-  return this.indexOf(val, byteOffset, encoding) !== -1
-};
-
-Buffer.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
-  return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
-};
-
-Buffer.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
-  return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
-};
-
-function hexWrite (buf, string, offset, length) {
-  offset = Number(offset) || 0;
-  var remaining = buf.length - offset;
-  if (!length) {
-    length = remaining;
-  } else {
-    length = Number(length);
-    if (length > remaining) {
-      length = remaining;
-    }
-  }
-
-  // must be an even number of digits
-  var strLen = string.length;
-  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string')
-
-  if (length > strLen / 2) {
-    length = strLen / 2;
-  }
-  for (var i = 0; i < length; ++i) {
-    var parsed = parseInt(string.substr(i * 2, 2), 16);
-    if (isNaN(parsed)) return i
-    buf[offset + i] = parsed;
-  }
-  return i
-}
-
-function utf8Write (buf, string, offset, length) {
-  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
-}
-
-function asciiWrite (buf, string, offset, length) {
-  return blitBuffer(asciiToBytes(string), buf, offset, length)
-}
-
-function latin1Write (buf, string, offset, length) {
-  return asciiWrite(buf, string, offset, length)
-}
-
-function base64Write (buf, string, offset, length) {
-  return blitBuffer(base64ToBytes(string), buf, offset, length)
-}
-
-function ucs2Write (buf, string, offset, length) {
-  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
-}
-
-Buffer.prototype.write = function write (string, offset, length, encoding) {
-  // Buffer#write(string)
-  if (offset === undefined) {
-    encoding = 'utf8';
-    length = this.length;
-    offset = 0;
-  // Buffer#write(string, encoding)
-  } else if (length === undefined && typeof offset === 'string') {
-    encoding = offset;
-    length = this.length;
-    offset = 0;
-  // Buffer#write(string, offset[, length][, encoding])
-  } else if (isFinite(offset)) {
-    offset = offset | 0;
-    if (isFinite(length)) {
-      length = length | 0;
-      if (encoding === undefined) encoding = 'utf8';
-    } else {
-      encoding = length;
-      length = undefined;
-    }
-  // legacy write(string, encoding, offset, length) - remove in v0.13
-  } else {
-    throw new Error(
-      'Buffer.write(string, encoding, offset[, length]) is no longer supported'
-    )
-  }
-
-  var remaining = this.length - offset;
-  if (length === undefined || length > remaining) length = remaining;
-
-  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
-    throw new RangeError('Attempt to write outside buffer bounds')
-  }
-
-  if (!encoding) encoding = 'utf8';
-
-  var loweredCase = false;
-  for (;;) {
-    switch (encoding) {
-      case 'hex':
-        return hexWrite(this, string, offset, length)
-
-      case 'utf8':
-      case 'utf-8':
-        return utf8Write(this, string, offset, length)
-
-      case 'ascii':
-        return asciiWrite(this, string, offset, length)
-
-      case 'latin1':
-      case 'binary':
-        return latin1Write(this, string, offset, length)
-
-      case 'base64':
-        // Warning: maxLength not taken into account in base64Write
-        return base64Write(this, string, offset, length)
-
-      case 'ucs2':
-      case 'ucs-2':
-      case 'utf16le':
-      case 'utf-16le':
-        return ucs2Write(this, string, offset, length)
-
-      default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
-        encoding = ('' + encoding).toLowerCase();
-        loweredCase = true;
-    }
-  }
-};
-
-Buffer.prototype.toJSON = function toJSON () {
-  return {
-    type: 'Buffer',
-    data: Array.prototype.slice.call(this._arr || this, 0)
-  }
-};
-
-function base64Slice (buf, start, end) {
-  if (start === 0 && end === buf.length) {
-    return fromByteArray(buf)
-  } else {
-    return fromByteArray(buf.slice(start, end))
-  }
-}
-
-function utf8Slice (buf, start, end) {
-  end = Math.min(buf.length, end);
-  var res = [];
-
-  var i = start;
-  while (i < end) {
-    var firstByte = buf[i];
-    var codePoint = null;
-    var bytesPerSequence = (firstByte > 0xEF) ? 4
-      : (firstByte > 0xDF) ? 3
-      : (firstByte > 0xBF) ? 2
-      : 1;
-
-    if (i + bytesPerSequence <= end) {
-      var secondByte, thirdByte, fourthByte, tempCodePoint;
-
-      switch (bytesPerSequence) {
-        case 1:
-          if (firstByte < 0x80) {
-            codePoint = firstByte;
-          }
-          break
-        case 2:
-          secondByte = buf[i + 1];
-          if ((secondByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0x1F) << 0x6 | (secondByte & 0x3F);
-            if (tempCodePoint > 0x7F) {
-              codePoint = tempCodePoint;
-            }
-          }
-          break
-        case 3:
-          secondByte = buf[i + 1];
-          thirdByte = buf[i + 2];
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | (thirdByte & 0x3F);
-            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {
-              codePoint = tempCodePoint;
-            }
-          }
-          break
-        case 4:
-          secondByte = buf[i + 1];
-          thirdByte = buf[i + 2];
-          fourthByte = buf[i + 3];
-          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {
-            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | (fourthByte & 0x3F);
-            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {
-              codePoint = tempCodePoint;
-            }
-          }
-      }
-    }
-
-    if (codePoint === null) {
-      // we did not generate a valid codePoint so insert a
-      // replacement char (U+FFFD) and advance only 1 byte
-      codePoint = 0xFFFD;
-      bytesPerSequence = 1;
-    } else if (codePoint > 0xFFFF) {
-      // encode to utf16 (surrogate pair dance)
-      codePoint -= 0x10000;
-      res.push(codePoint >>> 10 & 0x3FF | 0xD800);
-      codePoint = 0xDC00 | codePoint & 0x3FF;
-    }
-
-    res.push(codePoint);
-    i += bytesPerSequence;
-  }
-
-  return decodeCodePointsArray(res)
-}
-
-// Based on http://stackoverflow.com/a/22747272/680742, the browser with
-// the lowest limit is Chrome, with 0x10000 args.
-// We go 1 magnitude less, for safety
-var MAX_ARGUMENTS_LENGTH = 0x1000;
-
-function decodeCodePointsArray (codePoints) {
-  var len = codePoints.length;
-  if (len <= MAX_ARGUMENTS_LENGTH) {
-    return String.fromCharCode.apply(String, codePoints) // avoid extra slice()
-  }
-
-  // Decode in chunks to avoid "call stack size exceeded".
-  var res = '';
-  var i = 0;
-  while (i < len) {
-    res += String.fromCharCode.apply(
-      String,
-      codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH)
-    );
-  }
-  return res
-}
-
-function asciiSlice (buf, start, end) {
-  var ret = '';
-  end = Math.min(buf.length, end);
-
-  for (var i = start; i < end; ++i) {
-    ret += String.fromCharCode(buf[i] & 0x7F);
-  }
-  return ret
-}
-
-function latin1Slice (buf, start, end) {
-  var ret = '';
-  end = Math.min(buf.length, end);
-
-  for (var i = start; i < end; ++i) {
-    ret += String.fromCharCode(buf[i]);
-  }
-  return ret
-}
-
-function hexSlice (buf, start, end) {
-  var len = buf.length;
-
-  if (!start || start < 0) start = 0;
-  if (!end || end < 0 || end > len) end = len;
-
-  var out = '';
-  for (var i = start; i < end; ++i) {
-    out += toHex$2(buf[i]);
-  }
-  return out
-}
-
-function utf16leSlice (buf, start, end) {
-  var bytes = buf.slice(start, end);
-  var res = '';
-  for (var i = 0; i < bytes.length; i += 2) {
-    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);
-  }
-  return res
-}
-
-Buffer.prototype.slice = function slice (start, end) {
-  var len = this.length;
-  start = ~~start;
-  end = end === undefined ? len : ~~end;
-
-  if (start < 0) {
-    start += len;
-    if (start < 0) start = 0;
-  } else if (start > len) {
-    start = len;
-  }
-
-  if (end < 0) {
-    end += len;
-    if (end < 0) end = 0;
-  } else if (end > len) {
-    end = len;
-  }
-
-  if (end < start) end = start;
-
-  var newBuf;
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    newBuf = this.subarray(start, end);
-    newBuf.__proto__ = Buffer.prototype;
-  } else {
-    var sliceLen = end - start;
-    newBuf = new Buffer(sliceLen, undefined);
-    for (var i = 0; i < sliceLen; ++i) {
-      newBuf[i] = this[i + start];
-    }
-  }
-
-  return newBuf
-};
-
-/*
- * Need to make sure that buffer isn't trying to write out of bounds.
- */
-function checkOffset (offset, ext, length) {
-  if ((offset % 1) !== 0 || offset < 0) throw new RangeError('offset is not uint')
-  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
-}
-
-Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-  var val = this[offset];
-  var mul = 1;
-  var i = 0;
-  while (++i < byteLength && (mul *= 0x100)) {
-    val += this[offset + i] * mul;
-  }
-
-  return val
-};
-
-Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) {
-    checkOffset(offset, byteLength, this.length);
-  }
-
-  var val = this[offset + --byteLength];
-  var mul = 1;
-  while (byteLength > 0 && (mul *= 0x100)) {
-    val += this[offset + --byteLength] * mul;
-  }
-
-  return val
-};
-
-Buffer.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 1, this.length);
-  return this[offset]
-};
-
-Buffer.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  return this[offset] | (this[offset + 1] << 8)
-};
-
-Buffer.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  return (this[offset] << 8) | this[offset + 1]
-};
-
-Buffer.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return ((this[offset]) |
-      (this[offset + 1] << 8) |
-      (this[offset + 2] << 16)) +
-      (this[offset + 3] * 0x1000000)
-};
-
-Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return (this[offset] * 0x1000000) +
-    ((this[offset + 1] << 16) |
-    (this[offset + 2] << 8) |
-    this[offset + 3])
-};
-
-Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-  var val = this[offset];
-  var mul = 1;
-  var i = 0;
-  while (++i < byteLength && (mul *= 0x100)) {
-    val += this[offset + i] * mul;
-  }
-  mul *= 0x80;
-
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
-
-  return val
-};
-
-Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) checkOffset(offset, byteLength, this.length);
-
-  var i = byteLength;
-  var mul = 1;
-  var val = this[offset + --i];
-  while (i > 0 && (mul *= 0x100)) {
-    val += this[offset + --i] * mul;
-  }
-  mul *= 0x80;
-
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
-
-  return val
-};
-
-Buffer.prototype.readInt8 = function readInt8 (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 1, this.length);
-  if (!(this[offset] & 0x80)) return (this[offset])
-  return ((0xff - this[offset] + 1) * -1)
-};
-
-Buffer.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  var val = this[offset] | (this[offset + 1] << 8);
-  return (val & 0x8000) ? val | 0xFFFF0000 : val
-};
-
-Buffer.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 2, this.length);
-  var val = this[offset + 1] | (this[offset] << 8);
-  return (val & 0x8000) ? val | 0xFFFF0000 : val
-};
-
-Buffer.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return (this[offset]) |
-    (this[offset + 1] << 8) |
-    (this[offset + 2] << 16) |
-    (this[offset + 3] << 24)
-};
-
-Buffer.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-
-  return (this[offset] << 24) |
-    (this[offset + 1] << 16) |
-    (this[offset + 2] << 8) |
-    (this[offset + 3])
-};
-
-Buffer.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-  return read(this, offset, true, 23, 4)
-};
-
-Buffer.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 4, this.length);
-  return read(this, offset, false, 23, 4)
-};
-
-Buffer.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 8, this.length);
-  return read(this, offset, true, 52, 8)
-};
-
-Buffer.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
-  if (!noAssert) checkOffset(offset, 8, this.length);
-  return read(this, offset, false, 52, 8)
-};
-
-function checkInt (buf, value, offset, ext, max, min) {
-  if (!internalIsBuffer(buf)) throw new TypeError('"buffer" argument must be a Buffer instance')
-  if (value > max || value < min) throw new RangeError('"value" argument is out of bounds')
-  if (offset + ext > buf.length) throw new RangeError('Index out of range')
-}
-
-Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
-    checkInt(this, value, offset, byteLength, maxBytes, 0);
-  }
-
-  var mul = 1;
-  var i = 0;
-  this[offset] = value & 0xFF;
-  while (++i < byteLength && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  byteLength = byteLength | 0;
-  if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
-    checkInt(this, value, offset, byteLength, maxBytes, 0);
-  }
-
-  var i = byteLength - 1;
-  var mul = 1;
-  this[offset + i] = value & 0xFF;
-  while (--i >= 0 && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
-  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
-  this[offset] = (value & 0xff);
-  return offset + 1
-};
-
-function objectWriteUInt16 (buf, value, offset, littleEndian) {
-  if (value < 0) value = 0xffff + value + 1;
-  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
-    buf[offset + i] = (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
-      (littleEndian ? i : 1 - i) * 8;
-  }
-}
-
-Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value & 0xff);
-    this[offset + 1] = (value >>> 8);
-  } else {
-    objectWriteUInt16(this, value, offset, true);
-  }
-  return offset + 2
-};
-
-Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 8);
-    this[offset + 1] = (value & 0xff);
-  } else {
-    objectWriteUInt16(this, value, offset, false);
-  }
-  return offset + 2
-};
-
-function objectWriteUInt32 (buf, value, offset, littleEndian) {
-  if (value < 0) value = 0xffffffff + value + 1;
-  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
-    buf[offset + i] = (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff;
-  }
-}
-
-Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset + 3] = (value >>> 24);
-    this[offset + 2] = (value >>> 16);
-    this[offset + 1] = (value >>> 8);
-    this[offset] = (value & 0xff);
-  } else {
-    objectWriteUInt32(this, value, offset, true);
-  }
-  return offset + 4
-};
-
-Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 24);
-    this[offset + 1] = (value >>> 16);
-    this[offset + 2] = (value >>> 8);
-    this[offset + 3] = (value & 0xff);
-  } else {
-    objectWriteUInt32(this, value, offset, false);
-  }
-  return offset + 4
-};
-
-Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1);
-
-    checkInt(this, value, offset, byteLength, limit - 1, -limit);
-  }
-
-  var i = 0;
-  var mul = 1;
-  var sub = 0;
-  this[offset] = value & 0xFF;
-  while (++i < byteLength && (mul *= 0x100)) {
-    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {
-      sub = 1;
-    }
-    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1);
-
-    checkInt(this, value, offset, byteLength, limit - 1, -limit);
-  }
-
-  var i = byteLength - 1;
-  var mul = 1;
-  var sub = 0;
-  this[offset + i] = value & 0xFF;
-  while (--i >= 0 && (mul *= 0x100)) {
-    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {
-      sub = 1;
-    }
-    this[offset + i] = ((value / mul) >> 0) - sub & 0xFF;
-  }
-
-  return offset + byteLength
-};
-
-Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
-  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
-  if (value < 0) value = 0xff + value + 1;
-  this[offset] = (value & 0xff);
-  return offset + 1
-};
-
-Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value & 0xff);
-    this[offset + 1] = (value >>> 8);
-  } else {
-    objectWriteUInt16(this, value, offset, true);
-  }
-  return offset + 2
-};
-
-Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 8);
-    this[offset + 1] = (value & 0xff);
-  } else {
-    objectWriteUInt16(this, value, offset, false);
-  }
-  return offset + 2
-};
-
-Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value & 0xff);
-    this[offset + 1] = (value >>> 8);
-    this[offset + 2] = (value >>> 16);
-    this[offset + 3] = (value >>> 24);
-  } else {
-    objectWriteUInt32(this, value, offset, true);
-  }
-  return offset + 4
-};
-
-Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
-  value = +value;
-  offset = offset | 0;
-  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
-  if (value < 0) value = 0xffffffff + value + 1;
-  if (Buffer.TYPED_ARRAY_SUPPORT) {
-    this[offset] = (value >>> 24);
-    this[offset + 1] = (value >>> 16);
-    this[offset + 2] = (value >>> 8);
-    this[offset + 3] = (value & 0xff);
-  } else {
-    objectWriteUInt32(this, value, offset, false);
-  }
-  return offset + 4
-};
-
-function checkIEEE754 (buf, value, offset, ext, max, min) {
-  if (offset + ext > buf.length) throw new RangeError('Index out of range')
-  if (offset < 0) throw new RangeError('Index out of range')
-}
-
-function writeFloat (buf, value, offset, littleEndian, noAssert) {
-  if (!noAssert) {
-    checkIEEE754(buf, value, offset, 4);
-  }
-  write(buf, value, offset, littleEndian, 23, 4);
-  return offset + 4
-}
-
-Buffer.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
-  return writeFloat(this, value, offset, true, noAssert)
-};
-
-Buffer.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
-  return writeFloat(this, value, offset, false, noAssert)
-};
-
-function writeDouble (buf, value, offset, littleEndian, noAssert) {
-  if (!noAssert) {
-    checkIEEE754(buf, value, offset, 8);
-  }
-  write(buf, value, offset, littleEndian, 52, 8);
-  return offset + 8
-}
-
-Buffer.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
-  return writeDouble(this, value, offset, true, noAssert)
-};
-
-Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
-  return writeDouble(this, value, offset, false, noAssert)
-};
-
-// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
-Buffer.prototype.copy = function copy (target, targetStart, start, end) {
-  if (!start) start = 0;
-  if (!end && end !== 0) end = this.length;
-  if (targetStart >= target.length) targetStart = target.length;
-  if (!targetStart) targetStart = 0;
-  if (end > 0 && end < start) end = start;
-
-  // Copy 0 bytes; we're done
-  if (end === start) return 0
-  if (target.length === 0 || this.length === 0) return 0
-
-  // Fatal error conditions
-  if (targetStart < 0) {
-    throw new RangeError('targetStart out of bounds')
-  }
-  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
-  if (end < 0) throw new RangeError('sourceEnd out of bounds')
-
-  // Are we oob?
-  if (end > this.length) end = this.length;
-  if (target.length - targetStart < end - start) {
-    end = target.length - targetStart + start;
-  }
-
-  var len = end - start;
-  var i;
-
-  if (this === target && start < targetStart && targetStart < end) {
-    // descending copy from end
-    for (i = len - 1; i >= 0; --i) {
-      target[i + targetStart] = this[i + start];
-    }
-  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
-    // ascending copy from start
-    for (i = 0; i < len; ++i) {
-      target[i + targetStart] = this[i + start];
-    }
-  } else {
-    Uint8Array.prototype.set.call(
-      target,
-      this.subarray(start, start + len),
-      targetStart
-    );
-  }
-
-  return len
-};
-
-// Usage:
-//    buffer.fill(number[, offset[, end]])
-//    buffer.fill(buffer[, offset[, end]])
-//    buffer.fill(string[, offset[, end]][, encoding])
-Buffer.prototype.fill = function fill (val, start, end, encoding) {
-  // Handle string cases:
-  if (typeof val === 'string') {
-    if (typeof start === 'string') {
-      encoding = start;
-      start = 0;
-      end = this.length;
-    } else if (typeof end === 'string') {
-      encoding = end;
-      end = this.length;
-    }
-    if (val.length === 1) {
-      var code = val.charCodeAt(0);
-      if (code < 256) {
-        val = code;
-      }
-    }
-    if (encoding !== undefined && typeof encoding !== 'string') {
-      throw new TypeError('encoding must be a string')
-    }
-    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
-      throw new TypeError('Unknown encoding: ' + encoding)
-    }
-  } else if (typeof val === 'number') {
-    val = val & 255;
-  }
-
-  // Invalid ranges are not set to a default, so can range check early.
-  if (start < 0 || this.length < start || this.length < end) {
-    throw new RangeError('Out of range index')
-  }
-
-  if (end <= start) {
-    return this
-  }
-
-  start = start >>> 0;
-  end = end === undefined ? this.length : end >>> 0;
-
-  if (!val) val = 0;
-
-  var i;
-  if (typeof val === 'number') {
-    for (i = start; i < end; ++i) {
-      this[i] = val;
-    }
-  } else {
-    var bytes = internalIsBuffer(val)
-      ? val
-      : utf8ToBytes(new Buffer(val, encoding).toString());
-    var len = bytes.length;
-    for (i = 0; i < end - start; ++i) {
-      this[i + start] = bytes[i % len];
-    }
-  }
-
-  return this
-};
-
-// HELPER FUNCTIONS
-// ================
-
-var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g;
-
-function base64clean (str) {
-  // Node strips out invalid characters like \n and \t from the string, base64-js does not
-  str = stringtrim(str).replace(INVALID_BASE64_RE, '');
-  // Node converts strings with length < 2 to ''
-  if (str.length < 2) return ''
-  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
-  while (str.length % 4 !== 0) {
-    str = str + '=';
-  }
-  return str
-}
-
-function stringtrim (str) {
-  if (str.trim) return str.trim()
-  return str.replace(/^\s+|\s+$/g, '')
-}
-
-function toHex$2 (n) {
-  if (n < 16) return '0' + n.toString(16)
-  return n.toString(16)
-}
-
-function utf8ToBytes (string, units) {
-  units = units || Infinity;
-  var codePoint;
-  var length = string.length;
-  var leadSurrogate = null;
-  var bytes = [];
-
-  for (var i = 0; i < length; ++i) {
-    codePoint = string.charCodeAt(i);
-
-    // is surrogate component
-    if (codePoint > 0xD7FF && codePoint < 0xE000) {
-      // last char was a lead
-      if (!leadSurrogate) {
-        // no lead yet
-        if (codePoint > 0xDBFF) {
-          // unexpected trail
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-          continue
-        } else if (i + 1 === length) {
-          // unpaired lead
-          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-          continue
-        }
-
-        // valid lead
-        leadSurrogate = codePoint;
-
-        continue
-      }
-
-      // 2 leads in a row
-      if (codePoint < 0xDC00) {
-        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-        leadSurrogate = codePoint;
-        continue
-      }
-
-      // valid surrogate pair
-      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000;
-    } else if (leadSurrogate) {
-      // valid bmp char, but last char was a lead
-      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);
-    }
-
-    leadSurrogate = null;
-
-    // encode utf8
-    if (codePoint < 0x80) {
-      if ((units -= 1) < 0) break
-      bytes.push(codePoint);
-    } else if (codePoint < 0x800) {
-      if ((units -= 2) < 0) break
-      bytes.push(
-        codePoint >> 0x6 | 0xC0,
-        codePoint & 0x3F | 0x80
-      );
-    } else if (codePoint < 0x10000) {
-      if ((units -= 3) < 0) break
-      bytes.push(
-        codePoint >> 0xC | 0xE0,
-        codePoint >> 0x6 & 0x3F | 0x80,
-        codePoint & 0x3F | 0x80
-      );
-    } else if (codePoint < 0x110000) {
-      if ((units -= 4) < 0) break
-      bytes.push(
-        codePoint >> 0x12 | 0xF0,
-        codePoint >> 0xC & 0x3F | 0x80,
-        codePoint >> 0x6 & 0x3F | 0x80,
-        codePoint & 0x3F | 0x80
-      );
-    } else {
-      throw new Error('Invalid code point')
-    }
-  }
-
-  return bytes
-}
-
-function asciiToBytes (str) {
-  var byteArray = [];
-  for (var i = 0; i < str.length; ++i) {
-    // Node's code seems to be doing this and not & 0x7F..
-    byteArray.push(str.charCodeAt(i) & 0xFF);
-  }
-  return byteArray
-}
-
-function utf16leToBytes (str, units) {
-  var c, hi, lo;
-  var byteArray = [];
-  for (var i = 0; i < str.length; ++i) {
-    if ((units -= 2) < 0) break
-
-    c = str.charCodeAt(i);
-    hi = c >> 8;
-    lo = c % 256;
-    byteArray.push(lo);
-    byteArray.push(hi);
-  }
-
-  return byteArray
-}
-
-
-function base64ToBytes (str) {
-  return toByteArray(base64clean(str))
-}
-
-function blitBuffer (src, dst, offset, length) {
-  for (var i = 0; i < length; ++i) {
-    if ((i + offset >= dst.length) || (i >= src.length)) break
-    dst[i + offset] = src[i];
-  }
-  return i
-}
-
-function isnan (val) {
-  return val !== val // eslint-disable-line no-self-compare
-}
-
-
-// the following is from is-buffer, also by Feross Aboukhadijeh and with same lisence
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-function isBuffer(obj) {
-  return obj != null && (!!obj._isBuffer || isFastBuffer(obj) || isSlowBuffer(obj))
-}
-
-function isFastBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0))
-}
-
-var lib = {};
-
-var encoding_lib = {};
-
-// This is free and unencumbered software released into the public domain.
-// See LICENSE.md for more information.
-
-//
-// Utilities
-//
-
-/**
- * @param {number} a The number to test.
- * @param {number} min The minimum value in the range, inclusive.
- * @param {number} max The maximum value in the range, inclusive.
- * @return {boolean} True if a >= min and a <= max.
- */
-function inRange(a, min, max) {
-  return min <= a && a <= max;
-}
-
-/**
- * @param {*} o
- * @return {Object}
- */
-function ToDictionary(o) {
-  if (o === undefined) return {};
-  if (o === Object(o)) return o;
-  throw TypeError('Could not convert argument to dictionary');
-}
-
-/**
- * @param {string} string Input string of UTF-16 code units.
- * @return {!Array.<number>} Code points.
- */
-function stringToCodePoints(string) {
-  // https://heycam.github.io/webidl/#dfn-obtain-unicode
-
-  // 1. Let S be the DOMString value.
-  var s = String(string);
-
-  // 2. Let n be the length of S.
-  var n = s.length;
-
-  // 3. Initialize i to 0.
-  var i = 0;
-
-  // 4. Initialize U to be an empty sequence of Unicode characters.
-  var u = [];
-
-  // 5. While i < n:
-  while (i < n) {
-
-    // 1. Let c be the code unit in S at index i.
-    var c = s.charCodeAt(i);
-
-    // 2. Depending on the value of c:
-
-    // c < 0xD800 or c > 0xDFFF
-    if (c < 0xD800 || c > 0xDFFF) {
-      // Append to U the Unicode character with code point c.
-      u.push(c);
-    }
-
-    // 0xDC00 ≤ c ≤ 0xDFFF
-    else if (0xDC00 <= c && c <= 0xDFFF) {
-      // Append to U a U+FFFD REPLACEMENT CHARACTER.
-      u.push(0xFFFD);
-    }
-
-    // 0xD800 ≤ c ≤ 0xDBFF
-    else if (0xD800 <= c && c <= 0xDBFF) {
-      // 1. If i = n−1, then append to U a U+FFFD REPLACEMENT
-      // CHARACTER.
-      if (i === n - 1) {
-        u.push(0xFFFD);
-      }
-      // 2. Otherwise, i < n−1:
-      else {
-        // 1. Let d be the code unit in S at index i+1.
-        var d = string.charCodeAt(i + 1);
-
-        // 2. If 0xDC00 ≤ d ≤ 0xDFFF, then:
-        if (0xDC00 <= d && d <= 0xDFFF) {
-          // 1. Let a be c & 0x3FF.
-          var a = c & 0x3FF;
-
-          // 2. Let b be d & 0x3FF.
-          var b = d & 0x3FF;
-
-          // 3. Append to U the Unicode character with code point
-          // 2^16+2^10*a+b.
-          u.push(0x10000 + (a << 10) + b);
-
-          // 4. Set i to i+1.
-          i += 1;
-        }
-
-        // 3. Otherwise, d < 0xDC00 or d > 0xDFFF. Append to U a
-        // U+FFFD REPLACEMENT CHARACTER.
-        else  {
-          u.push(0xFFFD);
-        }
-      }
-    }
-
-    // 3. Set i to i+1.
-    i += 1;
-  }
-
-  // 6. Return U.
-  return u;
-}
-
-/**
- * @param {!Array.<number>} code_points Array of code points.
- * @return {string} string String of UTF-16 code units.
- */
-function codePointsToString(code_points) {
-  var s = '';
-  for (var i = 0; i < code_points.length; ++i) {
-    var cp = code_points[i];
-    if (cp <= 0xFFFF) {
-      s += String.fromCharCode(cp);
-    } else {
-      cp -= 0x10000;
-      s += String.fromCharCode((cp >> 10) + 0xD800,
-                               (cp & 0x3FF) + 0xDC00);
-    }
-  }
-  return s;
-}
-
-
-//
-// Implementation of Encoding specification
-// https://encoding.spec.whatwg.org/
-//
-
-//
-// 3. Terminology
-//
-
-/**
- * End-of-stream is a special token that signifies no more tokens
- * are in the stream.
- * @const
- */ var end_of_stream = -1;
-
-/**
- * A stream represents an ordered sequence of tokens.
- *
- * @constructor
- * @param {!(Array.<number>|Uint8Array)} tokens Array of tokens that provide the
- * stream.
- */
-function Stream(tokens) {
-  /** @type {!Array.<number>} */
-  this.tokens = [].slice.call(tokens);
-}
-
-Stream.prototype = {
-  /**
-   * @return {boolean} True if end-of-stream has been hit.
-   */
-  endOfStream: function() {
-    return !this.tokens.length;
-  },
-
-  /**
-   * When a token is read from a stream, the first token in the
-   * stream must be returned and subsequently removed, and
-   * end-of-stream must be returned otherwise.
-   *
-   * @return {number} Get the next token from the stream, or
-   * end_of_stream.
-   */
-   read: function() {
-    if (!this.tokens.length)
-      return end_of_stream;
-     return this.tokens.shift();
-   },
-
-  /**
-   * When one or more tokens are prepended to a stream, those tokens
-   * must be inserted, in given order, before the first token in the
-   * stream.
-   *
-   * @param {(number|!Array.<number>)} token The token(s) to prepend to the stream.
-   */
-  prepend: function(token) {
-    if (Array.isArray(token)) {
-      var tokens = /**@type {!Array.<number>}*/(token);
-      while (tokens.length)
-        this.tokens.unshift(tokens.pop());
-    } else {
-      this.tokens.unshift(token);
-    }
-  },
-
-  /**
-   * When one or more tokens are pushed to a stream, those tokens
-   * must be inserted, in given order, after the last token in the
-   * stream.
-   *
-   * @param {(number|!Array.<number>)} token The tokens(s) to prepend to the stream.
-   */
-  push: function(token) {
-    if (Array.isArray(token)) {
-      var tokens = /**@type {!Array.<number>}*/(token);
-      while (tokens.length)
-        this.tokens.push(tokens.shift());
-    } else {
-      this.tokens.push(token);
-    }
-  }
-};
-
-//
-// 4. Encodings
-//
-
-// 4.1 Encoders and decoders
-
-/** @const */
-var finished = -1;
-
-/**
- * @param {boolean} fatal If true, decoding errors raise an exception.
- * @param {number=} opt_code_point Override the standard fallback code point.
- * @return {number} The code point to insert on a decoding error.
- */
-function decoderError(fatal, opt_code_point) {
-  if (fatal)
-    throw TypeError('Decoder error');
-  return opt_code_point || 0xFFFD;
-}
-
-//
-// 7. API
-//
-
-/** @const */ var DEFAULT_ENCODING = 'utf-8';
-
-// 7.1 Interface TextDecoder
-
-/**
- * @constructor
- * @param {string=} encoding The label of the encoding;
- *     defaults to 'utf-8'.
- * @param {Object=} options
- */
-function TextDecoder$1(encoding, options) {
-  if (!(this instanceof TextDecoder$1)) {
-    return new TextDecoder$1(encoding, options);
-  }
-  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
-  if (encoding !== DEFAULT_ENCODING) {
-    throw new Error('Encoding not supported. Only utf-8 is supported');
-  }
-  options = ToDictionary(options);
-
-  /** @private @type {boolean} */
-  this._streaming = false;
-  /** @private @type {boolean} */
-  this._BOMseen = false;
-  /** @private @type {?Decoder} */
-  this._decoder = null;
-  /** @private @type {boolean} */
-  this._fatal = Boolean(options['fatal']);
-  /** @private @type {boolean} */
-  this._ignoreBOM = Boolean(options['ignoreBOM']);
-
-  Object.defineProperty(this, 'encoding', {value: 'utf-8'});
-  Object.defineProperty(this, 'fatal', {value: this._fatal});
-  Object.defineProperty(this, 'ignoreBOM', {value: this._ignoreBOM});
-}
-
-TextDecoder$1.prototype = {
-  /**
-   * @param {ArrayBufferView=} input The buffer of bytes to decode.
-   * @param {Object=} options
-   * @return {string} The decoded string.
-   */
-  decode: function decode(input, options) {
-    var bytes;
-    if (typeof input === 'object' && input instanceof ArrayBuffer) {
-      bytes = new Uint8Array(input);
-    } else if (typeof input === 'object' && 'buffer' in input &&
-               input.buffer instanceof ArrayBuffer) {
-      bytes = new Uint8Array(input.buffer,
-                             input.byteOffset,
-                             input.byteLength);
-    } else {
-      bytes = new Uint8Array(0);
-    }
-
-    options = ToDictionary(options);
-
-    if (!this._streaming) {
-      this._decoder = new UTF8Decoder({fatal: this._fatal});
-      this._BOMseen = false;
-    }
-    this._streaming = Boolean(options['stream']);
-
-    var input_stream = new Stream(bytes);
-
-    var code_points = [];
-
-    /** @type {?(number|!Array.<number>)} */
-    var result;
-
-    while (!input_stream.endOfStream()) {
-      result = this._decoder.handler(input_stream, input_stream.read());
-      if (result === finished)
-        break;
-      if (result === null)
-        continue;
-      if (Array.isArray(result))
-        code_points.push.apply(code_points, /**@type {!Array.<number>}*/(result));
-      else
-        code_points.push(result);
-    }
-    if (!this._streaming) {
-      do {
-        result = this._decoder.handler(input_stream, input_stream.read());
-        if (result === finished)
-          break;
-        if (result === null)
-          continue;
-        if (Array.isArray(result))
-          code_points.push.apply(code_points, /**@type {!Array.<number>}*/(result));
-        else
-          code_points.push(result);
-      } while (!input_stream.endOfStream());
-      this._decoder = null;
-    }
-
-    if (code_points.length) {
-      // If encoding is one of utf-8, utf-16be, and utf-16le, and
-      // ignore BOM flag and BOM seen flag are unset, run these
-      // subsubsteps:
-      if (['utf-8'].indexOf(this.encoding) !== -1 &&
-          !this._ignoreBOM && !this._BOMseen) {
-        // If token is U+FEFF, set BOM seen flag.
-        if (code_points[0] === 0xFEFF) {
-          this._BOMseen = true;
-          code_points.shift();
-        } else {
-          // Otherwise, if token is not end-of-stream, set BOM seen
-          // flag and append token to output.
-          this._BOMseen = true;
-        }
-      }
-    }
-
-    return codePointsToString(code_points);
-  }
-};
-
-// 7.2 Interface TextEncoder
-
-/**
- * @constructor
- * @param {string=} encoding The label of the encoding;
- *     defaults to 'utf-8'.
- * @param {Object=} options
- */
-function TextEncoder(encoding, options) {
-  if (!(this instanceof TextEncoder))
-    return new TextEncoder(encoding, options);
-  encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
-  if (encoding !== DEFAULT_ENCODING) {
-    throw new Error('Encoding not supported. Only utf-8 is supported');
-  }
-  options = ToDictionary(options);
-
-  /** @private @type {boolean} */
-  this._streaming = false;
-  /** @private @type {?Encoder} */
-  this._encoder = null;
-  /** @private @type {{fatal: boolean}} */
-  this._options = {fatal: Boolean(options['fatal'])};
-
-  Object.defineProperty(this, 'encoding', {value: 'utf-8'});
-}
-
-TextEncoder.prototype = {
-  /**
-   * @param {string=} opt_string The string to encode.
-   * @param {Object=} options
-   * @return {Uint8Array} Encoded bytes, as a Uint8Array.
-   */
-  encode: function encode(opt_string, options) {
-    opt_string = opt_string ? String(opt_string) : '';
-    options = ToDictionary(options);
-
-    // NOTE: This option is nonstandard. None of the encodings
-    // permitted for encoding (i.e. UTF-8, UTF-16) are stateful,
-    // so streaming is not necessary.
-    if (!this._streaming)
-      this._encoder = new UTF8Encoder(this._options);
-    this._streaming = Boolean(options['stream']);
-
-    var bytes = [];
-    var input_stream = new Stream(stringToCodePoints(opt_string));
-    /** @type {?(number|!Array.<number>)} */
-    var result;
-    while (!input_stream.endOfStream()) {
-      result = this._encoder.handler(input_stream, input_stream.read());
-      if (result === finished)
-        break;
-      if (Array.isArray(result))
-        bytes.push.apply(bytes, /**@type {!Array.<number>}*/(result));
-      else
-        bytes.push(result);
-    }
-    if (!this._streaming) {
-      while (true) {
-        result = this._encoder.handler(input_stream, input_stream.read());
-        if (result === finished)
-          break;
-        if (Array.isArray(result))
-          bytes.push.apply(bytes, /**@type {!Array.<number>}*/(result));
-        else
-          bytes.push(result);
-      }
-      this._encoder = null;
-    }
-    return new Uint8Array(bytes);
-  }
-};
-
-//
-// 8. The encoding
-//
-
-// 8.1 utf-8
-
-/**
- * @constructor
- * @implements {Decoder}
- * @param {{fatal: boolean}} options
- */
-function UTF8Decoder(options) {
-  var fatal = options.fatal;
-
-  // utf-8's decoder's has an associated utf-8 code point, utf-8
-  // bytes seen, and utf-8 bytes needed (all initially 0), a utf-8
-  // lower boundary (initially 0x80), and a utf-8 upper boundary
-  // (initially 0xBF).
-  var /** @type {number} */ utf8_code_point = 0,
-      /** @type {number} */ utf8_bytes_seen = 0,
-      /** @type {number} */ utf8_bytes_needed = 0,
-      /** @type {number} */ utf8_lower_boundary = 0x80,
-      /** @type {number} */ utf8_upper_boundary = 0xBF;
-
-  /**
-   * @param {Stream} stream The stream of bytes being decoded.
-   * @param {number} bite The next byte read from the stream.
-   * @return {?(number|!Array.<number>)} The next code point(s)
-   *     decoded, or null if not enough data exists in the input
-   *     stream to decode a complete code point.
-   */
-  this.handler = function(stream, bite) {
-    // 1. If byte is end-of-stream and utf-8 bytes needed is not 0,
-    // set utf-8 bytes needed to 0 and return error.
-    if (bite === end_of_stream && utf8_bytes_needed !== 0) {
-      utf8_bytes_needed = 0;
-      return decoderError(fatal);
-    }
-
-    // 2. If byte is end-of-stream, return finished.
-    if (bite === end_of_stream)
-      return finished;
-
-    // 3. If utf-8 bytes needed is 0, based on byte:
-    if (utf8_bytes_needed === 0) {
-
-      // 0x00 to 0x7F
-      if (inRange(bite, 0x00, 0x7F)) {
-        // Return a code point whose value is byte.
-        return bite;
-      }
-
-      // 0xC2 to 0xDF
-      if (inRange(bite, 0xC2, 0xDF)) {
-        // Set utf-8 bytes needed to 1 and utf-8 code point to byte
-        // − 0xC0.
-        utf8_bytes_needed = 1;
-        utf8_code_point = bite - 0xC0;
-      }
-
-      // 0xE0 to 0xEF
-      else if (inRange(bite, 0xE0, 0xEF)) {
-        // 1. If byte is 0xE0, set utf-8 lower boundary to 0xA0.
-        if (bite === 0xE0)
-          utf8_lower_boundary = 0xA0;
-        // 2. If byte is 0xED, set utf-8 upper boundary to 0x9F.
-        if (bite === 0xED)
-          utf8_upper_boundary = 0x9F;
-        // 3. Set utf-8 bytes needed to 2 and utf-8 code point to
-        // byte − 0xE0.
-        utf8_bytes_needed = 2;
-        utf8_code_point = bite - 0xE0;
-      }
-
-      // 0xF0 to 0xF4
-      else if (inRange(bite, 0xF0, 0xF4)) {
-        // 1. If byte is 0xF0, set utf-8 lower boundary to 0x90.
-        if (bite === 0xF0)
-          utf8_lower_boundary = 0x90;
-        // 2. If byte is 0xF4, set utf-8 upper boundary to 0x8F.
-        if (bite === 0xF4)
-          utf8_upper_boundary = 0x8F;
-        // 3. Set utf-8 bytes needed to 3 and utf-8 code point to
-        // byte − 0xF0.
-        utf8_bytes_needed = 3;
-        utf8_code_point = bite - 0xF0;
-      }
-
-      // Otherwise
-      else {
-        // Return error.
-        return decoderError(fatal);
-      }
-
-      // Then (byte is in the range 0xC2 to 0xF4) set utf-8 code
-      // point to utf-8 code point << (6 × utf-8 bytes needed) and
-      // return continue.
-      utf8_code_point = utf8_code_point << (6 * utf8_bytes_needed);
-      return null;
-    }
-
-    // 4. If byte is not in the range utf-8 lower boundary to utf-8
-    // upper boundary, run these substeps:
-    if (!inRange(bite, utf8_lower_boundary, utf8_upper_boundary)) {
-
-      // 1. Set utf-8 code point, utf-8 bytes needed, and utf-8
-      // bytes seen to 0, set utf-8 lower boundary to 0x80, and set
-      // utf-8 upper boundary to 0xBF.
-      utf8_code_point = utf8_bytes_needed = utf8_bytes_seen = 0;
-      utf8_lower_boundary = 0x80;
-      utf8_upper_boundary = 0xBF;
-
-      // 2. Prepend byte to stream.
-      stream.prepend(bite);
-
-      // 3. Return error.
-      return decoderError(fatal);
-    }
-
-    // 5. Set utf-8 lower boundary to 0x80 and utf-8 upper boundary
-    // to 0xBF.
-    utf8_lower_boundary = 0x80;
-    utf8_upper_boundary = 0xBF;
-
-    // 6. Increase utf-8 bytes seen by one and set utf-8 code point
-    // to utf-8 code point + (byte − 0x80) << (6 × (utf-8 bytes
-    // needed − utf-8 bytes seen)).
-    utf8_bytes_seen += 1;
-    utf8_code_point += (bite - 0x80) << (6 * (utf8_bytes_needed - utf8_bytes_seen));
-
-    // 7. If utf-8 bytes seen is not equal to utf-8 bytes needed,
-    // continue.
-    if (utf8_bytes_seen !== utf8_bytes_needed)
-      return null;
-
-    // 8. Let code point be utf-8 code point.
-    var code_point = utf8_code_point;
-
-    // 9. Set utf-8 code point, utf-8 bytes needed, and utf-8 bytes
-    // seen to 0.
-    utf8_code_point = utf8_bytes_needed = utf8_bytes_seen = 0;
-
-    // 10. Return a code point whose value is code point.
-    return code_point;
-  };
-}
-
-/**
- * @constructor
- * @implements {Encoder}
- * @param {{fatal: boolean}} options
- */
-function UTF8Encoder(options) {
-  options.fatal;
-  /**
-   * @param {Stream} stream Input stream.
-   * @param {number} code_point Next code point read from the stream.
-   * @return {(number|!Array.<number>)} Byte(s) to emit.
-   */
-  this.handler = function(stream, code_point) {
-    // 1. If code point is end-of-stream, return finished.
-    if (code_point === end_of_stream)
-      return finished;
-
-    // 2. If code point is in the range U+0000 to U+007F, return a
-    // byte whose value is code point.
-    if (inRange(code_point, 0x0000, 0x007f))
-      return code_point;
-
-    // 3. Set count and offset based on the range code point is in:
-    var count, offset;
-    // U+0080 to U+07FF:    1 and 0xC0
-    if (inRange(code_point, 0x0080, 0x07FF)) {
-      count = 1;
-      offset = 0xC0;
-    }
-    // U+0800 to U+FFFF:    2 and 0xE0
-    else if (inRange(code_point, 0x0800, 0xFFFF)) {
-      count = 2;
-      offset = 0xE0;
-    }
-    // U+10000 to U+10FFFF: 3 and 0xF0
-    else if (inRange(code_point, 0x10000, 0x10FFFF)) {
-      count = 3;
-      offset = 0xF0;
-    }
-
-    // 4.Let bytes be a byte sequence whose first byte is (code
-    // point >> (6 × count)) + offset.
-    var bytes = [(code_point >> (6 * count)) + offset];
-
-    // 5. Run these substeps while count is greater than 0:
-    while (count > 0) {
-
-      // 1. Set temp to code point >> (6 × (count − 1)).
-      var temp = code_point >> (6 * (count - 1));
-
-      // 2. Append to bytes 0x80 | (temp & 0x3F).
-      bytes.push(0x80 | (temp & 0x3F));
-
-      // 3. Decrease count by one.
-      count -= 1;
-    }
-
-    // 6. Return bytes bytes, in order.
-    return bytes;
-  };
-}
-
-encoding_lib.TextEncoder = TextEncoder;
-encoding_lib.TextDecoder = TextDecoder$1;
-
-var __createBinding = (commonjsGlobal && commonjsGlobal.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (commonjsGlobal && commonjsGlobal.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __decorate = (commonjsGlobal && commonjsGlobal.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __importStar = (commonjsGlobal && commonjsGlobal.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(lib, "__esModule", { value: true });
-var deserializeUnchecked_1 = lib.deserializeUnchecked = deserialize_1 = lib.deserialize = serialize_1 = lib.serialize = lib.BinaryReader = lib.BinaryWriter = lib.BorshError = lib.baseDecode = lib.baseEncode = void 0;
-const bn_js_1 = __importDefault(bn$1.exports);
-const bs58_1 = __importDefault(bs58);
-// TODO: Make sure this polyfill not included when not required
-const encoding = __importStar(encoding_lib);
-const ResolvedTextDecoder = typeof TextDecoder !== "function" ? encoding.TextDecoder : TextDecoder;
-const textDecoder = new ResolvedTextDecoder("utf-8", { fatal: true });
-function baseEncode(value) {
-    if (typeof value === "string") {
-        value = Buffer.from(value, "utf8");
-    }
-    return bs58_1.default.encode(Buffer.from(value));
-}
-lib.baseEncode = baseEncode;
-function baseDecode(value) {
-    return Buffer.from(bs58_1.default.decode(value));
-}
-lib.baseDecode = baseDecode;
-const INITIAL_LENGTH = 1024;
-class BorshError extends Error {
-    constructor(message) {
-        super(message);
-        this.fieldPath = [];
-        this.originalMessage = message;
-    }
-    addToFieldPath(fieldName) {
-        this.fieldPath.splice(0, 0, fieldName);
-        // NOTE: Modifying message directly as jest doesn't use .toString()
-        this.message = this.originalMessage + ": " + this.fieldPath.join(".");
-    }
-}
-lib.BorshError = BorshError;
-/// Binary encoder.
-class BinaryWriter {
-    constructor() {
-        this.buf = Buffer.alloc(INITIAL_LENGTH);
-        this.length = 0;
-    }
-    maybeResize() {
-        if (this.buf.length < 16 + this.length) {
-            this.buf = Buffer.concat([this.buf, Buffer.alloc(INITIAL_LENGTH)]);
-        }
-    }
-    writeU8(value) {
-        this.maybeResize();
-        this.buf.writeUInt8(value, this.length);
-        this.length += 1;
-    }
-    writeU16(value) {
-        this.maybeResize();
-        this.buf.writeUInt16LE(value, this.length);
-        this.length += 2;
-    }
-    writeU32(value) {
-        this.maybeResize();
-        this.buf.writeUInt32LE(value, this.length);
-        this.length += 4;
-    }
-    writeU64(value) {
-        this.maybeResize();
-        this.writeBuffer(Buffer.from(new bn_js_1.default(value).toArray("le", 8)));
-    }
-    writeU128(value) {
-        this.maybeResize();
-        this.writeBuffer(Buffer.from(new bn_js_1.default(value).toArray("le", 16)));
-    }
-    writeU256(value) {
-        this.maybeResize();
-        this.writeBuffer(Buffer.from(new bn_js_1.default(value).toArray("le", 32)));
-    }
-    writeU512(value) {
-        this.maybeResize();
-        this.writeBuffer(Buffer.from(new bn_js_1.default(value).toArray("le", 64)));
-    }
-    writeBuffer(buffer) {
-        // Buffer.from is needed as this.buf.subarray can return plain Uint8Array in browser
-        this.buf = Buffer.concat([
-            Buffer.from(this.buf.subarray(0, this.length)),
-            buffer,
-            Buffer.alloc(INITIAL_LENGTH),
-        ]);
-        this.length += buffer.length;
-    }
-    writeString(str) {
-        this.maybeResize();
-        const b = Buffer.from(str, "utf8");
-        this.writeU32(b.length);
-        this.writeBuffer(b);
-    }
-    writeFixedArray(array) {
-        this.writeBuffer(Buffer.from(array));
-    }
-    writeArray(array, fn) {
-        this.maybeResize();
-        this.writeU32(array.length);
-        for (const elem of array) {
-            this.maybeResize();
-            fn(elem);
-        }
-    }
-    toArray() {
-        return this.buf.subarray(0, this.length);
-    }
-}
-lib.BinaryWriter = BinaryWriter;
-function handlingRangeError(target, propertyKey, propertyDescriptor) {
-    const originalMethod = propertyDescriptor.value;
-    propertyDescriptor.value = function (...args) {
-        try {
-            return originalMethod.apply(this, args);
-        }
-        catch (e) {
-            if (e instanceof RangeError) {
-                const code = e.code;
-                if (["ERR_BUFFER_OUT_OF_BOUNDS", "ERR_OUT_OF_RANGE"].indexOf(code) >= 0) {
-                    throw new BorshError("Reached the end of buffer when deserializing");
-                }
-            }
-            throw e;
-        }
-    };
-}
-class BinaryReader {
-    constructor(buf) {
-        this.buf = buf;
-        this.offset = 0;
-    }
-    readU8() {
-        const value = this.buf.readUInt8(this.offset);
-        this.offset += 1;
-        return value;
-    }
-    readU16() {
-        const value = this.buf.readUInt16LE(this.offset);
-        this.offset += 2;
-        return value;
-    }
-    readU32() {
-        const value = this.buf.readUInt32LE(this.offset);
-        this.offset += 4;
-        return value;
-    }
-    readU64() {
-        const buf = this.readBuffer(8);
-        return new bn_js_1.default(buf, "le");
-    }
-    readU128() {
-        const buf = this.readBuffer(16);
-        return new bn_js_1.default(buf, "le");
-    }
-    readU256() {
-        const buf = this.readBuffer(32);
-        return new bn_js_1.default(buf, "le");
-    }
-    readU512() {
-        const buf = this.readBuffer(64);
-        return new bn_js_1.default(buf, "le");
-    }
-    readBuffer(len) {
-        if (this.offset + len > this.buf.length) {
-            throw new BorshError(`Expected buffer length ${len} isn't within bounds`);
-        }
-        const result = this.buf.slice(this.offset, this.offset + len);
-        this.offset += len;
-        return result;
-    }
-    readString() {
-        const len = this.readU32();
-        const buf = this.readBuffer(len);
-        try {
-            // NOTE: Using TextDecoder to fail on invalid UTF-8
-            return textDecoder.decode(buf);
-        }
-        catch (e) {
-            throw new BorshError(`Error decoding UTF-8 string: ${e}`);
-        }
-    }
-    readFixedArray(len) {
-        return new Uint8Array(this.readBuffer(len));
-    }
-    readArray(fn) {
-        const len = this.readU32();
-        const result = Array();
-        for (let i = 0; i < len; ++i) {
-            result.push(fn());
-        }
-        return result;
-    }
-}
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU8", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU16", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU32", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU64", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU128", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU256", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readU512", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readString", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readFixedArray", null);
-__decorate([
-    handlingRangeError
-], BinaryReader.prototype, "readArray", null);
-lib.BinaryReader = BinaryReader;
-function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
-function serializeField(schema, fieldName, value, fieldType, writer) {
-    try {
-        // TODO: Handle missing values properly (make sure they never result in just skipped write)
-        if (typeof fieldType === "string") {
-            writer[`write${capitalizeFirstLetter(fieldType)}`](value);
-        }
-        else if (fieldType instanceof Array) {
-            if (typeof fieldType[0] === "number") {
-                if (value.length !== fieldType[0]) {
-                    throw new BorshError(`Expecting byte array of length ${fieldType[0]}, but got ${value.length} bytes`);
-                }
-                writer.writeFixedArray(value);
-            }
-            else if (fieldType.length === 2 && typeof fieldType[1] === "number") {
-                if (value.length !== fieldType[1]) {
-                    throw new BorshError(`Expecting byte array of length ${fieldType[1]}, but got ${value.length} bytes`);
-                }
-                for (let i = 0; i < fieldType[1]; i++) {
-                    serializeField(schema, null, value[i], fieldType[0], writer);
-                }
-            }
-            else {
-                writer.writeArray(value, (item) => {
-                    serializeField(schema, fieldName, item, fieldType[0], writer);
-                });
-            }
-        }
-        else if (fieldType.kind !== undefined) {
-            switch (fieldType.kind) {
-                case "option": {
-                    if (value === null || value === undefined) {
-                        writer.writeU8(0);
-                    }
-                    else {
-                        writer.writeU8(1);
-                        serializeField(schema, fieldName, value, fieldType.type, writer);
-                    }
-                    break;
-                }
-                case "map": {
-                    writer.writeU32(value.size);
-                    value.forEach((val, key) => {
-                        serializeField(schema, fieldName, key, fieldType.key, writer);
-                        serializeField(schema, fieldName, val, fieldType.value, writer);
-                    });
-                    break;
-                }
-                default:
-                    throw new BorshError(`FieldType ${fieldType} unrecognized`);
-            }
-        }
-        else {
-            serializeStruct(schema, value, writer);
-        }
-    }
-    catch (error) {
-        if (error instanceof BorshError) {
-            error.addToFieldPath(fieldName);
-        }
-        throw error;
-    }
-}
-function serializeStruct(schema, obj, writer) {
-    if (typeof obj.borshSerialize === "function") {
-        obj.borshSerialize(writer);
-        return;
-    }
-    const structSchema = schema.get(obj.constructor);
-    if (!structSchema) {
-        throw new BorshError(`Class ${obj.constructor.name} is missing in schema`);
-    }
-    if (structSchema.kind === "struct") {
-        structSchema.fields.map(([fieldName, fieldType]) => {
-            serializeField(schema, fieldName, obj[fieldName], fieldType, writer);
-        });
-    }
-    else if (structSchema.kind === "enum") {
-        const name = obj[structSchema.field];
-        for (let idx = 0; idx < structSchema.values.length; ++idx) {
-            const [fieldName, fieldType] = structSchema.values[idx];
-            if (fieldName === name) {
-                writer.writeU8(idx);
-                serializeField(schema, fieldName, obj[fieldName], fieldType, writer);
-                break;
-            }
-        }
-    }
-    else {
-        throw new BorshError(`Unexpected schema kind: ${structSchema.kind} for ${obj.constructor.name}`);
-    }
-}
-/// Serialize given object using schema of the form:
-/// { class_name -> [ [field_name, field_type], .. ], .. }
-function serialize(schema, obj, Writer = BinaryWriter) {
-    const writer = new Writer();
-    serializeStruct(schema, obj, writer);
-    return writer.toArray();
-}
-var serialize_1 = lib.serialize = serialize;
-function deserializeField(schema, fieldName, fieldType, reader) {
-    try {
-        if (typeof fieldType === "string") {
-            return reader[`read${capitalizeFirstLetter(fieldType)}`]();
-        }
-        if (fieldType instanceof Array) {
-            if (typeof fieldType[0] === "number") {
-                return reader.readFixedArray(fieldType[0]);
-            }
-            else if (typeof fieldType[1] === "number") {
-                const arr = [];
-                for (let i = 0; i < fieldType[1]; i++) {
-                    arr.push(deserializeField(schema, null, fieldType[0], reader));
-                }
-                return arr;
-            }
-            else {
-                return reader.readArray(() => deserializeField(schema, fieldName, fieldType[0], reader));
-            }
-        }
-        if (fieldType.kind === "option") {
-            const option = reader.readU8();
-            if (option) {
-                return deserializeField(schema, fieldName, fieldType.type, reader);
-            }
-            return undefined;
-        }
-        if (fieldType.kind === "map") {
-            let map = new Map();
-            const length = reader.readU32();
-            for (let i = 0; i < length; i++) {
-                const key = deserializeField(schema, fieldName, fieldType.key, reader);
-                const val = deserializeField(schema, fieldName, fieldType.value, reader);
-                map.set(key, val);
-            }
-            return map;
-        }
-        return deserializeStruct(schema, fieldType, reader);
-    }
-    catch (error) {
-        if (error instanceof BorshError) {
-            error.addToFieldPath(fieldName);
-        }
-        throw error;
-    }
-}
-function deserializeStruct(schema, classType, reader) {
-    if (typeof classType.borshDeserialize === "function") {
-        return classType.borshDeserialize(reader);
-    }
-    const structSchema = schema.get(classType);
-    if (!structSchema) {
-        throw new BorshError(`Class ${classType.name} is missing in schema`);
-    }
-    if (structSchema.kind === "struct") {
-        const result = {};
-        for (const [fieldName, fieldType] of schema.get(classType).fields) {
-            result[fieldName] = deserializeField(schema, fieldName, fieldType, reader);
-        }
-        return new classType(result);
-    }
-    if (structSchema.kind === "enum") {
-        const idx = reader.readU8();
-        if (idx >= structSchema.values.length) {
-            throw new BorshError(`Enum index: ${idx} is out of range`);
-        }
-        const [fieldName, fieldType] = structSchema.values[idx];
-        const fieldValue = deserializeField(schema, fieldName, fieldType, reader);
-        return new classType({ [fieldName]: fieldValue });
-    }
-    throw new BorshError(`Unexpected schema kind: ${structSchema.kind} for ${classType.constructor.name}`);
-}
-/// Deserializes object from bytes using schema.
-function deserialize(schema, classType, buffer, Reader = BinaryReader) {
-    const reader = new Reader(buffer);
-    const result = deserializeStruct(schema, classType, reader);
-    if (reader.offset < buffer.length) {
-        throw new BorshError(`Unexpected ${buffer.length - reader.offset} bytes after deserialized data`);
-    }
-    return result;
-}
-var deserialize_1 = lib.deserialize = deserialize;
-/// Deserializes object from bytes using schema, without checking the length read
-function deserializeUnchecked(schema, classType, buffer, Reader = BinaryReader) {
-    const reader = new Reader(buffer);
-    return deserializeStruct(schema, classType, reader);
-}
-deserializeUnchecked_1 = lib.deserializeUnchecked = deserializeUnchecked;
+var bs58$1 = bs58;
 
 var Layout$1 = {};
 
@@ -11331,70 +10264,6 @@ Layout$1.utf8 = ((maxSpan, property) => new UTF8(maxSpan, property));
 /** Factory for {@link Constant} values. */
 Layout$1.constant = ((value, property) => new Constant(value, property));
 
-var browser$2 = {};
-
-Object.defineProperty(browser$2, "__esModule", { value: true });
-/**
- * Convert a little-endian buffer into a BigInt.
- * @param buf The little-endian buffer to convert
- * @returns A BigInt with the little-endian representation of buf.
- */
-function toBigIntLE(buf) {
-    {
-        const reversed = Buffer.from(buf);
-        reversed.reverse();
-        const hex = reversed.toString('hex');
-        if (hex.length === 0) {
-            return BigInt(0);
-        }
-        return BigInt(`0x${hex}`);
-    }
-}
-var toBigIntLE_1 = browser$2.toBigIntLE = toBigIntLE;
-/**
- * Convert a big-endian buffer into a BigInt
- * @param buf The big-endian buffer to convert.
- * @returns A BigInt with the big-endian representation of buf.
- */
-function toBigIntBE(buf) {
-    {
-        const hex = buf.toString('hex');
-        if (hex.length === 0) {
-            return BigInt(0);
-        }
-        return BigInt(`0x${hex}`);
-    }
-}
-browser$2.toBigIntBE = toBigIntBE;
-/**
- * Convert a BigInt to a little-endian buffer.
- * @param num   The BigInt to convert.
- * @param width The number of bytes that the resulting buffer should be.
- * @returns A little-endian buffer representation of num.
- */
-function toBufferLE(num, width) {
-    {
-        const hex = num.toString(16);
-        const buffer = Buffer.from(hex.padStart(width * 2, '0').slice(0, width * 2), 'hex');
-        buffer.reverse();
-        return buffer;
-    }
-}
-var toBufferLE_1 = browser$2.toBufferLE = toBufferLE;
-/**
- * Convert a BigInt to a big-endian buffer.
- * @param num   The BigInt to convert.
- * @param width The number of bytes that the resulting buffer should be.
- * @returns A big-endian buffer representation of num.
- */
-function toBufferBE(num, width) {
-    {
-        const hex = num.toString(16);
-        return Buffer.from(hex.padStart(width * 2, '0').slice(0, width * 2), 'hex');
-    }
-}
-browser$2.toBufferBE = toBufferBE;
-
 /**
  * A `StructFailure` represents a single specific failure in validation.
  */
@@ -11639,7 +10508,7 @@ class Struct$1 {
 
 
   assert(value) {
-    return assert$n(value, this);
+    return assert$7(value, this);
   }
   /**
    * Create a value with the struct's coercion logic, then validate it.
@@ -11685,7 +10554,7 @@ class Struct$1 {
  * Assert that a value passes a struct, throwing if it doesn't.
  */
 
-function assert$n(value, struct) {
+function assert$7(value, struct) {
   const result = validate$1(value, struct);
 
   if (result[0]) {
@@ -12070,7 +10939,7 @@ function requireClassCallCheck () {
 	return classCallCheck.exports;
 }
 
-var inherits$6 = {exports: {}};
+var inherits$1 = {exports: {}};
 
 var setPrototypeOf = {exports: {}};
 
@@ -12096,7 +10965,7 @@ function requireSetPrototypeOf () {
 var hasRequiredInherits;
 
 function requireInherits () {
-	if (hasRequiredInherits) return inherits$6.exports;
+	if (hasRequiredInherits) return inherits$1.exports;
 	hasRequiredInherits = 1;
 	(function (module) {
 		var setPrototypeOf = requireSetPrototypeOf();
@@ -12120,8 +10989,8 @@ function requireInherits () {
 		}
 
 		module.exports = _inherits, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (inherits$6));
-	return inherits$6.exports;
+} (inherits$1));
+	return inherits$1.exports;
 }
 
 var possibleConstructorReturn = {exports: {}};
@@ -12355,7 +11224,7 @@ var platform = 'browser';
 var browser$1 = true;
 var env = {};
 var argv = [];
-var version$5 = ''; // empty string to avoid regexp issues
+var version$4 = ''; // empty string to avoid regexp issues
 var versions = {};
 var release = {};
 var config = {};
@@ -12419,7 +11288,7 @@ var browser$1$1 = {
   browser: browser$1,
   env: env,
   argv: argv,
-  version: version$5,
+  version: version$4,
   versions: versions,
   on: on,
   addListener: addListener,
@@ -12439,4913 +11308,3110 @@ var browser$1$1 = {
   uptime: uptime
 };
 
-var bufferUtil = {exports: {}};
+const EventEmitter$1 = require('events');
+const https = require('https');
+const http$1 = require('http');
+const net = require('net');
+const tls = require('tls');
+const { randomBytes, createHash: createHash$1 } = require('crypto');
+require('stream');
+const { URL: URL$2 } = require('url');
 
-var constants;
-var hasRequiredConstants;
+const PerMessageDeflate$3 = require('./permessage-deflate');
+const Receiver$1 = require('./receiver');
+const Sender$1 = require('./sender');
+const {
+  BINARY_TYPES: BINARY_TYPES$1,
+  EMPTY_BUFFER: EMPTY_BUFFER$2,
+  GUID: GUID$1,
+  kForOnEventAttribute,
+  kListener,
+  kStatusCode: kStatusCode$1,
+  kWebSocket: kWebSocket$2,
+  NOOP
+} = require('./constants');
+const {
+  EventTarget: { addEventListener, removeEventListener }
+} = require('./event-target');
+const { format, parse: parse$1 } = require('./extension');
+const { toBuffer: toBuffer$2 } = require('./buffer-util');
 
-function requireConstants () {
-	if (hasRequiredConstants) return constants;
-	hasRequiredConstants = 1;
+const closeTimeout = 30 * 1000;
+const kAborted = Symbol('kAborted');
+const protocolVersions = [8, 13];
+const readyStates = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
+const subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
 
-	constants = {
-	  BINARY_TYPES: ['nodebuffer', 'arraybuffer', 'fragments'],
-	  EMPTY_BUFFER: Buffer.alloc(0),
-	  GUID: '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
-	  kForOnEventAttribute: Symbol('kIsForOnEventAttribute'),
-	  kListener: Symbol('kListener'),
-	  kStatusCode: Symbol('status-code'),
-	  kWebSocket: Symbol('websocket'),
-	  NOOP: () => {}
-	};
-	return constants;
+/**
+ * Class representing a WebSocket.
+ *
+ * @extends EventEmitter
+ */
+class WebSocket$1 extends EventEmitter$1 {
+  /**
+   * Create a new `WebSocket`.
+   *
+   * @param {(String|URL)} address The URL to which to connect
+   * @param {(String|String[])} [protocols] The subprotocols
+   * @param {Object} [options] Connection options
+   */
+  constructor(address, protocols, options) {
+    super();
+
+    this._binaryType = BINARY_TYPES$1[0];
+    this._closeCode = 1006;
+    this._closeFrameReceived = false;
+    this._closeFrameSent = false;
+    this._closeMessage = EMPTY_BUFFER$2;
+    this._closeTimer = null;
+    this._extensions = {};
+    this._paused = false;
+    this._protocol = '';
+    this._readyState = WebSocket$1.CONNECTING;
+    this._receiver = null;
+    this._sender = null;
+    this._socket = null;
+
+    if (address !== null) {
+      this._bufferedAmount = 0;
+      this._isServer = false;
+      this._redirects = 0;
+
+      if (protocols === undefined) {
+        protocols = [];
+      } else if (!Array.isArray(protocols)) {
+        if (typeof protocols === 'object' && protocols !== null) {
+          options = protocols;
+          protocols = [];
+        } else {
+          protocols = [protocols];
+        }
+      }
+
+      initAsClient(this, address, protocols, options);
+    } else {
+      this._isServer = true;
+    }
+  }
+
+  /**
+   * This deviates from the WHATWG interface since ws doesn't support the
+   * required default "blob" type (instead we define a custom "nodebuffer"
+   * type).
+   *
+   * @type {String}
+   */
+  get binaryType() {
+    return this._binaryType;
+  }
+
+  set binaryType(type) {
+    if (!BINARY_TYPES$1.includes(type)) return;
+
+    this._binaryType = type;
+
+    //
+    // Allow to change `binaryType` on the fly.
+    //
+    if (this._receiver) this._receiver._binaryType = type;
+  }
+
+  /**
+   * @type {Number}
+   */
+  get bufferedAmount() {
+    if (!this._socket) return this._bufferedAmount;
+
+    return this._socket._writableState.length + this._sender._bufferedBytes;
+  }
+
+  /**
+   * @type {String}
+   */
+  get extensions() {
+    return Object.keys(this._extensions).join();
+  }
+
+  /**
+   * @type {Boolean}
+   */
+  get isPaused() {
+    return this._paused;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onclose() {
+    return null;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onerror() {
+    return null;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onopen() {
+    return null;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onmessage() {
+    return null;
+  }
+
+  /**
+   * @type {String}
+   */
+  get protocol() {
+    return this._protocol;
+  }
+
+  /**
+   * @type {Number}
+   */
+  get readyState() {
+    return this._readyState;
+  }
+
+  /**
+   * @type {String}
+   */
+  get url() {
+    return this._url;
+  }
+
+  /**
+   * Set up the socket and the internal resources.
+   *
+   * @param {(net.Socket|tls.Socket)} socket The network socket between the
+   *     server and client
+   * @param {Buffer} head The first packet of the upgraded stream
+   * @param {Object} options Options object
+   * @param {Function} [options.generateMask] The function used to generate the
+   *     masking key
+   * @param {Number} [options.maxPayload=0] The maximum allowed message size
+   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+   *     not to skip UTF-8 validation for text and close messages
+   * @private
+   */
+  setSocket(socket, head, options) {
+    const receiver = new Receiver$1({
+      binaryType: this.binaryType,
+      extensions: this._extensions,
+      isServer: this._isServer,
+      maxPayload: options.maxPayload,
+      skipUTF8Validation: options.skipUTF8Validation
+    });
+
+    this._sender = new Sender$1(socket, this._extensions, options.generateMask);
+    this._receiver = receiver;
+    this._socket = socket;
+
+    receiver[kWebSocket$2] = this;
+    socket[kWebSocket$2] = this;
+
+    receiver.on('conclude', receiverOnConclude);
+    receiver.on('drain', receiverOnDrain);
+    receiver.on('error', receiverOnError);
+    receiver.on('message', receiverOnMessage);
+    receiver.on('ping', receiverOnPing);
+    receiver.on('pong', receiverOnPong);
+
+    socket.setTimeout(0);
+    socket.setNoDelay();
+
+    if (head.length > 0) socket.unshift(head);
+
+    socket.on('close', socketOnClose);
+    socket.on('data', socketOnData);
+    socket.on('end', socketOnEnd);
+    socket.on('error', socketOnError$1);
+
+    this._readyState = WebSocket$1.OPEN;
+    this.emit('open');
+  }
+
+  /**
+   * Emit the `'close'` event.
+   *
+   * @private
+   */
+  emitClose() {
+    if (!this._socket) {
+      this._readyState = WebSocket$1.CLOSED;
+      this.emit('close', this._closeCode, this._closeMessage);
+      return;
+    }
+
+    if (this._extensions[PerMessageDeflate$3.extensionName]) {
+      this._extensions[PerMessageDeflate$3.extensionName].cleanup();
+    }
+
+    this._receiver.removeAllListeners();
+    this._readyState = WebSocket$1.CLOSED;
+    this.emit('close', this._closeCode, this._closeMessage);
+  }
+
+  /**
+   * Start a closing handshake.
+   *
+   *          +----------+   +-----------+   +----------+
+   *     - - -|ws.close()|-->|close frame|-->|ws.close()|- - -
+   *    |     +----------+   +-----------+   +----------+     |
+   *          +----------+   +-----------+         |
+   * CLOSING  |ws.close()|<--|close frame|<--+-----+       CLOSING
+   *          +----------+   +-----------+   |
+   *    |           |                        |   +---+        |
+   *                +------------------------+-->|fin| - - - -
+   *    |         +---+                      |   +---+
+   *     - - - - -|fin|<---------------------+
+   *              +---+
+   *
+   * @param {Number} [code] Status code explaining why the connection is closing
+   * @param {(String|Buffer)} [data] The reason why the connection is
+   *     closing
+   * @public
+   */
+  close(code, data) {
+    if (this.readyState === WebSocket$1.CLOSED) return;
+    if (this.readyState === WebSocket$1.CONNECTING) {
+      const msg = 'WebSocket was closed before the connection was established';
+      return abortHandshake$1(this, this._req, msg);
+    }
+
+    if (this.readyState === WebSocket$1.CLOSING) {
+      if (
+        this._closeFrameSent &&
+        (this._closeFrameReceived || this._receiver._writableState.errorEmitted)
+      ) {
+        this._socket.end();
+      }
+
+      return;
+    }
+
+    this._readyState = WebSocket$1.CLOSING;
+    this._sender.close(code, data, !this._isServer, (err) => {
+      //
+      // This error is handled by the `'error'` listener on the socket. We only
+      // want to know if the close frame has been sent here.
+      //
+      if (err) return;
+
+      this._closeFrameSent = true;
+
+      if (
+        this._closeFrameReceived ||
+        this._receiver._writableState.errorEmitted
+      ) {
+        this._socket.end();
+      }
+    });
+
+    //
+    // Specify a timeout for the closing handshake to complete.
+    //
+    this._closeTimer = setTimeout(
+      this._socket.destroy.bind(this._socket),
+      closeTimeout
+    );
+  }
+
+  /**
+   * Pause the socket.
+   *
+   * @public
+   */
+  pause() {
+    if (
+      this.readyState === WebSocket$1.CONNECTING ||
+      this.readyState === WebSocket$1.CLOSED
+    ) {
+      return;
+    }
+
+    this._paused = true;
+    this._socket.pause();
+  }
+
+  /**
+   * Send a ping.
+   *
+   * @param {*} [data] The data to send
+   * @param {Boolean} [mask] Indicates whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when the ping is sent
+   * @public
+   */
+  ping(data, mask, cb) {
+    if (this.readyState === WebSocket$1.CONNECTING) {
+      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
+    }
+
+    if (typeof data === 'function') {
+      cb = data;
+      data = mask = undefined;
+    } else if (typeof mask === 'function') {
+      cb = mask;
+      mask = undefined;
+    }
+
+    if (typeof data === 'number') data = data.toString();
+
+    if (this.readyState !== WebSocket$1.OPEN) {
+      sendAfterClose(this, data, cb);
+      return;
+    }
+
+    if (mask === undefined) mask = !this._isServer;
+    this._sender.ping(data || EMPTY_BUFFER$2, mask, cb);
+  }
+
+  /**
+   * Send a pong.
+   *
+   * @param {*} [data] The data to send
+   * @param {Boolean} [mask] Indicates whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when the pong is sent
+   * @public
+   */
+  pong(data, mask, cb) {
+    if (this.readyState === WebSocket$1.CONNECTING) {
+      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
+    }
+
+    if (typeof data === 'function') {
+      cb = data;
+      data = mask = undefined;
+    } else if (typeof mask === 'function') {
+      cb = mask;
+      mask = undefined;
+    }
+
+    if (typeof data === 'number') data = data.toString();
+
+    if (this.readyState !== WebSocket$1.OPEN) {
+      sendAfterClose(this, data, cb);
+      return;
+    }
+
+    if (mask === undefined) mask = !this._isServer;
+    this._sender.pong(data || EMPTY_BUFFER$2, mask, cb);
+  }
+
+  /**
+   * Resume the socket.
+   *
+   * @public
+   */
+  resume() {
+    if (
+      this.readyState === WebSocket$1.CONNECTING ||
+      this.readyState === WebSocket$1.CLOSED
+    ) {
+      return;
+    }
+
+    this._paused = false;
+    if (!this._receiver._writableState.needDrain) this._socket.resume();
+  }
+
+  /**
+   * Send a data message.
+   *
+   * @param {*} data The message to send
+   * @param {Object} [options] Options object
+   * @param {Boolean} [options.binary] Specifies whether `data` is binary or
+   *     text
+   * @param {Boolean} [options.compress] Specifies whether or not to compress
+   *     `data`
+   * @param {Boolean} [options.fin=true] Specifies whether the fragment is the
+   *     last one
+   * @param {Boolean} [options.mask] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when data is written out
+   * @public
+   */
+  send(data, options, cb) {
+    if (this.readyState === WebSocket$1.CONNECTING) {
+      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
+    }
+
+    if (typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
+
+    if (typeof data === 'number') data = data.toString();
+
+    if (this.readyState !== WebSocket$1.OPEN) {
+      sendAfterClose(this, data, cb);
+      return;
+    }
+
+    const opts = {
+      binary: typeof data !== 'string',
+      mask: !this._isServer,
+      compress: true,
+      fin: true,
+      ...options
+    };
+
+    if (!this._extensions[PerMessageDeflate$3.extensionName]) {
+      opts.compress = false;
+    }
+
+    this._sender.send(data || EMPTY_BUFFER$2, opts, cb);
+  }
+
+  /**
+   * Forcibly close the connection.
+   *
+   * @public
+   */
+  terminate() {
+    if (this.readyState === WebSocket$1.CLOSED) return;
+    if (this.readyState === WebSocket$1.CONNECTING) {
+      const msg = 'WebSocket was closed before the connection was established';
+      return abortHandshake$1(this, this._req, msg);
+    }
+
+    if (this._socket) {
+      this._readyState = WebSocket$1.CLOSING;
+      this._socket.destroy();
+    }
+  }
 }
 
-var __dirname$1 = '/Users/sebastian/Work/DePay/solana-web3.js/node_modules/bufferutil';
+/**
+ * @constant {Number} CONNECTING
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket$1, 'CONNECTING', {
+  enumerable: true,
+  value: readyStates.indexOf('CONNECTING')
+});
 
-var bufferutil = {exports: {}};
+/**
+ * @constant {Number} CONNECTING
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket$1.prototype, 'CONNECTING', {
+  enumerable: true,
+  value: readyStates.indexOf('CONNECTING')
+});
 
-var nodeGypBuild;
-var hasRequiredNodeGypBuild;
+/**
+ * @constant {Number} OPEN
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket$1, 'OPEN', {
+  enumerable: true,
+  value: readyStates.indexOf('OPEN')
+});
 
-function requireNodeGypBuild () {
-	if (hasRequiredNodeGypBuild) return nodeGypBuild;
-	hasRequiredNodeGypBuild = 1;
-	var fs = require$$0$3;
-	var path = require$$1;
-	var os = require$$2;
+/**
+ * @constant {Number} OPEN
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket$1.prototype, 'OPEN', {
+  enumerable: true,
+  value: readyStates.indexOf('OPEN')
+});
 
-	// Workaround to fix webpack's build warnings: 'the request of a dependency is an expression'
-	var runtimeRequire = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : commonjsRequire; // eslint-disable-line
+/**
+ * @constant {Number} CLOSING
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket$1, 'CLOSING', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSING')
+});
 
-	var vars = (browser$1$1.config && browser$1$1.config.variables) || {};
-	var prebuildsOnly = !!browser$1$1.env.PREBUILDS_ONLY;
-	var abi = browser$1$1.versions.modules; // TODO: support old node where this is undef
-	var runtime = isElectron() ? 'electron' : (isNwjs() ? 'node-webkit' : 'node');
+/**
+ * @constant {Number} CLOSING
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket$1.prototype, 'CLOSING', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSING')
+});
 
-	var arch = browser$1$1.env.npm_config_arch || os.arch();
-	var platform = browser$1$1.env.npm_config_platform || os.platform();
-	var libc = browser$1$1.env.LIBC || (isAlpine(platform) ? 'musl' : 'glibc');
-	var armv = browser$1$1.env.ARM_VERSION || (arch === 'arm64' ? '8' : vars.arm_version) || '';
-	var uv = (browser$1$1.versions.uv || '').split('.')[0];
+/**
+ * @constant {Number} CLOSED
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket$1, 'CLOSED', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSED')
+});
 
-	nodeGypBuild = load;
+/**
+ * @constant {Number} CLOSED
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket$1.prototype, 'CLOSED', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSED')
+});
 
-	function load (dir) {
-	  return runtimeRequire(load.path(dir))
-	}
+[
+  'binaryType',
+  'bufferedAmount',
+  'extensions',
+  'isPaused',
+  'protocol',
+  'readyState',
+  'url'
+].forEach((property) => {
+  Object.defineProperty(WebSocket$1.prototype, property, { enumerable: true });
+});
 
-	load.path = function (dir) {
-	  dir = path.resolve(dir || '.');
+//
+// Add the `onopen`, `onerror`, `onclose`, and `onmessage` attributes.
+// See https://html.spec.whatwg.org/multipage/comms.html#the-websocket-interface
+//
+['open', 'error', 'close', 'message'].forEach((method) => {
+  Object.defineProperty(WebSocket$1.prototype, `on${method}`, {
+    enumerable: true,
+    get() {
+      for (const listener of this.listeners(method)) {
+        if (listener[kForOnEventAttribute]) return listener[kListener];
+      }
 
-	  try {
-	    var name = runtimeRequire(path.join(dir, 'package.json')).name.toUpperCase().replace(/-/g, '_');
-	    if (browser$1$1.env[name + '_PREBUILD']) dir = browser$1$1.env[name + '_PREBUILD'];
-	  } catch (err) {}
+      return null;
+    },
+    set(handler) {
+      for (const listener of this.listeners(method)) {
+        if (listener[kForOnEventAttribute]) {
+          this.removeListener(method, listener);
+          break;
+        }
+      }
 
-	  if (!prebuildsOnly) {
-	    var release = getFirst(path.join(dir, 'build/Release'), matchBuild);
-	    if (release) return release
+      if (typeof handler !== 'function') return;
 
-	    var debug = getFirst(path.join(dir, 'build/Debug'), matchBuild);
-	    if (debug) return debug
-	  }
+      this.addEventListener(method, handler, {
+        [kForOnEventAttribute]: true
+      });
+    }
+  });
+});
 
-	  var prebuild = resolve(dir);
-	  if (prebuild) return prebuild
+WebSocket$1.prototype.addEventListener = addEventListener;
+WebSocket$1.prototype.removeEventListener = removeEventListener;
 
-	  var nearby = resolve(path.dirname(browser$1$1.execPath));
-	  if (nearby) return nearby
+module.exports = WebSocket$1;
 
-	  var target = [
-	    'platform=' + platform,
-	    'arch=' + arch,
-	    'runtime=' + runtime,
-	    'abi=' + abi,
-	    'uv=' + uv,
-	    armv ? 'armv=' + armv : '',
-	    'libc=' + libc,
-	    'node=' + browser$1$1.versions.node,
-	    browser$1$1.versions.electron ? 'electron=' + browser$1$1.versions.electron : '',
-	    typeof __webpack_require__ === 'function' ? 'webpack=true' : '' // eslint-disable-line
-	  ].filter(Boolean).join(' ');
+/**
+ * Initialize a WebSocket client.
+ *
+ * @param {WebSocket} websocket The client to initialize
+ * @param {(String|URL)} address The URL to which to connect
+ * @param {Array} protocols The subprotocols
+ * @param {Object} [options] Connection options
+ * @param {Boolean} [options.followRedirects=false] Whether or not to follow
+ *     redirects
+ * @param {Function} [options.generateMask] The function used to generate the
+ *     masking key
+ * @param {Number} [options.handshakeTimeout] Timeout in milliseconds for the
+ *     handshake request
+ * @param {Number} [options.maxPayload=104857600] The maximum allowed message
+ *     size
+ * @param {Number} [options.maxRedirects=10] The maximum number of redirects
+ *     allowed
+ * @param {String} [options.origin] Value of the `Origin` or
+ *     `Sec-WebSocket-Origin` header
+ * @param {(Boolean|Object)} [options.perMessageDeflate=true] Enable/disable
+ *     permessage-deflate
+ * @param {Number} [options.protocolVersion=13] Value of the
+ *     `Sec-WebSocket-Version` header
+ * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+ *     not to skip UTF-8 validation for text and close messages
+ * @private
+ */
+function initAsClient(websocket, address, protocols, options) {
+  const opts = {
+    protocolVersion: protocolVersions[1],
+    maxPayload: 100 * 1024 * 1024,
+    skipUTF8Validation: false,
+    perMessageDeflate: true,
+    followRedirects: false,
+    maxRedirects: 10,
+    ...options,
+    createConnection: undefined,
+    socketPath: undefined,
+    hostname: undefined,
+    protocol: undefined,
+    timeout: undefined,
+    method: 'GET',
+    host: undefined,
+    path: undefined,
+    port: undefined
+  };
 
-	  throw new Error('No native build was found for ' + target + '\n    loaded from: ' + dir + '\n')
+  if (!protocolVersions.includes(opts.protocolVersion)) {
+    throw new RangeError(
+      `Unsupported protocol version: ${opts.protocolVersion} ` +
+        `(supported versions: ${protocolVersions.join(', ')})`
+    );
+  }
 
-	  function resolve (dir) {
-	    // Find matching "prebuilds/<platform>-<arch>" directory
-	    var tuples = readdirSync(path.join(dir, 'prebuilds')).map(parseTuple);
-	    var tuple = tuples.filter(matchTuple(platform, arch)).sort(compareTuples)[0];
-	    if (!tuple) return
+  let parsedUrl;
 
-	    // Find most specific flavor first
-	    var prebuilds = path.join(dir, 'prebuilds', tuple.name);
-	    var parsed = readdirSync(prebuilds).map(parseTags);
-	    var candidates = parsed.filter(matchTags(runtime, abi));
-	    var winner = candidates.sort(compareTags(runtime))[0];
-	    if (winner) return path.join(prebuilds, winner.file)
-	  }
-	};
+  if (address instanceof URL$2) {
+    parsedUrl = address;
+    websocket._url = address.href;
+  } else {
+    try {
+      parsedUrl = new URL$2(address);
+    } catch (e) {
+      throw new SyntaxError(`Invalid URL: ${address}`);
+    }
 
-	function readdirSync (dir) {
-	  try {
-	    return fs.readdirSync(dir)
-	  } catch (err) {
-	    return []
-	  }
-	}
+    websocket._url = address;
+  }
 
-	function getFirst (dir, filter) {
-	  var files = readdirSync(dir).filter(filter);
-	  return files[0] && path.join(dir, files[0])
-	}
+  const isSecure = parsedUrl.protocol === 'wss:';
+  const isUnixSocket = parsedUrl.protocol === 'ws+unix:';
+  let invalidURLMessage;
 
-	function matchBuild (name) {
-	  return /\.node$/.test(name)
-	}
+  if (parsedUrl.protocol !== 'ws:' && !isSecure && !isUnixSocket) {
+    invalidURLMessage =
+      'The URL\'s protocol must be one of "ws:", "wss:", or "ws+unix:"';
+  } else if (isUnixSocket && !parsedUrl.pathname) {
+    invalidURLMessage = "The URL's pathname is empty";
+  } else if (parsedUrl.hash) {
+    invalidURLMessage = 'The URL contains a fragment identifier';
+  }
 
-	function parseTuple (name) {
-	  // Example: darwin-x64+arm64
-	  var arr = name.split('-');
-	  if (arr.length !== 2) return
+  if (invalidURLMessage) {
+    const err = new SyntaxError(invalidURLMessage);
 
-	  var platform = arr[0];
-	  var architectures = arr[1].split('+');
+    if (websocket._redirects === 0) {
+      throw err;
+    } else {
+      emitErrorAndClose(websocket, err);
+      return;
+    }
+  }
 
-	  if (!platform) return
-	  if (!architectures.length) return
-	  if (!architectures.every(Boolean)) return
+  const defaultPort = isSecure ? 443 : 80;
+  const key = randomBytes(16).toString('base64');
+  const request = isSecure ? https.request : http$1.request;
+  const protocolSet = new Set();
+  let perMessageDeflate;
 
-	  return { name, platform, architectures }
-	}
+  opts.createConnection = isSecure ? tlsConnect : netConnect;
+  opts.defaultPort = opts.defaultPort || defaultPort;
+  opts.port = parsedUrl.port || defaultPort;
+  opts.host = parsedUrl.hostname.startsWith('[')
+    ? parsedUrl.hostname.slice(1, -1)
+    : parsedUrl.hostname;
+  opts.headers = {
+    'Sec-WebSocket-Version': opts.protocolVersion,
+    'Sec-WebSocket-Key': key,
+    Connection: 'Upgrade',
+    Upgrade: 'websocket',
+    ...opts.headers
+  };
+  opts.path = parsedUrl.pathname + parsedUrl.search;
+  opts.timeout = opts.handshakeTimeout;
 
-	function matchTuple (platform, arch) {
-	  return function (tuple) {
-	    if (tuple == null) return false
-	    if (tuple.platform !== platform) return false
-	    return tuple.architectures.includes(arch)
-	  }
-	}
+  if (opts.perMessageDeflate) {
+    perMessageDeflate = new PerMessageDeflate$3(
+      opts.perMessageDeflate !== true ? opts.perMessageDeflate : {},
+      false,
+      opts.maxPayload
+    );
+    opts.headers['Sec-WebSocket-Extensions'] = format({
+      [PerMessageDeflate$3.extensionName]: perMessageDeflate.offer()
+    });
+  }
+  if (protocols.length) {
+    for (const protocol of protocols) {
+      if (
+        typeof protocol !== 'string' ||
+        !subprotocolRegex.test(protocol) ||
+        protocolSet.has(protocol)
+      ) {
+        throw new SyntaxError(
+          'An invalid or duplicated subprotocol was specified'
+        );
+      }
 
-	function compareTuples (a, b) {
-	  // Prefer single-arch prebuilds over multi-arch
-	  return a.architectures.length - b.architectures.length
-	}
+      protocolSet.add(protocol);
+    }
 
-	function parseTags (file) {
-	  var arr = file.split('.');
-	  var extension = arr.pop();
-	  var tags = { file: file, specificity: 0 };
+    opts.headers['Sec-WebSocket-Protocol'] = protocols.join(',');
+  }
+  if (opts.origin) {
+    if (opts.protocolVersion < 13) {
+      opts.headers['Sec-WebSocket-Origin'] = opts.origin;
+    } else {
+      opts.headers.Origin = opts.origin;
+    }
+  }
+  if (parsedUrl.username || parsedUrl.password) {
+    opts.auth = `${parsedUrl.username}:${parsedUrl.password}`;
+  }
 
-	  if (extension !== 'node') return
+  if (isUnixSocket) {
+    const parts = opts.path.split(':');
 
-	  for (var i = 0; i < arr.length; i++) {
-	    var tag = arr[i];
+    opts.socketPath = parts[0];
+    opts.path = parts[1];
+  }
 
-	    if (tag === 'node' || tag === 'electron' || tag === 'node-webkit') {
-	      tags.runtime = tag;
-	    } else if (tag === 'napi') {
-	      tags.napi = true;
-	    } else if (tag.slice(0, 3) === 'abi') {
-	      tags.abi = tag.slice(3);
-	    } else if (tag.slice(0, 2) === 'uv') {
-	      tags.uv = tag.slice(2);
-	    } else if (tag.slice(0, 4) === 'armv') {
-	      tags.armv = tag.slice(4);
-	    } else if (tag === 'glibc' || tag === 'musl') {
-	      tags.libc = tag;
-	    } else {
-	      continue
-	    }
+  let req;
 
-	    tags.specificity++;
-	  }
+  if (opts.followRedirects) {
+    if (websocket._redirects === 0) {
+      websocket._originalSecure = isSecure;
+      websocket._originalHost = parsedUrl.host;
 
-	  return tags
-	}
+      const headers = options && options.headers;
 
-	function matchTags (runtime, abi) {
-	  return function (tags) {
-	    if (tags == null) return false
-	    if (tags.runtime !== runtime && !runtimeAgnostic(tags)) return false
-	    if (tags.abi !== abi && !tags.napi) return false
-	    if (tags.uv && tags.uv !== uv) return false
-	    if (tags.armv && tags.armv !== armv) return false
-	    if (tags.libc && tags.libc !== libc) return false
+      //
+      // Shallow copy the user provided options so that headers can be changed
+      // without mutating the original object.
+      //
+      options = { ...options, headers: {} };
 
-	    return true
-	  }
-	}
+      if (headers) {
+        for (const [key, value] of Object.entries(headers)) {
+          options.headers[key.toLowerCase()] = value;
+        }
+      }
+    } else if (websocket.listenerCount('redirect') === 0) {
+      const isSameHost = parsedUrl.host === websocket._originalHost;
 
-	function runtimeAgnostic (tags) {
-	  return tags.runtime === 'node' && tags.napi
-	}
+      if (!isSameHost || (websocket._originalSecure && !isSecure)) {
+        //
+        // Match curl 7.77.0 behavior and drop the following headers. These
+        // headers are also dropped when following a redirect to a subdomain.
+        //
+        delete opts.headers.authorization;
+        delete opts.headers.cookie;
 
-	function compareTags (runtime) {
-	  // Precedence: non-agnostic runtime, abi over napi, then by specificity.
-	  return function (a, b) {
-	    if (a.runtime !== b.runtime) {
-	      return a.runtime === runtime ? -1 : 1
-	    } else if (a.abi !== b.abi) {
-	      return a.abi ? -1 : 1
-	    } else if (a.specificity !== b.specificity) {
-	      return a.specificity > b.specificity ? -1 : 1
-	    } else {
-	      return 0
-	    }
-	  }
-	}
+        if (!isSameHost) delete opts.headers.host;
 
-	function isNwjs () {
-	  return !!(browser$1$1.versions && browser$1$1.versions.nw)
-	}
+        opts.auth = undefined;
+      }
+    }
 
-	function isElectron () {
-	  if (browser$1$1.versions && browser$1$1.versions.electron) return true
-	  if (browser$1$1.env.ELECTRON_RUN_AS_NODE) return true
-	  return typeof window !== 'undefined' && window.process && window.process.type === 'renderer'
-	}
+    //
+    // Match curl 7.77.0 behavior and make the first `Authorization` header win.
+    // If the `Authorization` header is set, then there is nothing to do as it
+    // will take precedence.
+    //
+    if (opts.auth && !options.headers.authorization) {
+      options.headers.authorization =
+        'Basic ' + Buffer.from(opts.auth).toString('base64');
+    }
 
-	function isAlpine (platform) {
-	  return platform === 'linux' && fs.existsSync('/etc/alpine-release')
-	}
+    req = websocket._req = request(opts);
 
-	// Exposed for unit tests
-	// TODO: move to lib
-	load.parseTags = parseTags;
-	load.matchTags = matchTags;
-	load.compareTags = compareTags;
-	load.parseTuple = parseTuple;
-	load.matchTuple = matchTuple;
-	load.compareTuples = compareTuples;
-	return nodeGypBuild;
+    if (websocket._redirects) {
+      //
+      // Unlike what is done for the `'upgrade'` event, no early exit is
+      // triggered here if the user calls `websocket.close()` or
+      // `websocket.terminate()` from a listener of the `'redirect'` event. This
+      // is because the user can also call `request.destroy()` with an error
+      // before calling `websocket.close()` or `websocket.terminate()` and this
+      // would result in an error being emitted on the `request` object with no
+      // `'error'` event listeners attached.
+      //
+      websocket.emit('redirect', websocket.url, req);
+    }
+  } else {
+    req = websocket._req = request(opts);
+  }
+
+  if (opts.timeout) {
+    req.on('timeout', () => {
+      abortHandshake$1(websocket, req, 'Opening handshake has timed out');
+    });
+  }
+
+  req.on('error', (err) => {
+    if (req === null || req[kAborted]) return;
+
+    req = websocket._req = null;
+    emitErrorAndClose(websocket, err);
+  });
+
+  req.on('response', (res) => {
+    const location = res.headers.location;
+    const statusCode = res.statusCode;
+
+    if (
+      location &&
+      opts.followRedirects &&
+      statusCode >= 300 &&
+      statusCode < 400
+    ) {
+      if (++websocket._redirects > opts.maxRedirects) {
+        abortHandshake$1(websocket, req, 'Maximum redirects exceeded');
+        return;
+      }
+
+      req.abort();
+
+      let addr;
+
+      try {
+        addr = new URL$2(location, address);
+      } catch (e) {
+        const err = new SyntaxError(`Invalid URL: ${location}`);
+        emitErrorAndClose(websocket, err);
+        return;
+      }
+
+      initAsClient(websocket, addr, protocols, options);
+    } else if (!websocket.emit('unexpected-response', req, res)) {
+      abortHandshake$1(
+        websocket,
+        req,
+        `Unexpected server response: ${res.statusCode}`
+      );
+    }
+  });
+
+  req.on('upgrade', (res, socket, head) => {
+    websocket.emit('upgrade', res);
+
+    //
+    // The user may have closed the connection from a listener of the
+    // `'upgrade'` event.
+    //
+    if (websocket.readyState !== WebSocket$1.CONNECTING) return;
+
+    req = websocket._req = null;
+
+    if (res.headers.upgrade.toLowerCase() !== 'websocket') {
+      abortHandshake$1(websocket, socket, 'Invalid Upgrade header');
+      return;
+    }
+
+    const digest = createHash$1('sha1')
+      .update(key + GUID$1)
+      .digest('base64');
+
+    if (res.headers['sec-websocket-accept'] !== digest) {
+      abortHandshake$1(websocket, socket, 'Invalid Sec-WebSocket-Accept header');
+      return;
+    }
+
+    const serverProt = res.headers['sec-websocket-protocol'];
+    let protError;
+
+    if (serverProt !== undefined) {
+      if (!protocolSet.size) {
+        protError = 'Server sent a subprotocol but none was requested';
+      } else if (!protocolSet.has(serverProt)) {
+        protError = 'Server sent an invalid subprotocol';
+      }
+    } else if (protocolSet.size) {
+      protError = 'Server sent no subprotocol';
+    }
+
+    if (protError) {
+      abortHandshake$1(websocket, socket, protError);
+      return;
+    }
+
+    if (serverProt) websocket._protocol = serverProt;
+
+    const secWebSocketExtensions = res.headers['sec-websocket-extensions'];
+
+    if (secWebSocketExtensions !== undefined) {
+      if (!perMessageDeflate) {
+        const message =
+          'Server sent a Sec-WebSocket-Extensions header but no extension ' +
+          'was requested';
+        abortHandshake$1(websocket, socket, message);
+        return;
+      }
+
+      let extensions;
+
+      try {
+        extensions = parse$1(secWebSocketExtensions);
+      } catch (err) {
+        const message = 'Invalid Sec-WebSocket-Extensions header';
+        abortHandshake$1(websocket, socket, message);
+        return;
+      }
+
+      const extensionNames = Object.keys(extensions);
+
+      if (
+        extensionNames.length !== 1 ||
+        extensionNames[0] !== PerMessageDeflate$3.extensionName
+      ) {
+        const message = 'Server indicated an extension that was not requested';
+        abortHandshake$1(websocket, socket, message);
+        return;
+      }
+
+      try {
+        perMessageDeflate.accept(extensions[PerMessageDeflate$3.extensionName]);
+      } catch (err) {
+        const message = 'Invalid Sec-WebSocket-Extensions header';
+        abortHandshake$1(websocket, socket, message);
+        return;
+      }
+
+      websocket._extensions[PerMessageDeflate$3.extensionName] =
+        perMessageDeflate;
+    }
+
+    websocket.setSocket(socket, head, {
+      generateMask: opts.generateMask,
+      maxPayload: opts.maxPayload,
+      skipUTF8Validation: opts.skipUTF8Validation
+    });
+  });
+
+  req.end();
 }
 
-var fallback$1;
-var hasRequiredFallback$1;
-
-function requireFallback$1 () {
-	if (hasRequiredFallback$1) return fallback$1;
-	hasRequiredFallback$1 = 1;
-
-	/**
-	 * Masks a buffer using the given mask.
-	 *
-	 * @param {Buffer} source The buffer to mask
-	 * @param {Buffer} mask The mask to use
-	 * @param {Buffer} output The buffer where to store the result
-	 * @param {Number} offset The offset at which to start writing
-	 * @param {Number} length The number of bytes to mask.
-	 * @public
-	 */
-	const mask = (source, mask, output, offset, length) => {
-	  for (var i = 0; i < length; i++) {
-	    output[offset + i] = source[i] ^ mask[i & 3];
-	  }
-	};
-
-	/**
-	 * Unmasks a buffer using the given mask.
-	 *
-	 * @param {Buffer} buffer The buffer to unmask
-	 * @param {Buffer} mask The mask to use
-	 * @public
-	 */
-	const unmask = (buffer, mask) => {
-	  // Required until https://github.com/nodejs/node/issues/9006 is resolved.
-	  const length = buffer.length;
-	  for (var i = 0; i < length; i++) {
-	    buffer[i] ^= mask[i & 3];
-	  }
-	};
-
-	fallback$1 = { mask, unmask };
-	return fallback$1;
+/**
+ * Emit the `'error'` and `'close'` events.
+ *
+ * @param {WebSocket} websocket The WebSocket instance
+ * @param {Error} The error to emit
+ * @private
+ */
+function emitErrorAndClose(websocket, err) {
+  websocket._readyState = WebSocket$1.CLOSING;
+  websocket.emit('error', err);
+  websocket.emitClose();
 }
 
-var hasRequiredBufferutil;
-
-function requireBufferutil () {
-	if (hasRequiredBufferutil) return bufferutil.exports;
-	hasRequiredBufferutil = 1;
-	(function (module) {
-
-		try {
-		  module.exports = requireNodeGypBuild()(__dirname$1);
-		} catch (e) {
-		  module.exports = requireFallback$1();
-		}
-} (bufferutil));
-	return bufferutil.exports;
+/**
+ * Create a `net.Socket` and initiate a connection.
+ *
+ * @param {Object} options Connection options
+ * @return {net.Socket} The newly created socket used to start the connection
+ * @private
+ */
+function netConnect(options) {
+  options.path = options.socketPath;
+  return net.connect(options);
 }
 
-var hasRequiredBufferUtil;
+/**
+ * Create a `tls.TLSSocket` and initiate a connection.
+ *
+ * @param {Object} options Connection options
+ * @return {tls.TLSSocket} The newly created socket used to start the connection
+ * @private
+ */
+function tlsConnect(options) {
+  options.path = undefined;
 
-function requireBufferUtil () {
-	if (hasRequiredBufferUtil) return bufferUtil.exports;
-	hasRequiredBufferUtil = 1;
+  if (!options.servername && options.servername !== '') {
+    options.servername = net.isIP(options.host) ? '' : options.host;
+  }
 
-	const { EMPTY_BUFFER } = requireConstants();
-
-	/**
-	 * Merges an array of buffers into a new buffer.
-	 *
-	 * @param {Buffer[]} list The array of buffers to concat
-	 * @param {Number} totalLength The total length of buffers in the list
-	 * @return {Buffer} The resulting buffer
-	 * @public
-	 */
-	function concat(list, totalLength) {
-	  if (list.length === 0) return EMPTY_BUFFER;
-	  if (list.length === 1) return list[0];
-
-	  const target = Buffer.allocUnsafe(totalLength);
-	  let offset = 0;
-
-	  for (let i = 0; i < list.length; i++) {
-	    const buf = list[i];
-	    target.set(buf, offset);
-	    offset += buf.length;
-	  }
-
-	  if (offset < totalLength) return target.slice(0, offset);
-
-	  return target;
-	}
-
-	/**
-	 * Masks a buffer using the given mask.
-	 *
-	 * @param {Buffer} source The buffer to mask
-	 * @param {Buffer} mask The mask to use
-	 * @param {Buffer} output The buffer where to store the result
-	 * @param {Number} offset The offset at which to start writing
-	 * @param {Number} length The number of bytes to mask.
-	 * @public
-	 */
-	function _mask(source, mask, output, offset, length) {
-	  for (let i = 0; i < length; i++) {
-	    output[offset + i] = source[i] ^ mask[i & 3];
-	  }
-	}
-
-	/**
-	 * Unmasks a buffer using the given mask.
-	 *
-	 * @param {Buffer} buffer The buffer to unmask
-	 * @param {Buffer} mask The mask to use
-	 * @public
-	 */
-	function _unmask(buffer, mask) {
-	  for (let i = 0; i < buffer.length; i++) {
-	    buffer[i] ^= mask[i & 3];
-	  }
-	}
-
-	/**
-	 * Converts a buffer to an `ArrayBuffer`.
-	 *
-	 * @param {Buffer} buf The buffer to convert
-	 * @return {ArrayBuffer} Converted buffer
-	 * @public
-	 */
-	function toArrayBuffer(buf) {
-	  if (buf.byteLength === buf.buffer.byteLength) {
-	    return buf.buffer;
-	  }
-
-	  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-	}
-
-	/**
-	 * Converts `data` to a `Buffer`.
-	 *
-	 * @param {*} data The data to convert
-	 * @return {Buffer} The buffer
-	 * @throws {TypeError}
-	 * @public
-	 */
-	function toBuffer(data) {
-	  toBuffer.readOnly = true;
-
-	  if (Buffer.isBuffer(data)) return data;
-
-	  let buf;
-
-	  if (data instanceof ArrayBuffer) {
-	    buf = Buffer.from(data);
-	  } else if (ArrayBuffer.isView(data)) {
-	    buf = Buffer.from(data.buffer, data.byteOffset, data.byteLength);
-	  } else {
-	    buf = Buffer.from(data);
-	    toBuffer.readOnly = false;
-	  }
-
-	  return buf;
-	}
-
-	bufferUtil.exports = {
-	  concat,
-	  mask: _mask,
-	  toArrayBuffer,
-	  toBuffer,
-	  unmask: _unmask
-	};
-
-	/* istanbul ignore else  */
-	if (!browser$1$1.env.WS_NO_BUFFER_UTIL) {
-	  try {
-	    const bufferUtil$1 = requireBufferutil();
-
-	    bufferUtil.exports.mask = function (source, mask, output, offset, length) {
-	      if (length < 48) _mask(source, mask, output, offset, length);
-	      else bufferUtil$1.mask(source, mask, output, offset, length);
-	    };
-
-	    bufferUtil.exports.unmask = function (buffer, mask) {
-	      if (buffer.length < 32) _unmask(buffer, mask);
-	      else bufferUtil$1.unmask(buffer, mask);
-	    };
-	  } catch (e) {
-	    // Continue regardless of the error.
-	  }
-	}
-	return bufferUtil.exports;
+  return tls.connect(options);
 }
 
-var limiter;
-var hasRequiredLimiter;
+/**
+ * Abort the handshake and emit an error.
+ *
+ * @param {WebSocket} websocket The WebSocket instance
+ * @param {(http.ClientRequest|net.Socket|tls.Socket)} stream The request to
+ *     abort or the socket to destroy
+ * @param {String} message The error message
+ * @private
+ */
+function abortHandshake$1(websocket, stream, message) {
+  websocket._readyState = WebSocket$1.CLOSING;
 
-function requireLimiter () {
-	if (hasRequiredLimiter) return limiter;
-	hasRequiredLimiter = 1;
+  const err = new Error(message);
+  Error.captureStackTrace(err, abortHandshake$1);
 
-	const kDone = Symbol('kDone');
-	const kRun = Symbol('kRun');
+  if (stream.setHeader) {
+    stream[kAborted] = true;
+    stream.abort();
 
-	/**
-	 * A very simple job queue with adjustable concurrency. Adapted from
-	 * https://github.com/STRML/async-limiter
-	 */
-	class Limiter {
-	  /**
-	   * Creates a new `Limiter`.
-	   *
-	   * @param {Number} [concurrency=Infinity] The maximum number of jobs allowed
-	   *     to run concurrently
-	   */
-	  constructor(concurrency) {
-	    this[kDone] = () => {
-	      this.pending--;
-	      this[kRun]();
-	    };
-	    this.concurrency = concurrency || Infinity;
-	    this.jobs = [];
-	    this.pending = 0;
-	  }
+    if (stream.socket && !stream.socket.destroyed) {
+      //
+      // On Node.js >= 14.3.0 `request.abort()` does not destroy the socket if
+      // called after the request completed. See
+      // https://github.com/websockets/ws/issues/1869.
+      //
+      stream.socket.destroy();
+    }
 
-	  /**
-	   * Adds a job to the queue.
-	   *
-	   * @param {Function} job The job to run
-	   * @public
-	   */
-	  add(job) {
-	    this.jobs.push(job);
-	    this[kRun]();
-	  }
-
-	  /**
-	   * Removes a job from the queue and runs it if possible.
-	   *
-	   * @private
-	   */
-	  [kRun]() {
-	    if (this.pending === this.concurrency) return;
-
-	    if (this.jobs.length) {
-	      const job = this.jobs.shift();
-
-	      this.pending++;
-	      job(this[kDone]);
-	    }
-	  }
-	}
-
-	limiter = Limiter;
-	return limiter;
+    browser$1$1.nextTick(emitErrorAndClose, websocket, err);
+  } else {
+    stream.destroy(err);
+    stream.once('error', websocket.emit.bind(websocket, 'error'));
+    stream.once('close', websocket.emitClose.bind(websocket));
+  }
 }
 
-var permessageDeflate;
-var hasRequiredPermessageDeflate;
-
-function requirePermessageDeflate () {
-	if (hasRequiredPermessageDeflate) return permessageDeflate;
-	hasRequiredPermessageDeflate = 1;
-
-	const zlib = require$$0$4;
-
-	const bufferUtil = requireBufferUtil();
-	const Limiter = requireLimiter();
-	const { kStatusCode } = requireConstants();
-
-	const TRAILER = Buffer.from([0x00, 0x00, 0xff, 0xff]);
-	const kPerMessageDeflate = Symbol('permessage-deflate');
-	const kTotalLength = Symbol('total-length');
-	const kCallback = Symbol('callback');
-	const kBuffers = Symbol('buffers');
-	const kError = Symbol('error');
-
-	//
-	// We limit zlib concurrency, which prevents severe memory fragmentation
-	// as documented in https://github.com/nodejs/node/issues/8871#issuecomment-250915913
-	// and https://github.com/websockets/ws/issues/1202
-	//
-	// Intentionally global; it's the global thread pool that's an issue.
-	//
-	let zlibLimiter;
-
-	/**
-	 * permessage-deflate implementation.
-	 */
-	class PerMessageDeflate {
-	  /**
-	   * Creates a PerMessageDeflate instance.
-	   *
-	   * @param {Object} [options] Configuration options
-	   * @param {(Boolean|Number)} [options.clientMaxWindowBits] Advertise support
-	   *     for, or request, a custom client window size
-	   * @param {Boolean} [options.clientNoContextTakeover=false] Advertise/
-	   *     acknowledge disabling of client context takeover
-	   * @param {Number} [options.concurrencyLimit=10] The number of concurrent
-	   *     calls to zlib
-	   * @param {(Boolean|Number)} [options.serverMaxWindowBits] Request/confirm the
-	   *     use of a custom server window size
-	   * @param {Boolean} [options.serverNoContextTakeover=false] Request/accept
-	   *     disabling of server context takeover
-	   * @param {Number} [options.threshold=1024] Size (in bytes) below which
-	   *     messages should not be compressed if context takeover is disabled
-	   * @param {Object} [options.zlibDeflateOptions] Options to pass to zlib on
-	   *     deflate
-	   * @param {Object} [options.zlibInflateOptions] Options to pass to zlib on
-	   *     inflate
-	   * @param {Boolean} [isServer=false] Create the instance in either server or
-	   *     client mode
-	   * @param {Number} [maxPayload=0] The maximum allowed message length
-	   */
-	  constructor(options, isServer, maxPayload) {
-	    this._maxPayload = maxPayload | 0;
-	    this._options = options || {};
-	    this._threshold =
-	      this._options.threshold !== undefined ? this._options.threshold : 1024;
-	    this._isServer = !!isServer;
-	    this._deflate = null;
-	    this._inflate = null;
-
-	    this.params = null;
-
-	    if (!zlibLimiter) {
-	      const concurrency =
-	        this._options.concurrencyLimit !== undefined
-	          ? this._options.concurrencyLimit
-	          : 10;
-	      zlibLimiter = new Limiter(concurrency);
-	    }
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  static get extensionName() {
-	    return 'permessage-deflate';
-	  }
-
-	  /**
-	   * Create an extension negotiation offer.
-	   *
-	   * @return {Object} Extension parameters
-	   * @public
-	   */
-	  offer() {
-	    const params = {};
-
-	    if (this._options.serverNoContextTakeover) {
-	      params.server_no_context_takeover = true;
-	    }
-	    if (this._options.clientNoContextTakeover) {
-	      params.client_no_context_takeover = true;
-	    }
-	    if (this._options.serverMaxWindowBits) {
-	      params.server_max_window_bits = this._options.serverMaxWindowBits;
-	    }
-	    if (this._options.clientMaxWindowBits) {
-	      params.client_max_window_bits = this._options.clientMaxWindowBits;
-	    } else if (this._options.clientMaxWindowBits == null) {
-	      params.client_max_window_bits = true;
-	    }
-
-	    return params;
-	  }
-
-	  /**
-	   * Accept an extension negotiation offer/response.
-	   *
-	   * @param {Array} configurations The extension negotiation offers/reponse
-	   * @return {Object} Accepted configuration
-	   * @public
-	   */
-	  accept(configurations) {
-	    configurations = this.normalizeParams(configurations);
-
-	    this.params = this._isServer
-	      ? this.acceptAsServer(configurations)
-	      : this.acceptAsClient(configurations);
-
-	    return this.params;
-	  }
-
-	  /**
-	   * Releases all resources used by the extension.
-	   *
-	   * @public
-	   */
-	  cleanup() {
-	    if (this._inflate) {
-	      this._inflate.close();
-	      this._inflate = null;
-	    }
-
-	    if (this._deflate) {
-	      const callback = this._deflate[kCallback];
-
-	      this._deflate.close();
-	      this._deflate = null;
-
-	      if (callback) {
-	        callback(
-	          new Error(
-	            'The deflate stream was closed while data was being processed'
-	          )
-	        );
-	      }
-	    }
-	  }
-
-	  /**
-	   *  Accept an extension negotiation offer.
-	   *
-	   * @param {Array} offers The extension negotiation offers
-	   * @return {Object} Accepted configuration
-	   * @private
-	   */
-	  acceptAsServer(offers) {
-	    const opts = this._options;
-	    const accepted = offers.find((params) => {
-	      if (
-	        (opts.serverNoContextTakeover === false &&
-	          params.server_no_context_takeover) ||
-	        (params.server_max_window_bits &&
-	          (opts.serverMaxWindowBits === false ||
-	            (typeof opts.serverMaxWindowBits === 'number' &&
-	              opts.serverMaxWindowBits > params.server_max_window_bits))) ||
-	        (typeof opts.clientMaxWindowBits === 'number' &&
-	          !params.client_max_window_bits)
-	      ) {
-	        return false;
-	      }
-
-	      return true;
-	    });
-
-	    if (!accepted) {
-	      throw new Error('None of the extension offers can be accepted');
-	    }
-
-	    if (opts.serverNoContextTakeover) {
-	      accepted.server_no_context_takeover = true;
-	    }
-	    if (opts.clientNoContextTakeover) {
-	      accepted.client_no_context_takeover = true;
-	    }
-	    if (typeof opts.serverMaxWindowBits === 'number') {
-	      accepted.server_max_window_bits = opts.serverMaxWindowBits;
-	    }
-	    if (typeof opts.clientMaxWindowBits === 'number') {
-	      accepted.client_max_window_bits = opts.clientMaxWindowBits;
-	    } else if (
-	      accepted.client_max_window_bits === true ||
-	      opts.clientMaxWindowBits === false
-	    ) {
-	      delete accepted.client_max_window_bits;
-	    }
-
-	    return accepted;
-	  }
-
-	  /**
-	   * Accept the extension negotiation response.
-	   *
-	   * @param {Array} response The extension negotiation response
-	   * @return {Object} Accepted configuration
-	   * @private
-	   */
-	  acceptAsClient(response) {
-	    const params = response[0];
-
-	    if (
-	      this._options.clientNoContextTakeover === false &&
-	      params.client_no_context_takeover
-	    ) {
-	      throw new Error('Unexpected parameter "client_no_context_takeover"');
-	    }
-
-	    if (!params.client_max_window_bits) {
-	      if (typeof this._options.clientMaxWindowBits === 'number') {
-	        params.client_max_window_bits = this._options.clientMaxWindowBits;
-	      }
-	    } else if (
-	      this._options.clientMaxWindowBits === false ||
-	      (typeof this._options.clientMaxWindowBits === 'number' &&
-	        params.client_max_window_bits > this._options.clientMaxWindowBits)
-	    ) {
-	      throw new Error(
-	        'Unexpected or invalid parameter "client_max_window_bits"'
-	      );
-	    }
-
-	    return params;
-	  }
-
-	  /**
-	   * Normalize parameters.
-	   *
-	   * @param {Array} configurations The extension negotiation offers/reponse
-	   * @return {Array} The offers/response with normalized parameters
-	   * @private
-	   */
-	  normalizeParams(configurations) {
-	    configurations.forEach((params) => {
-	      Object.keys(params).forEach((key) => {
-	        let value = params[key];
-
-	        if (value.length > 1) {
-	          throw new Error(`Parameter "${key}" must have only a single value`);
-	        }
-
-	        value = value[0];
-
-	        if (key === 'client_max_window_bits') {
-	          if (value !== true) {
-	            const num = +value;
-	            if (!Number.isInteger(num) || num < 8 || num > 15) {
-	              throw new TypeError(
-	                `Invalid value for parameter "${key}": ${value}`
-	              );
-	            }
-	            value = num;
-	          } else if (!this._isServer) {
-	            throw new TypeError(
-	              `Invalid value for parameter "${key}": ${value}`
-	            );
-	          }
-	        } else if (key === 'server_max_window_bits') {
-	          const num = +value;
-	          if (!Number.isInteger(num) || num < 8 || num > 15) {
-	            throw new TypeError(
-	              `Invalid value for parameter "${key}": ${value}`
-	            );
-	          }
-	          value = num;
-	        } else if (
-	          key === 'client_no_context_takeover' ||
-	          key === 'server_no_context_takeover'
-	        ) {
-	          if (value !== true) {
-	            throw new TypeError(
-	              `Invalid value for parameter "${key}": ${value}`
-	            );
-	          }
-	        } else {
-	          throw new Error(`Unknown parameter "${key}"`);
-	        }
-
-	        params[key] = value;
-	      });
-	    });
-
-	    return configurations;
-	  }
-
-	  /**
-	   * Decompress data. Concurrency limited.
-	   *
-	   * @param {Buffer} data Compressed data
-	   * @param {Boolean} fin Specifies whether or not this is the last fragment
-	   * @param {Function} callback Callback
-	   * @public
-	   */
-	  decompress(data, fin, callback) {
-	    zlibLimiter.add((done) => {
-	      this._decompress(data, fin, (err, result) => {
-	        done();
-	        callback(err, result);
-	      });
-	    });
-	  }
-
-	  /**
-	   * Compress data. Concurrency limited.
-	   *
-	   * @param {(Buffer|String)} data Data to compress
-	   * @param {Boolean} fin Specifies whether or not this is the last fragment
-	   * @param {Function} callback Callback
-	   * @public
-	   */
-	  compress(data, fin, callback) {
-	    zlibLimiter.add((done) => {
-	      this._compress(data, fin, (err, result) => {
-	        done();
-	        callback(err, result);
-	      });
-	    });
-	  }
-
-	  /**
-	   * Decompress data.
-	   *
-	   * @param {Buffer} data Compressed data
-	   * @param {Boolean} fin Specifies whether or not this is the last fragment
-	   * @param {Function} callback Callback
-	   * @private
-	   */
-	  _decompress(data, fin, callback) {
-	    const endpoint = this._isServer ? 'client' : 'server';
-
-	    if (!this._inflate) {
-	      const key = `${endpoint}_max_window_bits`;
-	      const windowBits =
-	        typeof this.params[key] !== 'number'
-	          ? zlib.Z_DEFAULT_WINDOWBITS
-	          : this.params[key];
-
-	      this._inflate = zlib.createInflateRaw({
-	        ...this._options.zlibInflateOptions,
-	        windowBits
-	      });
-	      this._inflate[kPerMessageDeflate] = this;
-	      this._inflate[kTotalLength] = 0;
-	      this._inflate[kBuffers] = [];
-	      this._inflate.on('error', inflateOnError);
-	      this._inflate.on('data', inflateOnData);
-	    }
-
-	    this._inflate[kCallback] = callback;
-
-	    this._inflate.write(data);
-	    if (fin) this._inflate.write(TRAILER);
-
-	    this._inflate.flush(() => {
-	      const err = this._inflate[kError];
-
-	      if (err) {
-	        this._inflate.close();
-	        this._inflate = null;
-	        callback(err);
-	        return;
-	      }
-
-	      const data = bufferUtil.concat(
-	        this._inflate[kBuffers],
-	        this._inflate[kTotalLength]
-	      );
-
-	      if (this._inflate._readableState.endEmitted) {
-	        this._inflate.close();
-	        this._inflate = null;
-	      } else {
-	        this._inflate[kTotalLength] = 0;
-	        this._inflate[kBuffers] = [];
-
-	        if (fin && this.params[`${endpoint}_no_context_takeover`]) {
-	          this._inflate.reset();
-	        }
-	      }
-
-	      callback(null, data);
-	    });
-	  }
-
-	  /**
-	   * Compress data.
-	   *
-	   * @param {(Buffer|String)} data Data to compress
-	   * @param {Boolean} fin Specifies whether or not this is the last fragment
-	   * @param {Function} callback Callback
-	   * @private
-	   */
-	  _compress(data, fin, callback) {
-	    const endpoint = this._isServer ? 'server' : 'client';
-
-	    if (!this._deflate) {
-	      const key = `${endpoint}_max_window_bits`;
-	      const windowBits =
-	        typeof this.params[key] !== 'number'
-	          ? zlib.Z_DEFAULT_WINDOWBITS
-	          : this.params[key];
-
-	      this._deflate = zlib.createDeflateRaw({
-	        ...this._options.zlibDeflateOptions,
-	        windowBits
-	      });
-
-	      this._deflate[kTotalLength] = 0;
-	      this._deflate[kBuffers] = [];
-
-	      this._deflate.on('data', deflateOnData);
-	    }
-
-	    this._deflate[kCallback] = callback;
-
-	    this._deflate.write(data);
-	    this._deflate.flush(zlib.Z_SYNC_FLUSH, () => {
-	      if (!this._deflate) {
-	        //
-	        // The deflate stream was closed while data was being processed.
-	        //
-	        return;
-	      }
-
-	      let data = bufferUtil.concat(
-	        this._deflate[kBuffers],
-	        this._deflate[kTotalLength]
-	      );
-
-	      if (fin) data = data.slice(0, data.length - 4);
-
-	      //
-	      // Ensure that the callback will not be called again in
-	      // `PerMessageDeflate#cleanup()`.
-	      //
-	      this._deflate[kCallback] = null;
-
-	      this._deflate[kTotalLength] = 0;
-	      this._deflate[kBuffers] = [];
-
-	      if (fin && this.params[`${endpoint}_no_context_takeover`]) {
-	        this._deflate.reset();
-	      }
-
-	      callback(null, data);
-	    });
-	  }
-	}
-
-	permessageDeflate = PerMessageDeflate;
-
-	/**
-	 * The listener of the `zlib.DeflateRaw` stream `'data'` event.
-	 *
-	 * @param {Buffer} chunk A chunk of data
-	 * @private
-	 */
-	function deflateOnData(chunk) {
-	  this[kBuffers].push(chunk);
-	  this[kTotalLength] += chunk.length;
-	}
-
-	/**
-	 * The listener of the `zlib.InflateRaw` stream `'data'` event.
-	 *
-	 * @param {Buffer} chunk A chunk of data
-	 * @private
-	 */
-	function inflateOnData(chunk) {
-	  this[kTotalLength] += chunk.length;
-
-	  if (
-	    this[kPerMessageDeflate]._maxPayload < 1 ||
-	    this[kTotalLength] <= this[kPerMessageDeflate]._maxPayload
-	  ) {
-	    this[kBuffers].push(chunk);
-	    return;
-	  }
-
-	  this[kError] = new RangeError('Max payload size exceeded');
-	  this[kError].code = 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH';
-	  this[kError][kStatusCode] = 1009;
-	  this.removeListener('data', inflateOnData);
-	  this.reset();
-	}
-
-	/**
-	 * The listener of the `zlib.InflateRaw` stream `'error'` event.
-	 *
-	 * @param {Error} err The emitted error
-	 * @private
-	 */
-	function inflateOnError(err) {
-	  //
-	  // There is no need to call `Zlib#close()` as the handle is automatically
-	  // closed when an error is emitted.
-	  //
-	  this[kPerMessageDeflate]._inflate = null;
-	  err[kStatusCode] = 1007;
-	  this[kCallback](err);
-	}
-	return permessageDeflate;
+/**
+ * Handle cases where the `ping()`, `pong()`, or `send()` methods are called
+ * when the `readyState` attribute is `CLOSING` or `CLOSED`.
+ *
+ * @param {WebSocket} websocket The WebSocket instance
+ * @param {*} [data] The data to send
+ * @param {Function} [cb] Callback
+ * @private
+ */
+function sendAfterClose(websocket, data, cb) {
+  if (data) {
+    const length = toBuffer$2(data).length;
+
+    //
+    // The `_bufferedAmount` property is used only when the peer is a client and
+    // the opening handshake fails. Under these circumstances, in fact, the
+    // `setSocket()` method is not called, so the `_socket` and `_sender`
+    // properties are set to `null`.
+    //
+    if (websocket._socket) websocket._sender._bufferedBytes += length;
+    else websocket._bufferedAmount += length;
+  }
+
+  if (cb) {
+    const err = new Error(
+      `WebSocket is not open: readyState ${websocket.readyState} ` +
+        `(${readyStates[websocket.readyState]})`
+    );
+    cb(err);
+  }
 }
 
-var validation = {exports: {}};
+/**
+ * The listener of the `Receiver` `'conclude'` event.
+ *
+ * @param {Number} code The status code
+ * @param {Buffer} reason The reason for closing
+ * @private
+ */
+function receiverOnConclude(code, reason) {
+  const websocket = this[kWebSocket$2];
 
-var __dirname = '/Users/sebastian/Work/DePay/solana-web3.js/node_modules/utf-8-validate';
+  websocket._closeFrameReceived = true;
+  websocket._closeMessage = reason;
+  websocket._closeCode = code;
 
-var utf8Validate = {exports: {}};
+  if (websocket._socket[kWebSocket$2] === undefined) return;
 
-var fallback;
-var hasRequiredFallback;
+  websocket._socket.removeListener('data', socketOnData);
+  browser$1$1.nextTick(resume, websocket._socket);
 
-function requireFallback () {
-	if (hasRequiredFallback) return fallback;
-	hasRequiredFallback = 1;
-
-	/**
-	 * Checks if a given buffer contains only correct UTF-8.
-	 * Ported from https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c by
-	 * Markus Kuhn.
-	 *
-	 * @param {Buffer} buf The buffer to check
-	 * @return {Boolean} `true` if `buf` contains only correct UTF-8, else `false`
-	 * @public
-	 */
-	function isValidUTF8(buf) {
-	  const len = buf.length;
-	  let i = 0;
-
-	  while (i < len) {
-	    if ((buf[i] & 0x80) === 0x00) {  // 0xxxxxxx
-	      i++;
-	    } else if ((buf[i] & 0xe0) === 0xc0) {  // 110xxxxx 10xxxxxx
-	      if (
-	        i + 1 === len ||
-	        (buf[i + 1] & 0xc0) !== 0x80 ||
-	        (buf[i] & 0xfe) === 0xc0  // overlong
-	      ) {
-	        return false;
-	      }
-
-	      i += 2;
-	    } else if ((buf[i] & 0xf0) === 0xe0) {  // 1110xxxx 10xxxxxx 10xxxxxx
-	      if (
-	        i + 2 >= len ||
-	        (buf[i + 1] & 0xc0) !== 0x80 ||
-	        (buf[i + 2] & 0xc0) !== 0x80 ||
-	        buf[i] === 0xe0 && (buf[i + 1] & 0xe0) === 0x80 ||  // overlong
-	        buf[i] === 0xed && (buf[i + 1] & 0xe0) === 0xa0  // surrogate (U+D800 - U+DFFF)
-	      ) {
-	        return false;
-	      }
-
-	      i += 3;
-	    } else if ((buf[i] & 0xf8) === 0xf0) {  // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-	      if (
-	        i + 3 >= len ||
-	        (buf[i + 1] & 0xc0) !== 0x80 ||
-	        (buf[i + 2] & 0xc0) !== 0x80 ||
-	        (buf[i + 3] & 0xc0) !== 0x80 ||
-	        buf[i] === 0xf0 && (buf[i + 1] & 0xf0) === 0x80 ||  // overlong
-	        buf[i] === 0xf4 && buf[i + 1] > 0x8f || buf[i] > 0xf4  // > U+10FFFF
-	      ) {
-	        return false;
-	      }
-
-	      i += 4;
-	    } else {
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-
-	fallback = isValidUTF8;
-	return fallback;
+  if (code === 1005) websocket.close();
+  else websocket.close(code, reason);
 }
 
-var hasRequiredUtf8Validate;
+/**
+ * The listener of the `Receiver` `'drain'` event.
+ *
+ * @private
+ */
+function receiverOnDrain() {
+  const websocket = this[kWebSocket$2];
 
-function requireUtf8Validate () {
-	if (hasRequiredUtf8Validate) return utf8Validate.exports;
-	hasRequiredUtf8Validate = 1;
-	(function (module) {
-
-		try {
-		  module.exports = requireNodeGypBuild()(__dirname);
-		} catch (e) {
-		  module.exports = requireFallback();
-		}
-} (utf8Validate));
-	return utf8Validate.exports;
+  if (!websocket.isPaused) websocket._socket.resume();
 }
 
-var hasRequiredValidation;
+/**
+ * The listener of the `Receiver` `'error'` event.
+ *
+ * @param {(RangeError|Error)} err The emitted error
+ * @private
+ */
+function receiverOnError(err) {
+  const websocket = this[kWebSocket$2];
 
-function requireValidation () {
-	if (hasRequiredValidation) return validation.exports;
-	hasRequiredValidation = 1;
+  if (websocket._socket[kWebSocket$2] !== undefined) {
+    websocket._socket.removeListener('data', socketOnData);
 
-	//
-	// Allowed token characters:
-	//
-	// '!', '#', '$', '%', '&', ''', '*', '+', '-',
-	// '.', 0-9, A-Z, '^', '_', '`', a-z, '|', '~'
-	//
-	// tokenChars[32] === 0 // ' '
-	// tokenChars[33] === 1 // '!'
-	// tokenChars[34] === 0 // '"'
-	// ...
-	//
-	// prettier-ignore
-	const tokenChars = [
-	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0 - 15
-	  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 16 - 31
-	  0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, // 32 - 47
-	  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, // 48 - 63
-	  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 64 - 79
-	  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, // 80 - 95
-	  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 96 - 111
-	  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0 // 112 - 127
-	];
+    //
+    // On Node.js < 14.0.0 the `'error'` event is emitted synchronously. See
+    // https://github.com/websockets/ws/issues/1940.
+    //
+    browser$1$1.nextTick(resume, websocket._socket);
 
-	/**
-	 * Checks if a status code is allowed in a close frame.
-	 *
-	 * @param {Number} code The status code
-	 * @return {Boolean} `true` if the status code is valid, else `false`
-	 * @public
-	 */
-	function isValidStatusCode(code) {
-	  return (
-	    (code >= 1000 &&
-	      code <= 1014 &&
-	      code !== 1004 &&
-	      code !== 1005 &&
-	      code !== 1006) ||
-	    (code >= 3000 && code <= 4999)
-	  );
-	}
+    websocket.close(err[kStatusCode$1]);
+  }
 
-	/**
-	 * Checks if a given buffer contains only correct UTF-8.
-	 * Ported from https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c by
-	 * Markus Kuhn.
-	 *
-	 * @param {Buffer} buf The buffer to check
-	 * @return {Boolean} `true` if `buf` contains only correct UTF-8, else `false`
-	 * @public
-	 */
-	function _isValidUTF8(buf) {
-	  const len = buf.length;
-	  let i = 0;
-
-	  while (i < len) {
-	    if ((buf[i] & 0x80) === 0) {
-	      // 0xxxxxxx
-	      i++;
-	    } else if ((buf[i] & 0xe0) === 0xc0) {
-	      // 110xxxxx 10xxxxxx
-	      if (
-	        i + 1 === len ||
-	        (buf[i + 1] & 0xc0) !== 0x80 ||
-	        (buf[i] & 0xfe) === 0xc0 // Overlong
-	      ) {
-	        return false;
-	      }
-
-	      i += 2;
-	    } else if ((buf[i] & 0xf0) === 0xe0) {
-	      // 1110xxxx 10xxxxxx 10xxxxxx
-	      if (
-	        i + 2 >= len ||
-	        (buf[i + 1] & 0xc0) !== 0x80 ||
-	        (buf[i + 2] & 0xc0) !== 0x80 ||
-	        (buf[i] === 0xe0 && (buf[i + 1] & 0xe0) === 0x80) || // Overlong
-	        (buf[i] === 0xed && (buf[i + 1] & 0xe0) === 0xa0) // Surrogate (U+D800 - U+DFFF)
-	      ) {
-	        return false;
-	      }
-
-	      i += 3;
-	    } else if ((buf[i] & 0xf8) === 0xf0) {
-	      // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-	      if (
-	        i + 3 >= len ||
-	        (buf[i + 1] & 0xc0) !== 0x80 ||
-	        (buf[i + 2] & 0xc0) !== 0x80 ||
-	        (buf[i + 3] & 0xc0) !== 0x80 ||
-	        (buf[i] === 0xf0 && (buf[i + 1] & 0xf0) === 0x80) || // Overlong
-	        (buf[i] === 0xf4 && buf[i + 1] > 0x8f) ||
-	        buf[i] > 0xf4 // > U+10FFFF
-	      ) {
-	        return false;
-	      }
-
-	      i += 4;
-	    } else {
-	      return false;
-	    }
-	  }
-
-	  return true;
-	}
-
-	validation.exports = {
-	  isValidStatusCode,
-	  isValidUTF8: _isValidUTF8,
-	  tokenChars
-	};
-
-	/* istanbul ignore else  */
-	if (!browser$1$1.env.WS_NO_UTF_8_VALIDATE) {
-	  try {
-	    const isValidUTF8 = requireUtf8Validate();
-
-	    validation.exports.isValidUTF8 = function (buf) {
-	      return buf.length < 150 ? _isValidUTF8(buf) : isValidUTF8(buf);
-	    };
-	  } catch (e) {
-	    // Continue regardless of the error.
-	  }
-	}
-	return validation.exports;
+  websocket.emit('error', err);
 }
 
-var receiver;
-var hasRequiredReceiver;
-
-function requireReceiver () {
-	if (hasRequiredReceiver) return receiver;
-	hasRequiredReceiver = 1;
-
-	const { Writable } = require$$0$5;
-
-	const PerMessageDeflate = requirePermessageDeflate();
-	const {
-	  BINARY_TYPES,
-	  EMPTY_BUFFER,
-	  kStatusCode,
-	  kWebSocket
-	} = requireConstants();
-	const { concat, toArrayBuffer, unmask } = requireBufferUtil();
-	const { isValidStatusCode, isValidUTF8 } = requireValidation();
-
-	const GET_INFO = 0;
-	const GET_PAYLOAD_LENGTH_16 = 1;
-	const GET_PAYLOAD_LENGTH_64 = 2;
-	const GET_MASK = 3;
-	const GET_DATA = 4;
-	const INFLATING = 5;
-
-	/**
-	 * HyBi Receiver implementation.
-	 *
-	 * @extends Writable
-	 */
-	class Receiver extends Writable {
-	  /**
-	   * Creates a Receiver instance.
-	   *
-	   * @param {Object} [options] Options object
-	   * @param {String} [options.binaryType=nodebuffer] The type for binary data
-	   * @param {Object} [options.extensions] An object containing the negotiated
-	   *     extensions
-	   * @param {Boolean} [options.isServer=false] Specifies whether to operate in
-	   *     client or server mode
-	   * @param {Number} [options.maxPayload=0] The maximum allowed message length
-	   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
-	   *     not to skip UTF-8 validation for text and close messages
-	   */
-	  constructor(options = {}) {
-	    super();
-
-	    this._binaryType = options.binaryType || BINARY_TYPES[0];
-	    this._extensions = options.extensions || {};
-	    this._isServer = !!options.isServer;
-	    this._maxPayload = options.maxPayload | 0;
-	    this._skipUTF8Validation = !!options.skipUTF8Validation;
-	    this[kWebSocket] = undefined;
-
-	    this._bufferedBytes = 0;
-	    this._buffers = [];
-
-	    this._compressed = false;
-	    this._payloadLength = 0;
-	    this._mask = undefined;
-	    this._fragmented = 0;
-	    this._masked = false;
-	    this._fin = false;
-	    this._opcode = 0;
-
-	    this._totalPayloadLength = 0;
-	    this._messageLength = 0;
-	    this._fragments = [];
-
-	    this._state = GET_INFO;
-	    this._loop = false;
-	  }
-
-	  /**
-	   * Implements `Writable.prototype._write()`.
-	   *
-	   * @param {Buffer} chunk The chunk of data to write
-	   * @param {String} encoding The character encoding of `chunk`
-	   * @param {Function} cb Callback
-	   * @private
-	   */
-	  _write(chunk, encoding, cb) {
-	    if (this._opcode === 0x08 && this._state == GET_INFO) return cb();
-
-	    this._bufferedBytes += chunk.length;
-	    this._buffers.push(chunk);
-	    this.startLoop(cb);
-	  }
-
-	  /**
-	   * Consumes `n` bytes from the buffered data.
-	   *
-	   * @param {Number} n The number of bytes to consume
-	   * @return {Buffer} The consumed bytes
-	   * @private
-	   */
-	  consume(n) {
-	    this._bufferedBytes -= n;
-
-	    if (n === this._buffers[0].length) return this._buffers.shift();
-
-	    if (n < this._buffers[0].length) {
-	      const buf = this._buffers[0];
-	      this._buffers[0] = buf.slice(n);
-	      return buf.slice(0, n);
-	    }
-
-	    const dst = Buffer.allocUnsafe(n);
-
-	    do {
-	      const buf = this._buffers[0];
-	      const offset = dst.length - n;
-
-	      if (n >= buf.length) {
-	        dst.set(this._buffers.shift(), offset);
-	      } else {
-	        dst.set(new Uint8Array(buf.buffer, buf.byteOffset, n), offset);
-	        this._buffers[0] = buf.slice(n);
-	      }
-
-	      n -= buf.length;
-	    } while (n > 0);
-
-	    return dst;
-	  }
-
-	  /**
-	   * Starts the parsing loop.
-	   *
-	   * @param {Function} cb Callback
-	   * @private
-	   */
-	  startLoop(cb) {
-	    let err;
-	    this._loop = true;
-
-	    do {
-	      switch (this._state) {
-	        case GET_INFO:
-	          err = this.getInfo();
-	          break;
-	        case GET_PAYLOAD_LENGTH_16:
-	          err = this.getPayloadLength16();
-	          break;
-	        case GET_PAYLOAD_LENGTH_64:
-	          err = this.getPayloadLength64();
-	          break;
-	        case GET_MASK:
-	          this.getMask();
-	          break;
-	        case GET_DATA:
-	          err = this.getData(cb);
-	          break;
-	        default:
-	          // `INFLATING`
-	          this._loop = false;
-	          return;
-	      }
-	    } while (this._loop);
-
-	    cb(err);
-	  }
-
-	  /**
-	   * Reads the first two bytes of a frame.
-	   *
-	   * @return {(RangeError|undefined)} A possible error
-	   * @private
-	   */
-	  getInfo() {
-	    if (this._bufferedBytes < 2) {
-	      this._loop = false;
-	      return;
-	    }
-
-	    const buf = this.consume(2);
-
-	    if ((buf[0] & 0x30) !== 0x00) {
-	      this._loop = false;
-	      return error(
-	        RangeError,
-	        'RSV2 and RSV3 must be clear',
-	        true,
-	        1002,
-	        'WS_ERR_UNEXPECTED_RSV_2_3'
-	      );
-	    }
-
-	    const compressed = (buf[0] & 0x40) === 0x40;
-
-	    if (compressed && !this._extensions[PerMessageDeflate.extensionName]) {
-	      this._loop = false;
-	      return error(
-	        RangeError,
-	        'RSV1 must be clear',
-	        true,
-	        1002,
-	        'WS_ERR_UNEXPECTED_RSV_1'
-	      );
-	    }
-
-	    this._fin = (buf[0] & 0x80) === 0x80;
-	    this._opcode = buf[0] & 0x0f;
-	    this._payloadLength = buf[1] & 0x7f;
-
-	    if (this._opcode === 0x00) {
-	      if (compressed) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          'RSV1 must be clear',
-	          true,
-	          1002,
-	          'WS_ERR_UNEXPECTED_RSV_1'
-	        );
-	      }
-
-	      if (!this._fragmented) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          'invalid opcode 0',
-	          true,
-	          1002,
-	          'WS_ERR_INVALID_OPCODE'
-	        );
-	      }
-
-	      this._opcode = this._fragmented;
-	    } else if (this._opcode === 0x01 || this._opcode === 0x02) {
-	      if (this._fragmented) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          `invalid opcode ${this._opcode}`,
-	          true,
-	          1002,
-	          'WS_ERR_INVALID_OPCODE'
-	        );
-	      }
-
-	      this._compressed = compressed;
-	    } else if (this._opcode > 0x07 && this._opcode < 0x0b) {
-	      if (!this._fin) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          'FIN must be set',
-	          true,
-	          1002,
-	          'WS_ERR_EXPECTED_FIN'
-	        );
-	      }
-
-	      if (compressed) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          'RSV1 must be clear',
-	          true,
-	          1002,
-	          'WS_ERR_UNEXPECTED_RSV_1'
-	        );
-	      }
-
-	      if (this._payloadLength > 0x7d) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          `invalid payload length ${this._payloadLength}`,
-	          true,
-	          1002,
-	          'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH'
-	        );
-	      }
-	    } else {
-	      this._loop = false;
-	      return error(
-	        RangeError,
-	        `invalid opcode ${this._opcode}`,
-	        true,
-	        1002,
-	        'WS_ERR_INVALID_OPCODE'
-	      );
-	    }
-
-	    if (!this._fin && !this._fragmented) this._fragmented = this._opcode;
-	    this._masked = (buf[1] & 0x80) === 0x80;
-
-	    if (this._isServer) {
-	      if (!this._masked) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          'MASK must be set',
-	          true,
-	          1002,
-	          'WS_ERR_EXPECTED_MASK'
-	        );
-	      }
-	    } else if (this._masked) {
-	      this._loop = false;
-	      return error(
-	        RangeError,
-	        'MASK must be clear',
-	        true,
-	        1002,
-	        'WS_ERR_UNEXPECTED_MASK'
-	      );
-	    }
-
-	    if (this._payloadLength === 126) this._state = GET_PAYLOAD_LENGTH_16;
-	    else if (this._payloadLength === 127) this._state = GET_PAYLOAD_LENGTH_64;
-	    else return this.haveLength();
-	  }
-
-	  /**
-	   * Gets extended payload length (7+16).
-	   *
-	   * @return {(RangeError|undefined)} A possible error
-	   * @private
-	   */
-	  getPayloadLength16() {
-	    if (this._bufferedBytes < 2) {
-	      this._loop = false;
-	      return;
-	    }
-
-	    this._payloadLength = this.consume(2).readUInt16BE(0);
-	    return this.haveLength();
-	  }
-
-	  /**
-	   * Gets extended payload length (7+64).
-	   *
-	   * @return {(RangeError|undefined)} A possible error
-	   * @private
-	   */
-	  getPayloadLength64() {
-	    if (this._bufferedBytes < 8) {
-	      this._loop = false;
-	      return;
-	    }
-
-	    const buf = this.consume(8);
-	    const num = buf.readUInt32BE(0);
-
-	    //
-	    // The maximum safe integer in JavaScript is 2^53 - 1. An error is returned
-	    // if payload length is greater than this number.
-	    //
-	    if (num > Math.pow(2, 53 - 32) - 1) {
-	      this._loop = false;
-	      return error(
-	        RangeError,
-	        'Unsupported WebSocket frame: payload length > 2^53 - 1',
-	        false,
-	        1009,
-	        'WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH'
-	      );
-	    }
-
-	    this._payloadLength = num * Math.pow(2, 32) + buf.readUInt32BE(4);
-	    return this.haveLength();
-	  }
-
-	  /**
-	   * Payload length has been read.
-	   *
-	   * @return {(RangeError|undefined)} A possible error
-	   * @private
-	   */
-	  haveLength() {
-	    if (this._payloadLength && this._opcode < 0x08) {
-	      this._totalPayloadLength += this._payloadLength;
-	      if (this._totalPayloadLength > this._maxPayload && this._maxPayload > 0) {
-	        this._loop = false;
-	        return error(
-	          RangeError,
-	          'Max payload size exceeded',
-	          false,
-	          1009,
-	          'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH'
-	        );
-	      }
-	    }
-
-	    if (this._masked) this._state = GET_MASK;
-	    else this._state = GET_DATA;
-	  }
-
-	  /**
-	   * Reads mask bytes.
-	   *
-	   * @private
-	   */
-	  getMask() {
-	    if (this._bufferedBytes < 4) {
-	      this._loop = false;
-	      return;
-	    }
-
-	    this._mask = this.consume(4);
-	    this._state = GET_DATA;
-	  }
-
-	  /**
-	   * Reads data bytes.
-	   *
-	   * @param {Function} cb Callback
-	   * @return {(Error|RangeError|undefined)} A possible error
-	   * @private
-	   */
-	  getData(cb) {
-	    let data = EMPTY_BUFFER;
-
-	    if (this._payloadLength) {
-	      if (this._bufferedBytes < this._payloadLength) {
-	        this._loop = false;
-	        return;
-	      }
-
-	      data = this.consume(this._payloadLength);
-
-	      if (
-	        this._masked &&
-	        (this._mask[0] | this._mask[1] | this._mask[2] | this._mask[3]) !== 0
-	      ) {
-	        unmask(data, this._mask);
-	      }
-	    }
-
-	    if (this._opcode > 0x07) return this.controlMessage(data);
-
-	    if (this._compressed) {
-	      this._state = INFLATING;
-	      this.decompress(data, cb);
-	      return;
-	    }
-
-	    if (data.length) {
-	      //
-	      // This message is not compressed so its length is the sum of the payload
-	      // length of all fragments.
-	      //
-	      this._messageLength = this._totalPayloadLength;
-	      this._fragments.push(data);
-	    }
-
-	    return this.dataMessage();
-	  }
-
-	  /**
-	   * Decompresses data.
-	   *
-	   * @param {Buffer} data Compressed data
-	   * @param {Function} cb Callback
-	   * @private
-	   */
-	  decompress(data, cb) {
-	    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
-
-	    perMessageDeflate.decompress(data, this._fin, (err, buf) => {
-	      if (err) return cb(err);
-
-	      if (buf.length) {
-	        this._messageLength += buf.length;
-	        if (this._messageLength > this._maxPayload && this._maxPayload > 0) {
-	          return cb(
-	            error(
-	              RangeError,
-	              'Max payload size exceeded',
-	              false,
-	              1009,
-	              'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH'
-	            )
-	          );
-	        }
-
-	        this._fragments.push(buf);
-	      }
-
-	      const er = this.dataMessage();
-	      if (er) return cb(er);
-
-	      this.startLoop(cb);
-	    });
-	  }
-
-	  /**
-	   * Handles a data message.
-	   *
-	   * @return {(Error|undefined)} A possible error
-	   * @private
-	   */
-	  dataMessage() {
-	    if (this._fin) {
-	      const messageLength = this._messageLength;
-	      const fragments = this._fragments;
-
-	      this._totalPayloadLength = 0;
-	      this._messageLength = 0;
-	      this._fragmented = 0;
-	      this._fragments = [];
-
-	      if (this._opcode === 2) {
-	        let data;
-
-	        if (this._binaryType === 'nodebuffer') {
-	          data = concat(fragments, messageLength);
-	        } else if (this._binaryType === 'arraybuffer') {
-	          data = toArrayBuffer(concat(fragments, messageLength));
-	        } else {
-	          data = fragments;
-	        }
-
-	        this.emit('message', data, true);
-	      } else {
-	        const buf = concat(fragments, messageLength);
-
-	        if (!this._skipUTF8Validation && !isValidUTF8(buf)) {
-	          this._loop = false;
-	          return error(
-	            Error,
-	            'invalid UTF-8 sequence',
-	            true,
-	            1007,
-	            'WS_ERR_INVALID_UTF8'
-	          );
-	        }
-
-	        this.emit('message', buf, false);
-	      }
-	    }
-
-	    this._state = GET_INFO;
-	  }
-
-	  /**
-	   * Handles a control message.
-	   *
-	   * @param {Buffer} data Data to handle
-	   * @return {(Error|RangeError|undefined)} A possible error
-	   * @private
-	   */
-	  controlMessage(data) {
-	    if (this._opcode === 0x08) {
-	      this._loop = false;
-
-	      if (data.length === 0) {
-	        this.emit('conclude', 1005, EMPTY_BUFFER);
-	        this.end();
-	      } else if (data.length === 1) {
-	        return error(
-	          RangeError,
-	          'invalid payload length 1',
-	          true,
-	          1002,
-	          'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH'
-	        );
-	      } else {
-	        const code = data.readUInt16BE(0);
-
-	        if (!isValidStatusCode(code)) {
-	          return error(
-	            RangeError,
-	            `invalid status code ${code}`,
-	            true,
-	            1002,
-	            'WS_ERR_INVALID_CLOSE_CODE'
-	          );
-	        }
-
-	        const buf = data.slice(2);
-
-	        if (!this._skipUTF8Validation && !isValidUTF8(buf)) {
-	          return error(
-	            Error,
-	            'invalid UTF-8 sequence',
-	            true,
-	            1007,
-	            'WS_ERR_INVALID_UTF8'
-	          );
-	        }
-
-	        this.emit('conclude', code, buf);
-	        this.end();
-	      }
-	    } else if (this._opcode === 0x09) {
-	      this.emit('ping', data);
-	    } else {
-	      this.emit('pong', data);
-	    }
-
-	    this._state = GET_INFO;
-	  }
-	}
-
-	receiver = Receiver;
-
-	/**
-	 * Builds an error object.
-	 *
-	 * @param {function(new:Error|RangeError)} ErrorCtor The error constructor
-	 * @param {String} message The error message
-	 * @param {Boolean} prefix Specifies whether or not to add a default prefix to
-	 *     `message`
-	 * @param {Number} statusCode The status code
-	 * @param {String} errorCode The exposed error code
-	 * @return {(Error|RangeError)} The error
-	 * @private
-	 */
-	function error(ErrorCtor, message, prefix, statusCode, errorCode) {
-	  const err = new ErrorCtor(
-	    prefix ? `Invalid WebSocket frame: ${message}` : message
-	  );
-
-	  Error.captureStackTrace(err, error);
-	  err.code = errorCode;
-	  err[kStatusCode] = statusCode;
-	  return err;
-	}
-	return receiver;
+/**
+ * The listener of the `Receiver` `'finish'` event.
+ *
+ * @private
+ */
+function receiverOnFinish() {
+  this[kWebSocket$2].emitClose();
 }
 
-var sender;
-var hasRequiredSender;
-
-function requireSender () {
-	if (hasRequiredSender) return sender;
-	hasRequiredSender = 1;
-	const { randomFillSync } = require$$5;
-
-	const PerMessageDeflate = requirePermessageDeflate();
-	const { EMPTY_BUFFER } = requireConstants();
-	const { isValidStatusCode } = requireValidation();
-	const { mask: applyMask, toBuffer } = requireBufferUtil();
-
-	const kByteLength = Symbol('kByteLength');
-	const maskBuffer = Buffer.alloc(4);
-
-	/**
-	 * HyBi Sender implementation.
-	 */
-	class Sender {
-	  /**
-	   * Creates a Sender instance.
-	   *
-	   * @param {(net.Socket|tls.Socket)} socket The connection socket
-	   * @param {Object} [extensions] An object containing the negotiated extensions
-	   * @param {Function} [generateMask] The function used to generate the masking
-	   *     key
-	   */
-	  constructor(socket, extensions, generateMask) {
-	    this._extensions = extensions || {};
-
-	    if (generateMask) {
-	      this._generateMask = generateMask;
-	      this._maskBuffer = Buffer.alloc(4);
-	    }
-
-	    this._socket = socket;
-
-	    this._firstFragment = true;
-	    this._compress = false;
-
-	    this._bufferedBytes = 0;
-	    this._deflating = false;
-	    this._queue = [];
-	  }
-
-	  /**
-	   * Frames a piece of data according to the HyBi WebSocket protocol.
-	   *
-	   * @param {(Buffer|String)} data The data to frame
-	   * @param {Object} options Options object
-	   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
-	   *     FIN bit
-	   * @param {Function} [options.generateMask] The function used to generate the
-	   *     masking key
-	   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
-	   *     `data`
-	   * @param {Buffer} [options.maskBuffer] The buffer used to store the masking
-	   *     key
-	   * @param {Number} options.opcode The opcode
-	   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
-	   *     modified
-	   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
-	   *     RSV1 bit
-	   * @return {(Buffer|String)[]} The framed data
-	   * @public
-	   */
-	  static frame(data, options) {
-	    let mask;
-	    let merge = false;
-	    let offset = 2;
-	    let skipMasking = false;
-
-	    if (options.mask) {
-	      mask = options.maskBuffer || maskBuffer;
-
-	      if (options.generateMask) {
-	        options.generateMask(mask);
-	      } else {
-	        randomFillSync(mask, 0, 4);
-	      }
-
-	      skipMasking = (mask[0] | mask[1] | mask[2] | mask[3]) === 0;
-	      offset = 6;
-	    }
-
-	    let dataLength;
-
-	    if (typeof data === 'string') {
-	      if (
-	        (!options.mask || skipMasking) &&
-	        options[kByteLength] !== undefined
-	      ) {
-	        dataLength = options[kByteLength];
-	      } else {
-	        data = Buffer.from(data);
-	        dataLength = data.length;
-	      }
-	    } else {
-	      dataLength = data.length;
-	      merge = options.mask && options.readOnly && !skipMasking;
-	    }
-
-	    let payloadLength = dataLength;
-
-	    if (dataLength >= 65536) {
-	      offset += 8;
-	      payloadLength = 127;
-	    } else if (dataLength > 125) {
-	      offset += 2;
-	      payloadLength = 126;
-	    }
-
-	    const target = Buffer.allocUnsafe(merge ? dataLength + offset : offset);
-
-	    target[0] = options.fin ? options.opcode | 0x80 : options.opcode;
-	    if (options.rsv1) target[0] |= 0x40;
-
-	    target[1] = payloadLength;
-
-	    if (payloadLength === 126) {
-	      target.writeUInt16BE(dataLength, 2);
-	    } else if (payloadLength === 127) {
-	      target[2] = target[3] = 0;
-	      target.writeUIntBE(dataLength, 4, 6);
-	    }
-
-	    if (!options.mask) return [target, data];
-
-	    target[1] |= 0x80;
-	    target[offset - 4] = mask[0];
-	    target[offset - 3] = mask[1];
-	    target[offset - 2] = mask[2];
-	    target[offset - 1] = mask[3];
-
-	    if (skipMasking) return [target, data];
-
-	    if (merge) {
-	      applyMask(data, mask, target, offset, dataLength);
-	      return [target];
-	    }
-
-	    applyMask(data, mask, data, 0, dataLength);
-	    return [target, data];
-	  }
-
-	  /**
-	   * Sends a close message to the other peer.
-	   *
-	   * @param {Number} [code] The status code component of the body
-	   * @param {(String|Buffer)} [data] The message component of the body
-	   * @param {Boolean} [mask=false] Specifies whether or not to mask the message
-	   * @param {Function} [cb] Callback
-	   * @public
-	   */
-	  close(code, data, mask, cb) {
-	    let buf;
-
-	    if (code === undefined) {
-	      buf = EMPTY_BUFFER;
-	    } else if (typeof code !== 'number' || !isValidStatusCode(code)) {
-	      throw new TypeError('First argument must be a valid error code number');
-	    } else if (data === undefined || !data.length) {
-	      buf = Buffer.allocUnsafe(2);
-	      buf.writeUInt16BE(code, 0);
-	    } else {
-	      const length = Buffer.byteLength(data);
-
-	      if (length > 123) {
-	        throw new RangeError('The message must not be greater than 123 bytes');
-	      }
-
-	      buf = Buffer.allocUnsafe(2 + length);
-	      buf.writeUInt16BE(code, 0);
-
-	      if (typeof data === 'string') {
-	        buf.write(data, 2);
-	      } else {
-	        buf.set(data, 2);
-	      }
-	    }
-
-	    const options = {
-	      [kByteLength]: buf.length,
-	      fin: true,
-	      generateMask: this._generateMask,
-	      mask,
-	      maskBuffer: this._maskBuffer,
-	      opcode: 0x08,
-	      readOnly: false,
-	      rsv1: false
-	    };
-
-	    if (this._deflating) {
-	      this.enqueue([this.dispatch, buf, false, options, cb]);
-	    } else {
-	      this.sendFrame(Sender.frame(buf, options), cb);
-	    }
-	  }
-
-	  /**
-	   * Sends a ping message to the other peer.
-	   *
-	   * @param {*} data The message to send
-	   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
-	   * @param {Function} [cb] Callback
-	   * @public
-	   */
-	  ping(data, mask, cb) {
-	    let byteLength;
-	    let readOnly;
-
-	    if (typeof data === 'string') {
-	      byteLength = Buffer.byteLength(data);
-	      readOnly = false;
-	    } else {
-	      data = toBuffer(data);
-	      byteLength = data.length;
-	      readOnly = toBuffer.readOnly;
-	    }
-
-	    if (byteLength > 125) {
-	      throw new RangeError('The data size must not be greater than 125 bytes');
-	    }
-
-	    const options = {
-	      [kByteLength]: byteLength,
-	      fin: true,
-	      generateMask: this._generateMask,
-	      mask,
-	      maskBuffer: this._maskBuffer,
-	      opcode: 0x09,
-	      readOnly,
-	      rsv1: false
-	    };
-
-	    if (this._deflating) {
-	      this.enqueue([this.dispatch, data, false, options, cb]);
-	    } else {
-	      this.sendFrame(Sender.frame(data, options), cb);
-	    }
-	  }
-
-	  /**
-	   * Sends a pong message to the other peer.
-	   *
-	   * @param {*} data The message to send
-	   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
-	   * @param {Function} [cb] Callback
-	   * @public
-	   */
-	  pong(data, mask, cb) {
-	    let byteLength;
-	    let readOnly;
-
-	    if (typeof data === 'string') {
-	      byteLength = Buffer.byteLength(data);
-	      readOnly = false;
-	    } else {
-	      data = toBuffer(data);
-	      byteLength = data.length;
-	      readOnly = toBuffer.readOnly;
-	    }
-
-	    if (byteLength > 125) {
-	      throw new RangeError('The data size must not be greater than 125 bytes');
-	    }
-
-	    const options = {
-	      [kByteLength]: byteLength,
-	      fin: true,
-	      generateMask: this._generateMask,
-	      mask,
-	      maskBuffer: this._maskBuffer,
-	      opcode: 0x0a,
-	      readOnly,
-	      rsv1: false
-	    };
-
-	    if (this._deflating) {
-	      this.enqueue([this.dispatch, data, false, options, cb]);
-	    } else {
-	      this.sendFrame(Sender.frame(data, options), cb);
-	    }
-	  }
-
-	  /**
-	   * Sends a data message to the other peer.
-	   *
-	   * @param {*} data The message to send
-	   * @param {Object} options Options object
-	   * @param {Boolean} [options.binary=false] Specifies whether `data` is binary
-	   *     or text
-	   * @param {Boolean} [options.compress=false] Specifies whether or not to
-	   *     compress `data`
-	   * @param {Boolean} [options.fin=false] Specifies whether the fragment is the
-	   *     last one
-	   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
-	   *     `data`
-	   * @param {Function} [cb] Callback
-	   * @public
-	   */
-	  send(data, options, cb) {
-	    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
-	    let opcode = options.binary ? 2 : 1;
-	    let rsv1 = options.compress;
-
-	    let byteLength;
-	    let readOnly;
-
-	    if (typeof data === 'string') {
-	      byteLength = Buffer.byteLength(data);
-	      readOnly = false;
-	    } else {
-	      data = toBuffer(data);
-	      byteLength = data.length;
-	      readOnly = toBuffer.readOnly;
-	    }
-
-	    if (this._firstFragment) {
-	      this._firstFragment = false;
-	      if (
-	        rsv1 &&
-	        perMessageDeflate &&
-	        perMessageDeflate.params[
-	          perMessageDeflate._isServer
-	            ? 'server_no_context_takeover'
-	            : 'client_no_context_takeover'
-	        ]
-	      ) {
-	        rsv1 = byteLength >= perMessageDeflate._threshold;
-	      }
-	      this._compress = rsv1;
-	    } else {
-	      rsv1 = false;
-	      opcode = 0;
-	    }
-
-	    if (options.fin) this._firstFragment = true;
-
-	    if (perMessageDeflate) {
-	      const opts = {
-	        [kByteLength]: byteLength,
-	        fin: options.fin,
-	        generateMask: this._generateMask,
-	        mask: options.mask,
-	        maskBuffer: this._maskBuffer,
-	        opcode,
-	        readOnly,
-	        rsv1
-	      };
-
-	      if (this._deflating) {
-	        this.enqueue([this.dispatch, data, this._compress, opts, cb]);
-	      } else {
-	        this.dispatch(data, this._compress, opts, cb);
-	      }
-	    } else {
-	      this.sendFrame(
-	        Sender.frame(data, {
-	          [kByteLength]: byteLength,
-	          fin: options.fin,
-	          generateMask: this._generateMask,
-	          mask: options.mask,
-	          maskBuffer: this._maskBuffer,
-	          opcode,
-	          readOnly,
-	          rsv1: false
-	        }),
-	        cb
-	      );
-	    }
-	  }
-
-	  /**
-	   * Dispatches a message.
-	   *
-	   * @param {(Buffer|String)} data The message to send
-	   * @param {Boolean} [compress=false] Specifies whether or not to compress
-	   *     `data`
-	   * @param {Object} options Options object
-	   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
-	   *     FIN bit
-	   * @param {Function} [options.generateMask] The function used to generate the
-	   *     masking key
-	   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
-	   *     `data`
-	   * @param {Buffer} [options.maskBuffer] The buffer used to store the masking
-	   *     key
-	   * @param {Number} options.opcode The opcode
-	   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
-	   *     modified
-	   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
-	   *     RSV1 bit
-	   * @param {Function} [cb] Callback
-	   * @private
-	   */
-	  dispatch(data, compress, options, cb) {
-	    if (!compress) {
-	      this.sendFrame(Sender.frame(data, options), cb);
-	      return;
-	    }
-
-	    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
-
-	    this._bufferedBytes += options[kByteLength];
-	    this._deflating = true;
-	    perMessageDeflate.compress(data, options.fin, (_, buf) => {
-	      if (this._socket.destroyed) {
-	        const err = new Error(
-	          'The socket was closed while data was being compressed'
-	        );
-
-	        if (typeof cb === 'function') cb(err);
-
-	        for (let i = 0; i < this._queue.length; i++) {
-	          const params = this._queue[i];
-	          const callback = params[params.length - 1];
-
-	          if (typeof callback === 'function') callback(err);
-	        }
-
-	        return;
-	      }
-
-	      this._bufferedBytes -= options[kByteLength];
-	      this._deflating = false;
-	      options.readOnly = false;
-	      this.sendFrame(Sender.frame(buf, options), cb);
-	      this.dequeue();
-	    });
-	  }
-
-	  /**
-	   * Executes queued send operations.
-	   *
-	   * @private
-	   */
-	  dequeue() {
-	    while (!this._deflating && this._queue.length) {
-	      const params = this._queue.shift();
-
-	      this._bufferedBytes -= params[3][kByteLength];
-	      Reflect.apply(params[0], this, params.slice(1));
-	    }
-	  }
-
-	  /**
-	   * Enqueues a send operation.
-	   *
-	   * @param {Array} params Send operation parameters.
-	   * @private
-	   */
-	  enqueue(params) {
-	    this._bufferedBytes += params[3][kByteLength];
-	    this._queue.push(params);
-	  }
-
-	  /**
-	   * Sends a frame.
-	   *
-	   * @param {Buffer[]} list The frame to send
-	   * @param {Function} [cb] Callback
-	   * @private
-	   */
-	  sendFrame(list, cb) {
-	    if (list.length === 2) {
-	      this._socket.cork();
-	      this._socket.write(list[0]);
-	      this._socket.write(list[1], cb);
-	      this._socket.uncork();
-	    } else {
-	      this._socket.write(list[0], cb);
-	    }
-	  }
-	}
-
-	sender = Sender;
-	return sender;
+/**
+ * The listener of the `Receiver` `'message'` event.
+ *
+ * @param {Buffer|ArrayBuffer|Buffer[])} data The message
+ * @param {Boolean} isBinary Specifies whether the message is binary or not
+ * @private
+ */
+function receiverOnMessage(data, isBinary) {
+  this[kWebSocket$2].emit('message', data, isBinary);
 }
 
-var eventTarget;
-var hasRequiredEventTarget;
+/**
+ * The listener of the `Receiver` `'ping'` event.
+ *
+ * @param {Buffer} data The data included in the ping frame
+ * @private
+ */
+function receiverOnPing(data) {
+  const websocket = this[kWebSocket$2];
 
-function requireEventTarget () {
-	if (hasRequiredEventTarget) return eventTarget;
-	hasRequiredEventTarget = 1;
-
-	const { kForOnEventAttribute, kListener } = requireConstants();
-
-	const kCode = Symbol('kCode');
-	const kData = Symbol('kData');
-	const kError = Symbol('kError');
-	const kMessage = Symbol('kMessage');
-	const kReason = Symbol('kReason');
-	const kTarget = Symbol('kTarget');
-	const kType = Symbol('kType');
-	const kWasClean = Symbol('kWasClean');
-
-	/**
-	 * Class representing an event.
-	 */
-	class Event {
-	  /**
-	   * Create a new `Event`.
-	   *
-	   * @param {String} type The name of the event
-	   * @throws {TypeError} If the `type` argument is not specified
-	   */
-	  constructor(type) {
-	    this[kTarget] = null;
-	    this[kType] = type;
-	  }
-
-	  /**
-	   * @type {*}
-	   */
-	  get target() {
-	    return this[kTarget];
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  get type() {
-	    return this[kType];
-	  }
-	}
-
-	Object.defineProperty(Event.prototype, 'target', { enumerable: true });
-	Object.defineProperty(Event.prototype, 'type', { enumerable: true });
-
-	/**
-	 * Class representing a close event.
-	 *
-	 * @extends Event
-	 */
-	class CloseEvent extends Event {
-	  /**
-	   * Create a new `CloseEvent`.
-	   *
-	   * @param {String} type The name of the event
-	   * @param {Object} [options] A dictionary object that allows for setting
-	   *     attributes via object members of the same name
-	   * @param {Number} [options.code=0] The status code explaining why the
-	   *     connection was closed
-	   * @param {String} [options.reason=''] A human-readable string explaining why
-	   *     the connection was closed
-	   * @param {Boolean} [options.wasClean=false] Indicates whether or not the
-	   *     connection was cleanly closed
-	   */
-	  constructor(type, options = {}) {
-	    super(type);
-
-	    this[kCode] = options.code === undefined ? 0 : options.code;
-	    this[kReason] = options.reason === undefined ? '' : options.reason;
-	    this[kWasClean] = options.wasClean === undefined ? false : options.wasClean;
-	  }
-
-	  /**
-	   * @type {Number}
-	   */
-	  get code() {
-	    return this[kCode];
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  get reason() {
-	    return this[kReason];
-	  }
-
-	  /**
-	   * @type {Boolean}
-	   */
-	  get wasClean() {
-	    return this[kWasClean];
-	  }
-	}
-
-	Object.defineProperty(CloseEvent.prototype, 'code', { enumerable: true });
-	Object.defineProperty(CloseEvent.prototype, 'reason', { enumerable: true });
-	Object.defineProperty(CloseEvent.prototype, 'wasClean', { enumerable: true });
-
-	/**
-	 * Class representing an error event.
-	 *
-	 * @extends Event
-	 */
-	class ErrorEvent extends Event {
-	  /**
-	   * Create a new `ErrorEvent`.
-	   *
-	   * @param {String} type The name of the event
-	   * @param {Object} [options] A dictionary object that allows for setting
-	   *     attributes via object members of the same name
-	   * @param {*} [options.error=null] The error that generated this event
-	   * @param {String} [options.message=''] The error message
-	   */
-	  constructor(type, options = {}) {
-	    super(type);
-
-	    this[kError] = options.error === undefined ? null : options.error;
-	    this[kMessage] = options.message === undefined ? '' : options.message;
-	  }
-
-	  /**
-	   * @type {*}
-	   */
-	  get error() {
-	    return this[kError];
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  get message() {
-	    return this[kMessage];
-	  }
-	}
-
-	Object.defineProperty(ErrorEvent.prototype, 'error', { enumerable: true });
-	Object.defineProperty(ErrorEvent.prototype, 'message', { enumerable: true });
-
-	/**
-	 * Class representing a message event.
-	 *
-	 * @extends Event
-	 */
-	class MessageEvent extends Event {
-	  /**
-	   * Create a new `MessageEvent`.
-	   *
-	   * @param {String} type The name of the event
-	   * @param {Object} [options] A dictionary object that allows for setting
-	   *     attributes via object members of the same name
-	   * @param {*} [options.data=null] The message content
-	   */
-	  constructor(type, options = {}) {
-	    super(type);
-
-	    this[kData] = options.data === undefined ? null : options.data;
-	  }
-
-	  /**
-	   * @type {*}
-	   */
-	  get data() {
-	    return this[kData];
-	  }
-	}
-
-	Object.defineProperty(MessageEvent.prototype, 'data', { enumerable: true });
-
-	/**
-	 * This provides methods for emulating the `EventTarget` interface. It's not
-	 * meant to be used directly.
-	 *
-	 * @mixin
-	 */
-	const EventTarget = {
-	  /**
-	   * Register an event listener.
-	   *
-	   * @param {String} type A string representing the event type to listen for
-	   * @param {Function} listener The listener to add
-	   * @param {Object} [options] An options object specifies characteristics about
-	   *     the event listener
-	   * @param {Boolean} [options.once=false] A `Boolean` indicating that the
-	   *     listener should be invoked at most once after being added. If `true`,
-	   *     the listener would be automatically removed when invoked.
-	   * @public
-	   */
-	  addEventListener(type, listener, options = {}) {
-	    let wrapper;
-
-	    if (type === 'message') {
-	      wrapper = function onMessage(data, isBinary) {
-	        const event = new MessageEvent('message', {
-	          data: isBinary ? data : data.toString()
-	        });
-
-	        event[kTarget] = this;
-	        listener.call(this, event);
-	      };
-	    } else if (type === 'close') {
-	      wrapper = function onClose(code, message) {
-	        const event = new CloseEvent('close', {
-	          code,
-	          reason: message.toString(),
-	          wasClean: this._closeFrameReceived && this._closeFrameSent
-	        });
-
-	        event[kTarget] = this;
-	        listener.call(this, event);
-	      };
-	    } else if (type === 'error') {
-	      wrapper = function onError(error) {
-	        const event = new ErrorEvent('error', {
-	          error,
-	          message: error.message
-	        });
-
-	        event[kTarget] = this;
-	        listener.call(this, event);
-	      };
-	    } else if (type === 'open') {
-	      wrapper = function onOpen() {
-	        const event = new Event('open');
-
-	        event[kTarget] = this;
-	        listener.call(this, event);
-	      };
-	    } else {
-	      return;
-	    }
-
-	    wrapper[kForOnEventAttribute] = !!options[kForOnEventAttribute];
-	    wrapper[kListener] = listener;
-
-	    if (options.once) {
-	      this.once(type, wrapper);
-	    } else {
-	      this.on(type, wrapper);
-	    }
-	  },
-
-	  /**
-	   * Remove an event listener.
-	   *
-	   * @param {String} type A string representing the event type to remove
-	   * @param {Function} handler The listener to remove
-	   * @public
-	   */
-	  removeEventListener(type, handler) {
-	    for (const listener of this.listeners(type)) {
-	      if (listener[kListener] === handler && !listener[kForOnEventAttribute]) {
-	        this.removeListener(type, listener);
-	        break;
-	      }
-	    }
-	  }
-	};
-
-	eventTarget = {
-	  CloseEvent,
-	  ErrorEvent,
-	  Event,
-	  EventTarget,
-	  MessageEvent
-	};
-	return eventTarget;
+  websocket.pong(data, !websocket._isServer, NOOP);
+  websocket.emit('ping', data);
 }
 
-var extension;
-var hasRequiredExtension;
-
-function requireExtension () {
-	if (hasRequiredExtension) return extension;
-	hasRequiredExtension = 1;
-
-	const { tokenChars } = requireValidation();
-
-	/**
-	 * Adds an offer to the map of extension offers or a parameter to the map of
-	 * parameters.
-	 *
-	 * @param {Object} dest The map of extension offers or parameters
-	 * @param {String} name The extension or parameter name
-	 * @param {(Object|Boolean|String)} elem The extension parameters or the
-	 *     parameter value
-	 * @private
-	 */
-	function push(dest, name, elem) {
-	  if (dest[name] === undefined) dest[name] = [elem];
-	  else dest[name].push(elem);
-	}
-
-	/**
-	 * Parses the `Sec-WebSocket-Extensions` header into an object.
-	 *
-	 * @param {String} header The field value of the header
-	 * @return {Object} The parsed object
-	 * @public
-	 */
-	function parse(header) {
-	  const offers = Object.create(null);
-	  let params = Object.create(null);
-	  let mustUnescape = false;
-	  let isEscaping = false;
-	  let inQuotes = false;
-	  let extensionName;
-	  let paramName;
-	  let start = -1;
-	  let code = -1;
-	  let end = -1;
-	  let i = 0;
-
-	  for (; i < header.length; i++) {
-	    code = header.charCodeAt(i);
-
-	    if (extensionName === undefined) {
-	      if (end === -1 && tokenChars[code] === 1) {
-	        if (start === -1) start = i;
-	      } else if (
-	        i !== 0 &&
-	        (code === 0x20 /* ' ' */ || code === 0x09) /* '\t' */
-	      ) {
-	        if (end === -1 && start !== -1) end = i;
-	      } else if (code === 0x3b /* ';' */ || code === 0x2c /* ',' */) {
-	        if (start === -1) {
-	          throw new SyntaxError(`Unexpected character at index ${i}`);
-	        }
-
-	        if (end === -1) end = i;
-	        const name = header.slice(start, end);
-	        if (code === 0x2c) {
-	          push(offers, name, params);
-	          params = Object.create(null);
-	        } else {
-	          extensionName = name;
-	        }
-
-	        start = end = -1;
-	      } else {
-	        throw new SyntaxError(`Unexpected character at index ${i}`);
-	      }
-	    } else if (paramName === undefined) {
-	      if (end === -1 && tokenChars[code] === 1) {
-	        if (start === -1) start = i;
-	      } else if (code === 0x20 || code === 0x09) {
-	        if (end === -1 && start !== -1) end = i;
-	      } else if (code === 0x3b || code === 0x2c) {
-	        if (start === -1) {
-	          throw new SyntaxError(`Unexpected character at index ${i}`);
-	        }
-
-	        if (end === -1) end = i;
-	        push(params, header.slice(start, end), true);
-	        if (code === 0x2c) {
-	          push(offers, extensionName, params);
-	          params = Object.create(null);
-	          extensionName = undefined;
-	        }
-
-	        start = end = -1;
-	      } else if (code === 0x3d /* '=' */ && start !== -1 && end === -1) {
-	        paramName = header.slice(start, i);
-	        start = end = -1;
-	      } else {
-	        throw new SyntaxError(`Unexpected character at index ${i}`);
-	      }
-	    } else {
-	      //
-	      // The value of a quoted-string after unescaping must conform to the
-	      // token ABNF, so only token characters are valid.
-	      // Ref: https://tools.ietf.org/html/rfc6455#section-9.1
-	      //
-	      if (isEscaping) {
-	        if (tokenChars[code] !== 1) {
-	          throw new SyntaxError(`Unexpected character at index ${i}`);
-	        }
-	        if (start === -1) start = i;
-	        else if (!mustUnescape) mustUnescape = true;
-	        isEscaping = false;
-	      } else if (inQuotes) {
-	        if (tokenChars[code] === 1) {
-	          if (start === -1) start = i;
-	        } else if (code === 0x22 /* '"' */ && start !== -1) {
-	          inQuotes = false;
-	          end = i;
-	        } else if (code === 0x5c /* '\' */) {
-	          isEscaping = true;
-	        } else {
-	          throw new SyntaxError(`Unexpected character at index ${i}`);
-	        }
-	      } else if (code === 0x22 && header.charCodeAt(i - 1) === 0x3d) {
-	        inQuotes = true;
-	      } else if (end === -1 && tokenChars[code] === 1) {
-	        if (start === -1) start = i;
-	      } else if (start !== -1 && (code === 0x20 || code === 0x09)) {
-	        if (end === -1) end = i;
-	      } else if (code === 0x3b || code === 0x2c) {
-	        if (start === -1) {
-	          throw new SyntaxError(`Unexpected character at index ${i}`);
-	        }
-
-	        if (end === -1) end = i;
-	        let value = header.slice(start, end);
-	        if (mustUnescape) {
-	          value = value.replace(/\\/g, '');
-	          mustUnescape = false;
-	        }
-	        push(params, paramName, value);
-	        if (code === 0x2c) {
-	          push(offers, extensionName, params);
-	          params = Object.create(null);
-	          extensionName = undefined;
-	        }
-
-	        paramName = undefined;
-	        start = end = -1;
-	      } else {
-	        throw new SyntaxError(`Unexpected character at index ${i}`);
-	      }
-	    }
-	  }
-
-	  if (start === -1 || inQuotes || code === 0x20 || code === 0x09) {
-	    throw new SyntaxError('Unexpected end of input');
-	  }
-
-	  if (end === -1) end = i;
-	  const token = header.slice(start, end);
-	  if (extensionName === undefined) {
-	    push(offers, token, params);
-	  } else {
-	    if (paramName === undefined) {
-	      push(params, token, true);
-	    } else if (mustUnescape) {
-	      push(params, paramName, token.replace(/\\/g, ''));
-	    } else {
-	      push(params, paramName, token);
-	    }
-	    push(offers, extensionName, params);
-	  }
-
-	  return offers;
-	}
-
-	/**
-	 * Builds the `Sec-WebSocket-Extensions` header field value.
-	 *
-	 * @param {Object} extensions The map of extensions and parameters to format
-	 * @return {String} A string representing the given object
-	 * @public
-	 */
-	function format(extensions) {
-	  return Object.keys(extensions)
-	    .map((extension) => {
-	      let configurations = extensions[extension];
-	      if (!Array.isArray(configurations)) configurations = [configurations];
-	      return configurations
-	        .map((params) => {
-	          return [extension]
-	            .concat(
-	              Object.keys(params).map((k) => {
-	                let values = params[k];
-	                if (!Array.isArray(values)) values = [values];
-	                return values
-	                  .map((v) => (v === true ? k : `${k}=${v}`))
-	                  .join('; ');
-	              })
-	            )
-	            .join('; ');
-	        })
-	        .join(', ');
-	    })
-	    .join(', ');
-	}
-
-	extension = { format, parse };
-	return extension;
+/**
+ * The listener of the `Receiver` `'pong'` event.
+ *
+ * @param {Buffer} data The data included in the pong frame
+ * @private
+ */
+function receiverOnPong(data) {
+  this[kWebSocket$2].emit('pong', data);
 }
 
-var websocket;
-var hasRequiredWebsocket$1;
-
-function requireWebsocket$1 () {
-	if (hasRequiredWebsocket$1) return websocket;
-	hasRequiredWebsocket$1 = 1;
-
-	const EventEmitter = require$$0$6;
-	const https = require$$1$1;
-	const http = require$$2$1;
-	const net = require$$3;
-	const tls = require$$4;
-	const { randomBytes, createHash } = require$$5;
-	const { URL } = require$$7;
-
-	const PerMessageDeflate = requirePermessageDeflate();
-	const Receiver = requireReceiver();
-	const Sender = requireSender();
-	const {
-	  BINARY_TYPES,
-	  EMPTY_BUFFER,
-	  GUID,
-	  kForOnEventAttribute,
-	  kListener,
-	  kStatusCode,
-	  kWebSocket,
-	  NOOP
-	} = requireConstants();
-	const {
-	  EventTarget: { addEventListener, removeEventListener }
-	} = requireEventTarget();
-	const { format, parse } = requireExtension();
-	const { toBuffer } = requireBufferUtil();
-
-	const closeTimeout = 30 * 1000;
-	const kAborted = Symbol('kAborted');
-	const protocolVersions = [8, 13];
-	const readyStates = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
-	const subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
-
-	/**
-	 * Class representing a WebSocket.
-	 *
-	 * @extends EventEmitter
-	 */
-	class WebSocket extends EventEmitter {
-	  /**
-	   * Create a new `WebSocket`.
-	   *
-	   * @param {(String|URL)} address The URL to which to connect
-	   * @param {(String|String[])} [protocols] The subprotocols
-	   * @param {Object} [options] Connection options
-	   */
-	  constructor(address, protocols, options) {
-	    super();
-
-	    this._binaryType = BINARY_TYPES[0];
-	    this._closeCode = 1006;
-	    this._closeFrameReceived = false;
-	    this._closeFrameSent = false;
-	    this._closeMessage = EMPTY_BUFFER;
-	    this._closeTimer = null;
-	    this._extensions = {};
-	    this._paused = false;
-	    this._protocol = '';
-	    this._readyState = WebSocket.CONNECTING;
-	    this._receiver = null;
-	    this._sender = null;
-	    this._socket = null;
-
-	    if (address !== null) {
-	      this._bufferedAmount = 0;
-	      this._isServer = false;
-	      this._redirects = 0;
-
-	      if (protocols === undefined) {
-	        protocols = [];
-	      } else if (!Array.isArray(protocols)) {
-	        if (typeof protocols === 'object' && protocols !== null) {
-	          options = protocols;
-	          protocols = [];
-	        } else {
-	          protocols = [protocols];
-	        }
-	      }
-
-	      initAsClient(this, address, protocols, options);
-	    } else {
-	      this._isServer = true;
-	    }
-	  }
-
-	  /**
-	   * This deviates from the WHATWG interface since ws doesn't support the
-	   * required default "blob" type (instead we define a custom "nodebuffer"
-	   * type).
-	   *
-	   * @type {String}
-	   */
-	  get binaryType() {
-	    return this._binaryType;
-	  }
-
-	  set binaryType(type) {
-	    if (!BINARY_TYPES.includes(type)) return;
-
-	    this._binaryType = type;
-
-	    //
-	    // Allow to change `binaryType` on the fly.
-	    //
-	    if (this._receiver) this._receiver._binaryType = type;
-	  }
-
-	  /**
-	   * @type {Number}
-	   */
-	  get bufferedAmount() {
-	    if (!this._socket) return this._bufferedAmount;
-
-	    return this._socket._writableState.length + this._sender._bufferedBytes;
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  get extensions() {
-	    return Object.keys(this._extensions).join();
-	  }
-
-	  /**
-	   * @type {Boolean}
-	   */
-	  get isPaused() {
-	    return this._paused;
-	  }
-
-	  /**
-	   * @type {Function}
-	   */
-	  /* istanbul ignore next */
-	  get onclose() {
-	    return null;
-	  }
-
-	  /**
-	   * @type {Function}
-	   */
-	  /* istanbul ignore next */
-	  get onerror() {
-	    return null;
-	  }
-
-	  /**
-	   * @type {Function}
-	   */
-	  /* istanbul ignore next */
-	  get onopen() {
-	    return null;
-	  }
-
-	  /**
-	   * @type {Function}
-	   */
-	  /* istanbul ignore next */
-	  get onmessage() {
-	    return null;
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  get protocol() {
-	    return this._protocol;
-	  }
-
-	  /**
-	   * @type {Number}
-	   */
-	  get readyState() {
-	    return this._readyState;
-	  }
-
-	  /**
-	   * @type {String}
-	   */
-	  get url() {
-	    return this._url;
-	  }
-
-	  /**
-	   * Set up the socket and the internal resources.
-	   *
-	   * @param {(net.Socket|tls.Socket)} socket The network socket between the
-	   *     server and client
-	   * @param {Buffer} head The first packet of the upgraded stream
-	   * @param {Object} options Options object
-	   * @param {Function} [options.generateMask] The function used to generate the
-	   *     masking key
-	   * @param {Number} [options.maxPayload=0] The maximum allowed message size
-	   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
-	   *     not to skip UTF-8 validation for text and close messages
-	   * @private
-	   */
-	  setSocket(socket, head, options) {
-	    const receiver = new Receiver({
-	      binaryType: this.binaryType,
-	      extensions: this._extensions,
-	      isServer: this._isServer,
-	      maxPayload: options.maxPayload,
-	      skipUTF8Validation: options.skipUTF8Validation
-	    });
-
-	    this._sender = new Sender(socket, this._extensions, options.generateMask);
-	    this._receiver = receiver;
-	    this._socket = socket;
-
-	    receiver[kWebSocket] = this;
-	    socket[kWebSocket] = this;
-
-	    receiver.on('conclude', receiverOnConclude);
-	    receiver.on('drain', receiverOnDrain);
-	    receiver.on('error', receiverOnError);
-	    receiver.on('message', receiverOnMessage);
-	    receiver.on('ping', receiverOnPing);
-	    receiver.on('pong', receiverOnPong);
-
-	    socket.setTimeout(0);
-	    socket.setNoDelay();
-
-	    if (head.length > 0) socket.unshift(head);
-
-	    socket.on('close', socketOnClose);
-	    socket.on('data', socketOnData);
-	    socket.on('end', socketOnEnd);
-	    socket.on('error', socketOnError);
-
-	    this._readyState = WebSocket.OPEN;
-	    this.emit('open');
-	  }
-
-	  /**
-	   * Emit the `'close'` event.
-	   *
-	   * @private
-	   */
-	  emitClose() {
-	    if (!this._socket) {
-	      this._readyState = WebSocket.CLOSED;
-	      this.emit('close', this._closeCode, this._closeMessage);
-	      return;
-	    }
-
-	    if (this._extensions[PerMessageDeflate.extensionName]) {
-	      this._extensions[PerMessageDeflate.extensionName].cleanup();
-	    }
-
-	    this._receiver.removeAllListeners();
-	    this._readyState = WebSocket.CLOSED;
-	    this.emit('close', this._closeCode, this._closeMessage);
-	  }
-
-	  /**
-	   * Start a closing handshake.
-	   *
-	   *          +----------+   +-----------+   +----------+
-	   *     - - -|ws.close()|-->|close frame|-->|ws.close()|- - -
-	   *    |     +----------+   +-----------+   +----------+     |
-	   *          +----------+   +-----------+         |
-	   * CLOSING  |ws.close()|<--|close frame|<--+-----+       CLOSING
-	   *          +----------+   +-----------+   |
-	   *    |           |                        |   +---+        |
-	   *                +------------------------+-->|fin| - - - -
-	   *    |         +---+                      |   +---+
-	   *     - - - - -|fin|<---------------------+
-	   *              +---+
-	   *
-	   * @param {Number} [code] Status code explaining why the connection is closing
-	   * @param {(String|Buffer)} [data] The reason why the connection is
-	   *     closing
-	   * @public
-	   */
-	  close(code, data) {
-	    if (this.readyState === WebSocket.CLOSED) return;
-	    if (this.readyState === WebSocket.CONNECTING) {
-	      const msg = 'WebSocket was closed before the connection was established';
-	      return abortHandshake(this, this._req, msg);
-	    }
-
-	    if (this.readyState === WebSocket.CLOSING) {
-	      if (
-	        this._closeFrameSent &&
-	        (this._closeFrameReceived || this._receiver._writableState.errorEmitted)
-	      ) {
-	        this._socket.end();
-	      }
-
-	      return;
-	    }
-
-	    this._readyState = WebSocket.CLOSING;
-	    this._sender.close(code, data, !this._isServer, (err) => {
-	      //
-	      // This error is handled by the `'error'` listener on the socket. We only
-	      // want to know if the close frame has been sent here.
-	      //
-	      if (err) return;
-
-	      this._closeFrameSent = true;
-
-	      if (
-	        this._closeFrameReceived ||
-	        this._receiver._writableState.errorEmitted
-	      ) {
-	        this._socket.end();
-	      }
-	    });
-
-	    //
-	    // Specify a timeout for the closing handshake to complete.
-	    //
-	    this._closeTimer = setTimeout(
-	      this._socket.destroy.bind(this._socket),
-	      closeTimeout
-	    );
-	  }
-
-	  /**
-	   * Pause the socket.
-	   *
-	   * @public
-	   */
-	  pause() {
-	    if (
-	      this.readyState === WebSocket.CONNECTING ||
-	      this.readyState === WebSocket.CLOSED
-	    ) {
-	      return;
-	    }
-
-	    this._paused = true;
-	    this._socket.pause();
-	  }
-
-	  /**
-	   * Send a ping.
-	   *
-	   * @param {*} [data] The data to send
-	   * @param {Boolean} [mask] Indicates whether or not to mask `data`
-	   * @param {Function} [cb] Callback which is executed when the ping is sent
-	   * @public
-	   */
-	  ping(data, mask, cb) {
-	    if (this.readyState === WebSocket.CONNECTING) {
-	      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
-	    }
-
-	    if (typeof data === 'function') {
-	      cb = data;
-	      data = mask = undefined;
-	    } else if (typeof mask === 'function') {
-	      cb = mask;
-	      mask = undefined;
-	    }
-
-	    if (typeof data === 'number') data = data.toString();
-
-	    if (this.readyState !== WebSocket.OPEN) {
-	      sendAfterClose(this, data, cb);
-	      return;
-	    }
-
-	    if (mask === undefined) mask = !this._isServer;
-	    this._sender.ping(data || EMPTY_BUFFER, mask, cb);
-	  }
-
-	  /**
-	   * Send a pong.
-	   *
-	   * @param {*} [data] The data to send
-	   * @param {Boolean} [mask] Indicates whether or not to mask `data`
-	   * @param {Function} [cb] Callback which is executed when the pong is sent
-	   * @public
-	   */
-	  pong(data, mask, cb) {
-	    if (this.readyState === WebSocket.CONNECTING) {
-	      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
-	    }
-
-	    if (typeof data === 'function') {
-	      cb = data;
-	      data = mask = undefined;
-	    } else if (typeof mask === 'function') {
-	      cb = mask;
-	      mask = undefined;
-	    }
-
-	    if (typeof data === 'number') data = data.toString();
-
-	    if (this.readyState !== WebSocket.OPEN) {
-	      sendAfterClose(this, data, cb);
-	      return;
-	    }
-
-	    if (mask === undefined) mask = !this._isServer;
-	    this._sender.pong(data || EMPTY_BUFFER, mask, cb);
-	  }
-
-	  /**
-	   * Resume the socket.
-	   *
-	   * @public
-	   */
-	  resume() {
-	    if (
-	      this.readyState === WebSocket.CONNECTING ||
-	      this.readyState === WebSocket.CLOSED
-	    ) {
-	      return;
-	    }
-
-	    this._paused = false;
-	    if (!this._receiver._writableState.needDrain) this._socket.resume();
-	  }
-
-	  /**
-	   * Send a data message.
-	   *
-	   * @param {*} data The message to send
-	   * @param {Object} [options] Options object
-	   * @param {Boolean} [options.binary] Specifies whether `data` is binary or
-	   *     text
-	   * @param {Boolean} [options.compress] Specifies whether or not to compress
-	   *     `data`
-	   * @param {Boolean} [options.fin=true] Specifies whether the fragment is the
-	   *     last one
-	   * @param {Boolean} [options.mask] Specifies whether or not to mask `data`
-	   * @param {Function} [cb] Callback which is executed when data is written out
-	   * @public
-	   */
-	  send(data, options, cb) {
-	    if (this.readyState === WebSocket.CONNECTING) {
-	      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
-	    }
-
-	    if (typeof options === 'function') {
-	      cb = options;
-	      options = {};
-	    }
-
-	    if (typeof data === 'number') data = data.toString();
-
-	    if (this.readyState !== WebSocket.OPEN) {
-	      sendAfterClose(this, data, cb);
-	      return;
-	    }
-
-	    const opts = {
-	      binary: typeof data !== 'string',
-	      mask: !this._isServer,
-	      compress: true,
-	      fin: true,
-	      ...options
-	    };
-
-	    if (!this._extensions[PerMessageDeflate.extensionName]) {
-	      opts.compress = false;
-	    }
-
-	    this._sender.send(data || EMPTY_BUFFER, opts, cb);
-	  }
-
-	  /**
-	   * Forcibly close the connection.
-	   *
-	   * @public
-	   */
-	  terminate() {
-	    if (this.readyState === WebSocket.CLOSED) return;
-	    if (this.readyState === WebSocket.CONNECTING) {
-	      const msg = 'WebSocket was closed before the connection was established';
-	      return abortHandshake(this, this._req, msg);
-	    }
-
-	    if (this._socket) {
-	      this._readyState = WebSocket.CLOSING;
-	      this._socket.destroy();
-	    }
-	  }
-	}
-
-	/**
-	 * @constant {Number} CONNECTING
-	 * @memberof WebSocket
-	 */
-	Object.defineProperty(WebSocket, 'CONNECTING', {
-	  enumerable: true,
-	  value: readyStates.indexOf('CONNECTING')
-	});
-
-	/**
-	 * @constant {Number} CONNECTING
-	 * @memberof WebSocket.prototype
-	 */
-	Object.defineProperty(WebSocket.prototype, 'CONNECTING', {
-	  enumerable: true,
-	  value: readyStates.indexOf('CONNECTING')
-	});
-
-	/**
-	 * @constant {Number} OPEN
-	 * @memberof WebSocket
-	 */
-	Object.defineProperty(WebSocket, 'OPEN', {
-	  enumerable: true,
-	  value: readyStates.indexOf('OPEN')
-	});
-
-	/**
-	 * @constant {Number} OPEN
-	 * @memberof WebSocket.prototype
-	 */
-	Object.defineProperty(WebSocket.prototype, 'OPEN', {
-	  enumerable: true,
-	  value: readyStates.indexOf('OPEN')
-	});
-
-	/**
-	 * @constant {Number} CLOSING
-	 * @memberof WebSocket
-	 */
-	Object.defineProperty(WebSocket, 'CLOSING', {
-	  enumerable: true,
-	  value: readyStates.indexOf('CLOSING')
-	});
-
-	/**
-	 * @constant {Number} CLOSING
-	 * @memberof WebSocket.prototype
-	 */
-	Object.defineProperty(WebSocket.prototype, 'CLOSING', {
-	  enumerable: true,
-	  value: readyStates.indexOf('CLOSING')
-	});
-
-	/**
-	 * @constant {Number} CLOSED
-	 * @memberof WebSocket
-	 */
-	Object.defineProperty(WebSocket, 'CLOSED', {
-	  enumerable: true,
-	  value: readyStates.indexOf('CLOSED')
-	});
-
-	/**
-	 * @constant {Number} CLOSED
-	 * @memberof WebSocket.prototype
-	 */
-	Object.defineProperty(WebSocket.prototype, 'CLOSED', {
-	  enumerable: true,
-	  value: readyStates.indexOf('CLOSED')
-	});
-
-	[
-	  'binaryType',
-	  'bufferedAmount',
-	  'extensions',
-	  'isPaused',
-	  'protocol',
-	  'readyState',
-	  'url'
-	].forEach((property) => {
-	  Object.defineProperty(WebSocket.prototype, property, { enumerable: true });
-	});
-
-	//
-	// Add the `onopen`, `onerror`, `onclose`, and `onmessage` attributes.
-	// See https://html.spec.whatwg.org/multipage/comms.html#the-websocket-interface
-	//
-	['open', 'error', 'close', 'message'].forEach((method) => {
-	  Object.defineProperty(WebSocket.prototype, `on${method}`, {
-	    enumerable: true,
-	    get() {
-	      for (const listener of this.listeners(method)) {
-	        if (listener[kForOnEventAttribute]) return listener[kListener];
-	      }
-
-	      return null;
-	    },
-	    set(handler) {
-	      for (const listener of this.listeners(method)) {
-	        if (listener[kForOnEventAttribute]) {
-	          this.removeListener(method, listener);
-	          break;
-	        }
-	      }
-
-	      if (typeof handler !== 'function') return;
-
-	      this.addEventListener(method, handler, {
-	        [kForOnEventAttribute]: true
-	      });
-	    }
-	  });
-	});
-
-	WebSocket.prototype.addEventListener = addEventListener;
-	WebSocket.prototype.removeEventListener = removeEventListener;
-
-	websocket = WebSocket;
-
-	/**
-	 * Initialize a WebSocket client.
-	 *
-	 * @param {WebSocket} websocket The client to initialize
-	 * @param {(String|URL)} address The URL to which to connect
-	 * @param {Array} protocols The subprotocols
-	 * @param {Object} [options] Connection options
-	 * @param {Boolean} [options.followRedirects=false] Whether or not to follow
-	 *     redirects
-	 * @param {Function} [options.generateMask] The function used to generate the
-	 *     masking key
-	 * @param {Number} [options.handshakeTimeout] Timeout in milliseconds for the
-	 *     handshake request
-	 * @param {Number} [options.maxPayload=104857600] The maximum allowed message
-	 *     size
-	 * @param {Number} [options.maxRedirects=10] The maximum number of redirects
-	 *     allowed
-	 * @param {String} [options.origin] Value of the `Origin` or
-	 *     `Sec-WebSocket-Origin` header
-	 * @param {(Boolean|Object)} [options.perMessageDeflate=true] Enable/disable
-	 *     permessage-deflate
-	 * @param {Number} [options.protocolVersion=13] Value of the
-	 *     `Sec-WebSocket-Version` header
-	 * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
-	 *     not to skip UTF-8 validation for text and close messages
-	 * @private
-	 */
-	function initAsClient(websocket, address, protocols, options) {
-	  const opts = {
-	    protocolVersion: protocolVersions[1],
-	    maxPayload: 100 * 1024 * 1024,
-	    skipUTF8Validation: false,
-	    perMessageDeflate: true,
-	    followRedirects: false,
-	    maxRedirects: 10,
-	    ...options,
-	    createConnection: undefined,
-	    socketPath: undefined,
-	    hostname: undefined,
-	    protocol: undefined,
-	    timeout: undefined,
-	    method: 'GET',
-	    host: undefined,
-	    path: undefined,
-	    port: undefined
-	  };
-
-	  if (!protocolVersions.includes(opts.protocolVersion)) {
-	    throw new RangeError(
-	      `Unsupported protocol version: ${opts.protocolVersion} ` +
-	        `(supported versions: ${protocolVersions.join(', ')})`
-	    );
-	  }
-
-	  let parsedUrl;
-
-	  if (address instanceof URL) {
-	    parsedUrl = address;
-	    websocket._url = address.href;
-	  } else {
-	    try {
-	      parsedUrl = new URL(address);
-	    } catch (e) {
-	      throw new SyntaxError(`Invalid URL: ${address}`);
-	    }
-
-	    websocket._url = address;
-	  }
-
-	  const isSecure = parsedUrl.protocol === 'wss:';
-	  const isUnixSocket = parsedUrl.protocol === 'ws+unix:';
-	  let invalidURLMessage;
-
-	  if (parsedUrl.protocol !== 'ws:' && !isSecure && !isUnixSocket) {
-	    invalidURLMessage =
-	      'The URL\'s protocol must be one of "ws:", "wss:", or "ws+unix:"';
-	  } else if (isUnixSocket && !parsedUrl.pathname) {
-	    invalidURLMessage = "The URL's pathname is empty";
-	  } else if (parsedUrl.hash) {
-	    invalidURLMessage = 'The URL contains a fragment identifier';
-	  }
-
-	  if (invalidURLMessage) {
-	    const err = new SyntaxError(invalidURLMessage);
-
-	    if (websocket._redirects === 0) {
-	      throw err;
-	    } else {
-	      emitErrorAndClose(websocket, err);
-	      return;
-	    }
-	  }
-
-	  const defaultPort = isSecure ? 443 : 80;
-	  const key = randomBytes(16).toString('base64');
-	  const request = isSecure ? https.request : http.request;
-	  const protocolSet = new Set();
-	  let perMessageDeflate;
-
-	  opts.createConnection = isSecure ? tlsConnect : netConnect;
-	  opts.defaultPort = opts.defaultPort || defaultPort;
-	  opts.port = parsedUrl.port || defaultPort;
-	  opts.host = parsedUrl.hostname.startsWith('[')
-	    ? parsedUrl.hostname.slice(1, -1)
-	    : parsedUrl.hostname;
-	  opts.headers = {
-	    'Sec-WebSocket-Version': opts.protocolVersion,
-	    'Sec-WebSocket-Key': key,
-	    Connection: 'Upgrade',
-	    Upgrade: 'websocket',
-	    ...opts.headers
-	  };
-	  opts.path = parsedUrl.pathname + parsedUrl.search;
-	  opts.timeout = opts.handshakeTimeout;
-
-	  if (opts.perMessageDeflate) {
-	    perMessageDeflate = new PerMessageDeflate(
-	      opts.perMessageDeflate !== true ? opts.perMessageDeflate : {},
-	      false,
-	      opts.maxPayload
-	    );
-	    opts.headers['Sec-WebSocket-Extensions'] = format({
-	      [PerMessageDeflate.extensionName]: perMessageDeflate.offer()
-	    });
-	  }
-	  if (protocols.length) {
-	    for (const protocol of protocols) {
-	      if (
-	        typeof protocol !== 'string' ||
-	        !subprotocolRegex.test(protocol) ||
-	        protocolSet.has(protocol)
-	      ) {
-	        throw new SyntaxError(
-	          'An invalid or duplicated subprotocol was specified'
-	        );
-	      }
-
-	      protocolSet.add(protocol);
-	    }
-
-	    opts.headers['Sec-WebSocket-Protocol'] = protocols.join(',');
-	  }
-	  if (opts.origin) {
-	    if (opts.protocolVersion < 13) {
-	      opts.headers['Sec-WebSocket-Origin'] = opts.origin;
-	    } else {
-	      opts.headers.Origin = opts.origin;
-	    }
-	  }
-	  if (parsedUrl.username || parsedUrl.password) {
-	    opts.auth = `${parsedUrl.username}:${parsedUrl.password}`;
-	  }
-
-	  if (isUnixSocket) {
-	    const parts = opts.path.split(':');
-
-	    opts.socketPath = parts[0];
-	    opts.path = parts[1];
-	  }
-
-	  let req;
-
-	  if (opts.followRedirects) {
-	    if (websocket._redirects === 0) {
-	      websocket._originalSecure = isSecure;
-	      websocket._originalHost = parsedUrl.host;
-
-	      const headers = options && options.headers;
-
-	      //
-	      // Shallow copy the user provided options so that headers can be changed
-	      // without mutating the original object.
-	      //
-	      options = { ...options, headers: {} };
-
-	      if (headers) {
-	        for (const [key, value] of Object.entries(headers)) {
-	          options.headers[key.toLowerCase()] = value;
-	        }
-	      }
-	    } else if (websocket.listenerCount('redirect') === 0) {
-	      const isSameHost = parsedUrl.host === websocket._originalHost;
-
-	      if (!isSameHost || (websocket._originalSecure && !isSecure)) {
-	        //
-	        // Match curl 7.77.0 behavior and drop the following headers. These
-	        // headers are also dropped when following a redirect to a subdomain.
-	        //
-	        delete opts.headers.authorization;
-	        delete opts.headers.cookie;
-
-	        if (!isSameHost) delete opts.headers.host;
-
-	        opts.auth = undefined;
-	      }
-	    }
-
-	    //
-	    // Match curl 7.77.0 behavior and make the first `Authorization` header win.
-	    // If the `Authorization` header is set, then there is nothing to do as it
-	    // will take precedence.
-	    //
-	    if (opts.auth && !options.headers.authorization) {
-	      options.headers.authorization =
-	        'Basic ' + Buffer.from(opts.auth).toString('base64');
-	    }
-
-	    req = websocket._req = request(opts);
-
-	    if (websocket._redirects) {
-	      //
-	      // Unlike what is done for the `'upgrade'` event, no early exit is
-	      // triggered here if the user calls `websocket.close()` or
-	      // `websocket.terminate()` from a listener of the `'redirect'` event. This
-	      // is because the user can also call `request.destroy()` with an error
-	      // before calling `websocket.close()` or `websocket.terminate()` and this
-	      // would result in an error being emitted on the `request` object with no
-	      // `'error'` event listeners attached.
-	      //
-	      websocket.emit('redirect', websocket.url, req);
-	    }
-	  } else {
-	    req = websocket._req = request(opts);
-	  }
-
-	  if (opts.timeout) {
-	    req.on('timeout', () => {
-	      abortHandshake(websocket, req, 'Opening handshake has timed out');
-	    });
-	  }
-
-	  req.on('error', (err) => {
-	    if (req === null || req[kAborted]) return;
-
-	    req = websocket._req = null;
-	    emitErrorAndClose(websocket, err);
-	  });
-
-	  req.on('response', (res) => {
-	    const location = res.headers.location;
-	    const statusCode = res.statusCode;
-
-	    if (
-	      location &&
-	      opts.followRedirects &&
-	      statusCode >= 300 &&
-	      statusCode < 400
-	    ) {
-	      if (++websocket._redirects > opts.maxRedirects) {
-	        abortHandshake(websocket, req, 'Maximum redirects exceeded');
-	        return;
-	      }
-
-	      req.abort();
-
-	      let addr;
-
-	      try {
-	        addr = new URL(location, address);
-	      } catch (e) {
-	        const err = new SyntaxError(`Invalid URL: ${location}`);
-	        emitErrorAndClose(websocket, err);
-	        return;
-	      }
-
-	      initAsClient(websocket, addr, protocols, options);
-	    } else if (!websocket.emit('unexpected-response', req, res)) {
-	      abortHandshake(
-	        websocket,
-	        req,
-	        `Unexpected server response: ${res.statusCode}`
-	      );
-	    }
-	  });
-
-	  req.on('upgrade', (res, socket, head) => {
-	    websocket.emit('upgrade', res);
-
-	    //
-	    // The user may have closed the connection from a listener of the
-	    // `'upgrade'` event.
-	    //
-	    if (websocket.readyState !== WebSocket.CONNECTING) return;
-
-	    req = websocket._req = null;
-
-	    if (res.headers.upgrade.toLowerCase() !== 'websocket') {
-	      abortHandshake(websocket, socket, 'Invalid Upgrade header');
-	      return;
-	    }
-
-	    const digest = createHash('sha1')
-	      .update(key + GUID)
-	      .digest('base64');
-
-	    if (res.headers['sec-websocket-accept'] !== digest) {
-	      abortHandshake(websocket, socket, 'Invalid Sec-WebSocket-Accept header');
-	      return;
-	    }
-
-	    const serverProt = res.headers['sec-websocket-protocol'];
-	    let protError;
-
-	    if (serverProt !== undefined) {
-	      if (!protocolSet.size) {
-	        protError = 'Server sent a subprotocol but none was requested';
-	      } else if (!protocolSet.has(serverProt)) {
-	        protError = 'Server sent an invalid subprotocol';
-	      }
-	    } else if (protocolSet.size) {
-	      protError = 'Server sent no subprotocol';
-	    }
-
-	    if (protError) {
-	      abortHandshake(websocket, socket, protError);
-	      return;
-	    }
-
-	    if (serverProt) websocket._protocol = serverProt;
-
-	    const secWebSocketExtensions = res.headers['sec-websocket-extensions'];
-
-	    if (secWebSocketExtensions !== undefined) {
-	      if (!perMessageDeflate) {
-	        const message =
-	          'Server sent a Sec-WebSocket-Extensions header but no extension ' +
-	          'was requested';
-	        abortHandshake(websocket, socket, message);
-	        return;
-	      }
-
-	      let extensions;
-
-	      try {
-	        extensions = parse(secWebSocketExtensions);
-	      } catch (err) {
-	        const message = 'Invalid Sec-WebSocket-Extensions header';
-	        abortHandshake(websocket, socket, message);
-	        return;
-	      }
-
-	      const extensionNames = Object.keys(extensions);
-
-	      if (
-	        extensionNames.length !== 1 ||
-	        extensionNames[0] !== PerMessageDeflate.extensionName
-	      ) {
-	        const message = 'Server indicated an extension that was not requested';
-	        abortHandshake(websocket, socket, message);
-	        return;
-	      }
-
-	      try {
-	        perMessageDeflate.accept(extensions[PerMessageDeflate.extensionName]);
-	      } catch (err) {
-	        const message = 'Invalid Sec-WebSocket-Extensions header';
-	        abortHandshake(websocket, socket, message);
-	        return;
-	      }
-
-	      websocket._extensions[PerMessageDeflate.extensionName] =
-	        perMessageDeflate;
-	    }
-
-	    websocket.setSocket(socket, head, {
-	      generateMask: opts.generateMask,
-	      maxPayload: opts.maxPayload,
-	      skipUTF8Validation: opts.skipUTF8Validation
-	    });
-	  });
-
-	  req.end();
-	}
-
-	/**
-	 * Emit the `'error'` and `'close'` events.
-	 *
-	 * @param {WebSocket} websocket The WebSocket instance
-	 * @param {Error} The error to emit
-	 * @private
-	 */
-	function emitErrorAndClose(websocket, err) {
-	  websocket._readyState = WebSocket.CLOSING;
-	  websocket.emit('error', err);
-	  websocket.emitClose();
-	}
-
-	/**
-	 * Create a `net.Socket` and initiate a connection.
-	 *
-	 * @param {Object} options Connection options
-	 * @return {net.Socket} The newly created socket used to start the connection
-	 * @private
-	 */
-	function netConnect(options) {
-	  options.path = options.socketPath;
-	  return net.connect(options);
-	}
-
-	/**
-	 * Create a `tls.TLSSocket` and initiate a connection.
-	 *
-	 * @param {Object} options Connection options
-	 * @return {tls.TLSSocket} The newly created socket used to start the connection
-	 * @private
-	 */
-	function tlsConnect(options) {
-	  options.path = undefined;
-
-	  if (!options.servername && options.servername !== '') {
-	    options.servername = net.isIP(options.host) ? '' : options.host;
-	  }
-
-	  return tls.connect(options);
-	}
-
-	/**
-	 * Abort the handshake and emit an error.
-	 *
-	 * @param {WebSocket} websocket The WebSocket instance
-	 * @param {(http.ClientRequest|net.Socket|tls.Socket)} stream The request to
-	 *     abort or the socket to destroy
-	 * @param {String} message The error message
-	 * @private
-	 */
-	function abortHandshake(websocket, stream, message) {
-	  websocket._readyState = WebSocket.CLOSING;
-
-	  const err = new Error(message);
-	  Error.captureStackTrace(err, abortHandshake);
-
-	  if (stream.setHeader) {
-	    stream[kAborted] = true;
-	    stream.abort();
-
-	    if (stream.socket && !stream.socket.destroyed) {
-	      //
-	      // On Node.js >= 14.3.0 `request.abort()` does not destroy the socket if
-	      // called after the request completed. See
-	      // https://github.com/websockets/ws/issues/1869.
-	      //
-	      stream.socket.destroy();
-	    }
-
-	    browser$1$1.nextTick(emitErrorAndClose, websocket, err);
-	  } else {
-	    stream.destroy(err);
-	    stream.once('error', websocket.emit.bind(websocket, 'error'));
-	    stream.once('close', websocket.emitClose.bind(websocket));
-	  }
-	}
-
-	/**
-	 * Handle cases where the `ping()`, `pong()`, or `send()` methods are called
-	 * when the `readyState` attribute is `CLOSING` or `CLOSED`.
-	 *
-	 * @param {WebSocket} websocket The WebSocket instance
-	 * @param {*} [data] The data to send
-	 * @param {Function} [cb] Callback
-	 * @private
-	 */
-	function sendAfterClose(websocket, data, cb) {
-	  if (data) {
-	    const length = toBuffer(data).length;
-
-	    //
-	    // The `_bufferedAmount` property is used only when the peer is a client and
-	    // the opening handshake fails. Under these circumstances, in fact, the
-	    // `setSocket()` method is not called, so the `_socket` and `_sender`
-	    // properties are set to `null`.
-	    //
-	    if (websocket._socket) websocket._sender._bufferedBytes += length;
-	    else websocket._bufferedAmount += length;
-	  }
-
-	  if (cb) {
-	    const err = new Error(
-	      `WebSocket is not open: readyState ${websocket.readyState} ` +
-	        `(${readyStates[websocket.readyState]})`
-	    );
-	    cb(err);
-	  }
-	}
-
-	/**
-	 * The listener of the `Receiver` `'conclude'` event.
-	 *
-	 * @param {Number} code The status code
-	 * @param {Buffer} reason The reason for closing
-	 * @private
-	 */
-	function receiverOnConclude(code, reason) {
-	  const websocket = this[kWebSocket];
-
-	  websocket._closeFrameReceived = true;
-	  websocket._closeMessage = reason;
-	  websocket._closeCode = code;
-
-	  if (websocket._socket[kWebSocket] === undefined) return;
-
-	  websocket._socket.removeListener('data', socketOnData);
-	  browser$1$1.nextTick(resume, websocket._socket);
-
-	  if (code === 1005) websocket.close();
-	  else websocket.close(code, reason);
-	}
-
-	/**
-	 * The listener of the `Receiver` `'drain'` event.
-	 *
-	 * @private
-	 */
-	function receiverOnDrain() {
-	  const websocket = this[kWebSocket];
-
-	  if (!websocket.isPaused) websocket._socket.resume();
-	}
-
-	/**
-	 * The listener of the `Receiver` `'error'` event.
-	 *
-	 * @param {(RangeError|Error)} err The emitted error
-	 * @private
-	 */
-	function receiverOnError(err) {
-	  const websocket = this[kWebSocket];
-
-	  if (websocket._socket[kWebSocket] !== undefined) {
-	    websocket._socket.removeListener('data', socketOnData);
-
-	    //
-	    // On Node.js < 14.0.0 the `'error'` event is emitted synchronously. See
-	    // https://github.com/websockets/ws/issues/1940.
-	    //
-	    browser$1$1.nextTick(resume, websocket._socket);
-
-	    websocket.close(err[kStatusCode]);
-	  }
-
-	  websocket.emit('error', err);
-	}
-
-	/**
-	 * The listener of the `Receiver` `'finish'` event.
-	 *
-	 * @private
-	 */
-	function receiverOnFinish() {
-	  this[kWebSocket].emitClose();
-	}
-
-	/**
-	 * The listener of the `Receiver` `'message'` event.
-	 *
-	 * @param {Buffer|ArrayBuffer|Buffer[])} data The message
-	 * @param {Boolean} isBinary Specifies whether the message is binary or not
-	 * @private
-	 */
-	function receiverOnMessage(data, isBinary) {
-	  this[kWebSocket].emit('message', data, isBinary);
-	}
-
-	/**
-	 * The listener of the `Receiver` `'ping'` event.
-	 *
-	 * @param {Buffer} data The data included in the ping frame
-	 * @private
-	 */
-	function receiverOnPing(data) {
-	  const websocket = this[kWebSocket];
-
-	  websocket.pong(data, !websocket._isServer, NOOP);
-	  websocket.emit('ping', data);
-	}
-
-	/**
-	 * The listener of the `Receiver` `'pong'` event.
-	 *
-	 * @param {Buffer} data The data included in the pong frame
-	 * @private
-	 */
-	function receiverOnPong(data) {
-	  this[kWebSocket].emit('pong', data);
-	}
-
-	/**
-	 * Resume a readable stream
-	 *
-	 * @param {Readable} stream The readable stream
-	 * @private
-	 */
-	function resume(stream) {
-	  stream.resume();
-	}
-
-	/**
-	 * The listener of the `net.Socket` `'close'` event.
-	 *
-	 * @private
-	 */
-	function socketOnClose() {
-	  const websocket = this[kWebSocket];
-
-	  this.removeListener('close', socketOnClose);
-	  this.removeListener('data', socketOnData);
-	  this.removeListener('end', socketOnEnd);
-
-	  websocket._readyState = WebSocket.CLOSING;
-
-	  let chunk;
-
-	  //
-	  // The close frame might not have been received or the `'end'` event emitted,
-	  // for example, if the socket was destroyed due to an error. Ensure that the
-	  // `receiver` stream is closed after writing any remaining buffered data to
-	  // it. If the readable side of the socket is in flowing mode then there is no
-	  // buffered data as everything has been already written and `readable.read()`
-	  // will return `null`. If instead, the socket is paused, any possible buffered
-	  // data will be read as a single chunk.
-	  //
-	  if (
-	    !this._readableState.endEmitted &&
-	    !websocket._closeFrameReceived &&
-	    !websocket._receiver._writableState.errorEmitted &&
-	    (chunk = websocket._socket.read()) !== null
-	  ) {
-	    websocket._receiver.write(chunk);
-	  }
-
-	  websocket._receiver.end();
-
-	  this[kWebSocket] = undefined;
-
-	  clearTimeout(websocket._closeTimer);
-
-	  if (
-	    websocket._receiver._writableState.finished ||
-	    websocket._receiver._writableState.errorEmitted
-	  ) {
-	    websocket.emitClose();
-	  } else {
-	    websocket._receiver.on('error', receiverOnFinish);
-	    websocket._receiver.on('finish', receiverOnFinish);
-	  }
-	}
-
-	/**
-	 * The listener of the `net.Socket` `'data'` event.
-	 *
-	 * @param {Buffer} chunk A chunk of data
-	 * @private
-	 */
-	function socketOnData(chunk) {
-	  if (!this[kWebSocket]._receiver.write(chunk)) {
-	    this.pause();
-	  }
-	}
-
-	/**
-	 * The listener of the `net.Socket` `'end'` event.
-	 *
-	 * @private
-	 */
-	function socketOnEnd() {
-	  const websocket = this[kWebSocket];
-
-	  websocket._readyState = WebSocket.CLOSING;
-	  websocket._receiver.end();
-	  this.end();
-	}
-
-	/**
-	 * The listener of the `net.Socket` `'error'` event.
-	 *
-	 * @private
-	 */
-	function socketOnError() {
-	  const websocket = this[kWebSocket];
-
-	  this.removeListener('error', socketOnError);
-	  this.on('error', NOOP);
-
-	  if (websocket) {
-	    websocket._readyState = WebSocket.CLOSING;
-	    this.destroy();
-	  }
-	}
-	return websocket;
+/**
+ * Resume a readable stream
+ *
+ * @param {Readable} stream The readable stream
+ * @private
+ */
+function resume(stream) {
+  stream.resume();
 }
 
-var stream;
-var hasRequiredStream;
+/**
+ * The listener of the `net.Socket` `'close'` event.
+ *
+ * @private
+ */
+function socketOnClose() {
+  const websocket = this[kWebSocket$2];
 
-function requireStream () {
-	if (hasRequiredStream) return stream;
-	hasRequiredStream = 1;
+  this.removeListener('close', socketOnClose);
+  this.removeListener('data', socketOnData);
+  this.removeListener('end', socketOnEnd);
 
-	const { Duplex } = require$$0$5;
+  websocket._readyState = WebSocket$1.CLOSING;
 
-	/**
-	 * Emits the `'close'` event on a stream.
-	 *
-	 * @param {Duplex} stream The stream.
-	 * @private
-	 */
-	function emitClose(stream) {
-	  stream.emit('close');
-	}
+  let chunk;
 
-	/**
-	 * The listener of the `'end'` event.
-	 *
-	 * @private
-	 */
-	function duplexOnEnd() {
-	  if (!this.destroyed && this._writableState.finished) {
-	    this.destroy();
-	  }
-	}
+  //
+  // The close frame might not have been received or the `'end'` event emitted,
+  // for example, if the socket was destroyed due to an error. Ensure that the
+  // `receiver` stream is closed after writing any remaining buffered data to
+  // it. If the readable side of the socket is in flowing mode then there is no
+  // buffered data as everything has been already written and `readable.read()`
+  // will return `null`. If instead, the socket is paused, any possible buffered
+  // data will be read as a single chunk.
+  //
+  if (
+    !this._readableState.endEmitted &&
+    !websocket._closeFrameReceived &&
+    !websocket._receiver._writableState.errorEmitted &&
+    (chunk = websocket._socket.read()) !== null
+  ) {
+    websocket._receiver.write(chunk);
+  }
 
-	/**
-	 * The listener of the `'error'` event.
-	 *
-	 * @param {Error} err The error
-	 * @private
-	 */
-	function duplexOnError(err) {
-	  this.removeListener('error', duplexOnError);
-	  this.destroy();
-	  if (this.listenerCount('error') === 0) {
-	    // Do not suppress the throwing behavior.
-	    this.emit('error', err);
-	  }
-	}
+  websocket._receiver.end();
 
-	/**
-	 * Wraps a `WebSocket` in a duplex stream.
-	 *
-	 * @param {WebSocket} ws The `WebSocket` to wrap
-	 * @param {Object} [options] The options for the `Duplex` constructor
-	 * @return {Duplex} The duplex stream
-	 * @public
-	 */
-	function createWebSocketStream(ws, options) {
-	  let terminateOnDestroy = true;
+  this[kWebSocket$2] = undefined;
 
-	  const duplex = new Duplex({
-	    ...options,
-	    autoDestroy: false,
-	    emitClose: false,
-	    objectMode: false,
-	    writableObjectMode: false
-	  });
+  clearTimeout(websocket._closeTimer);
 
-	  ws.on('message', function message(msg, isBinary) {
-	    const data =
-	      !isBinary && duplex._readableState.objectMode ? msg.toString() : msg;
-
-	    if (!duplex.push(data)) ws.pause();
-	  });
-
-	  ws.once('error', function error(err) {
-	    if (duplex.destroyed) return;
-
-	    // Prevent `ws.terminate()` from being called by `duplex._destroy()`.
-	    //
-	    // - If the `'error'` event is emitted before the `'open'` event, then
-	    //   `ws.terminate()` is a noop as no socket is assigned.
-	    // - Otherwise, the error is re-emitted by the listener of the `'error'`
-	    //   event of the `Receiver` object. The listener already closes the
-	    //   connection by calling `ws.close()`. This allows a close frame to be
-	    //   sent to the other peer. If `ws.terminate()` is called right after this,
-	    //   then the close frame might not be sent.
-	    terminateOnDestroy = false;
-	    duplex.destroy(err);
-	  });
-
-	  ws.once('close', function close() {
-	    if (duplex.destroyed) return;
-
-	    duplex.push(null);
-	  });
-
-	  duplex._destroy = function (err, callback) {
-	    if (ws.readyState === ws.CLOSED) {
-	      callback(err);
-	      browser$1$1.nextTick(emitClose, duplex);
-	      return;
-	    }
-
-	    let called = false;
-
-	    ws.once('error', function error(err) {
-	      called = true;
-	      callback(err);
-	    });
-
-	    ws.once('close', function close() {
-	      if (!called) callback(err);
-	      browser$1$1.nextTick(emitClose, duplex);
-	    });
-
-	    if (terminateOnDestroy) ws.terminate();
-	  };
-
-	  duplex._final = function (callback) {
-	    if (ws.readyState === ws.CONNECTING) {
-	      ws.once('open', function open() {
-	        duplex._final(callback);
-	      });
-	      return;
-	    }
-
-	    // If the value of the `_socket` property is `null` it means that `ws` is a
-	    // client websocket and the handshake failed. In fact, when this happens, a
-	    // socket is never assigned to the websocket. Wait for the `'error'` event
-	    // that will be emitted by the websocket.
-	    if (ws._socket === null) return;
-
-	    if (ws._socket._writableState.finished) {
-	      callback();
-	      if (duplex._readableState.endEmitted) duplex.destroy();
-	    } else {
-	      ws._socket.once('finish', function finish() {
-	        // `duplex` is not destroyed here because the `'end'` event will be
-	        // emitted on `duplex` after this `'finish'` event. The EOF signaling
-	        // `null` chunk is, in fact, pushed when the websocket emits `'close'`.
-	        callback();
-	      });
-	      ws.close();
-	    }
-	  };
-
-	  duplex._read = function () {
-	    if (ws.isPaused) ws.resume();
-	  };
-
-	  duplex._write = function (chunk, encoding, callback) {
-	    if (ws.readyState === ws.CONNECTING) {
-	      ws.once('open', function open() {
-	        duplex._write(chunk, encoding, callback);
-	      });
-	      return;
-	    }
-
-	    ws.send(chunk, callback);
-	  };
-
-	  duplex.on('end', duplexOnEnd);
-	  duplex.on('error', duplexOnError);
-	  return duplex;
-	}
-
-	stream = createWebSocketStream;
-	return stream;
+  if (
+    websocket._receiver._writableState.finished ||
+    websocket._receiver._writableState.errorEmitted
+  ) {
+    websocket.emitClose();
+  } else {
+    websocket._receiver.on('error', receiverOnFinish);
+    websocket._receiver.on('finish', receiverOnFinish);
+  }
 }
 
-var subprotocol;
-var hasRequiredSubprotocol;
-
-function requireSubprotocol () {
-	if (hasRequiredSubprotocol) return subprotocol;
-	hasRequiredSubprotocol = 1;
-
-	const { tokenChars } = requireValidation();
-
-	/**
-	 * Parses the `Sec-WebSocket-Protocol` header into a set of subprotocol names.
-	 *
-	 * @param {String} header The field value of the header
-	 * @return {Set} The subprotocol names
-	 * @public
-	 */
-	function parse(header) {
-	  const protocols = new Set();
-	  let start = -1;
-	  let end = -1;
-	  let i = 0;
-
-	  for (i; i < header.length; i++) {
-	    const code = header.charCodeAt(i);
-
-	    if (end === -1 && tokenChars[code] === 1) {
-	      if (start === -1) start = i;
-	    } else if (
-	      i !== 0 &&
-	      (code === 0x20 /* ' ' */ || code === 0x09) /* '\t' */
-	    ) {
-	      if (end === -1 && start !== -1) end = i;
-	    } else if (code === 0x2c /* ',' */) {
-	      if (start === -1) {
-	        throw new SyntaxError(`Unexpected character at index ${i}`);
-	      }
-
-	      if (end === -1) end = i;
-
-	      const protocol = header.slice(start, end);
-
-	      if (protocols.has(protocol)) {
-	        throw new SyntaxError(`The "${protocol}" subprotocol is duplicated`);
-	      }
-
-	      protocols.add(protocol);
-	      start = end = -1;
-	    } else {
-	      throw new SyntaxError(`Unexpected character at index ${i}`);
-	    }
-	  }
-
-	  if (start === -1 || end !== -1) {
-	    throw new SyntaxError('Unexpected end of input');
-	  }
-
-	  const protocol = header.slice(start, i);
-
-	  if (protocols.has(protocol)) {
-	    throw new SyntaxError(`The "${protocol}" subprotocol is duplicated`);
-	  }
-
-	  protocols.add(protocol);
-	  return protocols;
-	}
-
-	subprotocol = { parse };
-	return subprotocol;
+/**
+ * The listener of the `net.Socket` `'data'` event.
+ *
+ * @param {Buffer} chunk A chunk of data
+ * @private
+ */
+function socketOnData(chunk) {
+  if (!this[kWebSocket$2]._receiver.write(chunk)) {
+    this.pause();
+  }
 }
 
-var websocketServer;
-var hasRequiredWebsocketServer;
-
-function requireWebsocketServer () {
-	if (hasRequiredWebsocketServer) return websocketServer;
-	hasRequiredWebsocketServer = 1;
-
-	const EventEmitter = require$$0$6;
-	const http = require$$2$1;
-	const { createHash } = require$$5;
-
-	const extension = requireExtension();
-	const PerMessageDeflate = requirePermessageDeflate();
-	const subprotocol = requireSubprotocol();
-	const WebSocket = requireWebsocket$1();
-	const { GUID, kWebSocket } = requireConstants();
-
-	const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
-
-	const RUNNING = 0;
-	const CLOSING = 1;
-	const CLOSED = 2;
-
-	/**
-	 * Class representing a WebSocket server.
-	 *
-	 * @extends EventEmitter
-	 */
-	class WebSocketServer extends EventEmitter {
-	  /**
-	   * Create a `WebSocketServer` instance.
-	   *
-	   * @param {Object} options Configuration options
-	   * @param {Number} [options.backlog=511] The maximum length of the queue of
-	   *     pending connections
-	   * @param {Boolean} [options.clientTracking=true] Specifies whether or not to
-	   *     track clients
-	   * @param {Function} [options.handleProtocols] A hook to handle protocols
-	   * @param {String} [options.host] The hostname where to bind the server
-	   * @param {Number} [options.maxPayload=104857600] The maximum allowed message
-	   *     size
-	   * @param {Boolean} [options.noServer=false] Enable no server mode
-	   * @param {String} [options.path] Accept only connections matching this path
-	   * @param {(Boolean|Object)} [options.perMessageDeflate=false] Enable/disable
-	   *     permessage-deflate
-	   * @param {Number} [options.port] The port where to bind the server
-	   * @param {(http.Server|https.Server)} [options.server] A pre-created HTTP/S
-	   *     server to use
-	   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
-	   *     not to skip UTF-8 validation for text and close messages
-	   * @param {Function} [options.verifyClient] A hook to reject connections
-	   * @param {Function} [options.WebSocket=WebSocket] Specifies the `WebSocket`
-	   *     class to use. It must be the `WebSocket` class or class that extends it
-	   * @param {Function} [callback] A listener for the `listening` event
-	   */
-	  constructor(options, callback) {
-	    super();
-
-	    options = {
-	      maxPayload: 100 * 1024 * 1024,
-	      skipUTF8Validation: false,
-	      perMessageDeflate: false,
-	      handleProtocols: null,
-	      clientTracking: true,
-	      verifyClient: null,
-	      noServer: false,
-	      backlog: null, // use default (511 as implemented in net.js)
-	      server: null,
-	      host: null,
-	      path: null,
-	      port: null,
-	      WebSocket,
-	      ...options
-	    };
-
-	    if (
-	      (options.port == null && !options.server && !options.noServer) ||
-	      (options.port != null && (options.server || options.noServer)) ||
-	      (options.server && options.noServer)
-	    ) {
-	      throw new TypeError(
-	        'One and only one of the "port", "server", or "noServer" options ' +
-	          'must be specified'
-	      );
-	    }
-
-	    if (options.port != null) {
-	      this._server = http.createServer((req, res) => {
-	        const body = http.STATUS_CODES[426];
-
-	        res.writeHead(426, {
-	          'Content-Length': body.length,
-	          'Content-Type': 'text/plain'
-	        });
-	        res.end(body);
-	      });
-	      this._server.listen(
-	        options.port,
-	        options.host,
-	        options.backlog,
-	        callback
-	      );
-	    } else if (options.server) {
-	      this._server = options.server;
-	    }
-
-	    if (this._server) {
-	      const emitConnection = this.emit.bind(this, 'connection');
-
-	      this._removeListeners = addListeners(this._server, {
-	        listening: this.emit.bind(this, 'listening'),
-	        error: this.emit.bind(this, 'error'),
-	        upgrade: (req, socket, head) => {
-	          this.handleUpgrade(req, socket, head, emitConnection);
-	        }
-	      });
-	    }
-
-	    if (options.perMessageDeflate === true) options.perMessageDeflate = {};
-	    if (options.clientTracking) {
-	      this.clients = new Set();
-	      this._shouldEmitClose = false;
-	    }
-
-	    this.options = options;
-	    this._state = RUNNING;
-	  }
-
-	  /**
-	   * Returns the bound address, the address family name, and port of the server
-	   * as reported by the operating system if listening on an IP socket.
-	   * If the server is listening on a pipe or UNIX domain socket, the name is
-	   * returned as a string.
-	   *
-	   * @return {(Object|String|null)} The address of the server
-	   * @public
-	   */
-	  address() {
-	    if (this.options.noServer) {
-	      throw new Error('The server is operating in "noServer" mode');
-	    }
-
-	    if (!this._server) return null;
-	    return this._server.address();
-	  }
-
-	  /**
-	   * Stop the server from accepting new connections and emit the `'close'` event
-	   * when all existing connections are closed.
-	   *
-	   * @param {Function} [cb] A one-time listener for the `'close'` event
-	   * @public
-	   */
-	  close(cb) {
-	    if (this._state === CLOSED) {
-	      if (cb) {
-	        this.once('close', () => {
-	          cb(new Error('The server is not running'));
-	        });
-	      }
-
-	      browser$1$1.nextTick(emitClose, this);
-	      return;
-	    }
-
-	    if (cb) this.once('close', cb);
-
-	    if (this._state === CLOSING) return;
-	    this._state = CLOSING;
-
-	    if (this.options.noServer || this.options.server) {
-	      if (this._server) {
-	        this._removeListeners();
-	        this._removeListeners = this._server = null;
-	      }
-
-	      if (this.clients) {
-	        if (!this.clients.size) {
-	          browser$1$1.nextTick(emitClose, this);
-	        } else {
-	          this._shouldEmitClose = true;
-	        }
-	      } else {
-	        browser$1$1.nextTick(emitClose, this);
-	      }
-	    } else {
-	      const server = this._server;
-
-	      this._removeListeners();
-	      this._removeListeners = this._server = null;
-
-	      //
-	      // The HTTP/S server was created internally. Close it, and rely on its
-	      // `'close'` event.
-	      //
-	      server.close(() => {
-	        emitClose(this);
-	      });
-	    }
-	  }
-
-	  /**
-	   * See if a given request should be handled by this server instance.
-	   *
-	   * @param {http.IncomingMessage} req Request object to inspect
-	   * @return {Boolean} `true` if the request is valid, else `false`
-	   * @public
-	   */
-	  shouldHandle(req) {
-	    if (this.options.path) {
-	      const index = req.url.indexOf('?');
-	      const pathname = index !== -1 ? req.url.slice(0, index) : req.url;
-
-	      if (pathname !== this.options.path) return false;
-	    }
-
-	    return true;
-	  }
-
-	  /**
-	   * Handle a HTTP Upgrade request.
-	   *
-	   * @param {http.IncomingMessage} req The request object
-	   * @param {(net.Socket|tls.Socket)} socket The network socket between the
-	   *     server and client
-	   * @param {Buffer} head The first packet of the upgraded stream
-	   * @param {Function} cb Callback
-	   * @public
-	   */
-	  handleUpgrade(req, socket, head, cb) {
-	    socket.on('error', socketOnError);
-
-	    const key = req.headers['sec-websocket-key'];
-	    const version = +req.headers['sec-websocket-version'];
-
-	    if (req.method !== 'GET') {
-	      const message = 'Invalid HTTP method';
-	      abortHandshakeOrEmitwsClientError(this, req, socket, 405, message);
-	      return;
-	    }
-
-	    if (req.headers.upgrade.toLowerCase() !== 'websocket') {
-	      const message = 'Invalid Upgrade header';
-	      abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
-	      return;
-	    }
-
-	    if (!key || !keyRegex.test(key)) {
-	      const message = 'Missing or invalid Sec-WebSocket-Key header';
-	      abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
-	      return;
-	    }
-
-	    if (version !== 8 && version !== 13) {
-	      const message = 'Missing or invalid Sec-WebSocket-Version header';
-	      abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
-	      return;
-	    }
-
-	    if (!this.shouldHandle(req)) {
-	      abortHandshake(socket, 400);
-	      return;
-	    }
-
-	    const secWebSocketProtocol = req.headers['sec-websocket-protocol'];
-	    let protocols = new Set();
-
-	    if (secWebSocketProtocol !== undefined) {
-	      try {
-	        protocols = subprotocol.parse(secWebSocketProtocol);
-	      } catch (err) {
-	        const message = 'Invalid Sec-WebSocket-Protocol header';
-	        abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
-	        return;
-	      }
-	    }
-
-	    const secWebSocketExtensions = req.headers['sec-websocket-extensions'];
-	    const extensions = {};
-
-	    if (
-	      this.options.perMessageDeflate &&
-	      secWebSocketExtensions !== undefined
-	    ) {
-	      const perMessageDeflate = new PerMessageDeflate(
-	        this.options.perMessageDeflate,
-	        true,
-	        this.options.maxPayload
-	      );
-
-	      try {
-	        const offers = extension.parse(secWebSocketExtensions);
-
-	        if (offers[PerMessageDeflate.extensionName]) {
-	          perMessageDeflate.accept(offers[PerMessageDeflate.extensionName]);
-	          extensions[PerMessageDeflate.extensionName] = perMessageDeflate;
-	        }
-	      } catch (err) {
-	        const message =
-	          'Invalid or unacceptable Sec-WebSocket-Extensions header';
-	        abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
-	        return;
-	      }
-	    }
-
-	    //
-	    // Optionally call external client verification handler.
-	    //
-	    if (this.options.verifyClient) {
-	      const info = {
-	        origin:
-	          req.headers[`${version === 8 ? 'sec-websocket-origin' : 'origin'}`],
-	        secure: !!(req.socket.authorized || req.socket.encrypted),
-	        req
-	      };
-
-	      if (this.options.verifyClient.length === 2) {
-	        this.options.verifyClient(info, (verified, code, message, headers) => {
-	          if (!verified) {
-	            return abortHandshake(socket, code || 401, message, headers);
-	          }
-
-	          this.completeUpgrade(
-	            extensions,
-	            key,
-	            protocols,
-	            req,
-	            socket,
-	            head,
-	            cb
-	          );
-	        });
-	        return;
-	      }
-
-	      if (!this.options.verifyClient(info)) return abortHandshake(socket, 401);
-	    }
-
-	    this.completeUpgrade(extensions, key, protocols, req, socket, head, cb);
-	  }
-
-	  /**
-	   * Upgrade the connection to WebSocket.
-	   *
-	   * @param {Object} extensions The accepted extensions
-	   * @param {String} key The value of the `Sec-WebSocket-Key` header
-	   * @param {Set} protocols The subprotocols
-	   * @param {http.IncomingMessage} req The request object
-	   * @param {(net.Socket|tls.Socket)} socket The network socket between the
-	   *     server and client
-	   * @param {Buffer} head The first packet of the upgraded stream
-	   * @param {Function} cb Callback
-	   * @throws {Error} If called more than once with the same socket
-	   * @private
-	   */
-	  completeUpgrade(extensions, key, protocols, req, socket, head, cb) {
-	    //
-	    // Destroy the socket if the client has already sent a FIN packet.
-	    //
-	    if (!socket.readable || !socket.writable) return socket.destroy();
-
-	    if (socket[kWebSocket]) {
-	      throw new Error(
-	        'server.handleUpgrade() was called more than once with the same ' +
-	          'socket, possibly due to a misconfiguration'
-	      );
-	    }
-
-	    if (this._state > RUNNING) return abortHandshake(socket, 503);
-
-	    const digest = createHash('sha1')
-	      .update(key + GUID)
-	      .digest('base64');
-
-	    const headers = [
-	      'HTTP/1.1 101 Switching Protocols',
-	      'Upgrade: websocket',
-	      'Connection: Upgrade',
-	      `Sec-WebSocket-Accept: ${digest}`
-	    ];
-
-	    const ws = new this.options.WebSocket(null);
-
-	    if (protocols.size) {
-	      //
-	      // Optionally call external protocol selection handler.
-	      //
-	      const protocol = this.options.handleProtocols
-	        ? this.options.handleProtocols(protocols, req)
-	        : protocols.values().next().value;
-
-	      if (protocol) {
-	        headers.push(`Sec-WebSocket-Protocol: ${protocol}`);
-	        ws._protocol = protocol;
-	      }
-	    }
-
-	    if (extensions[PerMessageDeflate.extensionName]) {
-	      const params = extensions[PerMessageDeflate.extensionName].params;
-	      const value = extension.format({
-	        [PerMessageDeflate.extensionName]: [params]
-	      });
-	      headers.push(`Sec-WebSocket-Extensions: ${value}`);
-	      ws._extensions = extensions;
-	    }
-
-	    //
-	    // Allow external modification/inspection of handshake headers.
-	    //
-	    this.emit('headers', headers, req);
-
-	    socket.write(headers.concat('\r\n').join('\r\n'));
-	    socket.removeListener('error', socketOnError);
-
-	    ws.setSocket(socket, head, {
-	      maxPayload: this.options.maxPayload,
-	      skipUTF8Validation: this.options.skipUTF8Validation
-	    });
-
-	    if (this.clients) {
-	      this.clients.add(ws);
-	      ws.on('close', () => {
-	        this.clients.delete(ws);
-
-	        if (this._shouldEmitClose && !this.clients.size) {
-	          browser$1$1.nextTick(emitClose, this);
-	        }
-	      });
-	    }
-
-	    cb(ws, req);
-	  }
-	}
-
-	websocketServer = WebSocketServer;
-
-	/**
-	 * Add event listeners on an `EventEmitter` using a map of <event, listener>
-	 * pairs.
-	 *
-	 * @param {EventEmitter} server The event emitter
-	 * @param {Object.<String, Function>} map The listeners to add
-	 * @return {Function} A function that will remove the added listeners when
-	 *     called
-	 * @private
-	 */
-	function addListeners(server, map) {
-	  for (const event of Object.keys(map)) server.on(event, map[event]);
-
-	  return function removeListeners() {
-	    for (const event of Object.keys(map)) {
-	      server.removeListener(event, map[event]);
-	    }
-	  };
-	}
-
-	/**
-	 * Emit a `'close'` event on an `EventEmitter`.
-	 *
-	 * @param {EventEmitter} server The event emitter
-	 * @private
-	 */
-	function emitClose(server) {
-	  server._state = CLOSED;
-	  server.emit('close');
-	}
-
-	/**
-	 * Handle socket errors.
-	 *
-	 * @private
-	 */
-	function socketOnError() {
-	  this.destroy();
-	}
-
-	/**
-	 * Close the connection when preconditions are not fulfilled.
-	 *
-	 * @param {(net.Socket|tls.Socket)} socket The socket of the upgrade request
-	 * @param {Number} code The HTTP response status code
-	 * @param {String} [message] The HTTP response body
-	 * @param {Object} [headers] Additional HTTP response headers
-	 * @private
-	 */
-	function abortHandshake(socket, code, message, headers) {
-	  //
-	  // The socket is writable unless the user destroyed or ended it before calling
-	  // `server.handleUpgrade()` or in the `verifyClient` function, which is a user
-	  // error. Handling this does not make much sense as the worst that can happen
-	  // is that some of the data written by the user might be discarded due to the
-	  // call to `socket.end()` below, which triggers an `'error'` event that in
-	  // turn causes the socket to be destroyed.
-	  //
-	  message = message || http.STATUS_CODES[code];
-	  headers = {
-	    Connection: 'close',
-	    'Content-Type': 'text/html',
-	    'Content-Length': Buffer.byteLength(message),
-	    ...headers
-	  };
-
-	  socket.once('finish', socket.destroy);
-
-	  socket.end(
-	    `HTTP/1.1 ${code} ${http.STATUS_CODES[code]}\r\n` +
-	      Object.keys(headers)
-	        .map((h) => `${h}: ${headers[h]}`)
-	        .join('\r\n') +
-	      '\r\n\r\n' +
-	      message
-	  );
-	}
-
-	/**
-	 * Emit a `'wsClientError'` event on a `WebSocketServer` if there is at least
-	 * one listener for it, otherwise call `abortHandshake()`.
-	 *
-	 * @param {WebSocketServer} server The WebSocket server
-	 * @param {http.IncomingMessage} req The request object
-	 * @param {(net.Socket|tls.Socket)} socket The socket of the upgrade request
-	 * @param {Number} code The HTTP response status code
-	 * @param {String} message The HTTP response body
-	 * @private
-	 */
-	function abortHandshakeOrEmitwsClientError(server, req, socket, code, message) {
-	  if (server.listenerCount('wsClientError')) {
-	    const err = new Error(message);
-	    Error.captureStackTrace(err, abortHandshakeOrEmitwsClientError);
-
-	    server.emit('wsClientError', err, socket, req);
-	  } else {
-	    abortHandshake(socket, code, message);
-	  }
-	}
-	return websocketServer;
+/**
+ * The listener of the `net.Socket` `'end'` event.
+ *
+ * @private
+ */
+function socketOnEnd() {
+  const websocket = this[kWebSocket$2];
+
+  websocket._readyState = WebSocket$1.CLOSING;
+  websocket._receiver.end();
+  this.end();
 }
+
+/**
+ * The listener of the `net.Socket` `'error'` event.
+ *
+ * @private
+ */
+function socketOnError$1() {
+  const websocket = this[kWebSocket$2];
+
+  this.removeListener('error', socketOnError$1);
+  this.on('error', NOOP);
+
+  if (websocket) {
+    websocket._readyState = WebSocket$1.CLOSING;
+    this.destroy();
+  }
+}
+
+var websocket = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$0$1 = /*@__PURE__*/getAugmentedNamespace(websocket);
+
+const { Duplex } = require('stream');
+
+/**
+ * Emits the `'close'` event on a stream.
+ *
+ * @param {Duplex} stream The stream.
+ * @private
+ */
+function emitClose$1(stream) {
+  stream.emit('close');
+}
+
+/**
+ * The listener of the `'end'` event.
+ *
+ * @private
+ */
+function duplexOnEnd() {
+  if (!this.destroyed && this._writableState.finished) {
+    this.destroy();
+  }
+}
+
+/**
+ * The listener of the `'error'` event.
+ *
+ * @param {Error} err The error
+ * @private
+ */
+function duplexOnError(err) {
+  this.removeListener('error', duplexOnError);
+  this.destroy();
+  if (this.listenerCount('error') === 0) {
+    // Do not suppress the throwing behavior.
+    this.emit('error', err);
+  }
+}
+
+/**
+ * Wraps a `WebSocket` in a duplex stream.
+ *
+ * @param {WebSocket} ws The `WebSocket` to wrap
+ * @param {Object} [options] The options for the `Duplex` constructor
+ * @return {Duplex} The duplex stream
+ * @public
+ */
+function createWebSocketStream(ws, options) {
+  let terminateOnDestroy = true;
+
+  const duplex = new Duplex({
+    ...options,
+    autoDestroy: false,
+    emitClose: false,
+    objectMode: false,
+    writableObjectMode: false
+  });
+
+  ws.on('message', function message(msg, isBinary) {
+    const data =
+      !isBinary && duplex._readableState.objectMode ? msg.toString() : msg;
+
+    if (!duplex.push(data)) ws.pause();
+  });
+
+  ws.once('error', function error(err) {
+    if (duplex.destroyed) return;
+
+    // Prevent `ws.terminate()` from being called by `duplex._destroy()`.
+    //
+    // - If the `'error'` event is emitted before the `'open'` event, then
+    //   `ws.terminate()` is a noop as no socket is assigned.
+    // - Otherwise, the error is re-emitted by the listener of the `'error'`
+    //   event of the `Receiver` object. The listener already closes the
+    //   connection by calling `ws.close()`. This allows a close frame to be
+    //   sent to the other peer. If `ws.terminate()` is called right after this,
+    //   then the close frame might not be sent.
+    terminateOnDestroy = false;
+    duplex.destroy(err);
+  });
+
+  ws.once('close', function close() {
+    if (duplex.destroyed) return;
+
+    duplex.push(null);
+  });
+
+  duplex._destroy = function (err, callback) {
+    if (ws.readyState === ws.CLOSED) {
+      callback(err);
+      browser$1$1.nextTick(emitClose$1, duplex);
+      return;
+    }
+
+    let called = false;
+
+    ws.once('error', function error(err) {
+      called = true;
+      callback(err);
+    });
+
+    ws.once('close', function close() {
+      if (!called) callback(err);
+      browser$1$1.nextTick(emitClose$1, duplex);
+    });
+
+    if (terminateOnDestroy) ws.terminate();
+  };
+
+  duplex._final = function (callback) {
+    if (ws.readyState === ws.CONNECTING) {
+      ws.once('open', function open() {
+        duplex._final(callback);
+      });
+      return;
+    }
+
+    // If the value of the `_socket` property is `null` it means that `ws` is a
+    // client websocket and the handshake failed. In fact, when this happens, a
+    // socket is never assigned to the websocket. Wait for the `'error'` event
+    // that will be emitted by the websocket.
+    if (ws._socket === null) return;
+
+    if (ws._socket._writableState.finished) {
+      callback();
+      if (duplex._readableState.endEmitted) duplex.destroy();
+    } else {
+      ws._socket.once('finish', function finish() {
+        // `duplex` is not destroyed here because the `'end'` event will be
+        // emitted on `duplex` after this `'finish'` event. The EOF signaling
+        // `null` chunk is, in fact, pushed when the websocket emits `'close'`.
+        callback();
+      });
+      ws.close();
+    }
+  };
+
+  duplex._read = function () {
+    if (ws.isPaused) ws.resume();
+  };
+
+  duplex._write = function (chunk, encoding, callback) {
+    if (ws.readyState === ws.CONNECTING) {
+      ws.once('open', function open() {
+        duplex._write(chunk, encoding, callback);
+      });
+      return;
+    }
+
+    ws.send(chunk, callback);
+  };
+
+  duplex.on('end', duplexOnEnd);
+  duplex.on('error', duplexOnError);
+  return duplex;
+}
+
+module.exports = createWebSocketStream;
+
+var stream = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$1 = /*@__PURE__*/getAugmentedNamespace(stream);
+
+const EventEmitter = require('events');
+const http = require('http');
+require('https');
+require('net');
+require('tls');
+const { createHash } = require('crypto');
+
+const extension = require('./extension');
+const PerMessageDeflate$2 = require('./permessage-deflate');
+const subprotocol = require('./subprotocol');
+const WebSocket = require('./websocket');
+const { GUID, kWebSocket: kWebSocket$1 } = require('./constants');
+
+const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
+
+const RUNNING = 0;
+const CLOSING = 1;
+const CLOSED = 2;
+
+/**
+ * Class representing a WebSocket server.
+ *
+ * @extends EventEmitter
+ */
+class WebSocketServer extends EventEmitter {
+  /**
+   * Create a `WebSocketServer` instance.
+   *
+   * @param {Object} options Configuration options
+   * @param {Number} [options.backlog=511] The maximum length of the queue of
+   *     pending connections
+   * @param {Boolean} [options.clientTracking=true] Specifies whether or not to
+   *     track clients
+   * @param {Function} [options.handleProtocols] A hook to handle protocols
+   * @param {String} [options.host] The hostname where to bind the server
+   * @param {Number} [options.maxPayload=104857600] The maximum allowed message
+   *     size
+   * @param {Boolean} [options.noServer=false] Enable no server mode
+   * @param {String} [options.path] Accept only connections matching this path
+   * @param {(Boolean|Object)} [options.perMessageDeflate=false] Enable/disable
+   *     permessage-deflate
+   * @param {Number} [options.port] The port where to bind the server
+   * @param {(http.Server|https.Server)} [options.server] A pre-created HTTP/S
+   *     server to use
+   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+   *     not to skip UTF-8 validation for text and close messages
+   * @param {Function} [options.verifyClient] A hook to reject connections
+   * @param {Function} [options.WebSocket=WebSocket] Specifies the `WebSocket`
+   *     class to use. It must be the `WebSocket` class or class that extends it
+   * @param {Function} [callback] A listener for the `listening` event
+   */
+  constructor(options, callback) {
+    super();
+
+    options = {
+      maxPayload: 100 * 1024 * 1024,
+      skipUTF8Validation: false,
+      perMessageDeflate: false,
+      handleProtocols: null,
+      clientTracking: true,
+      verifyClient: null,
+      noServer: false,
+      backlog: null, // use default (511 as implemented in net.js)
+      server: null,
+      host: null,
+      path: null,
+      port: null,
+      WebSocket,
+      ...options
+    };
+
+    if (
+      (options.port == null && !options.server && !options.noServer) ||
+      (options.port != null && (options.server || options.noServer)) ||
+      (options.server && options.noServer)
+    ) {
+      throw new TypeError(
+        'One and only one of the "port", "server", or "noServer" options ' +
+          'must be specified'
+      );
+    }
+
+    if (options.port != null) {
+      this._server = http.createServer((req, res) => {
+        const body = http.STATUS_CODES[426];
+
+        res.writeHead(426, {
+          'Content-Length': body.length,
+          'Content-Type': 'text/plain'
+        });
+        res.end(body);
+      });
+      this._server.listen(
+        options.port,
+        options.host,
+        options.backlog,
+        callback
+      );
+    } else if (options.server) {
+      this._server = options.server;
+    }
+
+    if (this._server) {
+      const emitConnection = this.emit.bind(this, 'connection');
+
+      this._removeListeners = addListeners(this._server, {
+        listening: this.emit.bind(this, 'listening'),
+        error: this.emit.bind(this, 'error'),
+        upgrade: (req, socket, head) => {
+          this.handleUpgrade(req, socket, head, emitConnection);
+        }
+      });
+    }
+
+    if (options.perMessageDeflate === true) options.perMessageDeflate = {};
+    if (options.clientTracking) {
+      this.clients = new Set();
+      this._shouldEmitClose = false;
+    }
+
+    this.options = options;
+    this._state = RUNNING;
+  }
+
+  /**
+   * Returns the bound address, the address family name, and port of the server
+   * as reported by the operating system if listening on an IP socket.
+   * If the server is listening on a pipe or UNIX domain socket, the name is
+   * returned as a string.
+   *
+   * @return {(Object|String|null)} The address of the server
+   * @public
+   */
+  address() {
+    if (this.options.noServer) {
+      throw new Error('The server is operating in "noServer" mode');
+    }
+
+    if (!this._server) return null;
+    return this._server.address();
+  }
+
+  /**
+   * Stop the server from accepting new connections and emit the `'close'` event
+   * when all existing connections are closed.
+   *
+   * @param {Function} [cb] A one-time listener for the `'close'` event
+   * @public
+   */
+  close(cb) {
+    if (this._state === CLOSED) {
+      if (cb) {
+        this.once('close', () => {
+          cb(new Error('The server is not running'));
+        });
+      }
+
+      browser$1$1.nextTick(emitClose, this);
+      return;
+    }
+
+    if (cb) this.once('close', cb);
+
+    if (this._state === CLOSING) return;
+    this._state = CLOSING;
+
+    if (this.options.noServer || this.options.server) {
+      if (this._server) {
+        this._removeListeners();
+        this._removeListeners = this._server = null;
+      }
+
+      if (this.clients) {
+        if (!this.clients.size) {
+          browser$1$1.nextTick(emitClose, this);
+        } else {
+          this._shouldEmitClose = true;
+        }
+      } else {
+        browser$1$1.nextTick(emitClose, this);
+      }
+    } else {
+      const server = this._server;
+
+      this._removeListeners();
+      this._removeListeners = this._server = null;
+
+      //
+      // The HTTP/S server was created internally. Close it, and rely on its
+      // `'close'` event.
+      //
+      server.close(() => {
+        emitClose(this);
+      });
+    }
+  }
+
+  /**
+   * See if a given request should be handled by this server instance.
+   *
+   * @param {http.IncomingMessage} req Request object to inspect
+   * @return {Boolean} `true` if the request is valid, else `false`
+   * @public
+   */
+  shouldHandle(req) {
+    if (this.options.path) {
+      const index = req.url.indexOf('?');
+      const pathname = index !== -1 ? req.url.slice(0, index) : req.url;
+
+      if (pathname !== this.options.path) return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Handle a HTTP Upgrade request.
+   *
+   * @param {http.IncomingMessage} req The request object
+   * @param {(net.Socket|tls.Socket)} socket The network socket between the
+   *     server and client
+   * @param {Buffer} head The first packet of the upgraded stream
+   * @param {Function} cb Callback
+   * @public
+   */
+  handleUpgrade(req, socket, head, cb) {
+    socket.on('error', socketOnError);
+
+    const key = req.headers['sec-websocket-key'];
+    const version = +req.headers['sec-websocket-version'];
+
+    if (req.method !== 'GET') {
+      const message = 'Invalid HTTP method';
+      abortHandshakeOrEmitwsClientError(this, req, socket, 405, message);
+      return;
+    }
+
+    if (req.headers.upgrade.toLowerCase() !== 'websocket') {
+      const message = 'Invalid Upgrade header';
+      abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
+      return;
+    }
+
+    if (!key || !keyRegex.test(key)) {
+      const message = 'Missing or invalid Sec-WebSocket-Key header';
+      abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
+      return;
+    }
+
+    if (version !== 8 && version !== 13) {
+      const message = 'Missing or invalid Sec-WebSocket-Version header';
+      abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
+      return;
+    }
+
+    if (!this.shouldHandle(req)) {
+      abortHandshake(socket, 400);
+      return;
+    }
+
+    const secWebSocketProtocol = req.headers['sec-websocket-protocol'];
+    let protocols = new Set();
+
+    if (secWebSocketProtocol !== undefined) {
+      try {
+        protocols = subprotocol.parse(secWebSocketProtocol);
+      } catch (err) {
+        const message = 'Invalid Sec-WebSocket-Protocol header';
+        abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
+        return;
+      }
+    }
+
+    const secWebSocketExtensions = req.headers['sec-websocket-extensions'];
+    const extensions = {};
+
+    if (
+      this.options.perMessageDeflate &&
+      secWebSocketExtensions !== undefined
+    ) {
+      const perMessageDeflate = new PerMessageDeflate$2(
+        this.options.perMessageDeflate,
+        true,
+        this.options.maxPayload
+      );
+
+      try {
+        const offers = extension.parse(secWebSocketExtensions);
+
+        if (offers[PerMessageDeflate$2.extensionName]) {
+          perMessageDeflate.accept(offers[PerMessageDeflate$2.extensionName]);
+          extensions[PerMessageDeflate$2.extensionName] = perMessageDeflate;
+        }
+      } catch (err) {
+        const message =
+          'Invalid or unacceptable Sec-WebSocket-Extensions header';
+        abortHandshakeOrEmitwsClientError(this, req, socket, 400, message);
+        return;
+      }
+    }
+
+    //
+    // Optionally call external client verification handler.
+    //
+    if (this.options.verifyClient) {
+      const info = {
+        origin:
+          req.headers[`${version === 8 ? 'sec-websocket-origin' : 'origin'}`],
+        secure: !!(req.socket.authorized || req.socket.encrypted),
+        req
+      };
+
+      if (this.options.verifyClient.length === 2) {
+        this.options.verifyClient(info, (verified, code, message, headers) => {
+          if (!verified) {
+            return abortHandshake(socket, code || 401, message, headers);
+          }
+
+          this.completeUpgrade(
+            extensions,
+            key,
+            protocols,
+            req,
+            socket,
+            head,
+            cb
+          );
+        });
+        return;
+      }
+
+      if (!this.options.verifyClient(info)) return abortHandshake(socket, 401);
+    }
+
+    this.completeUpgrade(extensions, key, protocols, req, socket, head, cb);
+  }
+
+  /**
+   * Upgrade the connection to WebSocket.
+   *
+   * @param {Object} extensions The accepted extensions
+   * @param {String} key The value of the `Sec-WebSocket-Key` header
+   * @param {Set} protocols The subprotocols
+   * @param {http.IncomingMessage} req The request object
+   * @param {(net.Socket|tls.Socket)} socket The network socket between the
+   *     server and client
+   * @param {Buffer} head The first packet of the upgraded stream
+   * @param {Function} cb Callback
+   * @throws {Error} If called more than once with the same socket
+   * @private
+   */
+  completeUpgrade(extensions, key, protocols, req, socket, head, cb) {
+    //
+    // Destroy the socket if the client has already sent a FIN packet.
+    //
+    if (!socket.readable || !socket.writable) return socket.destroy();
+
+    if (socket[kWebSocket$1]) {
+      throw new Error(
+        'server.handleUpgrade() was called more than once with the same ' +
+          'socket, possibly due to a misconfiguration'
+      );
+    }
+
+    if (this._state > RUNNING) return abortHandshake(socket, 503);
+
+    const digest = createHash('sha1')
+      .update(key + GUID)
+      .digest('base64');
+
+    const headers = [
+      'HTTP/1.1 101 Switching Protocols',
+      'Upgrade: websocket',
+      'Connection: Upgrade',
+      `Sec-WebSocket-Accept: ${digest}`
+    ];
+
+    const ws = new this.options.WebSocket(null);
+
+    if (protocols.size) {
+      //
+      // Optionally call external protocol selection handler.
+      //
+      const protocol = this.options.handleProtocols
+        ? this.options.handleProtocols(protocols, req)
+        : protocols.values().next().value;
+
+      if (protocol) {
+        headers.push(`Sec-WebSocket-Protocol: ${protocol}`);
+        ws._protocol = protocol;
+      }
+    }
+
+    if (extensions[PerMessageDeflate$2.extensionName]) {
+      const params = extensions[PerMessageDeflate$2.extensionName].params;
+      const value = extension.format({
+        [PerMessageDeflate$2.extensionName]: [params]
+      });
+      headers.push(`Sec-WebSocket-Extensions: ${value}`);
+      ws._extensions = extensions;
+    }
+
+    //
+    // Allow external modification/inspection of handshake headers.
+    //
+    this.emit('headers', headers, req);
+
+    socket.write(headers.concat('\r\n').join('\r\n'));
+    socket.removeListener('error', socketOnError);
+
+    ws.setSocket(socket, head, {
+      maxPayload: this.options.maxPayload,
+      skipUTF8Validation: this.options.skipUTF8Validation
+    });
+
+    if (this.clients) {
+      this.clients.add(ws);
+      ws.on('close', () => {
+        this.clients.delete(ws);
+
+        if (this._shouldEmitClose && !this.clients.size) {
+          browser$1$1.nextTick(emitClose, this);
+        }
+      });
+    }
+
+    cb(ws, req);
+  }
+}
+
+module.exports = WebSocketServer;
+
+/**
+ * Add event listeners on an `EventEmitter` using a map of <event, listener>
+ * pairs.
+ *
+ * @param {EventEmitter} server The event emitter
+ * @param {Object.<String, Function>} map The listeners to add
+ * @return {Function} A function that will remove the added listeners when
+ *     called
+ * @private
+ */
+function addListeners(server, map) {
+  for (const event of Object.keys(map)) server.on(event, map[event]);
+
+  return function removeListeners() {
+    for (const event of Object.keys(map)) {
+      server.removeListener(event, map[event]);
+    }
+  };
+}
+
+/**
+ * Emit a `'close'` event on an `EventEmitter`.
+ *
+ * @param {EventEmitter} server The event emitter
+ * @private
+ */
+function emitClose(server) {
+  server._state = CLOSED;
+  server.emit('close');
+}
+
+/**
+ * Handle socket errors.
+ *
+ * @private
+ */
+function socketOnError() {
+  this.destroy();
+}
+
+/**
+ * Close the connection when preconditions are not fulfilled.
+ *
+ * @param {(net.Socket|tls.Socket)} socket The socket of the upgrade request
+ * @param {Number} code The HTTP response status code
+ * @param {String} [message] The HTTP response body
+ * @param {Object} [headers] Additional HTTP response headers
+ * @private
+ */
+function abortHandshake(socket, code, message, headers) {
+  //
+  // The socket is writable unless the user destroyed or ended it before calling
+  // `server.handleUpgrade()` or in the `verifyClient` function, which is a user
+  // error. Handling this does not make much sense as the worst that can happen
+  // is that some of the data written by the user might be discarded due to the
+  // call to `socket.end()` below, which triggers an `'error'` event that in
+  // turn causes the socket to be destroyed.
+  //
+  message = message || http.STATUS_CODES[code];
+  headers = {
+    Connection: 'close',
+    'Content-Type': 'text/html',
+    'Content-Length': Buffer.byteLength(message),
+    ...headers
+  };
+
+  socket.once('finish', socket.destroy);
+
+  socket.end(
+    `HTTP/1.1 ${code} ${http.STATUS_CODES[code]}\r\n` +
+      Object.keys(headers)
+        .map((h) => `${h}: ${headers[h]}`)
+        .join('\r\n') +
+      '\r\n\r\n' +
+      message
+  );
+}
+
+/**
+ * Emit a `'wsClientError'` event on a `WebSocketServer` if there is at least
+ * one listener for it, otherwise call `abortHandshake()`.
+ *
+ * @param {WebSocketServer} server The WebSocket server
+ * @param {http.IncomingMessage} req The request object
+ * @param {(net.Socket|tls.Socket)} socket The socket of the upgrade request
+ * @param {Number} code The HTTP response status code
+ * @param {String} message The HTTP response body
+ * @private
+ */
+function abortHandshakeOrEmitwsClientError(server, req, socket, code, message) {
+  if (server.listenerCount('wsClientError')) {
+    const err = new Error(message);
+    Error.captureStackTrace(err, abortHandshakeOrEmitwsClientError);
+
+    server.emit('wsClientError', err, socket, req);
+  } else {
+    abortHandshake(socket, code, message);
+  }
+}
+
+var websocketServer = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$2 = /*@__PURE__*/getAugmentedNamespace(websocketServer);
+
+const { Writable } = require('stream');
+
+const PerMessageDeflate$1 = require('./permessage-deflate');
+const {
+  BINARY_TYPES,
+  EMPTY_BUFFER: EMPTY_BUFFER$1,
+  kStatusCode,
+  kWebSocket
+} = require('./constants');
+const { concat, toArrayBuffer, unmask } = require('./buffer-util');
+const { isValidStatusCode: isValidStatusCode$1, isValidUTF8 } = require('./validation');
+
+const GET_INFO = 0;
+const GET_PAYLOAD_LENGTH_16 = 1;
+const GET_PAYLOAD_LENGTH_64 = 2;
+const GET_MASK = 3;
+const GET_DATA = 4;
+const INFLATING = 5;
+
+/**
+ * HyBi Receiver implementation.
+ *
+ * @extends Writable
+ */
+class Receiver extends Writable {
+  /**
+   * Creates a Receiver instance.
+   *
+   * @param {Object} [options] Options object
+   * @param {String} [options.binaryType=nodebuffer] The type for binary data
+   * @param {Object} [options.extensions] An object containing the negotiated
+   *     extensions
+   * @param {Boolean} [options.isServer=false] Specifies whether to operate in
+   *     client or server mode
+   * @param {Number} [options.maxPayload=0] The maximum allowed message length
+   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+   *     not to skip UTF-8 validation for text and close messages
+   */
+  constructor(options = {}) {
+    super();
+
+    this._binaryType = options.binaryType || BINARY_TYPES[0];
+    this._extensions = options.extensions || {};
+    this._isServer = !!options.isServer;
+    this._maxPayload = options.maxPayload | 0;
+    this._skipUTF8Validation = !!options.skipUTF8Validation;
+    this[kWebSocket] = undefined;
+
+    this._bufferedBytes = 0;
+    this._buffers = [];
+
+    this._compressed = false;
+    this._payloadLength = 0;
+    this._mask = undefined;
+    this._fragmented = 0;
+    this._masked = false;
+    this._fin = false;
+    this._opcode = 0;
+
+    this._totalPayloadLength = 0;
+    this._messageLength = 0;
+    this._fragments = [];
+
+    this._state = GET_INFO;
+    this._loop = false;
+  }
+
+  /**
+   * Implements `Writable.prototype._write()`.
+   *
+   * @param {Buffer} chunk The chunk of data to write
+   * @param {String} encoding The character encoding of `chunk`
+   * @param {Function} cb Callback
+   * @private
+   */
+  _write(chunk, encoding, cb) {
+    if (this._opcode === 0x08 && this._state == GET_INFO) return cb();
+
+    this._bufferedBytes += chunk.length;
+    this._buffers.push(chunk);
+    this.startLoop(cb);
+  }
+
+  /**
+   * Consumes `n` bytes from the buffered data.
+   *
+   * @param {Number} n The number of bytes to consume
+   * @return {Buffer} The consumed bytes
+   * @private
+   */
+  consume(n) {
+    this._bufferedBytes -= n;
+
+    if (n === this._buffers[0].length) return this._buffers.shift();
+
+    if (n < this._buffers[0].length) {
+      const buf = this._buffers[0];
+      this._buffers[0] = buf.slice(n);
+      return buf.slice(0, n);
+    }
+
+    const dst = Buffer.allocUnsafe(n);
+
+    do {
+      const buf = this._buffers[0];
+      const offset = dst.length - n;
+
+      if (n >= buf.length) {
+        dst.set(this._buffers.shift(), offset);
+      } else {
+        dst.set(new Uint8Array(buf.buffer, buf.byteOffset, n), offset);
+        this._buffers[0] = buf.slice(n);
+      }
+
+      n -= buf.length;
+    } while (n > 0);
+
+    return dst;
+  }
+
+  /**
+   * Starts the parsing loop.
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  startLoop(cb) {
+    let err;
+    this._loop = true;
+
+    do {
+      switch (this._state) {
+        case GET_INFO:
+          err = this.getInfo();
+          break;
+        case GET_PAYLOAD_LENGTH_16:
+          err = this.getPayloadLength16();
+          break;
+        case GET_PAYLOAD_LENGTH_64:
+          err = this.getPayloadLength64();
+          break;
+        case GET_MASK:
+          this.getMask();
+          break;
+        case GET_DATA:
+          err = this.getData(cb);
+          break;
+        default:
+          // `INFLATING`
+          this._loop = false;
+          return;
+      }
+    } while (this._loop);
+
+    cb(err);
+  }
+
+  /**
+   * Reads the first two bytes of a frame.
+   *
+   * @return {(RangeError|undefined)} A possible error
+   * @private
+   */
+  getInfo() {
+    if (this._bufferedBytes < 2) {
+      this._loop = false;
+      return;
+    }
+
+    const buf = this.consume(2);
+
+    if ((buf[0] & 0x30) !== 0x00) {
+      this._loop = false;
+      return error(
+        RangeError,
+        'RSV2 and RSV3 must be clear',
+        true,
+        1002,
+        'WS_ERR_UNEXPECTED_RSV_2_3'
+      );
+    }
+
+    const compressed = (buf[0] & 0x40) === 0x40;
+
+    if (compressed && !this._extensions[PerMessageDeflate$1.extensionName]) {
+      this._loop = false;
+      return error(
+        RangeError,
+        'RSV1 must be clear',
+        true,
+        1002,
+        'WS_ERR_UNEXPECTED_RSV_1'
+      );
+    }
+
+    this._fin = (buf[0] & 0x80) === 0x80;
+    this._opcode = buf[0] & 0x0f;
+    this._payloadLength = buf[1] & 0x7f;
+
+    if (this._opcode === 0x00) {
+      if (compressed) {
+        this._loop = false;
+        return error(
+          RangeError,
+          'RSV1 must be clear',
+          true,
+          1002,
+          'WS_ERR_UNEXPECTED_RSV_1'
+        );
+      }
+
+      if (!this._fragmented) {
+        this._loop = false;
+        return error(
+          RangeError,
+          'invalid opcode 0',
+          true,
+          1002,
+          'WS_ERR_INVALID_OPCODE'
+        );
+      }
+
+      this._opcode = this._fragmented;
+    } else if (this._opcode === 0x01 || this._opcode === 0x02) {
+      if (this._fragmented) {
+        this._loop = false;
+        return error(
+          RangeError,
+          `invalid opcode ${this._opcode}`,
+          true,
+          1002,
+          'WS_ERR_INVALID_OPCODE'
+        );
+      }
+
+      this._compressed = compressed;
+    } else if (this._opcode > 0x07 && this._opcode < 0x0b) {
+      if (!this._fin) {
+        this._loop = false;
+        return error(
+          RangeError,
+          'FIN must be set',
+          true,
+          1002,
+          'WS_ERR_EXPECTED_FIN'
+        );
+      }
+
+      if (compressed) {
+        this._loop = false;
+        return error(
+          RangeError,
+          'RSV1 must be clear',
+          true,
+          1002,
+          'WS_ERR_UNEXPECTED_RSV_1'
+        );
+      }
+
+      if (this._payloadLength > 0x7d) {
+        this._loop = false;
+        return error(
+          RangeError,
+          `invalid payload length ${this._payloadLength}`,
+          true,
+          1002,
+          'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH'
+        );
+      }
+    } else {
+      this._loop = false;
+      return error(
+        RangeError,
+        `invalid opcode ${this._opcode}`,
+        true,
+        1002,
+        'WS_ERR_INVALID_OPCODE'
+      );
+    }
+
+    if (!this._fin && !this._fragmented) this._fragmented = this._opcode;
+    this._masked = (buf[1] & 0x80) === 0x80;
+
+    if (this._isServer) {
+      if (!this._masked) {
+        this._loop = false;
+        return error(
+          RangeError,
+          'MASK must be set',
+          true,
+          1002,
+          'WS_ERR_EXPECTED_MASK'
+        );
+      }
+    } else if (this._masked) {
+      this._loop = false;
+      return error(
+        RangeError,
+        'MASK must be clear',
+        true,
+        1002,
+        'WS_ERR_UNEXPECTED_MASK'
+      );
+    }
+
+    if (this._payloadLength === 126) this._state = GET_PAYLOAD_LENGTH_16;
+    else if (this._payloadLength === 127) this._state = GET_PAYLOAD_LENGTH_64;
+    else return this.haveLength();
+  }
+
+  /**
+   * Gets extended payload length (7+16).
+   *
+   * @return {(RangeError|undefined)} A possible error
+   * @private
+   */
+  getPayloadLength16() {
+    if (this._bufferedBytes < 2) {
+      this._loop = false;
+      return;
+    }
+
+    this._payloadLength = this.consume(2).readUInt16BE(0);
+    return this.haveLength();
+  }
+
+  /**
+   * Gets extended payload length (7+64).
+   *
+   * @return {(RangeError|undefined)} A possible error
+   * @private
+   */
+  getPayloadLength64() {
+    if (this._bufferedBytes < 8) {
+      this._loop = false;
+      return;
+    }
+
+    const buf = this.consume(8);
+    const num = buf.readUInt32BE(0);
+
+    //
+    // The maximum safe integer in JavaScript is 2^53 - 1. An error is returned
+    // if payload length is greater than this number.
+    //
+    if (num > Math.pow(2, 53 - 32) - 1) {
+      this._loop = false;
+      return error(
+        RangeError,
+        'Unsupported WebSocket frame: payload length > 2^53 - 1',
+        false,
+        1009,
+        'WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH'
+      );
+    }
+
+    this._payloadLength = num * Math.pow(2, 32) + buf.readUInt32BE(4);
+    return this.haveLength();
+  }
+
+  /**
+   * Payload length has been read.
+   *
+   * @return {(RangeError|undefined)} A possible error
+   * @private
+   */
+  haveLength() {
+    if (this._payloadLength && this._opcode < 0x08) {
+      this._totalPayloadLength += this._payloadLength;
+      if (this._totalPayloadLength > this._maxPayload && this._maxPayload > 0) {
+        this._loop = false;
+        return error(
+          RangeError,
+          'Max payload size exceeded',
+          false,
+          1009,
+          'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH'
+        );
+      }
+    }
+
+    if (this._masked) this._state = GET_MASK;
+    else this._state = GET_DATA;
+  }
+
+  /**
+   * Reads mask bytes.
+   *
+   * @private
+   */
+  getMask() {
+    if (this._bufferedBytes < 4) {
+      this._loop = false;
+      return;
+    }
+
+    this._mask = this.consume(4);
+    this._state = GET_DATA;
+  }
+
+  /**
+   * Reads data bytes.
+   *
+   * @param {Function} cb Callback
+   * @return {(Error|RangeError|undefined)} A possible error
+   * @private
+   */
+  getData(cb) {
+    let data = EMPTY_BUFFER$1;
+
+    if (this._payloadLength) {
+      if (this._bufferedBytes < this._payloadLength) {
+        this._loop = false;
+        return;
+      }
+
+      data = this.consume(this._payloadLength);
+
+      if (
+        this._masked &&
+        (this._mask[0] | this._mask[1] | this._mask[2] | this._mask[3]) !== 0
+      ) {
+        unmask(data, this._mask);
+      }
+    }
+
+    if (this._opcode > 0x07) return this.controlMessage(data);
+
+    if (this._compressed) {
+      this._state = INFLATING;
+      this.decompress(data, cb);
+      return;
+    }
+
+    if (data.length) {
+      //
+      // This message is not compressed so its length is the sum of the payload
+      // length of all fragments.
+      //
+      this._messageLength = this._totalPayloadLength;
+      this._fragments.push(data);
+    }
+
+    return this.dataMessage();
+  }
+
+  /**
+   * Decompresses data.
+   *
+   * @param {Buffer} data Compressed data
+   * @param {Function} cb Callback
+   * @private
+   */
+  decompress(data, cb) {
+    const perMessageDeflate = this._extensions[PerMessageDeflate$1.extensionName];
+
+    perMessageDeflate.decompress(data, this._fin, (err, buf) => {
+      if (err) return cb(err);
+
+      if (buf.length) {
+        this._messageLength += buf.length;
+        if (this._messageLength > this._maxPayload && this._maxPayload > 0) {
+          return cb(
+            error(
+              RangeError,
+              'Max payload size exceeded',
+              false,
+              1009,
+              'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH'
+            )
+          );
+        }
+
+        this._fragments.push(buf);
+      }
+
+      const er = this.dataMessage();
+      if (er) return cb(er);
+
+      this.startLoop(cb);
+    });
+  }
+
+  /**
+   * Handles a data message.
+   *
+   * @return {(Error|undefined)} A possible error
+   * @private
+   */
+  dataMessage() {
+    if (this._fin) {
+      const messageLength = this._messageLength;
+      const fragments = this._fragments;
+
+      this._totalPayloadLength = 0;
+      this._messageLength = 0;
+      this._fragmented = 0;
+      this._fragments = [];
+
+      if (this._opcode === 2) {
+        let data;
+
+        if (this._binaryType === 'nodebuffer') {
+          data = concat(fragments, messageLength);
+        } else if (this._binaryType === 'arraybuffer') {
+          data = toArrayBuffer(concat(fragments, messageLength));
+        } else {
+          data = fragments;
+        }
+
+        this.emit('message', data, true);
+      } else {
+        const buf = concat(fragments, messageLength);
+
+        if (!this._skipUTF8Validation && !isValidUTF8(buf)) {
+          this._loop = false;
+          return error(
+            Error,
+            'invalid UTF-8 sequence',
+            true,
+            1007,
+            'WS_ERR_INVALID_UTF8'
+          );
+        }
+
+        this.emit('message', buf, false);
+      }
+    }
+
+    this._state = GET_INFO;
+  }
+
+  /**
+   * Handles a control message.
+   *
+   * @param {Buffer} data Data to handle
+   * @return {(Error|RangeError|undefined)} A possible error
+   * @private
+   */
+  controlMessage(data) {
+    if (this._opcode === 0x08) {
+      this._loop = false;
+
+      if (data.length === 0) {
+        this.emit('conclude', 1005, EMPTY_BUFFER$1);
+        this.end();
+      } else if (data.length === 1) {
+        return error(
+          RangeError,
+          'invalid payload length 1',
+          true,
+          1002,
+          'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH'
+        );
+      } else {
+        const code = data.readUInt16BE(0);
+
+        if (!isValidStatusCode$1(code)) {
+          return error(
+            RangeError,
+            `invalid status code ${code}`,
+            true,
+            1002,
+            'WS_ERR_INVALID_CLOSE_CODE'
+          );
+        }
+
+        const buf = data.slice(2);
+
+        if (!this._skipUTF8Validation && !isValidUTF8(buf)) {
+          return error(
+            Error,
+            'invalid UTF-8 sequence',
+            true,
+            1007,
+            'WS_ERR_INVALID_UTF8'
+          );
+        }
+
+        this.emit('conclude', code, buf);
+        this.end();
+      }
+    } else if (this._opcode === 0x09) {
+      this.emit('ping', data);
+    } else {
+      this.emit('pong', data);
+    }
+
+    this._state = GET_INFO;
+  }
+}
+
+module.exports = Receiver;
+
+/**
+ * Builds an error object.
+ *
+ * @param {function(new:Error|RangeError)} ErrorCtor The error constructor
+ * @param {String} message The error message
+ * @param {Boolean} prefix Specifies whether or not to add a default prefix to
+ *     `message`
+ * @param {Number} statusCode The status code
+ * @param {String} errorCode The exposed error code
+ * @return {(Error|RangeError)} The error
+ * @private
+ */
+function error(ErrorCtor, message, prefix, statusCode, errorCode) {
+  const err = new ErrorCtor(
+    prefix ? `Invalid WebSocket frame: ${message}` : message
+  );
+
+  Error.captureStackTrace(err, error);
+  err.code = errorCode;
+  err[kStatusCode] = statusCode;
+  return err;
+}
+
+var receiver = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$3 = /*@__PURE__*/getAugmentedNamespace(receiver);
+
+require('net');
+require('tls');
+const { randomFillSync } = require('crypto');
+
+const PerMessageDeflate = require('./permessage-deflate');
+const { EMPTY_BUFFER } = require('./constants');
+const { isValidStatusCode } = require('./validation');
+const { mask: applyMask, toBuffer: toBuffer$1 } = require('./buffer-util');
+
+const kByteLength = Symbol('kByteLength');
+const maskBuffer = Buffer.alloc(4);
+
+/**
+ * HyBi Sender implementation.
+ */
+class Sender {
+  /**
+   * Creates a Sender instance.
+   *
+   * @param {(net.Socket|tls.Socket)} socket The connection socket
+   * @param {Object} [extensions] An object containing the negotiated extensions
+   * @param {Function} [generateMask] The function used to generate the masking
+   *     key
+   */
+  constructor(socket, extensions, generateMask) {
+    this._extensions = extensions || {};
+
+    if (generateMask) {
+      this._generateMask = generateMask;
+      this._maskBuffer = Buffer.alloc(4);
+    }
+
+    this._socket = socket;
+
+    this._firstFragment = true;
+    this._compress = false;
+
+    this._bufferedBytes = 0;
+    this._deflating = false;
+    this._queue = [];
+  }
+
+  /**
+   * Frames a piece of data according to the HyBi WebSocket protocol.
+   *
+   * @param {(Buffer|String)} data The data to frame
+   * @param {Object} options Options object
+   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
+   *     FIN bit
+   * @param {Function} [options.generateMask] The function used to generate the
+   *     masking key
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Buffer} [options.maskBuffer] The buffer used to store the masking
+   *     key
+   * @param {Number} options.opcode The opcode
+   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
+   *     modified
+   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
+   *     RSV1 bit
+   * @return {(Buffer|String)[]} The framed data
+   * @public
+   */
+  static frame(data, options) {
+    let mask;
+    let merge = false;
+    let offset = 2;
+    let skipMasking = false;
+
+    if (options.mask) {
+      mask = options.maskBuffer || maskBuffer;
+
+      if (options.generateMask) {
+        options.generateMask(mask);
+      } else {
+        randomFillSync(mask, 0, 4);
+      }
+
+      skipMasking = (mask[0] | mask[1] | mask[2] | mask[3]) === 0;
+      offset = 6;
+    }
+
+    let dataLength;
+
+    if (typeof data === 'string') {
+      if (
+        (!options.mask || skipMasking) &&
+        options[kByteLength] !== undefined
+      ) {
+        dataLength = options[kByteLength];
+      } else {
+        data = Buffer.from(data);
+        dataLength = data.length;
+      }
+    } else {
+      dataLength = data.length;
+      merge = options.mask && options.readOnly && !skipMasking;
+    }
+
+    let payloadLength = dataLength;
+
+    if (dataLength >= 65536) {
+      offset += 8;
+      payloadLength = 127;
+    } else if (dataLength > 125) {
+      offset += 2;
+      payloadLength = 126;
+    }
+
+    const target = Buffer.allocUnsafe(merge ? dataLength + offset : offset);
+
+    target[0] = options.fin ? options.opcode | 0x80 : options.opcode;
+    if (options.rsv1) target[0] |= 0x40;
+
+    target[1] = payloadLength;
+
+    if (payloadLength === 126) {
+      target.writeUInt16BE(dataLength, 2);
+    } else if (payloadLength === 127) {
+      target[2] = target[3] = 0;
+      target.writeUIntBE(dataLength, 4, 6);
+    }
+
+    if (!options.mask) return [target, data];
+
+    target[1] |= 0x80;
+    target[offset - 4] = mask[0];
+    target[offset - 3] = mask[1];
+    target[offset - 2] = mask[2];
+    target[offset - 1] = mask[3];
+
+    if (skipMasking) return [target, data];
+
+    if (merge) {
+      applyMask(data, mask, target, offset, dataLength);
+      return [target];
+    }
+
+    applyMask(data, mask, data, 0, dataLength);
+    return [target, data];
+  }
+
+  /**
+   * Sends a close message to the other peer.
+   *
+   * @param {Number} [code] The status code component of the body
+   * @param {(String|Buffer)} [data] The message component of the body
+   * @param {Boolean} [mask=false] Specifies whether or not to mask the message
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  close(code, data, mask, cb) {
+    let buf;
+
+    if (code === undefined) {
+      buf = EMPTY_BUFFER;
+    } else if (typeof code !== 'number' || !isValidStatusCode(code)) {
+      throw new TypeError('First argument must be a valid error code number');
+    } else if (data === undefined || !data.length) {
+      buf = Buffer.allocUnsafe(2);
+      buf.writeUInt16BE(code, 0);
+    } else {
+      const length = Buffer.byteLength(data);
+
+      if (length > 123) {
+        throw new RangeError('The message must not be greater than 123 bytes');
+      }
+
+      buf = Buffer.allocUnsafe(2 + length);
+      buf.writeUInt16BE(code, 0);
+
+      if (typeof data === 'string') {
+        buf.write(data, 2);
+      } else {
+        buf.set(data, 2);
+      }
+    }
+
+    const options = {
+      [kByteLength]: buf.length,
+      fin: true,
+      generateMask: this._generateMask,
+      mask,
+      maskBuffer: this._maskBuffer,
+      opcode: 0x08,
+      readOnly: false,
+      rsv1: false
+    };
+
+    if (this._deflating) {
+      this.enqueue([this.dispatch, buf, false, options, cb]);
+    } else {
+      this.sendFrame(Sender.frame(buf, options), cb);
+    }
+  }
+
+  /**
+   * Sends a ping message to the other peer.
+   *
+   * @param {*} data The message to send
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  ping(data, mask, cb) {
+    let byteLength;
+    let readOnly;
+
+    if (typeof data === 'string') {
+      byteLength = Buffer.byteLength(data);
+      readOnly = false;
+    } else {
+      data = toBuffer$1(data);
+      byteLength = data.length;
+      readOnly = toBuffer$1.readOnly;
+    }
+
+    if (byteLength > 125) {
+      throw new RangeError('The data size must not be greater than 125 bytes');
+    }
+
+    const options = {
+      [kByteLength]: byteLength,
+      fin: true,
+      generateMask: this._generateMask,
+      mask,
+      maskBuffer: this._maskBuffer,
+      opcode: 0x09,
+      readOnly,
+      rsv1: false
+    };
+
+    if (this._deflating) {
+      this.enqueue([this.dispatch, data, false, options, cb]);
+    } else {
+      this.sendFrame(Sender.frame(data, options), cb);
+    }
+  }
+
+  /**
+   * Sends a pong message to the other peer.
+   *
+   * @param {*} data The message to send
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  pong(data, mask, cb) {
+    let byteLength;
+    let readOnly;
+
+    if (typeof data === 'string') {
+      byteLength = Buffer.byteLength(data);
+      readOnly = false;
+    } else {
+      data = toBuffer$1(data);
+      byteLength = data.length;
+      readOnly = toBuffer$1.readOnly;
+    }
+
+    if (byteLength > 125) {
+      throw new RangeError('The data size must not be greater than 125 bytes');
+    }
+
+    const options = {
+      [kByteLength]: byteLength,
+      fin: true,
+      generateMask: this._generateMask,
+      mask,
+      maskBuffer: this._maskBuffer,
+      opcode: 0x0a,
+      readOnly,
+      rsv1: false
+    };
+
+    if (this._deflating) {
+      this.enqueue([this.dispatch, data, false, options, cb]);
+    } else {
+      this.sendFrame(Sender.frame(data, options), cb);
+    }
+  }
+
+  /**
+   * Sends a data message to the other peer.
+   *
+   * @param {*} data The message to send
+   * @param {Object} options Options object
+   * @param {Boolean} [options.binary=false] Specifies whether `data` is binary
+   *     or text
+   * @param {Boolean} [options.compress=false] Specifies whether or not to
+   *     compress `data`
+   * @param {Boolean} [options.fin=false] Specifies whether the fragment is the
+   *     last one
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  send(data, options, cb) {
+    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
+    let opcode = options.binary ? 2 : 1;
+    let rsv1 = options.compress;
+
+    let byteLength;
+    let readOnly;
+
+    if (typeof data === 'string') {
+      byteLength = Buffer.byteLength(data);
+      readOnly = false;
+    } else {
+      data = toBuffer$1(data);
+      byteLength = data.length;
+      readOnly = toBuffer$1.readOnly;
+    }
+
+    if (this._firstFragment) {
+      this._firstFragment = false;
+      if (
+        rsv1 &&
+        perMessageDeflate &&
+        perMessageDeflate.params[
+          perMessageDeflate._isServer
+            ? 'server_no_context_takeover'
+            : 'client_no_context_takeover'
+        ]
+      ) {
+        rsv1 = byteLength >= perMessageDeflate._threshold;
+      }
+      this._compress = rsv1;
+    } else {
+      rsv1 = false;
+      opcode = 0;
+    }
+
+    if (options.fin) this._firstFragment = true;
+
+    if (perMessageDeflate) {
+      const opts = {
+        [kByteLength]: byteLength,
+        fin: options.fin,
+        generateMask: this._generateMask,
+        mask: options.mask,
+        maskBuffer: this._maskBuffer,
+        opcode,
+        readOnly,
+        rsv1
+      };
+
+      if (this._deflating) {
+        this.enqueue([this.dispatch, data, this._compress, opts, cb]);
+      } else {
+        this.dispatch(data, this._compress, opts, cb);
+      }
+    } else {
+      this.sendFrame(
+        Sender.frame(data, {
+          [kByteLength]: byteLength,
+          fin: options.fin,
+          generateMask: this._generateMask,
+          mask: options.mask,
+          maskBuffer: this._maskBuffer,
+          opcode,
+          readOnly,
+          rsv1: false
+        }),
+        cb
+      );
+    }
+  }
+
+  /**
+   * Dispatches a message.
+   *
+   * @param {(Buffer|String)} data The message to send
+   * @param {Boolean} [compress=false] Specifies whether or not to compress
+   *     `data`
+   * @param {Object} options Options object
+   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
+   *     FIN bit
+   * @param {Function} [options.generateMask] The function used to generate the
+   *     masking key
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Buffer} [options.maskBuffer] The buffer used to store the masking
+   *     key
+   * @param {Number} options.opcode The opcode
+   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
+   *     modified
+   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
+   *     RSV1 bit
+   * @param {Function} [cb] Callback
+   * @private
+   */
+  dispatch(data, compress, options, cb) {
+    if (!compress) {
+      this.sendFrame(Sender.frame(data, options), cb);
+      return;
+    }
+
+    const perMessageDeflate = this._extensions[PerMessageDeflate.extensionName];
+
+    this._bufferedBytes += options[kByteLength];
+    this._deflating = true;
+    perMessageDeflate.compress(data, options.fin, (_, buf) => {
+      if (this._socket.destroyed) {
+        const err = new Error(
+          'The socket was closed while data was being compressed'
+        );
+
+        if (typeof cb === 'function') cb(err);
+
+        for (let i = 0; i < this._queue.length; i++) {
+          const params = this._queue[i];
+          const callback = params[params.length - 1];
+
+          if (typeof callback === 'function') callback(err);
+        }
+
+        return;
+      }
+
+      this._bufferedBytes -= options[kByteLength];
+      this._deflating = false;
+      options.readOnly = false;
+      this.sendFrame(Sender.frame(buf, options), cb);
+      this.dequeue();
+    });
+  }
+
+  /**
+   * Executes queued send operations.
+   *
+   * @private
+   */
+  dequeue() {
+    while (!this._deflating && this._queue.length) {
+      const params = this._queue.shift();
+
+      this._bufferedBytes -= params[3][kByteLength];
+      Reflect.apply(params[0], this, params.slice(1));
+    }
+  }
+
+  /**
+   * Enqueues a send operation.
+   *
+   * @param {Array} params Send operation parameters.
+   * @private
+   */
+  enqueue(params) {
+    this._bufferedBytes += params[3][kByteLength];
+    this._queue.push(params);
+  }
+
+  /**
+   * Sends a frame.
+   *
+   * @param {Buffer[]} list The frame to send
+   * @param {Function} [cb] Callback
+   * @private
+   */
+  sendFrame(list, cb) {
+    if (list.length === 2) {
+      this._socket.cork();
+      this._socket.write(list[0]);
+      this._socket.write(list[1], cb);
+      this._socket.uncork();
+    } else {
+      this._socket.write(list[0], cb);
+    }
+  }
+}
+
+module.exports = Sender;
+
+var sender = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$4 = /*@__PURE__*/getAugmentedNamespace(sender);
 
 var ws;
 var hasRequiredWs;
@@ -17354,12 +14420,12 @@ function requireWs () {
 	if (hasRequiredWs) return ws;
 	hasRequiredWs = 1;
 
-	const WebSocket = requireWebsocket$1();
+	const WebSocket = require$$0$1;
 
-	WebSocket.createWebSocketStream = requireStream();
-	WebSocket.Server = requireWebsocketServer();
-	WebSocket.Receiver = requireReceiver();
-	WebSocket.Sender = requireSender();
+	WebSocket.createWebSocketStream = require$$1;
+	WebSocket.Server = require$$2;
+	WebSocket.Receiver = require$$3;
+	WebSocket.Sender = require$$4;
 
 	WebSocket.WebSocket = WebSocket;
 	WebSocket.WebSocketServer = WebSocket.Server;
@@ -17400,1431 +14466,1642 @@ function requireWebsocket () {
 	return websocket$1;
 }
 
-var client = {};
+var _interopRequireDefault$1 = require("@babel/runtime/helpers/interopRequireDefault");
 
-var regeneratorRuntime$1 = {exports: {}};
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
 
-var hasRequiredRegeneratorRuntime;
+var _regenerator$1 = _interopRequireDefault$1(require("@babel/runtime/regenerator"));
 
-function requireRegeneratorRuntime () {
-	if (hasRequiredRegeneratorRuntime) return regeneratorRuntime$1.exports;
-	hasRequiredRegeneratorRuntime = 1;
-	(function (module) {
-		var _typeof = require_typeof()["default"];
+var _asyncToGenerator2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/asyncToGenerator"));
 
-		function _regeneratorRuntime() {
-		  /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
+var _typeof2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/typeof"));
 
-		  module.exports = _regeneratorRuntime = function _regeneratorRuntime() {
-		    return exports;
-		  }, module.exports.__esModule = true, module.exports["default"] = module.exports;
-		  var exports = {},
-		      Op = Object.prototype,
-		      hasOwn = Op.hasOwnProperty,
-		      $Symbol = "function" == typeof Symbol ? Symbol : {},
-		      iteratorSymbol = $Symbol.iterator || "@@iterator",
-		      asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator",
-		      toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+var _classCallCheck2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/classCallCheck"));
 
-		  function define(obj, key, value) {
-		    return Object.defineProperty(obj, key, {
-		      value: value,
-		      enumerable: !0,
-		      configurable: !0,
-		      writable: !0
-		    }), obj[key];
-		  }
+var _createClass2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/createClass"));
 
-		  try {
-		    define({}, "");
-		  } catch (err) {
-		    define = function define(obj, key, value) {
-		      return obj[key] = value;
-		    };
-		  }
+var _inherits2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/inherits"));
 
-		  function wrap(innerFn, outerFn, self, tryLocsList) {
-		    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator,
-		        generator = Object.create(protoGenerator.prototype),
-		        context = new Context(tryLocsList || []);
-		    return generator._invoke = function (innerFn, self, context) {
-		      var state = "suspendedStart";
-		      return function (method, arg) {
-		        if ("executing" === state) throw new Error("Generator is already running");
+var _possibleConstructorReturn2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/possibleConstructorReturn"));
 
-		        if ("completed" === state) {
-		          if ("throw" === method) throw arg;
-		          return doneResult();
-		        }
+var _getPrototypeOf2$1 = _interopRequireDefault$1(require("@babel/runtime/helpers/getPrototypeOf"));
 
-		        for (context.method = method, context.arg = arg;;) {
-		          var delegate = context.delegate;
+var _eventemitter$1 = require("eventemitter3");
 
-		          if (delegate) {
-		            var delegateResult = maybeInvokeDelegate(delegate, context);
+function _createSuper$1(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$1(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2$1["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2$1["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2$1["default"])(this, result); }; }
 
-		            if (delegateResult) {
-		              if (delegateResult === ContinueSentinel) continue;
-		              return delegateResult;
-		            }
-		          }
+function _isNativeReflectConstruct$1() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
-		          if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) {
-		            if ("suspendedStart" === state) throw state = "completed", context.arg;
-		            context.dispatchException(context.arg);
-		          } else "return" === context.method && context.abrupt("return", context.arg);
-		          state = "executing";
-		          var record = tryCatch(innerFn, self, context);
+var __rest = function (s, e) {
+  var t = {};
 
-		          if ("normal" === record.type) {
-		            if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue;
-		            return {
-		              value: record.arg,
-		              done: context.done
-		            };
-		          }
+  for (var p in s) {
+    if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+  }
 
-		          "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg);
-		        }
-		      };
-		    }(innerFn, self, context), generator;
-		  }
+  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+  }
+  return t;
+}; // @ts-ignore
 
-		  function tryCatch(fn, obj, arg) {
-		    try {
-		      return {
-		        type: "normal",
-		        arg: fn.call(obj, arg)
-		      };
-		    } catch (err) {
-		      return {
-		        type: "throw",
-		        arg: err
-		      };
-		    }
-		  }
 
-		  exports.wrap = wrap;
-		  var ContinueSentinel = {};
+var CommonClient = /*#__PURE__*/function (_EventEmitter) {
+  (0, _inherits2$1["default"])(CommonClient, _EventEmitter);
 
-		  function Generator() {}
+  var _super = _createSuper$1(CommonClient);
 
-		  function GeneratorFunction() {}
+  /**
+   * Instantiate a Client class.
+   * @constructor
+   * @param {webSocketFactory} webSocketFactory - factory method for WebSocket
+   * @param {String} address - url to a websocket server
+   * @param {Object} options - ws options object with reconnect parameters
+   * @param {Function} generate_request_id - custom generation request Id
+   * @return {CommonClient}
+   */
+  function CommonClient(webSocketFactory) {
+    var _this;
 
-		  function GeneratorFunctionPrototype() {}
+    var address = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "ws://localhost:8080";
 
-		  var IteratorPrototype = {};
-		  define(IteratorPrototype, iteratorSymbol, function () {
-		    return this;
-		  });
-		  var getProto = Object.getPrototypeOf,
-		      NativeIteratorPrototype = getProto && getProto(getProto(values([])));
-		  NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype);
-		  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype);
+    var _a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-		  function defineIteratorMethods(prototype) {
-		    ["next", "throw", "return"].forEach(function (method) {
-		      define(prototype, method, function (arg) {
-		        return this._invoke(method, arg);
-		      });
-		    });
-		  }
+    var generate_request_id = arguments.length > 3 ? arguments[3] : undefined;
+    (0, _classCallCheck2$1["default"])(this, CommonClient);
 
-		  function AsyncIterator(generator, PromiseImpl) {
-		    function invoke(method, arg, resolve, reject) {
-		      var record = tryCatch(generator[method], generator, arg);
+    var _a$autoconnect = _a.autoconnect,
+        autoconnect = _a$autoconnect === void 0 ? true : _a$autoconnect,
+        _a$reconnect = _a.reconnect,
+        reconnect = _a$reconnect === void 0 ? true : _a$reconnect,
+        _a$reconnect_interval = _a.reconnect_interval,
+        reconnect_interval = _a$reconnect_interval === void 0 ? 1000 : _a$reconnect_interval,
+        _a$max_reconnects = _a.max_reconnects,
+        max_reconnects = _a$max_reconnects === void 0 ? 5 : _a$max_reconnects,
+        rest_options = __rest(_a, ["autoconnect", "reconnect", "reconnect_interval", "max_reconnects"]);
 
-		      if ("throw" !== record.type) {
-		        var result = record.arg,
-		            value = result.value;
-		        return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) {
-		          invoke("next", value, resolve, reject);
-		        }, function (err) {
-		          invoke("throw", err, resolve, reject);
-		        }) : PromiseImpl.resolve(value).then(function (unwrapped) {
-		          result.value = unwrapped, resolve(result);
-		        }, function (error) {
-		          return invoke("throw", error, resolve, reject);
-		        });
-		      }
+    _this = _super.call(this);
+    _this.webSocketFactory = webSocketFactory;
+    _this.queue = {};
+    _this.rpc_id = 0;
+    _this.address = address;
+    _this.autoconnect = autoconnect;
+    _this.ready = false;
+    _this.reconnect = reconnect;
+    _this.reconnect_interval = reconnect_interval;
+    _this.max_reconnects = max_reconnects;
+    _this.rest_options = rest_options;
+    _this.current_reconnects = 0;
 
-		      reject(record.arg);
-		    }
+    _this.generate_request_id = generate_request_id || function () {
+      return ++_this.rpc_id;
+    };
 
-		    var previousPromise;
+    if (_this.autoconnect) _this._connect(_this.address, Object.assign({
+      autoconnect: _this.autoconnect,
+      reconnect: _this.reconnect,
+      reconnect_interval: _this.reconnect_interval,
+      max_reconnects: _this.max_reconnects
+    }, _this.rest_options));
+    return _this;
+  }
+  /**
+   * Connects to a defined server if not connected already.
+   * @method
+   * @return {Undefined}
+   */
 
-		    this._invoke = function (method, arg) {
-		      function callInvokeWithMethodAndArg() {
-		        return new PromiseImpl(function (resolve, reject) {
-		          invoke(method, arg, resolve, reject);
-		        });
-		      }
 
-		      return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg();
-		    };
-		  }
+  (0, _createClass2$1["default"])(CommonClient, [{
+    key: "connect",
+    value: function connect() {
+      if (this.socket) return;
 
-		  function maybeInvokeDelegate(delegate, context) {
-		    var method = delegate.iterator[context.method];
+      this._connect(this.address, Object.assign({
+        autoconnect: this.autoconnect,
+        reconnect: this.reconnect,
+        reconnect_interval: this.reconnect_interval,
+        max_reconnects: this.max_reconnects
+      }, this.rest_options));
+    }
+    /**
+     * Calls a registered RPC method on server.
+     * @method
+     * @param {String} method - RPC method name
+     * @param {Object|Array} params - optional method parameters
+     * @param {Number} timeout - RPC reply timeout value
+     * @param {Object} ws_opts - options passed to ws
+     * @return {Promise}
+     */
 
-		    if (undefined === method) {
-		      if (context.delegate = null, "throw" === context.method) {
-		        if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel;
-		        context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method");
-		      }
+  }, {
+    key: "call",
+    value: function call(method, params, timeout, ws_opts) {
+      var _this2 = this;
 
-		      return ContinueSentinel;
-		    }
+      if (!ws_opts && "object" === (0, _typeof2$1["default"])(timeout)) {
+        ws_opts = timeout;
+        timeout = null;
+      }
 
-		    var record = tryCatch(method, delegate.iterator, context.arg);
-		    if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel;
-		    var info = record.arg;
-		    return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel);
-		  }
+      return new Promise(function (resolve, reject) {
+        if (!_this2.ready) return reject(new Error("socket not ready"));
 
-		  function pushTryEntry(locs) {
-		    var entry = {
-		      tryLoc: locs[0]
-		    };
-		    1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry);
-		  }
+        var rpc_id = _this2.generate_request_id(method, params);
 
-		  function resetTryEntry(entry) {
-		    var record = entry.completion || {};
-		    record.type = "normal", delete record.arg, entry.completion = record;
-		  }
+        var message = {
+          jsonrpc: "2.0",
+          method: method,
+          params: params || null,
+          id: rpc_id
+        };
 
-		  function Context(tryLocsList) {
-		    this.tryEntries = [{
-		      tryLoc: "root"
-		    }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0);
-		  }
+        _this2.socket.send(JSON.stringify(message), ws_opts, function (error) {
+          if (error) return reject(error);
+          _this2.queue[rpc_id] = {
+            promise: [resolve, reject]
+          };
 
-		  function values(iterable) {
-		    if (iterable) {
-		      var iteratorMethod = iterable[iteratorSymbol];
-		      if (iteratorMethod) return iteratorMethod.call(iterable);
-		      if ("function" == typeof iterable.next) return iterable;
+          if (timeout) {
+            _this2.queue[rpc_id].timeout = setTimeout(function () {
+              delete _this2.queue[rpc_id];
+              reject(new Error("reply timeout"));
+            }, timeout);
+          }
+        });
+      });
+    }
+    /**
+     * Logins with the other side of the connection.
+     * @method
+     * @param {Object} params - Login credentials object
+     * @return {Promise}
+     */
 
-		      if (!isNaN(iterable.length)) {
-		        var i = -1,
-		            next = function next() {
-		          for (; ++i < iterable.length;) {
-		            if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next;
-		          }
+  }, {
+    key: "login",
+    value: function () {
+      var _login = (0, _asyncToGenerator2$1["default"])( /*#__PURE__*/_regenerator$1["default"].mark(function _callee(params) {
+        var resp;
+        return _regenerator$1["default"].wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.call("rpc.login", params);
 
-		          return next.value = undefined, next.done = !0, next;
-		        };
+              case 2:
+                resp = _context.sent;
 
-		        return next.next = next;
-		      }
-		    }
+                if (resp) {
+                  _context.next = 5;
+                  break;
+                }
 
-		    return {
-		      next: doneResult
-		    };
-		  }
+                throw new Error("authentication failed");
 
-		  function doneResult() {
-		    return {
-		      value: undefined,
-		      done: !0
-		    };
-		  }
+              case 5:
+                return _context.abrupt("return", resp);
 
-		  return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) {
-		    var ctor = "function" == typeof genFun && genFun.constructor;
-		    return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name));
-		  }, exports.mark = function (genFun) {
-		    return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun;
-		  }, exports.awrap = function (arg) {
-		    return {
-		      __await: arg
-		    };
-		  }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () {
-		    return this;
-		  }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-		    void 0 === PromiseImpl && (PromiseImpl = Promise);
-		    var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
-		    return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) {
-		      return result.done ? result.value : iter.next();
-		    });
-		  }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () {
-		    return this;
-		  }), define(Gp, "toString", function () {
-		    return "[object Generator]";
-		  }), exports.keys = function (object) {
-		    var keys = [];
+              case 6:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
 
-		    for (var key in object) {
-		      keys.push(key);
-		    }
+      function login(_x) {
+        return _login.apply(this, arguments);
+      }
 
-		    return keys.reverse(), function next() {
-		      for (; keys.length;) {
-		        var key = keys.pop();
-		        if (key in object) return next.value = key, next.done = !1, next;
-		      }
+      return login;
+    }()
+    /**
+     * Fetches a list of client's methods registered on server.
+     * @method
+     * @return {Array}
+     */
 
-		      return next.done = !0, next;
-		    };
-		  }, exports.values = values, Context.prototype = {
-		    constructor: Context,
-		    reset: function reset(skipTempReset) {
-		      if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) {
-		        "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined);
-		      }
-		    },
-		    stop: function stop() {
-		      this.done = !0;
-		      var rootRecord = this.tryEntries[0].completion;
-		      if ("throw" === rootRecord.type) throw rootRecord.arg;
-		      return this.rval;
-		    },
-		    dispatchException: function dispatchException(exception) {
-		      if (this.done) throw exception;
-		      var context = this;
+  }, {
+    key: "listMethods",
+    value: function () {
+      var _listMethods = (0, _asyncToGenerator2$1["default"])( /*#__PURE__*/_regenerator$1["default"].mark(function _callee2() {
+        return _regenerator$1["default"].wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return this.call("__listMethods");
 
-		      function handle(loc, caught) {
-		        return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught;
-		      }
+              case 2:
+                return _context2.abrupt("return", _context2.sent);
 
-		      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-		        var entry = this.tryEntries[i],
-		            record = entry.completion;
-		        if ("root" === entry.tryLoc) return handle("end");
+              case 3:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
 
-		        if (entry.tryLoc <= this.prev) {
-		          var hasCatch = hasOwn.call(entry, "catchLoc"),
-		              hasFinally = hasOwn.call(entry, "finallyLoc");
+      function listMethods() {
+        return _listMethods.apply(this, arguments);
+      }
 
-		          if (hasCatch && hasFinally) {
-		            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-		            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-		          } else if (hasCatch) {
-		            if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
-		          } else {
-		            if (!hasFinally) throw new Error("try statement without catch or finally");
-		            if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc);
-		          }
-		        }
-		      }
-		    },
-		    abrupt: function abrupt(type, arg) {
-		      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-		        var entry = this.tryEntries[i];
+      return listMethods;
+    }()
+    /**
+     * Sends a JSON-RPC 2.0 notification to server.
+     * @method
+     * @param {String} method - RPC method name
+     * @param {Object} params - optional method parameters
+     * @return {Promise}
+     */
 
-		        if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) {
-		          var finallyEntry = entry;
-		          break;
-		        }
-		      }
+  }, {
+    key: "notify",
+    value: function notify(method, params) {
+      var _this3 = this;
 
-		      finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null);
-		      var record = finallyEntry ? finallyEntry.completion : {};
-		      return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record);
-		    },
-		    complete: function complete(record, afterLoc) {
-		      if ("throw" === record.type) throw record.arg;
-		      return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel;
-		    },
-		    finish: function finish(finallyLoc) {
-		      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-		        var entry = this.tryEntries[i];
-		        if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel;
-		      }
-		    },
-		    "catch": function _catch(tryLoc) {
-		      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-		        var entry = this.tryEntries[i];
+      return new Promise(function (resolve, reject) {
+        if (!_this3.ready) return reject(new Error("socket not ready"));
+        var message = {
+          jsonrpc: "2.0",
+          method: method,
+          params: params || null
+        };
 
-		        if (entry.tryLoc === tryLoc) {
-		          var record = entry.completion;
+        _this3.socket.send(JSON.stringify(message), function (error) {
+          if (error) return reject(error);
+          resolve();
+        });
+      });
+    }
+    /**
+     * Subscribes for a defined event.
+     * @method
+     * @param {String|Array} event - event name
+     * @return {Undefined}
+     * @throws {Error}
+     */
 
-		          if ("throw" === record.type) {
-		            var thrown = record.arg;
-		            resetTryEntry(entry);
-		          }
+  }, {
+    key: "subscribe",
+    value: function () {
+      var _subscribe = (0, _asyncToGenerator2$1["default"])( /*#__PURE__*/_regenerator$1["default"].mark(function _callee3(event) {
+        var result;
+        return _regenerator$1["default"].wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                if (typeof event === "string") event = [event];
+                _context3.next = 3;
+                return this.call("rpc.on", event);
 
-		          return thrown;
-		        }
-		      }
+              case 3:
+                result = _context3.sent;
 
-		      throw new Error("illegal catch attempt");
-		    },
-		    delegateYield: function delegateYield(iterable, resultName, nextLoc) {
-		      return this.delegate = {
-		        iterator: values(iterable),
-		        resultName: resultName,
-		        nextLoc: nextLoc
-		      }, "next" === this.method && (this.arg = undefined), ContinueSentinel;
-		    }
-		  }, exports;
-		}
+                if (!(typeof event === "string" && result[event] !== "ok")) {
+                  _context3.next = 6;
+                  break;
+                }
 
-		module.exports = _regeneratorRuntime, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (regeneratorRuntime$1));
-	return regeneratorRuntime$1.exports;
-}
+                throw new Error("Failed subscribing to an event '" + event + "' with: " + result[event]);
 
-var regenerator;
-var hasRequiredRegenerator;
+              case 6:
+                return _context3.abrupt("return", result);
 
-function requireRegenerator () {
-	if (hasRequiredRegenerator) return regenerator;
-	hasRequiredRegenerator = 1;
-	// TODO(Babel 8): Remove this file.
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
 
-	var runtime = requireRegeneratorRuntime()();
-	regenerator = runtime;
+      function subscribe(_x2) {
+        return _subscribe.apply(this, arguments);
+      }
 
-	// Copied from https://github.com/facebook/regenerator/blob/main/packages/runtime/runtime.js#L736=
-	try {
-	  regeneratorRuntime = runtime;
-	} catch (accidentalStrictMode) {
-	  if (typeof globalThis === "object") {
-	    globalThis.regeneratorRuntime = runtime;
-	  } else {
-	    Function("r", "regeneratorRuntime = r")(runtime);
+      return subscribe;
+    }()
+    /**
+     * Unsubscribes from a defined event.
+     * @method
+     * @param {String|Array} event - event name
+     * @return {Undefined}
+     * @throws {Error}
+     */
+
+  }, {
+    key: "unsubscribe",
+    value: function () {
+      var _unsubscribe = (0, _asyncToGenerator2$1["default"])( /*#__PURE__*/_regenerator$1["default"].mark(function _callee4(event) {
+        var result;
+        return _regenerator$1["default"].wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                if (typeof event === "string") event = [event];
+                _context4.next = 3;
+                return this.call("rpc.off", event);
+
+              case 3:
+                result = _context4.sent;
+
+                if (!(typeof event === "string" && result[event] !== "ok")) {
+                  _context4.next = 6;
+                  break;
+                }
+
+                throw new Error("Failed unsubscribing from an event with: " + result);
+
+              case 6:
+                return _context4.abrupt("return", result);
+
+              case 7:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      function unsubscribe(_x3) {
+        return _unsubscribe.apply(this, arguments);
+      }
+
+      return unsubscribe;
+    }()
+    /**
+     * Closes a WebSocket connection gracefully.
+     * @method
+     * @param {Number} code - socket close code
+     * @param {String} data - optional data to be sent before closing
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "close",
+    value: function close(code, data) {
+      this.socket.close(code || 1000, data);
+    }
+    /**
+     * Connection/Message handler.
+     * @method
+     * @private
+     * @param {String} address - WebSocket API address
+     * @param {Object} options - ws options object
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "_connect",
+    value: function _connect(address, options) {
+      var _this4 = this;
+
+      this.socket = this.webSocketFactory(address, options);
+      this.socket.addEventListener("open", function () {
+        _this4.ready = true;
+
+        _this4.emit("open");
+
+        _this4.current_reconnects = 0;
+      });
+      this.socket.addEventListener("message", function (_ref) {
+        var message = _ref.data;
+        if (message instanceof ArrayBuffer) message = Buffer.from(message).toString();
+
+        try {
+          message = JSON.parse(message);
+        } catch (error) {
+          return;
+        } // check if any listeners are attached and forward event
+
+
+        if (message.notification && _this4.listeners(message.notification).length) {
+          if (!Object.keys(message.params).length) return _this4.emit(message.notification);
+          var args = [message.notification];
+          if (message.params.constructor === Object) args.push(message.params);else // using for-loop instead of unshift/spread because performance is better
+            for (var i = 0; i < message.params.length; i++) {
+              args.push(message.params[i]);
+            } // run as microtask so that pending queue messages are resolved first
+          // eslint-disable-next-line prefer-spread
+
+          return Promise.resolve().then(function () {
+            _this4.emit.apply(_this4, args);
+          });
+        }
+
+        if (!_this4.queue[message.id]) {
+          // general JSON RPC 2.0 events
+          if (message.method && message.params) {
+            // run as microtask so that pending queue messages are resolved first
+            return Promise.resolve().then(function () {
+              _this4.emit(message.method, message.params);
+            });
+          }
+
+          return;
+        } // reject early since server's response is invalid
+
+
+        if ("error" in message === "result" in message) _this4.queue[message.id].promise[1](new Error("Server response malformed. Response must include either \"result\"" + " or \"error\", but not both."));
+        if (_this4.queue[message.id].timeout) clearTimeout(_this4.queue[message.id].timeout);
+        if (message.error) _this4.queue[message.id].promise[1](message.error);else _this4.queue[message.id].promise[0](message.result);
+        delete _this4.queue[message.id];
+      });
+      this.socket.addEventListener("error", function (error) {
+        return _this4.emit("error", error);
+      });
+      this.socket.addEventListener("close", function (_ref2) {
+        var code = _ref2.code,
+            reason = _ref2.reason;
+        if (_this4.ready) // Delay close event until internal state is updated
+          setTimeout(function () {
+            return _this4.emit("close", code, reason);
+          }, 0);
+        _this4.ready = false;
+        _this4.socket = undefined;
+        if (code === 1000) return;
+        _this4.current_reconnects++;
+        if (_this4.reconnect && (_this4.max_reconnects > _this4.current_reconnects || _this4.max_reconnects === 0)) setTimeout(function () {
+          return _this4._connect(address, options);
+        }, _this4.reconnect_interval);
+      });
+    }
+  }]);
+  return CommonClient;
+}(_eventemitter$1.EventEmitter);
+
+exports["default"] = CommonClient;
+
+var client = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$7 = /*@__PURE__*/getAugmentedNamespace(client);
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof3 = require("@babel/runtime/helpers/typeof");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _typeof2 = _interopRequireDefault(require("@babel/runtime/helpers/typeof"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _toConsumableArray2 = _interopRequireDefault(require("@babel/runtime/helpers/toConsumableArray"));
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(require("@babel/runtime/helpers/possibleConstructorReturn"));
+
+var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/getPrototypeOf"));
+
+var _eventemitter = require("eventemitter3");
+
+var _ws = require("ws");
+
+var _uuid = require("uuid");
+
+var _url = _interopRequireDefault(require("url"));
+
+var utils$a = _interopRequireWildcard(require("./utils"));
+
+function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+
+function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof3(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+var Server = /*#__PURE__*/function (_EventEmitter) {
+  (0, _inherits2["default"])(Server, _EventEmitter);
+
+  var _super = _createSuper(Server);
+
+  /**
+   * Instantiate a Server class.
+   * @constructor
+   * @param {Object} options - ws constructor's parameters with rpc
+   * @return {Server} - returns a new Server instance
+   */
+  function Server(options) {
+    var _this;
+
+    (0, _classCallCheck2["default"])(this, Server);
+    _this = _super.call(this);
+    /**
+     * Stores all connected sockets with a universally unique identifier
+     * in the appropriate namespace.
+     * Stores all rpc methods to specific namespaces. "/" by default.
+     * Stores all events as keys and subscribed users in array as value
+     * @private
+     * @name namespaces
+     * @param {Object} namespaces.rpc_methods
+     * @param {Map} namespaces.clients
+     * @param {Object} namespaces.events
+     */
+
+    _this.namespaces = {};
+    _this.wss = new _ws.Server(options);
+
+    _this.wss.on("listening", function () {
+      return _this.emit("listening");
+    });
+
+    _this.wss.on("connection", function (socket, request) {
+      var u = _url["default"].parse(request.url, true);
+
+      var ns = u.pathname;
+      if (u.query.socket_id) socket._id = u.query.socket_id;else socket._id = (0, _uuid.v1)(); // unauthenticated by default
+
+      socket["_authenticated"] = false; // propagate socket errors
+
+      socket.on("error", function (error) {
+        return _this.emit("socket-error", socket, error);
+      }); // cleanup after the socket gets disconnected
+
+      socket.on("close", function () {
+        _this.namespaces[ns].clients["delete"](socket._id);
+
+        for (var _i = 0, _Object$keys = Object.keys(_this.namespaces[ns].events); _i < _Object$keys.length; _i++) {
+          var event = _Object$keys[_i];
+
+          var index = _this.namespaces[ns].events[event].sockets.indexOf(socket._id);
+
+          if (index >= 0) _this.namespaces[ns].events[event].sockets.splice(index, 1);
+        }
+
+        _this.emit("disconnection", socket);
+      });
+      if (!_this.namespaces[ns]) _this._generateNamespace(ns); // store socket and method
+
+      _this.namespaces[ns].clients.set(socket._id, socket);
+
+      _this.emit("connection", socket, request);
+
+      return _this._handleRPC(socket, ns);
+    });
+
+    _this.wss.on("error", function (error) {
+      return _this.emit("error", error);
+    });
+
+    return _this;
+  }
+  /**
+   * Registers an RPC method.
+   * @method
+   * @param {String} name - method name
+   * @param {Function} fn - a callee function
+   * @param {String} ns - namespace identifier
+   * @throws {TypeError}
+   * @return {Object} - returns an IMethod object
+   */
+
+
+  (0, _createClass2["default"])(Server, [{
+    key: "register",
+    value: function register(name, fn) {
+      var _this2 = this;
+
+      var ns = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "/";
+      if (!this.namespaces[ns]) this._generateNamespace(ns);
+      this.namespaces[ns].rpc_methods[name] = {
+        fn: fn,
+        "protected": false
+      };
+      return {
+        "protected": function _protected() {
+          return _this2._makeProtectedMethod(name, ns);
+        },
+        "public": function _public() {
+          return _this2._makePublicMethod(name, ns);
+        }
+      };
+    }
+    /**
+     * Sets an auth method.
+     * @method
+     * @param {Function} fn - an arbitrary auth method
+     * @param {String} ns - namespace identifier
+     * @throws {TypeError}
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "setAuth",
+    value: function setAuth(fn) {
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      this.register("rpc.login", fn, ns);
+    }
+    /**
+     * Marks an RPC method as protected.
+     * @method
+     * @param {String} name - method name
+     * @param {String} ns - namespace identifier
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "_makeProtectedMethod",
+    value: function _makeProtectedMethod(name) {
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      this.namespaces[ns].rpc_methods[name]["protected"] = true;
+    }
+    /**
+     * Marks an RPC method as public.
+     * @method
+     * @param {String} name - method name
+     * @param {String} ns - namespace identifier
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "_makePublicMethod",
+    value: function _makePublicMethod(name) {
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      this.namespaces[ns].rpc_methods[name]["protected"] = false;
+    }
+    /**
+     * Marks an event as protected.
+     * @method
+     * @param {String} name - event name
+     * @param {String} ns - namespace identifier
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "_makeProtectedEvent",
+    value: function _makeProtectedEvent(name) {
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      this.namespaces[ns].events[name]["protected"] = true;
+    }
+    /**
+     * Marks an event as public.
+     * @method
+     * @param {String} name - event name
+     * @param {String} ns - namespace identifier
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "_makePublicEvent",
+    value: function _makePublicEvent(name) {
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      this.namespaces[ns].events[name]["protected"] = false;
+    }
+    /**
+     * Removes a namespace and closes all connections
+     * @method
+     * @param {String} ns - namespace identifier
+     * @throws {TypeError}
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "closeNamespace",
+    value: function closeNamespace(ns) {
+      var namespace = this.namespaces[ns];
+
+      if (namespace) {
+        delete namespace.rpc_methods;
+        delete namespace.events;
+
+        var _iterator = _createForOfIteratorHelper(namespace.clients.values()),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var socket = _step.value;
+            socket.close();
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        delete this.namespaces[ns];
+      }
+    }
+    /**
+     * Creates a new event that can be emitted to clients.
+     * @method
+     * @param {String} name - event name
+     * @param {String} ns - namespace identifier
+     * @throws {TypeError}
+     * @return {Object} - returns an IEvent object
+     */
+
+  }, {
+    key: "event",
+    value: function event(name) {
+      var _this3 = this;
+
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      if (!this.namespaces[ns]) this._generateNamespace(ns);else {
+        var index = this.namespaces[ns].events[name];
+        if (index !== undefined) throw new Error("Already registered event ".concat(ns).concat(name));
+      }
+      this.namespaces[ns].events[name] = {
+        sockets: [],
+        "protected": false
+      }; // forward emitted event to subscribers
+
+      this.on(name, function () {
+        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
+          params[_key] = arguments[_key];
+        }
+
+        // flatten an object if no spreading is wanted
+        if (params.length === 1 && params[0] instanceof Object) params = params[0];
+
+        var _iterator2 = _createForOfIteratorHelper(_this3.namespaces[ns].events[name].sockets),
+            _step2;
+
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var socket_id = _step2.value;
+
+            var socket = _this3.namespaces[ns].clients.get(socket_id);
+
+            if (!socket) continue;
+            socket.send(JSON.stringify({
+              notification: name,
+              params: params || null
+            }));
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      });
+      return {
+        "protected": function _protected() {
+          return _this3._makeProtectedEvent(name, ns);
+        },
+        "public": function _public() {
+          return _this3._makePublicEvent(name, ns);
+        }
+      };
+    }
+    /**
+     * Returns a requested namespace object
+     * @method
+     * @param {String} name - namespace identifier
+     * @throws {TypeError}
+     * @return {Object} - namespace object
+     */
+
+  }, {
+    key: "of",
+    value: function of(name) {
+      if (!this.namespaces[name]) this._generateNamespace(name);
+      var self = this;
+      return {
+        // self.register convenience method
+        register: function register(fn_name, fn) {
+          if (arguments.length !== 2) throw new Error("must provide exactly two arguments");
+          if (typeof fn_name !== "string") throw new Error("name must be a string");
+          if (typeof fn !== "function") throw new Error("handler must be a function");
+          return self.register(fn_name, fn, name);
+        },
+        // self.event convenience method
+        event: function event(ev_name) {
+          if (arguments.length !== 1) throw new Error("must provide exactly one argument");
+          if (typeof ev_name !== "string") throw new Error("name must be a string");
+          return self.event(ev_name, name);
+        },
+
+        // self.eventList convenience method
+        get eventList() {
+          return Object.keys(self.namespaces[name].events);
+        },
+
+        /**
+         * Emits a specified event to this namespace.
+         * @inner
+         * @method
+         * @param {String} event - event name
+         * @param {Array} params - event parameters
+         * @return {Undefined}
+         */
+        emit: function emit(event) {
+          var socket_ids = (0, _toConsumableArray2["default"])(self.namespaces[name].clients.keys());
+
+          for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+            params[_key2 - 1] = arguments[_key2];
+          }
+
+          for (var i = 0, id; id = socket_ids[i]; ++i) {
+            self.namespaces[name].clients.get(id).send(JSON.stringify({
+              notification: event,
+              params: params || []
+            }));
+          }
+        },
+
+        /**
+         * Returns a name of this namespace.
+         * @inner
+         * @method
+         * @kind constant
+         * @return {String}
+         */
+        get name() {
+          return name;
+        },
+
+        /**
+         * Returns a hash of websocket objects connected to this namespace.
+         * @inner
+         * @method
+         * @return {Object}
+         */
+        connected: function connected() {
+          var socket_ids = (0, _toConsumableArray2["default"])(self.namespaces[name].clients.keys());
+          return socket_ids.reduce(function (acc, curr) {
+            return Object.assign(Object.assign({}, acc), (0, _defineProperty2["default"])({}, curr, self.namespaces[name].clients.get(curr)));
+          }, {});
+        },
+
+        /**
+         * Returns a list of client unique identifiers connected to this namespace.
+         * @inner
+         * @method
+         * @return {Array}
+         */
+        clients: function clients() {
+          return self.namespaces[name];
+        }
+      };
+    }
+    /**
+     * Lists all created events in a given namespace. Defaults to "/".
+     * @method
+     * @param {String} ns - namespaces identifier
+     * @readonly
+     * @return {Array} - returns a list of created events
+     */
+
+  }, {
+    key: "eventList",
+    value: function eventList() {
+      var ns = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "/";
+      if (!this.namespaces[ns]) return [];
+      return Object.keys(this.namespaces[ns].events);
+    }
+    /**
+     * Creates a JSON-RPC 2.0 compliant error
+     * @method
+     * @param {Number} code - indicates the error type that occurred
+     * @param {String} message - provides a short description of the error
+     * @param {String|Object} data - details containing additional information about the error
+     * @return {Object}
+     */
+
+  }, {
+    key: "createError",
+    value: function createError(code, message, data) {
+      return {
+        code: code,
+        message: message,
+        data: data || null
+      };
+    }
+    /**
+     * Closes the server and terminates all clients.
+     * @method
+     * @return {Promise}
+     */
+
+  }, {
+    key: "close",
+    value: function close() {
+      var _this4 = this;
+
+      return new Promise(function (resolve, reject) {
+        try {
+          _this4.wss.close();
+
+          _this4.emit("close");
+
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+    /**
+     * Handles all WebSocket JSON RPC 2.0 requests.
+     * @private
+     * @param {Object} socket - ws socket instance
+     * @param {String} ns - namespaces identifier
+     * @return {Undefined}
+     */
+
+  }, {
+    key: "_handleRPC",
+    value: function _handleRPC(socket) {
+      var _this5 = this;
+
+      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
+      socket.on("message", /*#__PURE__*/function () {
+        var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(data) {
+          var msg_options, parsedData, responses, _iterator3, _step3, message, _response, response;
+
+          return _regenerator["default"].wrap(function _callee$(_context) {
+            while (1) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  msg_options = {};
+
+                  if (data instanceof ArrayBuffer) {
+                    msg_options.binary = true;
+                    data = Buffer.from(data).toString();
+                  }
+
+                  if (!(socket.readyState !== 1)) {
+                    _context.next = 4;
+                    break;
+                  }
+
+                  return _context.abrupt("return");
+
+                case 4:
+                  _context.prev = 4;
+                  parsedData = JSON.parse(data);
+                  _context.next = 11;
+                  break;
+
+                case 8:
+                  _context.prev = 8;
+                  _context.t0 = _context["catch"](4);
+                  return _context.abrupt("return", socket.send(JSON.stringify({
+                    jsonrpc: "2.0",
+                    error: utils$a.createError(-32700, _context.t0.toString()),
+                    id: null
+                  }), msg_options));
+
+                case 11:
+                  if (!Array.isArray(parsedData)) {
+                    _context.next = 39;
+                    break;
+                  }
+
+                  if (parsedData.length) {
+                    _context.next = 14;
+                    break;
+                  }
+
+                  return _context.abrupt("return", socket.send(JSON.stringify({
+                    jsonrpc: "2.0",
+                    error: utils$a.createError(-32600, "Invalid array"),
+                    id: null
+                  }), msg_options));
+
+                case 14:
+                  responses = [];
+                  _iterator3 = _createForOfIteratorHelper(parsedData);
+                  _context.prev = 16;
+
+                  _iterator3.s();
+
+                case 18:
+                  if ((_step3 = _iterator3.n()).done) {
+                    _context.next = 28;
+                    break;
+                  }
+
+                  message = _step3.value;
+                  _context.next = 22;
+                  return _this5._runMethod(message, socket._id, ns);
+
+                case 22:
+                  _response = _context.sent;
+
+                  if (_response) {
+                    _context.next = 25;
+                    break;
+                  }
+
+                  return _context.abrupt("continue", 26);
+
+                case 25:
+                  responses.push(_response);
+
+                case 26:
+                  _context.next = 18;
+                  break;
+
+                case 28:
+                  _context.next = 33;
+                  break;
+
+                case 30:
+                  _context.prev = 30;
+                  _context.t1 = _context["catch"](16);
+
+                  _iterator3.e(_context.t1);
+
+                case 33:
+                  _context.prev = 33;
+
+                  _iterator3.f();
+
+                  return _context.finish(33);
+
+                case 36:
+                  if (responses.length) {
+                    _context.next = 38;
+                    break;
+                  }
+
+                  return _context.abrupt("return");
+
+                case 38:
+                  return _context.abrupt("return", socket.send(JSON.stringify(responses), msg_options));
+
+                case 39:
+                  _context.next = 41;
+                  return _this5._runMethod(parsedData, socket._id, ns);
+
+                case 41:
+                  response = _context.sent;
+
+                  if (response) {
+                    _context.next = 44;
+                    break;
+                  }
+
+                  return _context.abrupt("return");
+
+                case 44:
+                  return _context.abrupt("return", socket.send(JSON.stringify(response), msg_options));
+
+                case 45:
+                case "end":
+                  return _context.stop();
+              }
+            }
+          }, _callee, null, [[4, 8], [16, 30, 33, 36]]);
+        }));
+
+        return function (_x) {
+          return _ref.apply(this, arguments);
+        };
+      }());
+    }
+    /**
+     * Runs a defined RPC method.
+     * @private
+     * @param {Object} message - a message received
+     * @param {Object} socket_id - user's socket id
+     * @param {String} ns - namespaces identifier
+     * @return {Object|undefined}
+     */
+
+  }, {
+    key: "_runMethod",
+    value: function () {
+      var _runMethod2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(message, socket_id) {
+        var ns,
+            results,
+            event_names,
+            _iterator4,
+            _step4,
+            name,
+            index,
+            namespace,
+            socket_index,
+            _results,
+            _iterator5,
+            _step5,
+            _name,
+            _index,
+            response,
+            s,
+            _args2 = arguments;
+
+        return _regenerator["default"].wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                ns = _args2.length > 2 && _args2[2] !== undefined ? _args2[2] : "/";
+
+                if (!((0, _typeof2["default"])(message) !== "object" || message === null)) {
+                  _context2.next = 3;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32600),
+                  id: null
+                });
+
+              case 3:
+                if (!(message.jsonrpc !== "2.0")) {
+                  _context2.next = 5;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32600, "Invalid JSON RPC version"),
+                  id: message.id || null
+                });
+
+              case 5:
+                if (message.method) {
+                  _context2.next = 7;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32602, "Method not specified"),
+                  id: message.id || null
+                });
+
+              case 7:
+                if (!(typeof message.method !== "string")) {
+                  _context2.next = 9;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32600, "Invalid method name"),
+                  id: message.id || null
+                });
+
+              case 9:
+                if (!(message.params && typeof message.params === "string")) {
+                  _context2.next = 11;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32600),
+                  id: message.id || null
+                });
+
+              case 11:
+                if (!(message.method === "rpc.on")) {
+                  _context2.next = 47;
+                  break;
+                }
+
+                if (message.params) {
+                  _context2.next = 14;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32000),
+                  id: message.id || null
+                });
+
+              case 14:
+                results = {};
+                event_names = Object.keys(this.namespaces[ns].events);
+                _iterator4 = _createForOfIteratorHelper(message.params);
+                _context2.prev = 17;
+
+                _iterator4.s();
+
+              case 19:
+                if ((_step4 = _iterator4.n()).done) {
+                  _context2.next = 36;
+                  break;
+                }
+
+                name = _step4.value;
+                index = event_names.indexOf(name);
+                namespace = this.namespaces[ns];
+
+                if (!(index === -1)) {
+                  _context2.next = 26;
+                  break;
+                }
+
+                results[name] = "provided event invalid";
+                return _context2.abrupt("continue", 34);
+
+              case 26:
+                if (!(namespace.events[event_names[index]]["protected"] === true && namespace.clients.get(socket_id)["_authenticated"] === false)) {
+                  _context2.next = 28;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32606),
+                  id: message.id || null
+                });
+
+              case 28:
+                socket_index = namespace.events[event_names[index]].sockets.indexOf(socket_id);
+
+                if (!(socket_index >= 0)) {
+                  _context2.next = 32;
+                  break;
+                }
+
+                results[name] = "socket has already been subscribed to event";
+                return _context2.abrupt("continue", 34);
+
+              case 32:
+                namespace.events[event_names[index]].sockets.push(socket_id);
+                results[name] = "ok";
+
+              case 34:
+                _context2.next = 19;
+                break;
+
+              case 36:
+                _context2.next = 41;
+                break;
+
+              case 38:
+                _context2.prev = 38;
+                _context2.t0 = _context2["catch"](17);
+
+                _iterator4.e(_context2.t0);
+
+              case 41:
+                _context2.prev = 41;
+
+                _iterator4.f();
+
+                return _context2.finish(41);
+
+              case 44:
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  result: results,
+                  id: message.id || null
+                });
+
+              case 47:
+                if (!(message.method === "rpc.off")) {
+                  _context2.next = 78;
+                  break;
+                }
+
+                if (message.params) {
+                  _context2.next = 50;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32000),
+                  id: message.id || null
+                });
+
+              case 50:
+                _results = {};
+                _iterator5 = _createForOfIteratorHelper(message.params);
+                _context2.prev = 52;
+
+                _iterator5.s();
+
+              case 54:
+                if ((_step5 = _iterator5.n()).done) {
+                  _context2.next = 67;
+                  break;
+                }
+
+                _name = _step5.value;
+
+                if (this.namespaces[ns].events[_name]) {
+                  _context2.next = 59;
+                  break;
+                }
+
+                _results[_name] = "provided event invalid";
+                return _context2.abrupt("continue", 65);
+
+              case 59:
+                _index = this.namespaces[ns].events[_name].sockets.indexOf(socket_id);
+
+                if (!(_index === -1)) {
+                  _context2.next = 63;
+                  break;
+                }
+
+                _results[_name] = "not subscribed";
+                return _context2.abrupt("continue", 65);
+
+              case 63:
+                this.namespaces[ns].events[_name].sockets.splice(_index, 1);
+
+                _results[_name] = "ok";
+
+              case 65:
+                _context2.next = 54;
+                break;
+
+              case 67:
+                _context2.next = 72;
+                break;
+
+              case 69:
+                _context2.prev = 69;
+                _context2.t1 = _context2["catch"](52);
+
+                _iterator5.e(_context2.t1);
+
+              case 72:
+                _context2.prev = 72;
+
+                _iterator5.f();
+
+                return _context2.finish(72);
+
+              case 75:
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  result: _results,
+                  id: message.id || null
+                });
+
+              case 78:
+                if (!(message.method === "rpc.login")) {
+                  _context2.next = 81;
+                  break;
+                }
+
+                if (message.params) {
+                  _context2.next = 81;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32604),
+                  id: message.id || null
+                });
+
+              case 81:
+                if (this.namespaces[ns].rpc_methods[message.method]) {
+                  _context2.next = 83;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32601),
+                  id: message.id || null
+                });
+
+              case 83:
+                response = null; // reject request if method is protected and if client is not authenticated
+
+                if (!(this.namespaces[ns].rpc_methods[message.method]["protected"] === true && this.namespaces[ns].clients.get(socket_id)["_authenticated"] === false)) {
+                  _context2.next = 86;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: utils$a.createError(-32605),
+                  id: message.id || null
+                });
+
+              case 86:
+                _context2.prev = 86;
+                _context2.next = 89;
+                return this.namespaces[ns].rpc_methods[message.method].fn(message.params, socket_id);
+
+              case 89:
+                response = _context2.sent;
+                _context2.next = 99;
+                break;
+
+              case 92:
+                _context2.prev = 92;
+                _context2.t2 = _context2["catch"](86);
+
+                if (message.id) {
+                  _context2.next = 96;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 96:
+                if (!(_context2.t2 instanceof Error)) {
+                  _context2.next = 98;
+                  break;
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: {
+                    code: -32000,
+                    message: _context2.t2.name,
+                    data: _context2.t2.message
+                  },
+                  id: message.id
+                });
+
+              case 98:
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  error: _context2.t2,
+                  id: message.id
+                });
+
+              case 99:
+                if (message.id) {
+                  _context2.next = 101;
+                  break;
+                }
+
+                return _context2.abrupt("return");
+
+              case 101:
+                // if login middleware returned true, set connection as authenticated
+                if (message.method === "rpc.login" && response === true) {
+                  s = this.namespaces[ns].clients.get(socket_id);
+                  s["_authenticated"] = true;
+                  this.namespaces[ns].clients.set(socket_id, s);
+                }
+
+                return _context2.abrupt("return", {
+                  jsonrpc: "2.0",
+                  result: response,
+                  id: message.id
+                });
+
+              case 103:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this, [[17, 38, 41, 44], [52, 69, 72, 75], [86, 92]]);
+      }));
+
+      function _runMethod(_x2, _x3) {
+        return _runMethod2.apply(this, arguments);
+      }
+
+      return _runMethod;
+    }()
+    /**
+     * Generate a new namespace store.
+     * Also preregister some special namespace methods.
+     * @private
+     * @param {String} name - namespaces identifier
+     * @return {undefined}
+     */
+
+  }, {
+    key: "_generateNamespace",
+    value: function _generateNamespace(name) {
+      var _this6 = this;
+
+      this.namespaces[name] = {
+        rpc_methods: {
+          "__listMethods": {
+            fn: function fn() {
+              return Object.keys(_this6.namespaces[name].rpc_methods);
+            },
+            "protected": false
+          }
+        },
+        clients: new Map(),
+        events: {}
+      };
+    }
+  }]);
+  return Server;
+}(_eventemitter.EventEmitter);
+
+exports["default"] = Server;
+
+var server = /*#__PURE__*/Object.freeze({
+	__proto__: null
+});
+
+var require$$8 = /*@__PURE__*/getAugmentedNamespace(server);
+
+(function (exports) {
+
+	var _interopRequireDefault = interopRequireDefault.exports;
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.Client = void 0;
+	Object.defineProperty(exports, "Server", {
+	  enumerable: true,
+	  get: function get() {
+	    return _server["default"];
 	  }
-	}
-	return regenerator;
-}
+	});
 
-var asyncToGenerator = {exports: {}};
+	var _createClass2 = _interopRequireDefault(requireCreateClass());
 
-var hasRequiredAsyncToGenerator;
+	var _classCallCheck2 = _interopRequireDefault(requireClassCallCheck());
 
-function requireAsyncToGenerator () {
-	if (hasRequiredAsyncToGenerator) return asyncToGenerator.exports;
-	hasRequiredAsyncToGenerator = 1;
-	(function (module) {
-		function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-		  try {
-		    var info = gen[key](arg);
-		    var value = info.value;
-		  } catch (error) {
-		    reject(error);
-		    return;
-		  }
+	var _inherits2 = _interopRequireDefault(requireInherits());
 
-		  if (info.done) {
-		    resolve(value);
-		  } else {
-		    Promise.resolve(value).then(_next, _throw);
-		  }
-		}
+	var _possibleConstructorReturn2 = _interopRequireDefault(requirePossibleConstructorReturn());
 
-		function _asyncToGenerator(fn) {
-		  return function () {
-		    var self = this,
-		        args = arguments;
-		    return new Promise(function (resolve, reject) {
-		      var gen = fn.apply(self, args);
+	var _getPrototypeOf2 = _interopRequireDefault(requireGetPrototypeOf());
 
-		      function _next(value) {
-		        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-		      }
+	var _websocket = _interopRequireDefault(requireWebsocket());
 
-		      function _throw(err) {
-		        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-		      }
+	var _client = _interopRequireDefault(require$$7);
 
-		      _next(undefined);
-		    });
-		  };
-		}
+	var _server = _interopRequireDefault(require$$8);
 
-		module.exports = _asyncToGenerator, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (asyncToGenerator));
-	return asyncToGenerator.exports;
-}
+	function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
 
-var eventemitter3 = {exports: {}};
+	function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
 
-var hasRequiredEventemitter3;
+	var __rest = function (s, e) {
+	  var t = {};
 
-function requireEventemitter3 () {
-	if (hasRequiredEventemitter3) return eventemitter3.exports;
-	hasRequiredEventemitter3 = 1;
-	(function (module) {
+	  for (var p in s) {
+	    if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+	  }
 
-		var has = Object.prototype.hasOwnProperty
-		  , prefix = '~';
+	  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+	    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+	  }
+	  return t;
+	};
 
-		/**
-		 * Constructor to create a storage for our `EE` objects.
-		 * An `Events` instance is a plain object whose properties are event names.
-		 *
-		 * @constructor
-		 * @private
-		 */
-		function Events() {}
+	var Client = /*#__PURE__*/function (_CommonClient) {
+	  (0, _inherits2["default"])(Client, _CommonClient);
 
-		//
-		// We try to not inherit from `Object.prototype`. In some engines creating an
-		// instance in this way is faster than calling `Object.create(null)` directly.
-		// If `Object.create(null)` is not supported we prefix the event names with a
-		// character to make sure that the built-in object properties are not
-		// overridden or used as an attack vector.
-		//
-		if (Object.create) {
-		  Events.prototype = Object.create(null);
+	  var _super = _createSuper(Client);
 
-		  //
-		  // This hack is needed because the `__proto__` property is still inherited in
-		  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
-		  //
-		  if (!new Events().__proto__) prefix = false;
-		}
+	  function Client() {
+	    var address = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ws://localhost:8080";
 
-		/**
-		 * Representation of a single event listener.
-		 *
-		 * @param {Function} fn The listener function.
-		 * @param {*} context The context to invoke the listener with.
-		 * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
-		 * @constructor
-		 * @private
-		 */
-		function EE(fn, context, once) {
-		  this.fn = fn;
-		  this.context = context;
-		  this.once = once || false;
-		}
+	    var _a = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-		/**
-		 * Add a listener for a given event.
-		 *
-		 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn The listener function.
-		 * @param {*} context The context to invoke the listener with.
-		 * @param {Boolean} once Specify if the listener is a one-time listener.
-		 * @returns {EventEmitter}
-		 * @private
-		 */
-		function addListener(emitter, event, fn, context, once) {
-		  if (typeof fn !== 'function') {
-		    throw new TypeError('The listener must be a function');
-		  }
+	    var generate_request_id = arguments.length > 2 ? arguments[2] : undefined;
+	    (0, _classCallCheck2["default"])(this, Client);
 
-		  var listener = new EE(fn, context || emitter, once)
-		    , evt = prefix ? prefix + event : event;
+	    var _a$autoconnect = _a.autoconnect,
+	        autoconnect = _a$autoconnect === void 0 ? true : _a$autoconnect,
+	        _a$reconnect = _a.reconnect,
+	        reconnect = _a$reconnect === void 0 ? true : _a$reconnect,
+	        _a$reconnect_interval = _a.reconnect_interval,
+	        reconnect_interval = _a$reconnect_interval === void 0 ? 1000 : _a$reconnect_interval,
+	        _a$max_reconnects = _a.max_reconnects,
+	        max_reconnects = _a$max_reconnects === void 0 ? 5 : _a$max_reconnects,
+	        rest_options = __rest(_a, ["autoconnect", "reconnect", "reconnect_interval", "max_reconnects"]);
 
-		  if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
-		  else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
-		  else emitter._events[evt] = [emitter._events[evt], listener];
+	    return _super.call(this, _websocket["default"], address, Object.assign({
+	      autoconnect: autoconnect,
+	      reconnect: reconnect,
+	      reconnect_interval: reconnect_interval,
+	      max_reconnects: max_reconnects
+	    }, rest_options), generate_request_id);
+	  }
 
-		  return emitter;
-		}
+	  return (0, _createClass2["default"])(Client);
+	}(_client["default"]);
 
-		/**
-		 * Clear event by name.
-		 *
-		 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-		 * @param {(String|Symbol)} evt The Event name.
-		 * @private
-		 */
-		function clearEvent(emitter, evt) {
-		  if (--emitter._eventsCount === 0) emitter._events = new Events();
-		  else delete emitter._events[evt];
-		}
-
-		/**
-		 * Minimal `EventEmitter` interface that is molded against the Node.js
-		 * `EventEmitter` interface.
-		 *
-		 * @constructor
-		 * @public
-		 */
-		function EventEmitter() {
-		  this._events = new Events();
-		  this._eventsCount = 0;
-		}
-
-		/**
-		 * Return an array listing the events for which the emitter has registered
-		 * listeners.
-		 *
-		 * @returns {Array}
-		 * @public
-		 */
-		EventEmitter.prototype.eventNames = function eventNames() {
-		  var names = []
-		    , events
-		    , name;
-
-		  if (this._eventsCount === 0) return names;
-
-		  for (name in (events = this._events)) {
-		    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
-		  }
-
-		  if (Object.getOwnPropertySymbols) {
-		    return names.concat(Object.getOwnPropertySymbols(events));
-		  }
-
-		  return names;
-		};
-
-		/**
-		 * Return the listeners registered for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @returns {Array} The registered listeners.
-		 * @public
-		 */
-		EventEmitter.prototype.listeners = function listeners(event) {
-		  var evt = prefix ? prefix + event : event
-		    , handlers = this._events[evt];
-
-		  if (!handlers) return [];
-		  if (handlers.fn) return [handlers.fn];
-
-		  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
-		    ee[i] = handlers[i].fn;
-		  }
-
-		  return ee;
-		};
-
-		/**
-		 * Return the number of listeners listening to a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @returns {Number} The number of listeners.
-		 * @public
-		 */
-		EventEmitter.prototype.listenerCount = function listenerCount(event) {
-		  var evt = prefix ? prefix + event : event
-		    , listeners = this._events[evt];
-
-		  if (!listeners) return 0;
-		  if (listeners.fn) return 1;
-		  return listeners.length;
-		};
-
-		/**
-		 * Calls each of the listeners registered for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @returns {Boolean} `true` if the event had listeners, else `false`.
-		 * @public
-		 */
-		EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-		  var evt = prefix ? prefix + event : event;
-
-		  if (!this._events[evt]) return false;
-
-		  var listeners = this._events[evt]
-		    , len = arguments.length
-		    , args
-		    , i;
-
-		  if (listeners.fn) {
-		    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
-
-		    switch (len) {
-		      case 1: return listeners.fn.call(listeners.context), true;
-		      case 2: return listeners.fn.call(listeners.context, a1), true;
-		      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
-		      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-		      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-		      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-		    }
-
-		    for (i = 1, args = new Array(len -1); i < len; i++) {
-		      args[i - 1] = arguments[i];
-		    }
-
-		    listeners.fn.apply(listeners.context, args);
-		  } else {
-		    var length = listeners.length
-		      , j;
-
-		    for (i = 0; i < length; i++) {
-		      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
-
-		      switch (len) {
-		        case 1: listeners[i].fn.call(listeners[i].context); break;
-		        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-		        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-		        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
-		        default:
-		          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
-		            args[j - 1] = arguments[j];
-		          }
-
-		          listeners[i].fn.apply(listeners[i].context, args);
-		      }
-		    }
-		  }
-
-		  return true;
-		};
-
-		/**
-		 * Add a listener for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn The listener function.
-		 * @param {*} [context=this] The context to invoke the listener with.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.on = function on(event, fn, context) {
-		  return addListener(this, event, fn, context, false);
-		};
-
-		/**
-		 * Add a one-time listener for a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn The listener function.
-		 * @param {*} [context=this] The context to invoke the listener with.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.once = function once(event, fn, context) {
-		  return addListener(this, event, fn, context, true);
-		};
-
-		/**
-		 * Remove the listeners of a given event.
-		 *
-		 * @param {(String|Symbol)} event The event name.
-		 * @param {Function} fn Only remove the listeners that match this function.
-		 * @param {*} context Only remove the listeners that have this context.
-		 * @param {Boolean} once Only remove one-time listeners.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
-		  var evt = prefix ? prefix + event : event;
-
-		  if (!this._events[evt]) return this;
-		  if (!fn) {
-		    clearEvent(this, evt);
-		    return this;
-		  }
-
-		  var listeners = this._events[evt];
-
-		  if (listeners.fn) {
-		    if (
-		      listeners.fn === fn &&
-		      (!once || listeners.once) &&
-		      (!context || listeners.context === context)
-		    ) {
-		      clearEvent(this, evt);
-		    }
-		  } else {
-		    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
-		      if (
-		        listeners[i].fn !== fn ||
-		        (once && !listeners[i].once) ||
-		        (context && listeners[i].context !== context)
-		      ) {
-		        events.push(listeners[i]);
-		      }
-		    }
-
-		    //
-		    // Reset the array, or remove it completely if we have no more listeners.
-		    //
-		    if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
-		    else clearEvent(this, evt);
-		  }
-
-		  return this;
-		};
-
-		/**
-		 * Remove all listeners, or those of the specified event.
-		 *
-		 * @param {(String|Symbol)} [event] The event name.
-		 * @returns {EventEmitter} `this`.
-		 * @public
-		 */
-		EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-		  var evt;
-
-		  if (event) {
-		    evt = prefix ? prefix + event : event;
-		    if (this._events[evt]) clearEvent(this, evt);
-		  } else {
-		    this._events = new Events();
-		    this._eventsCount = 0;
-		  }
-
-		  return this;
-		};
-
-		//
-		// Alias methods names because people roll like that.
-		//
-		EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-		EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-		//
-		// Expose the prefix.
-		//
-		EventEmitter.prefixed = prefix;
-
-		//
-		// Allow `EventEmitter` to be imported as module namespace.
-		//
-		EventEmitter.EventEmitter = EventEmitter;
-
-		//
-		// Expose the module.
-		//
-		{
-		  module.exports = EventEmitter;
-		}
-} (eventemitter3));
-	return eventemitter3.exports;
-}
-
-var hasRequiredClient;
-
-function requireClient () {
-	if (hasRequiredClient) return client;
-	hasRequiredClient = 1;
-	(function (exports) {
-
-		var _interopRequireDefault = interopRequireDefault.exports;
-
-		Object.defineProperty(exports, "__esModule", {
-		  value: true
-		});
-		exports["default"] = void 0;
-
-		var _regenerator = _interopRequireDefault(requireRegenerator());
-
-		var _asyncToGenerator2 = _interopRequireDefault(requireAsyncToGenerator());
-
-		var _typeof2 = _interopRequireDefault(require_typeof());
-
-		var _classCallCheck2 = _interopRequireDefault(requireClassCallCheck());
-
-		var _createClass2 = _interopRequireDefault(requireCreateClass());
-
-		var _inherits2 = _interopRequireDefault(requireInherits());
-
-		var _possibleConstructorReturn2 = _interopRequireDefault(requirePossibleConstructorReturn());
-
-		var _getPrototypeOf2 = _interopRequireDefault(requireGetPrototypeOf());
-
-		var _eventemitter = requireEventemitter3();
-
-		function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-		function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-		var __rest = function (s, e) {
-		  var t = {};
-
-		  for (var p in s) {
-		    if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-		  }
-
-		  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-		    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
-		  }
-		  return t;
-		}; // @ts-ignore
-
-
-		var CommonClient = /*#__PURE__*/function (_EventEmitter) {
-		  (0, _inherits2["default"])(CommonClient, _EventEmitter);
-
-		  var _super = _createSuper(CommonClient);
-
-		  /**
-		   * Instantiate a Client class.
-		   * @constructor
-		   * @param {webSocketFactory} webSocketFactory - factory method for WebSocket
-		   * @param {String} address - url to a websocket server
-		   * @param {Object} options - ws options object with reconnect parameters
-		   * @param {Function} generate_request_id - custom generation request Id
-		   * @return {CommonClient}
-		   */
-		  function CommonClient(webSocketFactory) {
-		    var _this;
-
-		    var address = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "ws://localhost:8080";
-
-		    var _a = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-		    var generate_request_id = arguments.length > 3 ? arguments[3] : undefined;
-		    (0, _classCallCheck2["default"])(this, CommonClient);
-
-		    var _a$autoconnect = _a.autoconnect,
-		        autoconnect = _a$autoconnect === void 0 ? true : _a$autoconnect,
-		        _a$reconnect = _a.reconnect,
-		        reconnect = _a$reconnect === void 0 ? true : _a$reconnect,
-		        _a$reconnect_interval = _a.reconnect_interval,
-		        reconnect_interval = _a$reconnect_interval === void 0 ? 1000 : _a$reconnect_interval,
-		        _a$max_reconnects = _a.max_reconnects,
-		        max_reconnects = _a$max_reconnects === void 0 ? 5 : _a$max_reconnects,
-		        rest_options = __rest(_a, ["autoconnect", "reconnect", "reconnect_interval", "max_reconnects"]);
-
-		    _this = _super.call(this);
-		    _this.webSocketFactory = webSocketFactory;
-		    _this.queue = {};
-		    _this.rpc_id = 0;
-		    _this.address = address;
-		    _this.autoconnect = autoconnect;
-		    _this.ready = false;
-		    _this.reconnect = reconnect;
-		    _this.reconnect_interval = reconnect_interval;
-		    _this.max_reconnects = max_reconnects;
-		    _this.rest_options = rest_options;
-		    _this.current_reconnects = 0;
-
-		    _this.generate_request_id = generate_request_id || function () {
-		      return ++_this.rpc_id;
-		    };
-
-		    if (_this.autoconnect) _this._connect(_this.address, Object.assign({
-		      autoconnect: _this.autoconnect,
-		      reconnect: _this.reconnect,
-		      reconnect_interval: _this.reconnect_interval,
-		      max_reconnects: _this.max_reconnects
-		    }, _this.rest_options));
-		    return _this;
-		  }
-		  /**
-		   * Connects to a defined server if not connected already.
-		   * @method
-		   * @return {Undefined}
-		   */
-
-
-		  (0, _createClass2["default"])(CommonClient, [{
-		    key: "connect",
-		    value: function connect() {
-		      if (this.socket) return;
-
-		      this._connect(this.address, Object.assign({
-		        autoconnect: this.autoconnect,
-		        reconnect: this.reconnect,
-		        reconnect_interval: this.reconnect_interval,
-		        max_reconnects: this.max_reconnects
-		      }, this.rest_options));
-		    }
-		    /**
-		     * Calls a registered RPC method on server.
-		     * @method
-		     * @param {String} method - RPC method name
-		     * @param {Object|Array} params - optional method parameters
-		     * @param {Number} timeout - RPC reply timeout value
-		     * @param {Object} ws_opts - options passed to ws
-		     * @return {Promise}
-		     */
-
-		  }, {
-		    key: "call",
-		    value: function call(method, params, timeout, ws_opts) {
-		      var _this2 = this;
-
-		      if (!ws_opts && "object" === (0, _typeof2["default"])(timeout)) {
-		        ws_opts = timeout;
-		        timeout = null;
-		      }
-
-		      return new Promise(function (resolve, reject) {
-		        if (!_this2.ready) return reject(new Error("socket not ready"));
-
-		        var rpc_id = _this2.generate_request_id(method, params);
-
-		        var message = {
-		          jsonrpc: "2.0",
-		          method: method,
-		          params: params || null,
-		          id: rpc_id
-		        };
-
-		        _this2.socket.send(JSON.stringify(message), ws_opts, function (error) {
-		          if (error) return reject(error);
-		          _this2.queue[rpc_id] = {
-		            promise: [resolve, reject]
-		          };
-
-		          if (timeout) {
-		            _this2.queue[rpc_id].timeout = setTimeout(function () {
-		              delete _this2.queue[rpc_id];
-		              reject(new Error("reply timeout"));
-		            }, timeout);
-		          }
-		        });
-		      });
-		    }
-		    /**
-		     * Logins with the other side of the connection.
-		     * @method
-		     * @param {Object} params - Login credentials object
-		     * @return {Promise}
-		     */
-
-		  }, {
-		    key: "login",
-		    value: function () {
-		      var _login = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(params) {
-		        var resp;
-		        return _regenerator["default"].wrap(function _callee$(_context) {
-		          while (1) {
-		            switch (_context.prev = _context.next) {
-		              case 0:
-		                _context.next = 2;
-		                return this.call("rpc.login", params);
-
-		              case 2:
-		                resp = _context.sent;
-
-		                if (resp) {
-		                  _context.next = 5;
-		                  break;
-		                }
-
-		                throw new Error("authentication failed");
-
-		              case 5:
-		                return _context.abrupt("return", resp);
-
-		              case 6:
-		              case "end":
-		                return _context.stop();
-		            }
-		          }
-		        }, _callee, this);
-		      }));
-
-		      function login(_x) {
-		        return _login.apply(this, arguments);
-		      }
-
-		      return login;
-		    }()
-		    /**
-		     * Fetches a list of client's methods registered on server.
-		     * @method
-		     * @return {Array}
-		     */
-
-		  }, {
-		    key: "listMethods",
-		    value: function () {
-		      var _listMethods = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
-		        return _regenerator["default"].wrap(function _callee2$(_context2) {
-		          while (1) {
-		            switch (_context2.prev = _context2.next) {
-		              case 0:
-		                _context2.next = 2;
-		                return this.call("__listMethods");
-
-		              case 2:
-		                return _context2.abrupt("return", _context2.sent);
-
-		              case 3:
-		              case "end":
-		                return _context2.stop();
-		            }
-		          }
-		        }, _callee2, this);
-		      }));
-
-		      function listMethods() {
-		        return _listMethods.apply(this, arguments);
-		      }
-
-		      return listMethods;
-		    }()
-		    /**
-		     * Sends a JSON-RPC 2.0 notification to server.
-		     * @method
-		     * @param {String} method - RPC method name
-		     * @param {Object} params - optional method parameters
-		     * @return {Promise}
-		     */
-
-		  }, {
-		    key: "notify",
-		    value: function notify(method, params) {
-		      var _this3 = this;
-
-		      return new Promise(function (resolve, reject) {
-		        if (!_this3.ready) return reject(new Error("socket not ready"));
-		        var message = {
-		          jsonrpc: "2.0",
-		          method: method,
-		          params: params || null
-		        };
-
-		        _this3.socket.send(JSON.stringify(message), function (error) {
-		          if (error) return reject(error);
-		          resolve();
-		        });
-		      });
-		    }
-		    /**
-		     * Subscribes for a defined event.
-		     * @method
-		     * @param {String|Array} event - event name
-		     * @return {Undefined}
-		     * @throws {Error}
-		     */
-
-		  }, {
-		    key: "subscribe",
-		    value: function () {
-		      var _subscribe = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(event) {
-		        var result;
-		        return _regenerator["default"].wrap(function _callee3$(_context3) {
-		          while (1) {
-		            switch (_context3.prev = _context3.next) {
-		              case 0:
-		                if (typeof event === "string") event = [event];
-		                _context3.next = 3;
-		                return this.call("rpc.on", event);
-
-		              case 3:
-		                result = _context3.sent;
-
-		                if (!(typeof event === "string" && result[event] !== "ok")) {
-		                  _context3.next = 6;
-		                  break;
-		                }
-
-		                throw new Error("Failed subscribing to an event '" + event + "' with: " + result[event]);
-
-		              case 6:
-		                return _context3.abrupt("return", result);
-
-		              case 7:
-		              case "end":
-		                return _context3.stop();
-		            }
-		          }
-		        }, _callee3, this);
-		      }));
-
-		      function subscribe(_x2) {
-		        return _subscribe.apply(this, arguments);
-		      }
-
-		      return subscribe;
-		    }()
-		    /**
-		     * Unsubscribes from a defined event.
-		     * @method
-		     * @param {String|Array} event - event name
-		     * @return {Undefined}
-		     * @throws {Error}
-		     */
-
-		  }, {
-		    key: "unsubscribe",
-		    value: function () {
-		      var _unsubscribe = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee4(event) {
-		        var result;
-		        return _regenerator["default"].wrap(function _callee4$(_context4) {
-		          while (1) {
-		            switch (_context4.prev = _context4.next) {
-		              case 0:
-		                if (typeof event === "string") event = [event];
-		                _context4.next = 3;
-		                return this.call("rpc.off", event);
-
-		              case 3:
-		                result = _context4.sent;
-
-		                if (!(typeof event === "string" && result[event] !== "ok")) {
-		                  _context4.next = 6;
-		                  break;
-		                }
-
-		                throw new Error("Failed unsubscribing from an event with: " + result);
-
-		              case 6:
-		                return _context4.abrupt("return", result);
-
-		              case 7:
-		              case "end":
-		                return _context4.stop();
-		            }
-		          }
-		        }, _callee4, this);
-		      }));
-
-		      function unsubscribe(_x3) {
-		        return _unsubscribe.apply(this, arguments);
-		      }
-
-		      return unsubscribe;
-		    }()
-		    /**
-		     * Closes a WebSocket connection gracefully.
-		     * @method
-		     * @param {Number} code - socket close code
-		     * @param {String} data - optional data to be sent before closing
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "close",
-		    value: function close(code, data) {
-		      this.socket.close(code || 1000, data);
-		    }
-		    /**
-		     * Connection/Message handler.
-		     * @method
-		     * @private
-		     * @param {String} address - WebSocket API address
-		     * @param {Object} options - ws options object
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "_connect",
-		    value: function _connect(address, options) {
-		      var _this4 = this;
-
-		      this.socket = this.webSocketFactory(address, options);
-		      this.socket.addEventListener("open", function () {
-		        _this4.ready = true;
-
-		        _this4.emit("open");
-
-		        _this4.current_reconnects = 0;
-		      });
-		      this.socket.addEventListener("message", function (_ref) {
-		        var message = _ref.data;
-		        if (message instanceof ArrayBuffer) message = Buffer.from(message).toString();
-
-		        try {
-		          message = JSON.parse(message);
-		        } catch (error) {
-		          return;
-		        } // check if any listeners are attached and forward event
-
-
-		        if (message.notification && _this4.listeners(message.notification).length) {
-		          if (!Object.keys(message.params).length) return _this4.emit(message.notification);
-		          var args = [message.notification];
-		          if (message.params.constructor === Object) args.push(message.params);else // using for-loop instead of unshift/spread because performance is better
-		            for (var i = 0; i < message.params.length; i++) {
-		              args.push(message.params[i]);
-		            } // run as microtask so that pending queue messages are resolved first
-		          // eslint-disable-next-line prefer-spread
-
-		          return Promise.resolve().then(function () {
-		            _this4.emit.apply(_this4, args);
-		          });
-		        }
-
-		        if (!_this4.queue[message.id]) {
-		          // general JSON RPC 2.0 events
-		          if (message.method && message.params) {
-		            // run as microtask so that pending queue messages are resolved first
-		            return Promise.resolve().then(function () {
-		              _this4.emit(message.method, message.params);
-		            });
-		          }
-
-		          return;
-		        } // reject early since server's response is invalid
-
-
-		        if ("error" in message === "result" in message) _this4.queue[message.id].promise[1](new Error("Server response malformed. Response must include either \"result\"" + " or \"error\", but not both."));
-		        if (_this4.queue[message.id].timeout) clearTimeout(_this4.queue[message.id].timeout);
-		        if (message.error) _this4.queue[message.id].promise[1](message.error);else _this4.queue[message.id].promise[0](message.result);
-		        delete _this4.queue[message.id];
-		      });
-		      this.socket.addEventListener("error", function (error) {
-		        return _this4.emit("error", error);
-		      });
-		      this.socket.addEventListener("close", function (_ref2) {
-		        var code = _ref2.code,
-		            reason = _ref2.reason;
-		        if (_this4.ready) // Delay close event until internal state is updated
-		          setTimeout(function () {
-		            return _this4.emit("close", code, reason);
-		          }, 0);
-		        _this4.ready = false;
-		        _this4.socket = undefined;
-		        if (code === 1000) return;
-		        _this4.current_reconnects++;
-		        if (_this4.reconnect && (_this4.max_reconnects > _this4.current_reconnects || _this4.max_reconnects === 0)) setTimeout(function () {
-		          return _this4._connect(address, options);
-		        }, _this4.reconnect_interval);
-		      });
-		    }
-		  }]);
-		  return CommonClient;
-		}(_eventemitter.EventEmitter);
-
-		exports["default"] = CommonClient;
-} (client));
-	return client;
-}
-
-var server = {};
-
-var defineProperty = {exports: {}};
-
-var hasRequiredDefineProperty;
-
-function requireDefineProperty () {
-	if (hasRequiredDefineProperty) return defineProperty.exports;
-	hasRequiredDefineProperty = 1;
-	(function (module) {
-		function _defineProperty(obj, key, value) {
-		  if (key in obj) {
-		    Object.defineProperty(obj, key, {
-		      value: value,
-		      enumerable: true,
-		      configurable: true,
-		      writable: true
-		    });
-		  } else {
-		    obj[key] = value;
-		  }
-
-		  return obj;
-		}
-
-		module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (defineProperty));
-	return defineProperty.exports;
-}
-
-var toConsumableArray = {exports: {}};
-
-var arrayWithoutHoles = {exports: {}};
-
-var arrayLikeToArray = {exports: {}};
-
-var hasRequiredArrayLikeToArray;
-
-function requireArrayLikeToArray () {
-	if (hasRequiredArrayLikeToArray) return arrayLikeToArray.exports;
-	hasRequiredArrayLikeToArray = 1;
-	(function (module) {
-		function _arrayLikeToArray(arr, len) {
-		  if (len == null || len > arr.length) len = arr.length;
-
-		  for (var i = 0, arr2 = new Array(len); i < len; i++) {
-		    arr2[i] = arr[i];
-		  }
-
-		  return arr2;
-		}
-
-		module.exports = _arrayLikeToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (arrayLikeToArray));
-	return arrayLikeToArray.exports;
-}
-
-var hasRequiredArrayWithoutHoles;
-
-function requireArrayWithoutHoles () {
-	if (hasRequiredArrayWithoutHoles) return arrayWithoutHoles.exports;
-	hasRequiredArrayWithoutHoles = 1;
-	(function (module) {
-		var arrayLikeToArray = requireArrayLikeToArray();
-
-		function _arrayWithoutHoles(arr) {
-		  if (Array.isArray(arr)) return arrayLikeToArray(arr);
-		}
-
-		module.exports = _arrayWithoutHoles, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (arrayWithoutHoles));
-	return arrayWithoutHoles.exports;
-}
-
-var iterableToArray = {exports: {}};
-
-var hasRequiredIterableToArray;
-
-function requireIterableToArray () {
-	if (hasRequiredIterableToArray) return iterableToArray.exports;
-	hasRequiredIterableToArray = 1;
-	(function (module) {
-		function _iterableToArray(iter) {
-		  if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-		}
-
-		module.exports = _iterableToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (iterableToArray));
-	return iterableToArray.exports;
-}
-
-var unsupportedIterableToArray = {exports: {}};
-
-var hasRequiredUnsupportedIterableToArray;
-
-function requireUnsupportedIterableToArray () {
-	if (hasRequiredUnsupportedIterableToArray) return unsupportedIterableToArray.exports;
-	hasRequiredUnsupportedIterableToArray = 1;
-	(function (module) {
-		var arrayLikeToArray = requireArrayLikeToArray();
-
-		function _unsupportedIterableToArray(o, minLen) {
-		  if (!o) return;
-		  if (typeof o === "string") return arrayLikeToArray(o, minLen);
-		  var n = Object.prototype.toString.call(o).slice(8, -1);
-		  if (n === "Object" && o.constructor) n = o.constructor.name;
-		  if (n === "Map" || n === "Set") return Array.from(o);
-		  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
-		}
-
-		module.exports = _unsupportedIterableToArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (unsupportedIterableToArray));
-	return unsupportedIterableToArray.exports;
-}
-
-var nonIterableSpread = {exports: {}};
-
-var hasRequiredNonIterableSpread;
-
-function requireNonIterableSpread () {
-	if (hasRequiredNonIterableSpread) return nonIterableSpread.exports;
-	hasRequiredNonIterableSpread = 1;
-	(function (module) {
-		function _nonIterableSpread() {
-		  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-		}
-
-		module.exports = _nonIterableSpread, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (nonIterableSpread));
-	return nonIterableSpread.exports;
-}
-
-var hasRequiredToConsumableArray;
-
-function requireToConsumableArray () {
-	if (hasRequiredToConsumableArray) return toConsumableArray.exports;
-	hasRequiredToConsumableArray = 1;
-	(function (module) {
-		var arrayWithoutHoles = requireArrayWithoutHoles();
-
-		var iterableToArray = requireIterableToArray();
-
-		var unsupportedIterableToArray = requireUnsupportedIterableToArray();
-
-		var nonIterableSpread = requireNonIterableSpread();
-
-		function _toConsumableArray(arr) {
-		  return arrayWithoutHoles(arr) || iterableToArray(arr) || unsupportedIterableToArray(arr) || nonIterableSpread();
-		}
-
-		module.exports = _toConsumableArray, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (toConsumableArray));
-	return toConsumableArray.exports;
-}
+	exports.Client = Client;
+} (dist));
 
 // Unique ID creation requires a high quality random # generator. In the browser we therefore
 // require the crypto API and do not support built-in fallback to lower quality random number
@@ -19305,7 +16582,7 @@ function v4(options, buf, offset) {
 
 // Adapted from Chris Veness' SHA1 code at
 // http://www.movable-type.co.uk/scripts/sha1.html
-function f$2(s, x, y, z) {
+function f$1(s, x, y, z) {
   switch (s) {
     case 0:
       return x & y ^ ~x & z;
@@ -19380,7 +16657,7 @@ function sha1(bytes) {
 
     for (var _t2 = 0; _t2 < 80; ++_t2) {
       var s = Math.floor(_t2 / 20);
-      var T = ROTL(a, 5) + f$2(s, b, c, d) + e + K[s] + W[_t2] >>> 0;
+      var T = ROTL(a, 5) + f$1(s, b, c, d) + e + K[s] + W[_t2] >>> 0;
       e = d;
       d = c;
       c = ROTL(b, 30) >>> 0;
@@ -19403,7 +16680,7 @@ var v5$1 = v5;
 
 var nil = '00000000-0000-0000-0000-000000000000';
 
-function version$4(uuid) {
+function version$3(uuid) {
   if (!validate(uuid)) {
     throw TypeError('Invalid UUID');
   }
@@ -19418,1207 +16695,15 @@ var esmBrowser = /*#__PURE__*/Object.freeze({
 	v4: v4,
 	v5: v5$1,
 	NIL: nil,
-	version: version$4,
+	version: version$3,
 	validate: validate,
 	stringify: stringify$1,
 	parse: parse
 });
 
-var require$$0$1 = /*@__PURE__*/getAugmentedNamespace(esmBrowser);
+var require$$0 = /*@__PURE__*/getAugmentedNamespace(esmBrowser);
 
-var utils$x = {};
-
-var hasRequiredUtils;
-
-function requireUtils () {
-	if (hasRequiredUtils) return utils$x;
-	hasRequiredUtils = 1;
-
-	Object.defineProperty(utils$x, "__esModule", {
-	  value: true
-	});
-	utils$x.createError = createError;
-	var errors = new Map([[-32000, "Event not provided"], [-32600, "Invalid Request"], [-32601, "Method not found"], [-32602, "Invalid params"], [-32603, "Internal error"], [-32604, "Params not found"], [-32605, "Method forbidden"], [-32606, "Event forbidden"], [-32700, "Parse error"]]);
-	/**
-	 * Creates a JSON-RPC 2.0-compliant error.
-	 * @param {Number} code - error code
-	 * @param {String} details - error details
-	 * @return {Object}
-	 */
-
-	function createError(code, details) {
-	  var error = {
-	    code: code,
-	    message: errors.get(code) || "Internal Server Error"
-	  };
-	  if (details) error["data"] = details;
-	  return error;
-	}
-	return utils$x;
-}
-
-var hasRequiredServer;
-
-function requireServer () {
-	if (hasRequiredServer) return server;
-	hasRequiredServer = 1;
-	(function (exports) {
-
-		var _interopRequireDefault = interopRequireDefault.exports;
-
-		var _typeof3 = require_typeof();
-
-		Object.defineProperty(exports, "__esModule", {
-		  value: true
-		});
-		exports["default"] = void 0;
-
-		var _regenerator = _interopRequireDefault(requireRegenerator());
-
-		var _typeof2 = _interopRequireDefault(require_typeof());
-
-		var _asyncToGenerator2 = _interopRequireDefault(requireAsyncToGenerator());
-
-		var _defineProperty2 = _interopRequireDefault(requireDefineProperty());
-
-		var _toConsumableArray2 = _interopRequireDefault(requireToConsumableArray());
-
-		var _classCallCheck2 = _interopRequireDefault(requireClassCallCheck());
-
-		var _createClass2 = _interopRequireDefault(requireCreateClass());
-
-		var _inherits2 = _interopRequireDefault(requireInherits());
-
-		var _possibleConstructorReturn2 = _interopRequireDefault(requirePossibleConstructorReturn());
-
-		var _getPrototypeOf2 = _interopRequireDefault(requireGetPrototypeOf());
-
-		var _eventemitter = requireEventemitter3();
-
-		var _ws = requireWs();
-
-		var _uuid = require$$0$1;
-
-		var _url = _interopRequireDefault(require$$7);
-
-		var utils = _interopRequireWildcard(requireUtils());
-
-		function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-		function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof3(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-		function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
-		function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-		function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-		function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-		function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-		var Server = /*#__PURE__*/function (_EventEmitter) {
-		  (0, _inherits2["default"])(Server, _EventEmitter);
-
-		  var _super = _createSuper(Server);
-
-		  /**
-		   * Instantiate a Server class.
-		   * @constructor
-		   * @param {Object} options - ws constructor's parameters with rpc
-		   * @return {Server} - returns a new Server instance
-		   */
-		  function Server(options) {
-		    var _this;
-
-		    (0, _classCallCheck2["default"])(this, Server);
-		    _this = _super.call(this);
-		    /**
-		     * Stores all connected sockets with a universally unique identifier
-		     * in the appropriate namespace.
-		     * Stores all rpc methods to specific namespaces. "/" by default.
-		     * Stores all events as keys and subscribed users in array as value
-		     * @private
-		     * @name namespaces
-		     * @param {Object} namespaces.rpc_methods
-		     * @param {Map} namespaces.clients
-		     * @param {Object} namespaces.events
-		     */
-
-		    _this.namespaces = {};
-		    _this.wss = new _ws.Server(options);
-
-		    _this.wss.on("listening", function () {
-		      return _this.emit("listening");
-		    });
-
-		    _this.wss.on("connection", function (socket, request) {
-		      var u = _url["default"].parse(request.url, true);
-
-		      var ns = u.pathname;
-		      if (u.query.socket_id) socket._id = u.query.socket_id;else socket._id = (0, _uuid.v1)(); // unauthenticated by default
-
-		      socket["_authenticated"] = false; // propagate socket errors
-
-		      socket.on("error", function (error) {
-		        return _this.emit("socket-error", socket, error);
-		      }); // cleanup after the socket gets disconnected
-
-		      socket.on("close", function () {
-		        _this.namespaces[ns].clients["delete"](socket._id);
-
-		        for (var _i = 0, _Object$keys = Object.keys(_this.namespaces[ns].events); _i < _Object$keys.length; _i++) {
-		          var event = _Object$keys[_i];
-
-		          var index = _this.namespaces[ns].events[event].sockets.indexOf(socket._id);
-
-		          if (index >= 0) _this.namespaces[ns].events[event].sockets.splice(index, 1);
-		        }
-
-		        _this.emit("disconnection", socket);
-		      });
-		      if (!_this.namespaces[ns]) _this._generateNamespace(ns); // store socket and method
-
-		      _this.namespaces[ns].clients.set(socket._id, socket);
-
-		      _this.emit("connection", socket, request);
-
-		      return _this._handleRPC(socket, ns);
-		    });
-
-		    _this.wss.on("error", function (error) {
-		      return _this.emit("error", error);
-		    });
-
-		    return _this;
-		  }
-		  /**
-		   * Registers an RPC method.
-		   * @method
-		   * @param {String} name - method name
-		   * @param {Function} fn - a callee function
-		   * @param {String} ns - namespace identifier
-		   * @throws {TypeError}
-		   * @return {Object} - returns an IMethod object
-		   */
-
-
-		  (0, _createClass2["default"])(Server, [{
-		    key: "register",
-		    value: function register(name, fn) {
-		      var _this2 = this;
-
-		      var ns = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "/";
-		      if (!this.namespaces[ns]) this._generateNamespace(ns);
-		      this.namespaces[ns].rpc_methods[name] = {
-		        fn: fn,
-		        "protected": false
-		      };
-		      return {
-		        "protected": function _protected() {
-		          return _this2._makeProtectedMethod(name, ns);
-		        },
-		        "public": function _public() {
-		          return _this2._makePublicMethod(name, ns);
-		        }
-		      };
-		    }
-		    /**
-		     * Sets an auth method.
-		     * @method
-		     * @param {Function} fn - an arbitrary auth method
-		     * @param {String} ns - namespace identifier
-		     * @throws {TypeError}
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "setAuth",
-		    value: function setAuth(fn) {
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      this.register("rpc.login", fn, ns);
-		    }
-		    /**
-		     * Marks an RPC method as protected.
-		     * @method
-		     * @param {String} name - method name
-		     * @param {String} ns - namespace identifier
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "_makeProtectedMethod",
-		    value: function _makeProtectedMethod(name) {
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      this.namespaces[ns].rpc_methods[name]["protected"] = true;
-		    }
-		    /**
-		     * Marks an RPC method as public.
-		     * @method
-		     * @param {String} name - method name
-		     * @param {String} ns - namespace identifier
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "_makePublicMethod",
-		    value: function _makePublicMethod(name) {
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      this.namespaces[ns].rpc_methods[name]["protected"] = false;
-		    }
-		    /**
-		     * Marks an event as protected.
-		     * @method
-		     * @param {String} name - event name
-		     * @param {String} ns - namespace identifier
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "_makeProtectedEvent",
-		    value: function _makeProtectedEvent(name) {
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      this.namespaces[ns].events[name]["protected"] = true;
-		    }
-		    /**
-		     * Marks an event as public.
-		     * @method
-		     * @param {String} name - event name
-		     * @param {String} ns - namespace identifier
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "_makePublicEvent",
-		    value: function _makePublicEvent(name) {
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      this.namespaces[ns].events[name]["protected"] = false;
-		    }
-		    /**
-		     * Removes a namespace and closes all connections
-		     * @method
-		     * @param {String} ns - namespace identifier
-		     * @throws {TypeError}
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "closeNamespace",
-		    value: function closeNamespace(ns) {
-		      var namespace = this.namespaces[ns];
-
-		      if (namespace) {
-		        delete namespace.rpc_methods;
-		        delete namespace.events;
-
-		        var _iterator = _createForOfIteratorHelper(namespace.clients.values()),
-		            _step;
-
-		        try {
-		          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-		            var socket = _step.value;
-		            socket.close();
-		          }
-		        } catch (err) {
-		          _iterator.e(err);
-		        } finally {
-		          _iterator.f();
-		        }
-
-		        delete this.namespaces[ns];
-		      }
-		    }
-		    /**
-		     * Creates a new event that can be emitted to clients.
-		     * @method
-		     * @param {String} name - event name
-		     * @param {String} ns - namespace identifier
-		     * @throws {TypeError}
-		     * @return {Object} - returns an IEvent object
-		     */
-
-		  }, {
-		    key: "event",
-		    value: function event(name) {
-		      var _this3 = this;
-
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      if (!this.namespaces[ns]) this._generateNamespace(ns);else {
-		        var index = this.namespaces[ns].events[name];
-		        if (index !== undefined) throw new Error("Already registered event ".concat(ns).concat(name));
-		      }
-		      this.namespaces[ns].events[name] = {
-		        sockets: [],
-		        "protected": false
-		      }; // forward emitted event to subscribers
-
-		      this.on(name, function () {
-		        for (var _len = arguments.length, params = new Array(_len), _key = 0; _key < _len; _key++) {
-		          params[_key] = arguments[_key];
-		        }
-
-		        // flatten an object if no spreading is wanted
-		        if (params.length === 1 && params[0] instanceof Object) params = params[0];
-
-		        var _iterator2 = _createForOfIteratorHelper(_this3.namespaces[ns].events[name].sockets),
-		            _step2;
-
-		        try {
-		          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-		            var socket_id = _step2.value;
-
-		            var socket = _this3.namespaces[ns].clients.get(socket_id);
-
-		            if (!socket) continue;
-		            socket.send(JSON.stringify({
-		              notification: name,
-		              params: params || null
-		            }));
-		          }
-		        } catch (err) {
-		          _iterator2.e(err);
-		        } finally {
-		          _iterator2.f();
-		        }
-		      });
-		      return {
-		        "protected": function _protected() {
-		          return _this3._makeProtectedEvent(name, ns);
-		        },
-		        "public": function _public() {
-		          return _this3._makePublicEvent(name, ns);
-		        }
-		      };
-		    }
-		    /**
-		     * Returns a requested namespace object
-		     * @method
-		     * @param {String} name - namespace identifier
-		     * @throws {TypeError}
-		     * @return {Object} - namespace object
-		     */
-
-		  }, {
-		    key: "of",
-		    value: function of(name) {
-		      if (!this.namespaces[name]) this._generateNamespace(name);
-		      var self = this;
-		      return {
-		        // self.register convenience method
-		        register: function register(fn_name, fn) {
-		          if (arguments.length !== 2) throw new Error("must provide exactly two arguments");
-		          if (typeof fn_name !== "string") throw new Error("name must be a string");
-		          if (typeof fn !== "function") throw new Error("handler must be a function");
-		          return self.register(fn_name, fn, name);
-		        },
-		        // self.event convenience method
-		        event: function event(ev_name) {
-		          if (arguments.length !== 1) throw new Error("must provide exactly one argument");
-		          if (typeof ev_name !== "string") throw new Error("name must be a string");
-		          return self.event(ev_name, name);
-		        },
-
-		        // self.eventList convenience method
-		        get eventList() {
-		          return Object.keys(self.namespaces[name].events);
-		        },
-
-		        /**
-		         * Emits a specified event to this namespace.
-		         * @inner
-		         * @method
-		         * @param {String} event - event name
-		         * @param {Array} params - event parameters
-		         * @return {Undefined}
-		         */
-		        emit: function emit(event) {
-		          var socket_ids = (0, _toConsumableArray2["default"])(self.namespaces[name].clients.keys());
-
-		          for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-		            params[_key2 - 1] = arguments[_key2];
-		          }
-
-		          for (var i = 0, id; id = socket_ids[i]; ++i) {
-		            self.namespaces[name].clients.get(id).send(JSON.stringify({
-		              notification: event,
-		              params: params || []
-		            }));
-		          }
-		        },
-
-		        /**
-		         * Returns a name of this namespace.
-		         * @inner
-		         * @method
-		         * @kind constant
-		         * @return {String}
-		         */
-		        get name() {
-		          return name;
-		        },
-
-		        /**
-		         * Returns a hash of websocket objects connected to this namespace.
-		         * @inner
-		         * @method
-		         * @return {Object}
-		         */
-		        connected: function connected() {
-		          var socket_ids = (0, _toConsumableArray2["default"])(self.namespaces[name].clients.keys());
-		          return socket_ids.reduce(function (acc, curr) {
-		            return Object.assign(Object.assign({}, acc), (0, _defineProperty2["default"])({}, curr, self.namespaces[name].clients.get(curr)));
-		          }, {});
-		        },
-
-		        /**
-		         * Returns a list of client unique identifiers connected to this namespace.
-		         * @inner
-		         * @method
-		         * @return {Array}
-		         */
-		        clients: function clients() {
-		          return self.namespaces[name];
-		        }
-		      };
-		    }
-		    /**
-		     * Lists all created events in a given namespace. Defaults to "/".
-		     * @method
-		     * @param {String} ns - namespaces identifier
-		     * @readonly
-		     * @return {Array} - returns a list of created events
-		     */
-
-		  }, {
-		    key: "eventList",
-		    value: function eventList() {
-		      var ns = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "/";
-		      if (!this.namespaces[ns]) return [];
-		      return Object.keys(this.namespaces[ns].events);
-		    }
-		    /**
-		     * Creates a JSON-RPC 2.0 compliant error
-		     * @method
-		     * @param {Number} code - indicates the error type that occurred
-		     * @param {String} message - provides a short description of the error
-		     * @param {String|Object} data - details containing additional information about the error
-		     * @return {Object}
-		     */
-
-		  }, {
-		    key: "createError",
-		    value: function createError(code, message, data) {
-		      return {
-		        code: code,
-		        message: message,
-		        data: data || null
-		      };
-		    }
-		    /**
-		     * Closes the server and terminates all clients.
-		     * @method
-		     * @return {Promise}
-		     */
-
-		  }, {
-		    key: "close",
-		    value: function close() {
-		      var _this4 = this;
-
-		      return new Promise(function (resolve, reject) {
-		        try {
-		          _this4.wss.close();
-
-		          _this4.emit("close");
-
-		          resolve();
-		        } catch (error) {
-		          reject(error);
-		        }
-		      });
-		    }
-		    /**
-		     * Handles all WebSocket JSON RPC 2.0 requests.
-		     * @private
-		     * @param {Object} socket - ws socket instance
-		     * @param {String} ns - namespaces identifier
-		     * @return {Undefined}
-		     */
-
-		  }, {
-		    key: "_handleRPC",
-		    value: function _handleRPC(socket) {
-		      var _this5 = this;
-
-		      var ns = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "/";
-		      socket.on("message", /*#__PURE__*/function () {
-		        var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(data) {
-		          var msg_options, parsedData, responses, _iterator3, _step3, message, _response, response;
-
-		          return _regenerator["default"].wrap(function _callee$(_context) {
-		            while (1) {
-		              switch (_context.prev = _context.next) {
-		                case 0:
-		                  msg_options = {};
-
-		                  if (data instanceof ArrayBuffer) {
-		                    msg_options.binary = true;
-		                    data = Buffer.from(data).toString();
-		                  }
-
-		                  if (!(socket.readyState !== 1)) {
-		                    _context.next = 4;
-		                    break;
-		                  }
-
-		                  return _context.abrupt("return");
-
-		                case 4:
-		                  _context.prev = 4;
-		                  parsedData = JSON.parse(data);
-		                  _context.next = 11;
-		                  break;
-
-		                case 8:
-		                  _context.prev = 8;
-		                  _context.t0 = _context["catch"](4);
-		                  return _context.abrupt("return", socket.send(JSON.stringify({
-		                    jsonrpc: "2.0",
-		                    error: utils.createError(-32700, _context.t0.toString()),
-		                    id: null
-		                  }), msg_options));
-
-		                case 11:
-		                  if (!Array.isArray(parsedData)) {
-		                    _context.next = 39;
-		                    break;
-		                  }
-
-		                  if (parsedData.length) {
-		                    _context.next = 14;
-		                    break;
-		                  }
-
-		                  return _context.abrupt("return", socket.send(JSON.stringify({
-		                    jsonrpc: "2.0",
-		                    error: utils.createError(-32600, "Invalid array"),
-		                    id: null
-		                  }), msg_options));
-
-		                case 14:
-		                  responses = [];
-		                  _iterator3 = _createForOfIteratorHelper(parsedData);
-		                  _context.prev = 16;
-
-		                  _iterator3.s();
-
-		                case 18:
-		                  if ((_step3 = _iterator3.n()).done) {
-		                    _context.next = 28;
-		                    break;
-		                  }
-
-		                  message = _step3.value;
-		                  _context.next = 22;
-		                  return _this5._runMethod(message, socket._id, ns);
-
-		                case 22:
-		                  _response = _context.sent;
-
-		                  if (_response) {
-		                    _context.next = 25;
-		                    break;
-		                  }
-
-		                  return _context.abrupt("continue", 26);
-
-		                case 25:
-		                  responses.push(_response);
-
-		                case 26:
-		                  _context.next = 18;
-		                  break;
-
-		                case 28:
-		                  _context.next = 33;
-		                  break;
-
-		                case 30:
-		                  _context.prev = 30;
-		                  _context.t1 = _context["catch"](16);
-
-		                  _iterator3.e(_context.t1);
-
-		                case 33:
-		                  _context.prev = 33;
-
-		                  _iterator3.f();
-
-		                  return _context.finish(33);
-
-		                case 36:
-		                  if (responses.length) {
-		                    _context.next = 38;
-		                    break;
-		                  }
-
-		                  return _context.abrupt("return");
-
-		                case 38:
-		                  return _context.abrupt("return", socket.send(JSON.stringify(responses), msg_options));
-
-		                case 39:
-		                  _context.next = 41;
-		                  return _this5._runMethod(parsedData, socket._id, ns);
-
-		                case 41:
-		                  response = _context.sent;
-
-		                  if (response) {
-		                    _context.next = 44;
-		                    break;
-		                  }
-
-		                  return _context.abrupt("return");
-
-		                case 44:
-		                  return _context.abrupt("return", socket.send(JSON.stringify(response), msg_options));
-
-		                case 45:
-		                case "end":
-		                  return _context.stop();
-		              }
-		            }
-		          }, _callee, null, [[4, 8], [16, 30, 33, 36]]);
-		        }));
-
-		        return function (_x) {
-		          return _ref.apply(this, arguments);
-		        };
-		      }());
-		    }
-		    /**
-		     * Runs a defined RPC method.
-		     * @private
-		     * @param {Object} message - a message received
-		     * @param {Object} socket_id - user's socket id
-		     * @param {String} ns - namespaces identifier
-		     * @return {Object|undefined}
-		     */
-
-		  }, {
-		    key: "_runMethod",
-		    value: function () {
-		      var _runMethod2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(message, socket_id) {
-		        var ns,
-		            results,
-		            event_names,
-		            _iterator4,
-		            _step4,
-		            name,
-		            index,
-		            namespace,
-		            socket_index,
-		            _results,
-		            _iterator5,
-		            _step5,
-		            _name,
-		            _index,
-		            response,
-		            s,
-		            _args2 = arguments;
-
-		        return _regenerator["default"].wrap(function _callee2$(_context2) {
-		          while (1) {
-		            switch (_context2.prev = _context2.next) {
-		              case 0:
-		                ns = _args2.length > 2 && _args2[2] !== undefined ? _args2[2] : "/";
-
-		                if (!((0, _typeof2["default"])(message) !== "object" || message === null)) {
-		                  _context2.next = 3;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32600),
-		                  id: null
-		                });
-
-		              case 3:
-		                if (!(message.jsonrpc !== "2.0")) {
-		                  _context2.next = 5;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32600, "Invalid JSON RPC version"),
-		                  id: message.id || null
-		                });
-
-		              case 5:
-		                if (message.method) {
-		                  _context2.next = 7;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32602, "Method not specified"),
-		                  id: message.id || null
-		                });
-
-		              case 7:
-		                if (!(typeof message.method !== "string")) {
-		                  _context2.next = 9;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32600, "Invalid method name"),
-		                  id: message.id || null
-		                });
-
-		              case 9:
-		                if (!(message.params && typeof message.params === "string")) {
-		                  _context2.next = 11;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32600),
-		                  id: message.id || null
-		                });
-
-		              case 11:
-		                if (!(message.method === "rpc.on")) {
-		                  _context2.next = 47;
-		                  break;
-		                }
-
-		                if (message.params) {
-		                  _context2.next = 14;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32000),
-		                  id: message.id || null
-		                });
-
-		              case 14:
-		                results = {};
-		                event_names = Object.keys(this.namespaces[ns].events);
-		                _iterator4 = _createForOfIteratorHelper(message.params);
-		                _context2.prev = 17;
-
-		                _iterator4.s();
-
-		              case 19:
-		                if ((_step4 = _iterator4.n()).done) {
-		                  _context2.next = 36;
-		                  break;
-		                }
-
-		                name = _step4.value;
-		                index = event_names.indexOf(name);
-		                namespace = this.namespaces[ns];
-
-		                if (!(index === -1)) {
-		                  _context2.next = 26;
-		                  break;
-		                }
-
-		                results[name] = "provided event invalid";
-		                return _context2.abrupt("continue", 34);
-
-		              case 26:
-		                if (!(namespace.events[event_names[index]]["protected"] === true && namespace.clients.get(socket_id)["_authenticated"] === false)) {
-		                  _context2.next = 28;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32606),
-		                  id: message.id || null
-		                });
-
-		              case 28:
-		                socket_index = namespace.events[event_names[index]].sockets.indexOf(socket_id);
-
-		                if (!(socket_index >= 0)) {
-		                  _context2.next = 32;
-		                  break;
-		                }
-
-		                results[name] = "socket has already been subscribed to event";
-		                return _context2.abrupt("continue", 34);
-
-		              case 32:
-		                namespace.events[event_names[index]].sockets.push(socket_id);
-		                results[name] = "ok";
-
-		              case 34:
-		                _context2.next = 19;
-		                break;
-
-		              case 36:
-		                _context2.next = 41;
-		                break;
-
-		              case 38:
-		                _context2.prev = 38;
-		                _context2.t0 = _context2["catch"](17);
-
-		                _iterator4.e(_context2.t0);
-
-		              case 41:
-		                _context2.prev = 41;
-
-		                _iterator4.f();
-
-		                return _context2.finish(41);
-
-		              case 44:
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  result: results,
-		                  id: message.id || null
-		                });
-
-		              case 47:
-		                if (!(message.method === "rpc.off")) {
-		                  _context2.next = 78;
-		                  break;
-		                }
-
-		                if (message.params) {
-		                  _context2.next = 50;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32000),
-		                  id: message.id || null
-		                });
-
-		              case 50:
-		                _results = {};
-		                _iterator5 = _createForOfIteratorHelper(message.params);
-		                _context2.prev = 52;
-
-		                _iterator5.s();
-
-		              case 54:
-		                if ((_step5 = _iterator5.n()).done) {
-		                  _context2.next = 67;
-		                  break;
-		                }
-
-		                _name = _step5.value;
-
-		                if (this.namespaces[ns].events[_name]) {
-		                  _context2.next = 59;
-		                  break;
-		                }
-
-		                _results[_name] = "provided event invalid";
-		                return _context2.abrupt("continue", 65);
-
-		              case 59:
-		                _index = this.namespaces[ns].events[_name].sockets.indexOf(socket_id);
-
-		                if (!(_index === -1)) {
-		                  _context2.next = 63;
-		                  break;
-		                }
-
-		                _results[_name] = "not subscribed";
-		                return _context2.abrupt("continue", 65);
-
-		              case 63:
-		                this.namespaces[ns].events[_name].sockets.splice(_index, 1);
-
-		                _results[_name] = "ok";
-
-		              case 65:
-		                _context2.next = 54;
-		                break;
-
-		              case 67:
-		                _context2.next = 72;
-		                break;
-
-		              case 69:
-		                _context2.prev = 69;
-		                _context2.t1 = _context2["catch"](52);
-
-		                _iterator5.e(_context2.t1);
-
-		              case 72:
-		                _context2.prev = 72;
-
-		                _iterator5.f();
-
-		                return _context2.finish(72);
-
-		              case 75:
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  result: _results,
-		                  id: message.id || null
-		                });
-
-		              case 78:
-		                if (!(message.method === "rpc.login")) {
-		                  _context2.next = 81;
-		                  break;
-		                }
-
-		                if (message.params) {
-		                  _context2.next = 81;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32604),
-		                  id: message.id || null
-		                });
-
-		              case 81:
-		                if (this.namespaces[ns].rpc_methods[message.method]) {
-		                  _context2.next = 83;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32601),
-		                  id: message.id || null
-		                });
-
-		              case 83:
-		                response = null; // reject request if method is protected and if client is not authenticated
-
-		                if (!(this.namespaces[ns].rpc_methods[message.method]["protected"] === true && this.namespaces[ns].clients.get(socket_id)["_authenticated"] === false)) {
-		                  _context2.next = 86;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: utils.createError(-32605),
-		                  id: message.id || null
-		                });
-
-		              case 86:
-		                _context2.prev = 86;
-		                _context2.next = 89;
-		                return this.namespaces[ns].rpc_methods[message.method].fn(message.params, socket_id);
-
-		              case 89:
-		                response = _context2.sent;
-		                _context2.next = 99;
-		                break;
-
-		              case 92:
-		                _context2.prev = 92;
-		                _context2.t2 = _context2["catch"](86);
-
-		                if (message.id) {
-		                  _context2.next = 96;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return");
-
-		              case 96:
-		                if (!(_context2.t2 instanceof Error)) {
-		                  _context2.next = 98;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: {
-		                    code: -32000,
-		                    message: _context2.t2.name,
-		                    data: _context2.t2.message
-		                  },
-		                  id: message.id
-		                });
-
-		              case 98:
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  error: _context2.t2,
-		                  id: message.id
-		                });
-
-		              case 99:
-		                if (message.id) {
-		                  _context2.next = 101;
-		                  break;
-		                }
-
-		                return _context2.abrupt("return");
-
-		              case 101:
-		                // if login middleware returned true, set connection as authenticated
-		                if (message.method === "rpc.login" && response === true) {
-		                  s = this.namespaces[ns].clients.get(socket_id);
-		                  s["_authenticated"] = true;
-		                  this.namespaces[ns].clients.set(socket_id, s);
-		                }
-
-		                return _context2.abrupt("return", {
-		                  jsonrpc: "2.0",
-		                  result: response,
-		                  id: message.id
-		                });
-
-		              case 103:
-		              case "end":
-		                return _context2.stop();
-		            }
-		          }
-		        }, _callee2, this, [[17, 38, 41, 44], [52, 69, 72, 75], [86, 92]]);
-		      }));
-
-		      function _runMethod(_x2, _x3) {
-		        return _runMethod2.apply(this, arguments);
-		      }
-
-		      return _runMethod;
-		    }()
-		    /**
-		     * Generate a new namespace store.
-		     * Also preregister some special namespace methods.
-		     * @private
-		     * @param {String} name - namespaces identifier
-		     * @return {undefined}
-		     */
-
-		  }, {
-		    key: "_generateNamespace",
-		    value: function _generateNamespace(name) {
-		      var _this6 = this;
-
-		      this.namespaces[name] = {
-		        rpc_methods: {
-		          "__listMethods": {
-		            fn: function fn() {
-		              return Object.keys(_this6.namespaces[name].rpc_methods);
-		            },
-		            "protected": false
-		          }
-		        },
-		        clients: new Map(),
-		        events: {}
-		      };
-		    }
-		  }]);
-		  return Server;
-		}(_eventemitter.EventEmitter);
-
-		exports["default"] = Server;
-} (server));
-	return server;
-}
-
-(function (exports) {
-
-	var _interopRequireDefault = interopRequireDefault.exports;
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.Client = void 0;
-	Object.defineProperty(exports, "Server", {
-	  enumerable: true,
-	  get: function get() {
-	    return _server["default"];
-	  }
-	});
-
-	var _createClass2 = _interopRequireDefault(requireCreateClass());
-
-	var _classCallCheck2 = _interopRequireDefault(requireClassCallCheck());
-
-	var _inherits2 = _interopRequireDefault(requireInherits());
-
-	var _possibleConstructorReturn2 = _interopRequireDefault(requirePossibleConstructorReturn());
-
-	var _getPrototypeOf2 = _interopRequireDefault(requireGetPrototypeOf());
-
-	var _websocket = _interopRequireDefault(requireWebsocket());
-
-	var _client = _interopRequireDefault(requireClient());
-
-	var _server = _interopRequireDefault(requireServer());
-
-	function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = (0, _getPrototypeOf2["default"])(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = (0, _getPrototypeOf2["default"])(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return (0, _possibleConstructorReturn2["default"])(this, result); }; }
-
-	function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
-
-	var __rest = function (s, e) {
-	  var t = {};
-
-	  for (var p in s) {
-	    if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
-	  }
-
-	  if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-	    if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
-	  }
-	  return t;
-	};
-
-	var Client = /*#__PURE__*/function (_CommonClient) {
-	  (0, _inherits2["default"])(Client, _CommonClient);
-
-	  var _super = _createSuper(Client);
-
-	  function Client() {
-	    var address = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ws://localhost:8080";
-
-	    var _a = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	    var generate_request_id = arguments.length > 2 ? arguments[2] : undefined;
-	    (0, _classCallCheck2["default"])(this, Client);
-
-	    var _a$autoconnect = _a.autoconnect,
-	        autoconnect = _a$autoconnect === void 0 ? true : _a$autoconnect,
-	        _a$reconnect = _a.reconnect,
-	        reconnect = _a$reconnect === void 0 ? true : _a$reconnect,
-	        _a$reconnect_interval = _a.reconnect_interval,
-	        reconnect_interval = _a$reconnect_interval === void 0 ? 1000 : _a$reconnect_interval,
-	        _a$max_reconnects = _a.max_reconnects,
-	        max_reconnects = _a$max_reconnects === void 0 ? 5 : _a$max_reconnects,
-	        rest_options = __rest(_a, ["autoconnect", "reconnect", "reconnect_interval", "max_reconnects"]);
-
-	    return _super.call(this, _websocket["default"], address, Object.assign({
-	      autoconnect: autoconnect,
-	      reconnect: reconnect,
-	      reconnect_interval: reconnect_interval,
-	      max_reconnects: max_reconnects
-	    }, rest_options), generate_request_id);
-	  }
-
-	  return (0, _createClass2["default"])(Client);
-	}(_client["default"]);
-
-	exports.Client = Client;
-} (dist));
-
-const uuid$1 = require$$0$1.v4;
+const uuid$1 = require$$0.v4;
 
 /**
  *  Generates a JSON-RPC 1.0 or 2.0 request
@@ -20680,7 +16765,7 @@ const generateRequest$1 = function(method, params, id, options) {
 
 var generateRequest_1 = generateRequest$1;
 
-const uuid = require$$0$1.v4;
+const uuid = require$$0.v4;
 const generateRequest = generateRequest_1;
 
 /**
@@ -20842,9582 +16927,15 @@ ClientBrowser.prototype._parseResponse = function(err, responseText, callback) {
   callback(null, response);
 };
 
-var elliptic = {};
-
-var name = "elliptic";
-var version$3 = "6.5.4";
-var description = "EC cryptography";
-var main = "lib/elliptic.js";
-var files = [
-	"lib"
-];
-var scripts = {
-	lint: "eslint lib test",
-	"lint:fix": "npm run lint -- --fix",
-	unit: "istanbul test _mocha --reporter=spec test/index.js",
-	test: "npm run lint && npm run unit",
-	version: "grunt dist && git add dist/"
-};
-var repository = {
-	type: "git",
-	url: "git@github.com:indutny/elliptic"
-};
-var keywords = [
-	"EC",
-	"Elliptic",
-	"curve",
-	"Cryptography"
-];
-var author = "Fedor Indutny <fedor@indutny.com>";
-var license = "MIT";
-var bugs = {
-	url: "https://github.com/indutny/elliptic/issues"
-};
-var homepage = "https://github.com/indutny/elliptic";
-var devDependencies = {
-	brfs: "^2.0.2",
-	coveralls: "^3.1.0",
-	eslint: "^7.6.0",
-	grunt: "^1.2.1",
-	"grunt-browserify": "^5.3.0",
-	"grunt-cli": "^1.3.2",
-	"grunt-contrib-connect": "^3.0.0",
-	"grunt-contrib-copy": "^1.0.0",
-	"grunt-contrib-uglify": "^5.0.0",
-	"grunt-mocha-istanbul": "^5.0.2",
-	"grunt-saucelabs": "^9.0.1",
-	istanbul: "^0.4.5",
-	mocha: "^8.0.1"
-};
-var dependencies = {
-	"bn.js": "^4.11.9",
-	brorand: "^1.1.0",
-	"hash.js": "^1.0.0",
-	"hmac-drbg": "^1.0.1",
-	inherits: "^2.0.4",
-	"minimalistic-assert": "^1.0.1",
-	"minimalistic-crypto-utils": "^1.0.1"
-};
-var require$$0 = {
-	name: name,
-	version: version$3,
-	description: description,
-	main: main,
-	files: files,
-	scripts: scripts,
-	repository: repository,
-	keywords: keywords,
-	author: author,
-	license: license,
-	bugs: bugs,
-	homepage: homepage,
-	devDependencies: devDependencies,
-	dependencies: dependencies
-};
-
-var utils$w = {};
-
-var bn = {exports: {}};
-
-(function (module) {
-	(function (module, exports) {
-
-	  // Utils
-	  function assert (val, msg) {
-	    if (!val) throw new Error(msg || 'Assertion failed');
-	  }
-
-	  // Could use `inherits` module, but don't want to move from single file
-	  // architecture yet.
-	  function inherits (ctor, superCtor) {
-	    ctor.super_ = superCtor;
-	    var TempCtor = function () {};
-	    TempCtor.prototype = superCtor.prototype;
-	    ctor.prototype = new TempCtor();
-	    ctor.prototype.constructor = ctor;
-	  }
-
-	  // BN
-
-	  function BN (number, base, endian) {
-	    if (BN.isBN(number)) {
-	      return number;
-	    }
-
-	    this.negative = 0;
-	    this.words = null;
-	    this.length = 0;
-
-	    // Reduction context
-	    this.red = null;
-
-	    if (number !== null) {
-	      if (base === 'le' || base === 'be') {
-	        endian = base;
-	        base = 10;
-	      }
-
-	      this._init(number || 0, base || 10, endian || 'be');
-	    }
-	  }
-	  if (typeof module === 'object') {
-	    module.exports = BN;
-	  } else {
-	    exports.BN = BN;
-	  }
-
-	  BN.BN = BN;
-	  BN.wordSize = 26;
-
-	  var Buffer;
-	  try {
-	    if (typeof window !== 'undefined' && typeof window.Buffer !== 'undefined') {
-	      Buffer = window.Buffer;
-	    } else {
-	      Buffer = require('buffer').Buffer;
-	    }
-	  } catch (e) {
-	  }
-
-	  BN.isBN = function isBN (num) {
-	    if (num instanceof BN) {
-	      return true;
-	    }
-
-	    return num !== null && typeof num === 'object' &&
-	      num.constructor.wordSize === BN.wordSize && Array.isArray(num.words);
-	  };
-
-	  BN.max = function max (left, right) {
-	    if (left.cmp(right) > 0) return left;
-	    return right;
-	  };
-
-	  BN.min = function min (left, right) {
-	    if (left.cmp(right) < 0) return left;
-	    return right;
-	  };
-
-	  BN.prototype._init = function init (number, base, endian) {
-	    if (typeof number === 'number') {
-	      return this._initNumber(number, base, endian);
-	    }
-
-	    if (typeof number === 'object') {
-	      return this._initArray(number, base, endian);
-	    }
-
-	    if (base === 'hex') {
-	      base = 16;
-	    }
-	    assert(base === (base | 0) && base >= 2 && base <= 36);
-
-	    number = number.toString().replace(/\s+/g, '');
-	    var start = 0;
-	    if (number[0] === '-') {
-	      start++;
-	      this.negative = 1;
-	    }
-
-	    if (start < number.length) {
-	      if (base === 16) {
-	        this._parseHex(number, start, endian);
-	      } else {
-	        this._parseBase(number, base, start);
-	        if (endian === 'le') {
-	          this._initArray(this.toArray(), base, endian);
-	        }
-	      }
-	    }
-	  };
-
-	  BN.prototype._initNumber = function _initNumber (number, base, endian) {
-	    if (number < 0) {
-	      this.negative = 1;
-	      number = -number;
-	    }
-	    if (number < 0x4000000) {
-	      this.words = [ number & 0x3ffffff ];
-	      this.length = 1;
-	    } else if (number < 0x10000000000000) {
-	      this.words = [
-	        number & 0x3ffffff,
-	        (number / 0x4000000) & 0x3ffffff
-	      ];
-	      this.length = 2;
-	    } else {
-	      assert(number < 0x20000000000000); // 2 ^ 53 (unsafe)
-	      this.words = [
-	        number & 0x3ffffff,
-	        (number / 0x4000000) & 0x3ffffff,
-	        1
-	      ];
-	      this.length = 3;
-	    }
-
-	    if (endian !== 'le') return;
-
-	    // Reverse the bytes
-	    this._initArray(this.toArray(), base, endian);
-	  };
-
-	  BN.prototype._initArray = function _initArray (number, base, endian) {
-	    // Perhaps a Uint8Array
-	    assert(typeof number.length === 'number');
-	    if (number.length <= 0) {
-	      this.words = [ 0 ];
-	      this.length = 1;
-	      return this;
-	    }
-
-	    this.length = Math.ceil(number.length / 3);
-	    this.words = new Array(this.length);
-	    for (var i = 0; i < this.length; i++) {
-	      this.words[i] = 0;
-	    }
-
-	    var j, w;
-	    var off = 0;
-	    if (endian === 'be') {
-	      for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
-	        w = number[i] | (number[i - 1] << 8) | (number[i - 2] << 16);
-	        this.words[j] |= (w << off) & 0x3ffffff;
-	        this.words[j + 1] = (w >>> (26 - off)) & 0x3ffffff;
-	        off += 24;
-	        if (off >= 26) {
-	          off -= 26;
-	          j++;
-	        }
-	      }
-	    } else if (endian === 'le') {
-	      for (i = 0, j = 0; i < number.length; i += 3) {
-	        w = number[i] | (number[i + 1] << 8) | (number[i + 2] << 16);
-	        this.words[j] |= (w << off) & 0x3ffffff;
-	        this.words[j + 1] = (w >>> (26 - off)) & 0x3ffffff;
-	        off += 24;
-	        if (off >= 26) {
-	          off -= 26;
-	          j++;
-	        }
-	      }
-	    }
-	    return this.strip();
-	  };
-
-	  function parseHex4Bits (string, index) {
-	    var c = string.charCodeAt(index);
-	    // 'A' - 'F'
-	    if (c >= 65 && c <= 70) {
-	      return c - 55;
-	    // 'a' - 'f'
-	    } else if (c >= 97 && c <= 102) {
-	      return c - 87;
-	    // '0' - '9'
-	    } else {
-	      return (c - 48) & 0xf;
-	    }
-	  }
-
-	  function parseHexByte (string, lowerBound, index) {
-	    var r = parseHex4Bits(string, index);
-	    if (index - 1 >= lowerBound) {
-	      r |= parseHex4Bits(string, index - 1) << 4;
-	    }
-	    return r;
-	  }
-
-	  BN.prototype._parseHex = function _parseHex (number, start, endian) {
-	    // Create possibly bigger array to ensure that it fits the number
-	    this.length = Math.ceil((number.length - start) / 6);
-	    this.words = new Array(this.length);
-	    for (var i = 0; i < this.length; i++) {
-	      this.words[i] = 0;
-	    }
-
-	    // 24-bits chunks
-	    var off = 0;
-	    var j = 0;
-
-	    var w;
-	    if (endian === 'be') {
-	      for (i = number.length - 1; i >= start; i -= 2) {
-	        w = parseHexByte(number, start, i) << off;
-	        this.words[j] |= w & 0x3ffffff;
-	        if (off >= 18) {
-	          off -= 18;
-	          j += 1;
-	          this.words[j] |= w >>> 26;
-	        } else {
-	          off += 8;
-	        }
-	      }
-	    } else {
-	      var parseLength = number.length - start;
-	      for (i = parseLength % 2 === 0 ? start + 1 : start; i < number.length; i += 2) {
-	        w = parseHexByte(number, start, i) << off;
-	        this.words[j] |= w & 0x3ffffff;
-	        if (off >= 18) {
-	          off -= 18;
-	          j += 1;
-	          this.words[j] |= w >>> 26;
-	        } else {
-	          off += 8;
-	        }
-	      }
-	    }
-
-	    this.strip();
-	  };
-
-	  function parseBase (str, start, end, mul) {
-	    var r = 0;
-	    var len = Math.min(str.length, end);
-	    for (var i = start; i < len; i++) {
-	      var c = str.charCodeAt(i) - 48;
-
-	      r *= mul;
-
-	      // 'a'
-	      if (c >= 49) {
-	        r += c - 49 + 0xa;
-
-	      // 'A'
-	      } else if (c >= 17) {
-	        r += c - 17 + 0xa;
-
-	      // '0' - '9'
-	      } else {
-	        r += c;
-	      }
-	    }
-	    return r;
-	  }
-
-	  BN.prototype._parseBase = function _parseBase (number, base, start) {
-	    // Initialize as zero
-	    this.words = [ 0 ];
-	    this.length = 1;
-
-	    // Find length of limb in base
-	    for (var limbLen = 0, limbPow = 1; limbPow <= 0x3ffffff; limbPow *= base) {
-	      limbLen++;
-	    }
-	    limbLen--;
-	    limbPow = (limbPow / base) | 0;
-
-	    var total = number.length - start;
-	    var mod = total % limbLen;
-	    var end = Math.min(total, total - mod) + start;
-
-	    var word = 0;
-	    for (var i = start; i < end; i += limbLen) {
-	      word = parseBase(number, i, i + limbLen, base);
-
-	      this.imuln(limbPow);
-	      if (this.words[0] + word < 0x4000000) {
-	        this.words[0] += word;
-	      } else {
-	        this._iaddn(word);
-	      }
-	    }
-
-	    if (mod !== 0) {
-	      var pow = 1;
-	      word = parseBase(number, i, number.length, base);
-
-	      for (i = 0; i < mod; i++) {
-	        pow *= base;
-	      }
-
-	      this.imuln(pow);
-	      if (this.words[0] + word < 0x4000000) {
-	        this.words[0] += word;
-	      } else {
-	        this._iaddn(word);
-	      }
-	    }
-
-	    this.strip();
-	  };
-
-	  BN.prototype.copy = function copy (dest) {
-	    dest.words = new Array(this.length);
-	    for (var i = 0; i < this.length; i++) {
-	      dest.words[i] = this.words[i];
-	    }
-	    dest.length = this.length;
-	    dest.negative = this.negative;
-	    dest.red = this.red;
-	  };
-
-	  BN.prototype.clone = function clone () {
-	    var r = new BN(null);
-	    this.copy(r);
-	    return r;
-	  };
-
-	  BN.prototype._expand = function _expand (size) {
-	    while (this.length < size) {
-	      this.words[this.length++] = 0;
-	    }
-	    return this;
-	  };
-
-	  // Remove leading `0` from `this`
-	  BN.prototype.strip = function strip () {
-	    while (this.length > 1 && this.words[this.length - 1] === 0) {
-	      this.length--;
-	    }
-	    return this._normSign();
-	  };
-
-	  BN.prototype._normSign = function _normSign () {
-	    // -0 = 0
-	    if (this.length === 1 && this.words[0] === 0) {
-	      this.negative = 0;
-	    }
-	    return this;
-	  };
-
-	  BN.prototype.inspect = function inspect () {
-	    return (this.red ? '<BN-R: ' : '<BN: ') + this.toString(16) + '>';
-	  };
-
-	  /*
-
-	  var zeros = [];
-	  var groupSizes = [];
-	  var groupBases = [];
-
-	  var s = '';
-	  var i = -1;
-	  while (++i < BN.wordSize) {
-	    zeros[i] = s;
-	    s += '0';
-	  }
-	  groupSizes[0] = 0;
-	  groupSizes[1] = 0;
-	  groupBases[0] = 0;
-	  groupBases[1] = 0;
-	  var base = 2 - 1;
-	  while (++base < 36 + 1) {
-	    var groupSize = 0;
-	    var groupBase = 1;
-	    while (groupBase < (1 << BN.wordSize) / base) {
-	      groupBase *= base;
-	      groupSize += 1;
-	    }
-	    groupSizes[base] = groupSize;
-	    groupBases[base] = groupBase;
-	  }
-
-	  */
-
-	  var zeros = [
-	    '',
-	    '0',
-	    '00',
-	    '000',
-	    '0000',
-	    '00000',
-	    '000000',
-	    '0000000',
-	    '00000000',
-	    '000000000',
-	    '0000000000',
-	    '00000000000',
-	    '000000000000',
-	    '0000000000000',
-	    '00000000000000',
-	    '000000000000000',
-	    '0000000000000000',
-	    '00000000000000000',
-	    '000000000000000000',
-	    '0000000000000000000',
-	    '00000000000000000000',
-	    '000000000000000000000',
-	    '0000000000000000000000',
-	    '00000000000000000000000',
-	    '000000000000000000000000',
-	    '0000000000000000000000000'
-	  ];
-
-	  var groupSizes = [
-	    0, 0,
-	    25, 16, 12, 11, 10, 9, 8,
-	    8, 7, 7, 7, 7, 6, 6,
-	    6, 6, 6, 6, 6, 5, 5,
-	    5, 5, 5, 5, 5, 5, 5,
-	    5, 5, 5, 5, 5, 5, 5
-	  ];
-
-	  var groupBases = [
-	    0, 0,
-	    33554432, 43046721, 16777216, 48828125, 60466176, 40353607, 16777216,
-	    43046721, 10000000, 19487171, 35831808, 62748517, 7529536, 11390625,
-	    16777216, 24137569, 34012224, 47045881, 64000000, 4084101, 5153632,
-	    6436343, 7962624, 9765625, 11881376, 14348907, 17210368, 20511149,
-	    24300000, 28629151, 33554432, 39135393, 45435424, 52521875, 60466176
-	  ];
-
-	  BN.prototype.toString = function toString (base, padding) {
-	    base = base || 10;
-	    padding = padding | 0 || 1;
-
-	    var out;
-	    if (base === 16 || base === 'hex') {
-	      out = '';
-	      var off = 0;
-	      var carry = 0;
-	      for (var i = 0; i < this.length; i++) {
-	        var w = this.words[i];
-	        var word = (((w << off) | carry) & 0xffffff).toString(16);
-	        carry = (w >>> (24 - off)) & 0xffffff;
-	        if (carry !== 0 || i !== this.length - 1) {
-	          out = zeros[6 - word.length] + word + out;
-	        } else {
-	          out = word + out;
-	        }
-	        off += 2;
-	        if (off >= 26) {
-	          off -= 26;
-	          i--;
-	        }
-	      }
-	      if (carry !== 0) {
-	        out = carry.toString(16) + out;
-	      }
-	      while (out.length % padding !== 0) {
-	        out = '0' + out;
-	      }
-	      if (this.negative !== 0) {
-	        out = '-' + out;
-	      }
-	      return out;
-	    }
-
-	    if (base === (base | 0) && base >= 2 && base <= 36) {
-	      // var groupSize = Math.floor(BN.wordSize * Math.LN2 / Math.log(base));
-	      var groupSize = groupSizes[base];
-	      // var groupBase = Math.pow(base, groupSize);
-	      var groupBase = groupBases[base];
-	      out = '';
-	      var c = this.clone();
-	      c.negative = 0;
-	      while (!c.isZero()) {
-	        var r = c.modn(groupBase).toString(base);
-	        c = c.idivn(groupBase);
-
-	        if (!c.isZero()) {
-	          out = zeros[groupSize - r.length] + r + out;
-	        } else {
-	          out = r + out;
-	        }
-	      }
-	      if (this.isZero()) {
-	        out = '0' + out;
-	      }
-	      while (out.length % padding !== 0) {
-	        out = '0' + out;
-	      }
-	      if (this.negative !== 0) {
-	        out = '-' + out;
-	      }
-	      return out;
-	    }
-
-	    assert(false, 'Base should be between 2 and 36');
-	  };
-
-	  BN.prototype.toNumber = function toNumber () {
-	    var ret = this.words[0];
-	    if (this.length === 2) {
-	      ret += this.words[1] * 0x4000000;
-	    } else if (this.length === 3 && this.words[2] === 0x01) {
-	      // NOTE: at this stage it is known that the top bit is set
-	      ret += 0x10000000000000 + (this.words[1] * 0x4000000);
-	    } else if (this.length > 2) {
-	      assert(false, 'Number can only safely store up to 53 bits');
-	    }
-	    return (this.negative !== 0) ? -ret : ret;
-	  };
-
-	  BN.prototype.toJSON = function toJSON () {
-	    return this.toString(16);
-	  };
-
-	  BN.prototype.toBuffer = function toBuffer (endian, length) {
-	    assert(typeof Buffer !== 'undefined');
-	    return this.toArrayLike(Buffer, endian, length);
-	  };
-
-	  BN.prototype.toArray = function toArray (endian, length) {
-	    return this.toArrayLike(Array, endian, length);
-	  };
-
-	  BN.prototype.toArrayLike = function toArrayLike (ArrayType, endian, length) {
-	    var byteLength = this.byteLength();
-	    var reqLength = length || Math.max(1, byteLength);
-	    assert(byteLength <= reqLength, 'byte array longer than desired length');
-	    assert(reqLength > 0, 'Requested array length <= 0');
-
-	    this.strip();
-	    var littleEndian = endian === 'le';
-	    var res = new ArrayType(reqLength);
-
-	    var b, i;
-	    var q = this.clone();
-	    if (!littleEndian) {
-	      // Assume big-endian
-	      for (i = 0; i < reqLength - byteLength; i++) {
-	        res[i] = 0;
-	      }
-
-	      for (i = 0; !q.isZero(); i++) {
-	        b = q.andln(0xff);
-	        q.iushrn(8);
-
-	        res[reqLength - i - 1] = b;
-	      }
-	    } else {
-	      for (i = 0; !q.isZero(); i++) {
-	        b = q.andln(0xff);
-	        q.iushrn(8);
-
-	        res[i] = b;
-	      }
-
-	      for (; i < reqLength; i++) {
-	        res[i] = 0;
-	      }
-	    }
-
-	    return res;
-	  };
-
-	  if (Math.clz32) {
-	    BN.prototype._countBits = function _countBits (w) {
-	      return 32 - Math.clz32(w);
-	    };
-	  } else {
-	    BN.prototype._countBits = function _countBits (w) {
-	      var t = w;
-	      var r = 0;
-	      if (t >= 0x1000) {
-	        r += 13;
-	        t >>>= 13;
-	      }
-	      if (t >= 0x40) {
-	        r += 7;
-	        t >>>= 7;
-	      }
-	      if (t >= 0x8) {
-	        r += 4;
-	        t >>>= 4;
-	      }
-	      if (t >= 0x02) {
-	        r += 2;
-	        t >>>= 2;
-	      }
-	      return r + t;
-	    };
-	  }
-
-	  BN.prototype._zeroBits = function _zeroBits (w) {
-	    // Short-cut
-	    if (w === 0) return 26;
-
-	    var t = w;
-	    var r = 0;
-	    if ((t & 0x1fff) === 0) {
-	      r += 13;
-	      t >>>= 13;
-	    }
-	    if ((t & 0x7f) === 0) {
-	      r += 7;
-	      t >>>= 7;
-	    }
-	    if ((t & 0xf) === 0) {
-	      r += 4;
-	      t >>>= 4;
-	    }
-	    if ((t & 0x3) === 0) {
-	      r += 2;
-	      t >>>= 2;
-	    }
-	    if ((t & 0x1) === 0) {
-	      r++;
-	    }
-	    return r;
-	  };
-
-	  // Return number of used bits in a BN
-	  BN.prototype.bitLength = function bitLength () {
-	    var w = this.words[this.length - 1];
-	    var hi = this._countBits(w);
-	    return (this.length - 1) * 26 + hi;
-	  };
-
-	  function toBitArray (num) {
-	    var w = new Array(num.bitLength());
-
-	    for (var bit = 0; bit < w.length; bit++) {
-	      var off = (bit / 26) | 0;
-	      var wbit = bit % 26;
-
-	      w[bit] = (num.words[off] & (1 << wbit)) >>> wbit;
-	    }
-
-	    return w;
-	  }
-
-	  // Number of trailing zero bits
-	  BN.prototype.zeroBits = function zeroBits () {
-	    if (this.isZero()) return 0;
-
-	    var r = 0;
-	    for (var i = 0; i < this.length; i++) {
-	      var b = this._zeroBits(this.words[i]);
-	      r += b;
-	      if (b !== 26) break;
-	    }
-	    return r;
-	  };
-
-	  BN.prototype.byteLength = function byteLength () {
-	    return Math.ceil(this.bitLength() / 8);
-	  };
-
-	  BN.prototype.toTwos = function toTwos (width) {
-	    if (this.negative !== 0) {
-	      return this.abs().inotn(width).iaddn(1);
-	    }
-	    return this.clone();
-	  };
-
-	  BN.prototype.fromTwos = function fromTwos (width) {
-	    if (this.testn(width - 1)) {
-	      return this.notn(width).iaddn(1).ineg();
-	    }
-	    return this.clone();
-	  };
-
-	  BN.prototype.isNeg = function isNeg () {
-	    return this.negative !== 0;
-	  };
-
-	  // Return negative clone of `this`
-	  BN.prototype.neg = function neg () {
-	    return this.clone().ineg();
-	  };
-
-	  BN.prototype.ineg = function ineg () {
-	    if (!this.isZero()) {
-	      this.negative ^= 1;
-	    }
-
-	    return this;
-	  };
-
-	  // Or `num` with `this` in-place
-	  BN.prototype.iuor = function iuor (num) {
-	    while (this.length < num.length) {
-	      this.words[this.length++] = 0;
-	    }
-
-	    for (var i = 0; i < num.length; i++) {
-	      this.words[i] = this.words[i] | num.words[i];
-	    }
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.ior = function ior (num) {
-	    assert((this.negative | num.negative) === 0);
-	    return this.iuor(num);
-	  };
-
-	  // Or `num` with `this`
-	  BN.prototype.or = function or (num) {
-	    if (this.length > num.length) return this.clone().ior(num);
-	    return num.clone().ior(this);
-	  };
-
-	  BN.prototype.uor = function uor (num) {
-	    if (this.length > num.length) return this.clone().iuor(num);
-	    return num.clone().iuor(this);
-	  };
-
-	  // And `num` with `this` in-place
-	  BN.prototype.iuand = function iuand (num) {
-	    // b = min-length(num, this)
-	    var b;
-	    if (this.length > num.length) {
-	      b = num;
-	    } else {
-	      b = this;
-	    }
-
-	    for (var i = 0; i < b.length; i++) {
-	      this.words[i] = this.words[i] & num.words[i];
-	    }
-
-	    this.length = b.length;
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.iand = function iand (num) {
-	    assert((this.negative | num.negative) === 0);
-	    return this.iuand(num);
-	  };
-
-	  // And `num` with `this`
-	  BN.prototype.and = function and (num) {
-	    if (this.length > num.length) return this.clone().iand(num);
-	    return num.clone().iand(this);
-	  };
-
-	  BN.prototype.uand = function uand (num) {
-	    if (this.length > num.length) return this.clone().iuand(num);
-	    return num.clone().iuand(this);
-	  };
-
-	  // Xor `num` with `this` in-place
-	  BN.prototype.iuxor = function iuxor (num) {
-	    // a.length > b.length
-	    var a;
-	    var b;
-	    if (this.length > num.length) {
-	      a = this;
-	      b = num;
-	    } else {
-	      a = num;
-	      b = this;
-	    }
-
-	    for (var i = 0; i < b.length; i++) {
-	      this.words[i] = a.words[i] ^ b.words[i];
-	    }
-
-	    if (this !== a) {
-	      for (; i < a.length; i++) {
-	        this.words[i] = a.words[i];
-	      }
-	    }
-
-	    this.length = a.length;
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.ixor = function ixor (num) {
-	    assert((this.negative | num.negative) === 0);
-	    return this.iuxor(num);
-	  };
-
-	  // Xor `num` with `this`
-	  BN.prototype.xor = function xor (num) {
-	    if (this.length > num.length) return this.clone().ixor(num);
-	    return num.clone().ixor(this);
-	  };
-
-	  BN.prototype.uxor = function uxor (num) {
-	    if (this.length > num.length) return this.clone().iuxor(num);
-	    return num.clone().iuxor(this);
-	  };
-
-	  // Not ``this`` with ``width`` bitwidth
-	  BN.prototype.inotn = function inotn (width) {
-	    assert(typeof width === 'number' && width >= 0);
-
-	    var bytesNeeded = Math.ceil(width / 26) | 0;
-	    var bitsLeft = width % 26;
-
-	    // Extend the buffer with leading zeroes
-	    this._expand(bytesNeeded);
-
-	    if (bitsLeft > 0) {
-	      bytesNeeded--;
-	    }
-
-	    // Handle complete words
-	    for (var i = 0; i < bytesNeeded; i++) {
-	      this.words[i] = ~this.words[i] & 0x3ffffff;
-	    }
-
-	    // Handle the residue
-	    if (bitsLeft > 0) {
-	      this.words[i] = ~this.words[i] & (0x3ffffff >> (26 - bitsLeft));
-	    }
-
-	    // And remove leading zeroes
-	    return this.strip();
-	  };
-
-	  BN.prototype.notn = function notn (width) {
-	    return this.clone().inotn(width);
-	  };
-
-	  // Set `bit` of `this`
-	  BN.prototype.setn = function setn (bit, val) {
-	    assert(typeof bit === 'number' && bit >= 0);
-
-	    var off = (bit / 26) | 0;
-	    var wbit = bit % 26;
-
-	    this._expand(off + 1);
-
-	    if (val) {
-	      this.words[off] = this.words[off] | (1 << wbit);
-	    } else {
-	      this.words[off] = this.words[off] & ~(1 << wbit);
-	    }
-
-	    return this.strip();
-	  };
-
-	  // Add `num` to `this` in-place
-	  BN.prototype.iadd = function iadd (num) {
-	    var r;
-
-	    // negative + positive
-	    if (this.negative !== 0 && num.negative === 0) {
-	      this.negative = 0;
-	      r = this.isub(num);
-	      this.negative ^= 1;
-	      return this._normSign();
-
-	    // positive + negative
-	    } else if (this.negative === 0 && num.negative !== 0) {
-	      num.negative = 0;
-	      r = this.isub(num);
-	      num.negative = 1;
-	      return r._normSign();
-	    }
-
-	    // a.length > b.length
-	    var a, b;
-	    if (this.length > num.length) {
-	      a = this;
-	      b = num;
-	    } else {
-	      a = num;
-	      b = this;
-	    }
-
-	    var carry = 0;
-	    for (var i = 0; i < b.length; i++) {
-	      r = (a.words[i] | 0) + (b.words[i] | 0) + carry;
-	      this.words[i] = r & 0x3ffffff;
-	      carry = r >>> 26;
-	    }
-	    for (; carry !== 0 && i < a.length; i++) {
-	      r = (a.words[i] | 0) + carry;
-	      this.words[i] = r & 0x3ffffff;
-	      carry = r >>> 26;
-	    }
-
-	    this.length = a.length;
-	    if (carry !== 0) {
-	      this.words[this.length] = carry;
-	      this.length++;
-	    // Copy the rest of the words
-	    } else if (a !== this) {
-	      for (; i < a.length; i++) {
-	        this.words[i] = a.words[i];
-	      }
-	    }
-
-	    return this;
-	  };
-
-	  // Add `num` to `this`
-	  BN.prototype.add = function add (num) {
-	    var res;
-	    if (num.negative !== 0 && this.negative === 0) {
-	      num.negative = 0;
-	      res = this.sub(num);
-	      num.negative ^= 1;
-	      return res;
-	    } else if (num.negative === 0 && this.negative !== 0) {
-	      this.negative = 0;
-	      res = num.sub(this);
-	      this.negative = 1;
-	      return res;
-	    }
-
-	    if (this.length > num.length) return this.clone().iadd(num);
-
-	    return num.clone().iadd(this);
-	  };
-
-	  // Subtract `num` from `this` in-place
-	  BN.prototype.isub = function isub (num) {
-	    // this - (-num) = this + num
-	    if (num.negative !== 0) {
-	      num.negative = 0;
-	      var r = this.iadd(num);
-	      num.negative = 1;
-	      return r._normSign();
-
-	    // -this - num = -(this + num)
-	    } else if (this.negative !== 0) {
-	      this.negative = 0;
-	      this.iadd(num);
-	      this.negative = 1;
-	      return this._normSign();
-	    }
-
-	    // At this point both numbers are positive
-	    var cmp = this.cmp(num);
-
-	    // Optimization - zeroify
-	    if (cmp === 0) {
-	      this.negative = 0;
-	      this.length = 1;
-	      this.words[0] = 0;
-	      return this;
-	    }
-
-	    // a > b
-	    var a, b;
-	    if (cmp > 0) {
-	      a = this;
-	      b = num;
-	    } else {
-	      a = num;
-	      b = this;
-	    }
-
-	    var carry = 0;
-	    for (var i = 0; i < b.length; i++) {
-	      r = (a.words[i] | 0) - (b.words[i] | 0) + carry;
-	      carry = r >> 26;
-	      this.words[i] = r & 0x3ffffff;
-	    }
-	    for (; carry !== 0 && i < a.length; i++) {
-	      r = (a.words[i] | 0) + carry;
-	      carry = r >> 26;
-	      this.words[i] = r & 0x3ffffff;
-	    }
-
-	    // Copy rest of the words
-	    if (carry === 0 && i < a.length && a !== this) {
-	      for (; i < a.length; i++) {
-	        this.words[i] = a.words[i];
-	      }
-	    }
-
-	    this.length = Math.max(this.length, i);
-
-	    if (a !== this) {
-	      this.negative = 1;
-	    }
-
-	    return this.strip();
-	  };
-
-	  // Subtract `num` from `this`
-	  BN.prototype.sub = function sub (num) {
-	    return this.clone().isub(num);
-	  };
-
-	  function smallMulTo (self, num, out) {
-	    out.negative = num.negative ^ self.negative;
-	    var len = (self.length + num.length) | 0;
-	    out.length = len;
-	    len = (len - 1) | 0;
-
-	    // Peel one iteration (compiler can't do it, because of code complexity)
-	    var a = self.words[0] | 0;
-	    var b = num.words[0] | 0;
-	    var r = a * b;
-
-	    var lo = r & 0x3ffffff;
-	    var carry = (r / 0x4000000) | 0;
-	    out.words[0] = lo;
-
-	    for (var k = 1; k < len; k++) {
-	      // Sum all words with the same `i + j = k` and accumulate `ncarry`,
-	      // note that ncarry could be >= 0x3ffffff
-	      var ncarry = carry >>> 26;
-	      var rword = carry & 0x3ffffff;
-	      var maxJ = Math.min(k, num.length - 1);
-	      for (var j = Math.max(0, k - self.length + 1); j <= maxJ; j++) {
-	        var i = (k - j) | 0;
-	        a = self.words[i] | 0;
-	        b = num.words[j] | 0;
-	        r = a * b + rword;
-	        ncarry += (r / 0x4000000) | 0;
-	        rword = r & 0x3ffffff;
-	      }
-	      out.words[k] = rword | 0;
-	      carry = ncarry | 0;
-	    }
-	    if (carry !== 0) {
-	      out.words[k] = carry | 0;
-	    } else {
-	      out.length--;
-	    }
-
-	    return out.strip();
-	  }
-
-	  // TODO(indutny): it may be reasonable to omit it for users who don't need
-	  // to work with 256-bit numbers, otherwise it gives 20% improvement for 256-bit
-	  // multiplication (like elliptic secp256k1).
-	  var comb10MulTo = function comb10MulTo (self, num, out) {
-	    var a = self.words;
-	    var b = num.words;
-	    var o = out.words;
-	    var c = 0;
-	    var lo;
-	    var mid;
-	    var hi;
-	    var a0 = a[0] | 0;
-	    var al0 = a0 & 0x1fff;
-	    var ah0 = a0 >>> 13;
-	    var a1 = a[1] | 0;
-	    var al1 = a1 & 0x1fff;
-	    var ah1 = a1 >>> 13;
-	    var a2 = a[2] | 0;
-	    var al2 = a2 & 0x1fff;
-	    var ah2 = a2 >>> 13;
-	    var a3 = a[3] | 0;
-	    var al3 = a3 & 0x1fff;
-	    var ah3 = a3 >>> 13;
-	    var a4 = a[4] | 0;
-	    var al4 = a4 & 0x1fff;
-	    var ah4 = a4 >>> 13;
-	    var a5 = a[5] | 0;
-	    var al5 = a5 & 0x1fff;
-	    var ah5 = a5 >>> 13;
-	    var a6 = a[6] | 0;
-	    var al6 = a6 & 0x1fff;
-	    var ah6 = a6 >>> 13;
-	    var a7 = a[7] | 0;
-	    var al7 = a7 & 0x1fff;
-	    var ah7 = a7 >>> 13;
-	    var a8 = a[8] | 0;
-	    var al8 = a8 & 0x1fff;
-	    var ah8 = a8 >>> 13;
-	    var a9 = a[9] | 0;
-	    var al9 = a9 & 0x1fff;
-	    var ah9 = a9 >>> 13;
-	    var b0 = b[0] | 0;
-	    var bl0 = b0 & 0x1fff;
-	    var bh0 = b0 >>> 13;
-	    var b1 = b[1] | 0;
-	    var bl1 = b1 & 0x1fff;
-	    var bh1 = b1 >>> 13;
-	    var b2 = b[2] | 0;
-	    var bl2 = b2 & 0x1fff;
-	    var bh2 = b2 >>> 13;
-	    var b3 = b[3] | 0;
-	    var bl3 = b3 & 0x1fff;
-	    var bh3 = b3 >>> 13;
-	    var b4 = b[4] | 0;
-	    var bl4 = b4 & 0x1fff;
-	    var bh4 = b4 >>> 13;
-	    var b5 = b[5] | 0;
-	    var bl5 = b5 & 0x1fff;
-	    var bh5 = b5 >>> 13;
-	    var b6 = b[6] | 0;
-	    var bl6 = b6 & 0x1fff;
-	    var bh6 = b6 >>> 13;
-	    var b7 = b[7] | 0;
-	    var bl7 = b7 & 0x1fff;
-	    var bh7 = b7 >>> 13;
-	    var b8 = b[8] | 0;
-	    var bl8 = b8 & 0x1fff;
-	    var bh8 = b8 >>> 13;
-	    var b9 = b[9] | 0;
-	    var bl9 = b9 & 0x1fff;
-	    var bh9 = b9 >>> 13;
-
-	    out.negative = self.negative ^ num.negative;
-	    out.length = 19;
-	    /* k = 0 */
-	    lo = Math.imul(al0, bl0);
-	    mid = Math.imul(al0, bh0);
-	    mid = (mid + Math.imul(ah0, bl0)) | 0;
-	    hi = Math.imul(ah0, bh0);
-	    var w0 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w0 >>> 26)) | 0;
-	    w0 &= 0x3ffffff;
-	    /* k = 1 */
-	    lo = Math.imul(al1, bl0);
-	    mid = Math.imul(al1, bh0);
-	    mid = (mid + Math.imul(ah1, bl0)) | 0;
-	    hi = Math.imul(ah1, bh0);
-	    lo = (lo + Math.imul(al0, bl1)) | 0;
-	    mid = (mid + Math.imul(al0, bh1)) | 0;
-	    mid = (mid + Math.imul(ah0, bl1)) | 0;
-	    hi = (hi + Math.imul(ah0, bh1)) | 0;
-	    var w1 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w1 >>> 26)) | 0;
-	    w1 &= 0x3ffffff;
-	    /* k = 2 */
-	    lo = Math.imul(al2, bl0);
-	    mid = Math.imul(al2, bh0);
-	    mid = (mid + Math.imul(ah2, bl0)) | 0;
-	    hi = Math.imul(ah2, bh0);
-	    lo = (lo + Math.imul(al1, bl1)) | 0;
-	    mid = (mid + Math.imul(al1, bh1)) | 0;
-	    mid = (mid + Math.imul(ah1, bl1)) | 0;
-	    hi = (hi + Math.imul(ah1, bh1)) | 0;
-	    lo = (lo + Math.imul(al0, bl2)) | 0;
-	    mid = (mid + Math.imul(al0, bh2)) | 0;
-	    mid = (mid + Math.imul(ah0, bl2)) | 0;
-	    hi = (hi + Math.imul(ah0, bh2)) | 0;
-	    var w2 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w2 >>> 26)) | 0;
-	    w2 &= 0x3ffffff;
-	    /* k = 3 */
-	    lo = Math.imul(al3, bl0);
-	    mid = Math.imul(al3, bh0);
-	    mid = (mid + Math.imul(ah3, bl0)) | 0;
-	    hi = Math.imul(ah3, bh0);
-	    lo = (lo + Math.imul(al2, bl1)) | 0;
-	    mid = (mid + Math.imul(al2, bh1)) | 0;
-	    mid = (mid + Math.imul(ah2, bl1)) | 0;
-	    hi = (hi + Math.imul(ah2, bh1)) | 0;
-	    lo = (lo + Math.imul(al1, bl2)) | 0;
-	    mid = (mid + Math.imul(al1, bh2)) | 0;
-	    mid = (mid + Math.imul(ah1, bl2)) | 0;
-	    hi = (hi + Math.imul(ah1, bh2)) | 0;
-	    lo = (lo + Math.imul(al0, bl3)) | 0;
-	    mid = (mid + Math.imul(al0, bh3)) | 0;
-	    mid = (mid + Math.imul(ah0, bl3)) | 0;
-	    hi = (hi + Math.imul(ah0, bh3)) | 0;
-	    var w3 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w3 >>> 26)) | 0;
-	    w3 &= 0x3ffffff;
-	    /* k = 4 */
-	    lo = Math.imul(al4, bl0);
-	    mid = Math.imul(al4, bh0);
-	    mid = (mid + Math.imul(ah4, bl0)) | 0;
-	    hi = Math.imul(ah4, bh0);
-	    lo = (lo + Math.imul(al3, bl1)) | 0;
-	    mid = (mid + Math.imul(al3, bh1)) | 0;
-	    mid = (mid + Math.imul(ah3, bl1)) | 0;
-	    hi = (hi + Math.imul(ah3, bh1)) | 0;
-	    lo = (lo + Math.imul(al2, bl2)) | 0;
-	    mid = (mid + Math.imul(al2, bh2)) | 0;
-	    mid = (mid + Math.imul(ah2, bl2)) | 0;
-	    hi = (hi + Math.imul(ah2, bh2)) | 0;
-	    lo = (lo + Math.imul(al1, bl3)) | 0;
-	    mid = (mid + Math.imul(al1, bh3)) | 0;
-	    mid = (mid + Math.imul(ah1, bl3)) | 0;
-	    hi = (hi + Math.imul(ah1, bh3)) | 0;
-	    lo = (lo + Math.imul(al0, bl4)) | 0;
-	    mid = (mid + Math.imul(al0, bh4)) | 0;
-	    mid = (mid + Math.imul(ah0, bl4)) | 0;
-	    hi = (hi + Math.imul(ah0, bh4)) | 0;
-	    var w4 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w4 >>> 26)) | 0;
-	    w4 &= 0x3ffffff;
-	    /* k = 5 */
-	    lo = Math.imul(al5, bl0);
-	    mid = Math.imul(al5, bh0);
-	    mid = (mid + Math.imul(ah5, bl0)) | 0;
-	    hi = Math.imul(ah5, bh0);
-	    lo = (lo + Math.imul(al4, bl1)) | 0;
-	    mid = (mid + Math.imul(al4, bh1)) | 0;
-	    mid = (mid + Math.imul(ah4, bl1)) | 0;
-	    hi = (hi + Math.imul(ah4, bh1)) | 0;
-	    lo = (lo + Math.imul(al3, bl2)) | 0;
-	    mid = (mid + Math.imul(al3, bh2)) | 0;
-	    mid = (mid + Math.imul(ah3, bl2)) | 0;
-	    hi = (hi + Math.imul(ah3, bh2)) | 0;
-	    lo = (lo + Math.imul(al2, bl3)) | 0;
-	    mid = (mid + Math.imul(al2, bh3)) | 0;
-	    mid = (mid + Math.imul(ah2, bl3)) | 0;
-	    hi = (hi + Math.imul(ah2, bh3)) | 0;
-	    lo = (lo + Math.imul(al1, bl4)) | 0;
-	    mid = (mid + Math.imul(al1, bh4)) | 0;
-	    mid = (mid + Math.imul(ah1, bl4)) | 0;
-	    hi = (hi + Math.imul(ah1, bh4)) | 0;
-	    lo = (lo + Math.imul(al0, bl5)) | 0;
-	    mid = (mid + Math.imul(al0, bh5)) | 0;
-	    mid = (mid + Math.imul(ah0, bl5)) | 0;
-	    hi = (hi + Math.imul(ah0, bh5)) | 0;
-	    var w5 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w5 >>> 26)) | 0;
-	    w5 &= 0x3ffffff;
-	    /* k = 6 */
-	    lo = Math.imul(al6, bl0);
-	    mid = Math.imul(al6, bh0);
-	    mid = (mid + Math.imul(ah6, bl0)) | 0;
-	    hi = Math.imul(ah6, bh0);
-	    lo = (lo + Math.imul(al5, bl1)) | 0;
-	    mid = (mid + Math.imul(al5, bh1)) | 0;
-	    mid = (mid + Math.imul(ah5, bl1)) | 0;
-	    hi = (hi + Math.imul(ah5, bh1)) | 0;
-	    lo = (lo + Math.imul(al4, bl2)) | 0;
-	    mid = (mid + Math.imul(al4, bh2)) | 0;
-	    mid = (mid + Math.imul(ah4, bl2)) | 0;
-	    hi = (hi + Math.imul(ah4, bh2)) | 0;
-	    lo = (lo + Math.imul(al3, bl3)) | 0;
-	    mid = (mid + Math.imul(al3, bh3)) | 0;
-	    mid = (mid + Math.imul(ah3, bl3)) | 0;
-	    hi = (hi + Math.imul(ah3, bh3)) | 0;
-	    lo = (lo + Math.imul(al2, bl4)) | 0;
-	    mid = (mid + Math.imul(al2, bh4)) | 0;
-	    mid = (mid + Math.imul(ah2, bl4)) | 0;
-	    hi = (hi + Math.imul(ah2, bh4)) | 0;
-	    lo = (lo + Math.imul(al1, bl5)) | 0;
-	    mid = (mid + Math.imul(al1, bh5)) | 0;
-	    mid = (mid + Math.imul(ah1, bl5)) | 0;
-	    hi = (hi + Math.imul(ah1, bh5)) | 0;
-	    lo = (lo + Math.imul(al0, bl6)) | 0;
-	    mid = (mid + Math.imul(al0, bh6)) | 0;
-	    mid = (mid + Math.imul(ah0, bl6)) | 0;
-	    hi = (hi + Math.imul(ah0, bh6)) | 0;
-	    var w6 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w6 >>> 26)) | 0;
-	    w6 &= 0x3ffffff;
-	    /* k = 7 */
-	    lo = Math.imul(al7, bl0);
-	    mid = Math.imul(al7, bh0);
-	    mid = (mid + Math.imul(ah7, bl0)) | 0;
-	    hi = Math.imul(ah7, bh0);
-	    lo = (lo + Math.imul(al6, bl1)) | 0;
-	    mid = (mid + Math.imul(al6, bh1)) | 0;
-	    mid = (mid + Math.imul(ah6, bl1)) | 0;
-	    hi = (hi + Math.imul(ah6, bh1)) | 0;
-	    lo = (lo + Math.imul(al5, bl2)) | 0;
-	    mid = (mid + Math.imul(al5, bh2)) | 0;
-	    mid = (mid + Math.imul(ah5, bl2)) | 0;
-	    hi = (hi + Math.imul(ah5, bh2)) | 0;
-	    lo = (lo + Math.imul(al4, bl3)) | 0;
-	    mid = (mid + Math.imul(al4, bh3)) | 0;
-	    mid = (mid + Math.imul(ah4, bl3)) | 0;
-	    hi = (hi + Math.imul(ah4, bh3)) | 0;
-	    lo = (lo + Math.imul(al3, bl4)) | 0;
-	    mid = (mid + Math.imul(al3, bh4)) | 0;
-	    mid = (mid + Math.imul(ah3, bl4)) | 0;
-	    hi = (hi + Math.imul(ah3, bh4)) | 0;
-	    lo = (lo + Math.imul(al2, bl5)) | 0;
-	    mid = (mid + Math.imul(al2, bh5)) | 0;
-	    mid = (mid + Math.imul(ah2, bl5)) | 0;
-	    hi = (hi + Math.imul(ah2, bh5)) | 0;
-	    lo = (lo + Math.imul(al1, bl6)) | 0;
-	    mid = (mid + Math.imul(al1, bh6)) | 0;
-	    mid = (mid + Math.imul(ah1, bl6)) | 0;
-	    hi = (hi + Math.imul(ah1, bh6)) | 0;
-	    lo = (lo + Math.imul(al0, bl7)) | 0;
-	    mid = (mid + Math.imul(al0, bh7)) | 0;
-	    mid = (mid + Math.imul(ah0, bl7)) | 0;
-	    hi = (hi + Math.imul(ah0, bh7)) | 0;
-	    var w7 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w7 >>> 26)) | 0;
-	    w7 &= 0x3ffffff;
-	    /* k = 8 */
-	    lo = Math.imul(al8, bl0);
-	    mid = Math.imul(al8, bh0);
-	    mid = (mid + Math.imul(ah8, bl0)) | 0;
-	    hi = Math.imul(ah8, bh0);
-	    lo = (lo + Math.imul(al7, bl1)) | 0;
-	    mid = (mid + Math.imul(al7, bh1)) | 0;
-	    mid = (mid + Math.imul(ah7, bl1)) | 0;
-	    hi = (hi + Math.imul(ah7, bh1)) | 0;
-	    lo = (lo + Math.imul(al6, bl2)) | 0;
-	    mid = (mid + Math.imul(al6, bh2)) | 0;
-	    mid = (mid + Math.imul(ah6, bl2)) | 0;
-	    hi = (hi + Math.imul(ah6, bh2)) | 0;
-	    lo = (lo + Math.imul(al5, bl3)) | 0;
-	    mid = (mid + Math.imul(al5, bh3)) | 0;
-	    mid = (mid + Math.imul(ah5, bl3)) | 0;
-	    hi = (hi + Math.imul(ah5, bh3)) | 0;
-	    lo = (lo + Math.imul(al4, bl4)) | 0;
-	    mid = (mid + Math.imul(al4, bh4)) | 0;
-	    mid = (mid + Math.imul(ah4, bl4)) | 0;
-	    hi = (hi + Math.imul(ah4, bh4)) | 0;
-	    lo = (lo + Math.imul(al3, bl5)) | 0;
-	    mid = (mid + Math.imul(al3, bh5)) | 0;
-	    mid = (mid + Math.imul(ah3, bl5)) | 0;
-	    hi = (hi + Math.imul(ah3, bh5)) | 0;
-	    lo = (lo + Math.imul(al2, bl6)) | 0;
-	    mid = (mid + Math.imul(al2, bh6)) | 0;
-	    mid = (mid + Math.imul(ah2, bl6)) | 0;
-	    hi = (hi + Math.imul(ah2, bh6)) | 0;
-	    lo = (lo + Math.imul(al1, bl7)) | 0;
-	    mid = (mid + Math.imul(al1, bh7)) | 0;
-	    mid = (mid + Math.imul(ah1, bl7)) | 0;
-	    hi = (hi + Math.imul(ah1, bh7)) | 0;
-	    lo = (lo + Math.imul(al0, bl8)) | 0;
-	    mid = (mid + Math.imul(al0, bh8)) | 0;
-	    mid = (mid + Math.imul(ah0, bl8)) | 0;
-	    hi = (hi + Math.imul(ah0, bh8)) | 0;
-	    var w8 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w8 >>> 26)) | 0;
-	    w8 &= 0x3ffffff;
-	    /* k = 9 */
-	    lo = Math.imul(al9, bl0);
-	    mid = Math.imul(al9, bh0);
-	    mid = (mid + Math.imul(ah9, bl0)) | 0;
-	    hi = Math.imul(ah9, bh0);
-	    lo = (lo + Math.imul(al8, bl1)) | 0;
-	    mid = (mid + Math.imul(al8, bh1)) | 0;
-	    mid = (mid + Math.imul(ah8, bl1)) | 0;
-	    hi = (hi + Math.imul(ah8, bh1)) | 0;
-	    lo = (lo + Math.imul(al7, bl2)) | 0;
-	    mid = (mid + Math.imul(al7, bh2)) | 0;
-	    mid = (mid + Math.imul(ah7, bl2)) | 0;
-	    hi = (hi + Math.imul(ah7, bh2)) | 0;
-	    lo = (lo + Math.imul(al6, bl3)) | 0;
-	    mid = (mid + Math.imul(al6, bh3)) | 0;
-	    mid = (mid + Math.imul(ah6, bl3)) | 0;
-	    hi = (hi + Math.imul(ah6, bh3)) | 0;
-	    lo = (lo + Math.imul(al5, bl4)) | 0;
-	    mid = (mid + Math.imul(al5, bh4)) | 0;
-	    mid = (mid + Math.imul(ah5, bl4)) | 0;
-	    hi = (hi + Math.imul(ah5, bh4)) | 0;
-	    lo = (lo + Math.imul(al4, bl5)) | 0;
-	    mid = (mid + Math.imul(al4, bh5)) | 0;
-	    mid = (mid + Math.imul(ah4, bl5)) | 0;
-	    hi = (hi + Math.imul(ah4, bh5)) | 0;
-	    lo = (lo + Math.imul(al3, bl6)) | 0;
-	    mid = (mid + Math.imul(al3, bh6)) | 0;
-	    mid = (mid + Math.imul(ah3, bl6)) | 0;
-	    hi = (hi + Math.imul(ah3, bh6)) | 0;
-	    lo = (lo + Math.imul(al2, bl7)) | 0;
-	    mid = (mid + Math.imul(al2, bh7)) | 0;
-	    mid = (mid + Math.imul(ah2, bl7)) | 0;
-	    hi = (hi + Math.imul(ah2, bh7)) | 0;
-	    lo = (lo + Math.imul(al1, bl8)) | 0;
-	    mid = (mid + Math.imul(al1, bh8)) | 0;
-	    mid = (mid + Math.imul(ah1, bl8)) | 0;
-	    hi = (hi + Math.imul(ah1, bh8)) | 0;
-	    lo = (lo + Math.imul(al0, bl9)) | 0;
-	    mid = (mid + Math.imul(al0, bh9)) | 0;
-	    mid = (mid + Math.imul(ah0, bl9)) | 0;
-	    hi = (hi + Math.imul(ah0, bh9)) | 0;
-	    var w9 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w9 >>> 26)) | 0;
-	    w9 &= 0x3ffffff;
-	    /* k = 10 */
-	    lo = Math.imul(al9, bl1);
-	    mid = Math.imul(al9, bh1);
-	    mid = (mid + Math.imul(ah9, bl1)) | 0;
-	    hi = Math.imul(ah9, bh1);
-	    lo = (lo + Math.imul(al8, bl2)) | 0;
-	    mid = (mid + Math.imul(al8, bh2)) | 0;
-	    mid = (mid + Math.imul(ah8, bl2)) | 0;
-	    hi = (hi + Math.imul(ah8, bh2)) | 0;
-	    lo = (lo + Math.imul(al7, bl3)) | 0;
-	    mid = (mid + Math.imul(al7, bh3)) | 0;
-	    mid = (mid + Math.imul(ah7, bl3)) | 0;
-	    hi = (hi + Math.imul(ah7, bh3)) | 0;
-	    lo = (lo + Math.imul(al6, bl4)) | 0;
-	    mid = (mid + Math.imul(al6, bh4)) | 0;
-	    mid = (mid + Math.imul(ah6, bl4)) | 0;
-	    hi = (hi + Math.imul(ah6, bh4)) | 0;
-	    lo = (lo + Math.imul(al5, bl5)) | 0;
-	    mid = (mid + Math.imul(al5, bh5)) | 0;
-	    mid = (mid + Math.imul(ah5, bl5)) | 0;
-	    hi = (hi + Math.imul(ah5, bh5)) | 0;
-	    lo = (lo + Math.imul(al4, bl6)) | 0;
-	    mid = (mid + Math.imul(al4, bh6)) | 0;
-	    mid = (mid + Math.imul(ah4, bl6)) | 0;
-	    hi = (hi + Math.imul(ah4, bh6)) | 0;
-	    lo = (lo + Math.imul(al3, bl7)) | 0;
-	    mid = (mid + Math.imul(al3, bh7)) | 0;
-	    mid = (mid + Math.imul(ah3, bl7)) | 0;
-	    hi = (hi + Math.imul(ah3, bh7)) | 0;
-	    lo = (lo + Math.imul(al2, bl8)) | 0;
-	    mid = (mid + Math.imul(al2, bh8)) | 0;
-	    mid = (mid + Math.imul(ah2, bl8)) | 0;
-	    hi = (hi + Math.imul(ah2, bh8)) | 0;
-	    lo = (lo + Math.imul(al1, bl9)) | 0;
-	    mid = (mid + Math.imul(al1, bh9)) | 0;
-	    mid = (mid + Math.imul(ah1, bl9)) | 0;
-	    hi = (hi + Math.imul(ah1, bh9)) | 0;
-	    var w10 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w10 >>> 26)) | 0;
-	    w10 &= 0x3ffffff;
-	    /* k = 11 */
-	    lo = Math.imul(al9, bl2);
-	    mid = Math.imul(al9, bh2);
-	    mid = (mid + Math.imul(ah9, bl2)) | 0;
-	    hi = Math.imul(ah9, bh2);
-	    lo = (lo + Math.imul(al8, bl3)) | 0;
-	    mid = (mid + Math.imul(al8, bh3)) | 0;
-	    mid = (mid + Math.imul(ah8, bl3)) | 0;
-	    hi = (hi + Math.imul(ah8, bh3)) | 0;
-	    lo = (lo + Math.imul(al7, bl4)) | 0;
-	    mid = (mid + Math.imul(al7, bh4)) | 0;
-	    mid = (mid + Math.imul(ah7, bl4)) | 0;
-	    hi = (hi + Math.imul(ah7, bh4)) | 0;
-	    lo = (lo + Math.imul(al6, bl5)) | 0;
-	    mid = (mid + Math.imul(al6, bh5)) | 0;
-	    mid = (mid + Math.imul(ah6, bl5)) | 0;
-	    hi = (hi + Math.imul(ah6, bh5)) | 0;
-	    lo = (lo + Math.imul(al5, bl6)) | 0;
-	    mid = (mid + Math.imul(al5, bh6)) | 0;
-	    mid = (mid + Math.imul(ah5, bl6)) | 0;
-	    hi = (hi + Math.imul(ah5, bh6)) | 0;
-	    lo = (lo + Math.imul(al4, bl7)) | 0;
-	    mid = (mid + Math.imul(al4, bh7)) | 0;
-	    mid = (mid + Math.imul(ah4, bl7)) | 0;
-	    hi = (hi + Math.imul(ah4, bh7)) | 0;
-	    lo = (lo + Math.imul(al3, bl8)) | 0;
-	    mid = (mid + Math.imul(al3, bh8)) | 0;
-	    mid = (mid + Math.imul(ah3, bl8)) | 0;
-	    hi = (hi + Math.imul(ah3, bh8)) | 0;
-	    lo = (lo + Math.imul(al2, bl9)) | 0;
-	    mid = (mid + Math.imul(al2, bh9)) | 0;
-	    mid = (mid + Math.imul(ah2, bl9)) | 0;
-	    hi = (hi + Math.imul(ah2, bh9)) | 0;
-	    var w11 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w11 >>> 26)) | 0;
-	    w11 &= 0x3ffffff;
-	    /* k = 12 */
-	    lo = Math.imul(al9, bl3);
-	    mid = Math.imul(al9, bh3);
-	    mid = (mid + Math.imul(ah9, bl3)) | 0;
-	    hi = Math.imul(ah9, bh3);
-	    lo = (lo + Math.imul(al8, bl4)) | 0;
-	    mid = (mid + Math.imul(al8, bh4)) | 0;
-	    mid = (mid + Math.imul(ah8, bl4)) | 0;
-	    hi = (hi + Math.imul(ah8, bh4)) | 0;
-	    lo = (lo + Math.imul(al7, bl5)) | 0;
-	    mid = (mid + Math.imul(al7, bh5)) | 0;
-	    mid = (mid + Math.imul(ah7, bl5)) | 0;
-	    hi = (hi + Math.imul(ah7, bh5)) | 0;
-	    lo = (lo + Math.imul(al6, bl6)) | 0;
-	    mid = (mid + Math.imul(al6, bh6)) | 0;
-	    mid = (mid + Math.imul(ah6, bl6)) | 0;
-	    hi = (hi + Math.imul(ah6, bh6)) | 0;
-	    lo = (lo + Math.imul(al5, bl7)) | 0;
-	    mid = (mid + Math.imul(al5, bh7)) | 0;
-	    mid = (mid + Math.imul(ah5, bl7)) | 0;
-	    hi = (hi + Math.imul(ah5, bh7)) | 0;
-	    lo = (lo + Math.imul(al4, bl8)) | 0;
-	    mid = (mid + Math.imul(al4, bh8)) | 0;
-	    mid = (mid + Math.imul(ah4, bl8)) | 0;
-	    hi = (hi + Math.imul(ah4, bh8)) | 0;
-	    lo = (lo + Math.imul(al3, bl9)) | 0;
-	    mid = (mid + Math.imul(al3, bh9)) | 0;
-	    mid = (mid + Math.imul(ah3, bl9)) | 0;
-	    hi = (hi + Math.imul(ah3, bh9)) | 0;
-	    var w12 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w12 >>> 26)) | 0;
-	    w12 &= 0x3ffffff;
-	    /* k = 13 */
-	    lo = Math.imul(al9, bl4);
-	    mid = Math.imul(al9, bh4);
-	    mid = (mid + Math.imul(ah9, bl4)) | 0;
-	    hi = Math.imul(ah9, bh4);
-	    lo = (lo + Math.imul(al8, bl5)) | 0;
-	    mid = (mid + Math.imul(al8, bh5)) | 0;
-	    mid = (mid + Math.imul(ah8, bl5)) | 0;
-	    hi = (hi + Math.imul(ah8, bh5)) | 0;
-	    lo = (lo + Math.imul(al7, bl6)) | 0;
-	    mid = (mid + Math.imul(al7, bh6)) | 0;
-	    mid = (mid + Math.imul(ah7, bl6)) | 0;
-	    hi = (hi + Math.imul(ah7, bh6)) | 0;
-	    lo = (lo + Math.imul(al6, bl7)) | 0;
-	    mid = (mid + Math.imul(al6, bh7)) | 0;
-	    mid = (mid + Math.imul(ah6, bl7)) | 0;
-	    hi = (hi + Math.imul(ah6, bh7)) | 0;
-	    lo = (lo + Math.imul(al5, bl8)) | 0;
-	    mid = (mid + Math.imul(al5, bh8)) | 0;
-	    mid = (mid + Math.imul(ah5, bl8)) | 0;
-	    hi = (hi + Math.imul(ah5, bh8)) | 0;
-	    lo = (lo + Math.imul(al4, bl9)) | 0;
-	    mid = (mid + Math.imul(al4, bh9)) | 0;
-	    mid = (mid + Math.imul(ah4, bl9)) | 0;
-	    hi = (hi + Math.imul(ah4, bh9)) | 0;
-	    var w13 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w13 >>> 26)) | 0;
-	    w13 &= 0x3ffffff;
-	    /* k = 14 */
-	    lo = Math.imul(al9, bl5);
-	    mid = Math.imul(al9, bh5);
-	    mid = (mid + Math.imul(ah9, bl5)) | 0;
-	    hi = Math.imul(ah9, bh5);
-	    lo = (lo + Math.imul(al8, bl6)) | 0;
-	    mid = (mid + Math.imul(al8, bh6)) | 0;
-	    mid = (mid + Math.imul(ah8, bl6)) | 0;
-	    hi = (hi + Math.imul(ah8, bh6)) | 0;
-	    lo = (lo + Math.imul(al7, bl7)) | 0;
-	    mid = (mid + Math.imul(al7, bh7)) | 0;
-	    mid = (mid + Math.imul(ah7, bl7)) | 0;
-	    hi = (hi + Math.imul(ah7, bh7)) | 0;
-	    lo = (lo + Math.imul(al6, bl8)) | 0;
-	    mid = (mid + Math.imul(al6, bh8)) | 0;
-	    mid = (mid + Math.imul(ah6, bl8)) | 0;
-	    hi = (hi + Math.imul(ah6, bh8)) | 0;
-	    lo = (lo + Math.imul(al5, bl9)) | 0;
-	    mid = (mid + Math.imul(al5, bh9)) | 0;
-	    mid = (mid + Math.imul(ah5, bl9)) | 0;
-	    hi = (hi + Math.imul(ah5, bh9)) | 0;
-	    var w14 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w14 >>> 26)) | 0;
-	    w14 &= 0x3ffffff;
-	    /* k = 15 */
-	    lo = Math.imul(al9, bl6);
-	    mid = Math.imul(al9, bh6);
-	    mid = (mid + Math.imul(ah9, bl6)) | 0;
-	    hi = Math.imul(ah9, bh6);
-	    lo = (lo + Math.imul(al8, bl7)) | 0;
-	    mid = (mid + Math.imul(al8, bh7)) | 0;
-	    mid = (mid + Math.imul(ah8, bl7)) | 0;
-	    hi = (hi + Math.imul(ah8, bh7)) | 0;
-	    lo = (lo + Math.imul(al7, bl8)) | 0;
-	    mid = (mid + Math.imul(al7, bh8)) | 0;
-	    mid = (mid + Math.imul(ah7, bl8)) | 0;
-	    hi = (hi + Math.imul(ah7, bh8)) | 0;
-	    lo = (lo + Math.imul(al6, bl9)) | 0;
-	    mid = (mid + Math.imul(al6, bh9)) | 0;
-	    mid = (mid + Math.imul(ah6, bl9)) | 0;
-	    hi = (hi + Math.imul(ah6, bh9)) | 0;
-	    var w15 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w15 >>> 26)) | 0;
-	    w15 &= 0x3ffffff;
-	    /* k = 16 */
-	    lo = Math.imul(al9, bl7);
-	    mid = Math.imul(al9, bh7);
-	    mid = (mid + Math.imul(ah9, bl7)) | 0;
-	    hi = Math.imul(ah9, bh7);
-	    lo = (lo + Math.imul(al8, bl8)) | 0;
-	    mid = (mid + Math.imul(al8, bh8)) | 0;
-	    mid = (mid + Math.imul(ah8, bl8)) | 0;
-	    hi = (hi + Math.imul(ah8, bh8)) | 0;
-	    lo = (lo + Math.imul(al7, bl9)) | 0;
-	    mid = (mid + Math.imul(al7, bh9)) | 0;
-	    mid = (mid + Math.imul(ah7, bl9)) | 0;
-	    hi = (hi + Math.imul(ah7, bh9)) | 0;
-	    var w16 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w16 >>> 26)) | 0;
-	    w16 &= 0x3ffffff;
-	    /* k = 17 */
-	    lo = Math.imul(al9, bl8);
-	    mid = Math.imul(al9, bh8);
-	    mid = (mid + Math.imul(ah9, bl8)) | 0;
-	    hi = Math.imul(ah9, bh8);
-	    lo = (lo + Math.imul(al8, bl9)) | 0;
-	    mid = (mid + Math.imul(al8, bh9)) | 0;
-	    mid = (mid + Math.imul(ah8, bl9)) | 0;
-	    hi = (hi + Math.imul(ah8, bh9)) | 0;
-	    var w17 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w17 >>> 26)) | 0;
-	    w17 &= 0x3ffffff;
-	    /* k = 18 */
-	    lo = Math.imul(al9, bl9);
-	    mid = Math.imul(al9, bh9);
-	    mid = (mid + Math.imul(ah9, bl9)) | 0;
-	    hi = Math.imul(ah9, bh9);
-	    var w18 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
-	    c = (((hi + (mid >>> 13)) | 0) + (w18 >>> 26)) | 0;
-	    w18 &= 0x3ffffff;
-	    o[0] = w0;
-	    o[1] = w1;
-	    o[2] = w2;
-	    o[3] = w3;
-	    o[4] = w4;
-	    o[5] = w5;
-	    o[6] = w6;
-	    o[7] = w7;
-	    o[8] = w8;
-	    o[9] = w9;
-	    o[10] = w10;
-	    o[11] = w11;
-	    o[12] = w12;
-	    o[13] = w13;
-	    o[14] = w14;
-	    o[15] = w15;
-	    o[16] = w16;
-	    o[17] = w17;
-	    o[18] = w18;
-	    if (c !== 0) {
-	      o[19] = c;
-	      out.length++;
-	    }
-	    return out;
-	  };
-
-	  // Polyfill comb
-	  if (!Math.imul) {
-	    comb10MulTo = smallMulTo;
-	  }
-
-	  function bigMulTo (self, num, out) {
-	    out.negative = num.negative ^ self.negative;
-	    out.length = self.length + num.length;
-
-	    var carry = 0;
-	    var hncarry = 0;
-	    for (var k = 0; k < out.length - 1; k++) {
-	      // Sum all words with the same `i + j = k` and accumulate `ncarry`,
-	      // note that ncarry could be >= 0x3ffffff
-	      var ncarry = hncarry;
-	      hncarry = 0;
-	      var rword = carry & 0x3ffffff;
-	      var maxJ = Math.min(k, num.length - 1);
-	      for (var j = Math.max(0, k - self.length + 1); j <= maxJ; j++) {
-	        var i = k - j;
-	        var a = self.words[i] | 0;
-	        var b = num.words[j] | 0;
-	        var r = a * b;
-
-	        var lo = r & 0x3ffffff;
-	        ncarry = (ncarry + ((r / 0x4000000) | 0)) | 0;
-	        lo = (lo + rword) | 0;
-	        rword = lo & 0x3ffffff;
-	        ncarry = (ncarry + (lo >>> 26)) | 0;
-
-	        hncarry += ncarry >>> 26;
-	        ncarry &= 0x3ffffff;
-	      }
-	      out.words[k] = rword;
-	      carry = ncarry;
-	      ncarry = hncarry;
-	    }
-	    if (carry !== 0) {
-	      out.words[k] = carry;
-	    } else {
-	      out.length--;
-	    }
-
-	    return out.strip();
-	  }
-
-	  function jumboMulTo (self, num, out) {
-	    var fftm = new FFTM();
-	    return fftm.mulp(self, num, out);
-	  }
-
-	  BN.prototype.mulTo = function mulTo (num, out) {
-	    var res;
-	    var len = this.length + num.length;
-	    if (this.length === 10 && num.length === 10) {
-	      res = comb10MulTo(this, num, out);
-	    } else if (len < 63) {
-	      res = smallMulTo(this, num, out);
-	    } else if (len < 1024) {
-	      res = bigMulTo(this, num, out);
-	    } else {
-	      res = jumboMulTo(this, num, out);
-	    }
-
-	    return res;
-	  };
-
-	  // Cooley-Tukey algorithm for FFT
-	  // slightly revisited to rely on looping instead of recursion
-
-	  function FFTM (x, y) {
-	    this.x = x;
-	    this.y = y;
-	  }
-
-	  FFTM.prototype.makeRBT = function makeRBT (N) {
-	    var t = new Array(N);
-	    var l = BN.prototype._countBits(N) - 1;
-	    for (var i = 0; i < N; i++) {
-	      t[i] = this.revBin(i, l, N);
-	    }
-
-	    return t;
-	  };
-
-	  // Returns binary-reversed representation of `x`
-	  FFTM.prototype.revBin = function revBin (x, l, N) {
-	    if (x === 0 || x === N - 1) return x;
-
-	    var rb = 0;
-	    for (var i = 0; i < l; i++) {
-	      rb |= (x & 1) << (l - i - 1);
-	      x >>= 1;
-	    }
-
-	    return rb;
-	  };
-
-	  // Performs "tweedling" phase, therefore 'emulating'
-	  // behaviour of the recursive algorithm
-	  FFTM.prototype.permute = function permute (rbt, rws, iws, rtws, itws, N) {
-	    for (var i = 0; i < N; i++) {
-	      rtws[i] = rws[rbt[i]];
-	      itws[i] = iws[rbt[i]];
-	    }
-	  };
-
-	  FFTM.prototype.transform = function transform (rws, iws, rtws, itws, N, rbt) {
-	    this.permute(rbt, rws, iws, rtws, itws, N);
-
-	    for (var s = 1; s < N; s <<= 1) {
-	      var l = s << 1;
-
-	      var rtwdf = Math.cos(2 * Math.PI / l);
-	      var itwdf = Math.sin(2 * Math.PI / l);
-
-	      for (var p = 0; p < N; p += l) {
-	        var rtwdf_ = rtwdf;
-	        var itwdf_ = itwdf;
-
-	        for (var j = 0; j < s; j++) {
-	          var re = rtws[p + j];
-	          var ie = itws[p + j];
-
-	          var ro = rtws[p + j + s];
-	          var io = itws[p + j + s];
-
-	          var rx = rtwdf_ * ro - itwdf_ * io;
-
-	          io = rtwdf_ * io + itwdf_ * ro;
-	          ro = rx;
-
-	          rtws[p + j] = re + ro;
-	          itws[p + j] = ie + io;
-
-	          rtws[p + j + s] = re - ro;
-	          itws[p + j + s] = ie - io;
-
-	          /* jshint maxdepth : false */
-	          if (j !== l) {
-	            rx = rtwdf * rtwdf_ - itwdf * itwdf_;
-
-	            itwdf_ = rtwdf * itwdf_ + itwdf * rtwdf_;
-	            rtwdf_ = rx;
-	          }
-	        }
-	      }
-	    }
-	  };
-
-	  FFTM.prototype.guessLen13b = function guessLen13b (n, m) {
-	    var N = Math.max(m, n) | 1;
-	    var odd = N & 1;
-	    var i = 0;
-	    for (N = N / 2 | 0; N; N = N >>> 1) {
-	      i++;
-	    }
-
-	    return 1 << i + 1 + odd;
-	  };
-
-	  FFTM.prototype.conjugate = function conjugate (rws, iws, N) {
-	    if (N <= 1) return;
-
-	    for (var i = 0; i < N / 2; i++) {
-	      var t = rws[i];
-
-	      rws[i] = rws[N - i - 1];
-	      rws[N - i - 1] = t;
-
-	      t = iws[i];
-
-	      iws[i] = -iws[N - i - 1];
-	      iws[N - i - 1] = -t;
-	    }
-	  };
-
-	  FFTM.prototype.normalize13b = function normalize13b (ws, N) {
-	    var carry = 0;
-	    for (var i = 0; i < N / 2; i++) {
-	      var w = Math.round(ws[2 * i + 1] / N) * 0x2000 +
-	        Math.round(ws[2 * i] / N) +
-	        carry;
-
-	      ws[i] = w & 0x3ffffff;
-
-	      if (w < 0x4000000) {
-	        carry = 0;
-	      } else {
-	        carry = w / 0x4000000 | 0;
-	      }
-	    }
-
-	    return ws;
-	  };
-
-	  FFTM.prototype.convert13b = function convert13b (ws, len, rws, N) {
-	    var carry = 0;
-	    for (var i = 0; i < len; i++) {
-	      carry = carry + (ws[i] | 0);
-
-	      rws[2 * i] = carry & 0x1fff; carry = carry >>> 13;
-	      rws[2 * i + 1] = carry & 0x1fff; carry = carry >>> 13;
-	    }
-
-	    // Pad with zeroes
-	    for (i = 2 * len; i < N; ++i) {
-	      rws[i] = 0;
-	    }
-
-	    assert(carry === 0);
-	    assert((carry & ~0x1fff) === 0);
-	  };
-
-	  FFTM.prototype.stub = function stub (N) {
-	    var ph = new Array(N);
-	    for (var i = 0; i < N; i++) {
-	      ph[i] = 0;
-	    }
-
-	    return ph;
-	  };
-
-	  FFTM.prototype.mulp = function mulp (x, y, out) {
-	    var N = 2 * this.guessLen13b(x.length, y.length);
-
-	    var rbt = this.makeRBT(N);
-
-	    var _ = this.stub(N);
-
-	    var rws = new Array(N);
-	    var rwst = new Array(N);
-	    var iwst = new Array(N);
-
-	    var nrws = new Array(N);
-	    var nrwst = new Array(N);
-	    var niwst = new Array(N);
-
-	    var rmws = out.words;
-	    rmws.length = N;
-
-	    this.convert13b(x.words, x.length, rws, N);
-	    this.convert13b(y.words, y.length, nrws, N);
-
-	    this.transform(rws, _, rwst, iwst, N, rbt);
-	    this.transform(nrws, _, nrwst, niwst, N, rbt);
-
-	    for (var i = 0; i < N; i++) {
-	      var rx = rwst[i] * nrwst[i] - iwst[i] * niwst[i];
-	      iwst[i] = rwst[i] * niwst[i] + iwst[i] * nrwst[i];
-	      rwst[i] = rx;
-	    }
-
-	    this.conjugate(rwst, iwst, N);
-	    this.transform(rwst, iwst, rmws, _, N, rbt);
-	    this.conjugate(rmws, _, N);
-	    this.normalize13b(rmws, N);
-
-	    out.negative = x.negative ^ y.negative;
-	    out.length = x.length + y.length;
-	    return out.strip();
-	  };
-
-	  // Multiply `this` by `num`
-	  BN.prototype.mul = function mul (num) {
-	    var out = new BN(null);
-	    out.words = new Array(this.length + num.length);
-	    return this.mulTo(num, out);
-	  };
-
-	  // Multiply employing FFT
-	  BN.prototype.mulf = function mulf (num) {
-	    var out = new BN(null);
-	    out.words = new Array(this.length + num.length);
-	    return jumboMulTo(this, num, out);
-	  };
-
-	  // In-place Multiplication
-	  BN.prototype.imul = function imul (num) {
-	    return this.clone().mulTo(num, this);
-	  };
-
-	  BN.prototype.imuln = function imuln (num) {
-	    assert(typeof num === 'number');
-	    assert(num < 0x4000000);
-
-	    // Carry
-	    var carry = 0;
-	    for (var i = 0; i < this.length; i++) {
-	      var w = (this.words[i] | 0) * num;
-	      var lo = (w & 0x3ffffff) + (carry & 0x3ffffff);
-	      carry >>= 26;
-	      carry += (w / 0x4000000) | 0;
-	      // NOTE: lo is 27bit maximum
-	      carry += lo >>> 26;
-	      this.words[i] = lo & 0x3ffffff;
-	    }
-
-	    if (carry !== 0) {
-	      this.words[i] = carry;
-	      this.length++;
-	    }
-
-	    return this;
-	  };
-
-	  BN.prototype.muln = function muln (num) {
-	    return this.clone().imuln(num);
-	  };
-
-	  // `this` * `this`
-	  BN.prototype.sqr = function sqr () {
-	    return this.mul(this);
-	  };
-
-	  // `this` * `this` in-place
-	  BN.prototype.isqr = function isqr () {
-	    return this.imul(this.clone());
-	  };
-
-	  // Math.pow(`this`, `num`)
-	  BN.prototype.pow = function pow (num) {
-	    var w = toBitArray(num);
-	    if (w.length === 0) return new BN(1);
-
-	    // Skip leading zeroes
-	    var res = this;
-	    for (var i = 0; i < w.length; i++, res = res.sqr()) {
-	      if (w[i] !== 0) break;
-	    }
-
-	    if (++i < w.length) {
-	      for (var q = res.sqr(); i < w.length; i++, q = q.sqr()) {
-	        if (w[i] === 0) continue;
-
-	        res = res.mul(q);
-	      }
-	    }
-
-	    return res;
-	  };
-
-	  // Shift-left in-place
-	  BN.prototype.iushln = function iushln (bits) {
-	    assert(typeof bits === 'number' && bits >= 0);
-	    var r = bits % 26;
-	    var s = (bits - r) / 26;
-	    var carryMask = (0x3ffffff >>> (26 - r)) << (26 - r);
-	    var i;
-
-	    if (r !== 0) {
-	      var carry = 0;
-
-	      for (i = 0; i < this.length; i++) {
-	        var newCarry = this.words[i] & carryMask;
-	        var c = ((this.words[i] | 0) - newCarry) << r;
-	        this.words[i] = c | carry;
-	        carry = newCarry >>> (26 - r);
-	      }
-
-	      if (carry) {
-	        this.words[i] = carry;
-	        this.length++;
-	      }
-	    }
-
-	    if (s !== 0) {
-	      for (i = this.length - 1; i >= 0; i--) {
-	        this.words[i + s] = this.words[i];
-	      }
-
-	      for (i = 0; i < s; i++) {
-	        this.words[i] = 0;
-	      }
-
-	      this.length += s;
-	    }
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.ishln = function ishln (bits) {
-	    // TODO(indutny): implement me
-	    assert(this.negative === 0);
-	    return this.iushln(bits);
-	  };
-
-	  // Shift-right in-place
-	  // NOTE: `hint` is a lowest bit before trailing zeroes
-	  // NOTE: if `extended` is present - it will be filled with destroyed bits
-	  BN.prototype.iushrn = function iushrn (bits, hint, extended) {
-	    assert(typeof bits === 'number' && bits >= 0);
-	    var h;
-	    if (hint) {
-	      h = (hint - (hint % 26)) / 26;
-	    } else {
-	      h = 0;
-	    }
-
-	    var r = bits % 26;
-	    var s = Math.min((bits - r) / 26, this.length);
-	    var mask = 0x3ffffff ^ ((0x3ffffff >>> r) << r);
-	    var maskedWords = extended;
-
-	    h -= s;
-	    h = Math.max(0, h);
-
-	    // Extended mode, copy masked part
-	    if (maskedWords) {
-	      for (var i = 0; i < s; i++) {
-	        maskedWords.words[i] = this.words[i];
-	      }
-	      maskedWords.length = s;
-	    }
-
-	    if (s === 0) ; else if (this.length > s) {
-	      this.length -= s;
-	      for (i = 0; i < this.length; i++) {
-	        this.words[i] = this.words[i + s];
-	      }
-	    } else {
-	      this.words[0] = 0;
-	      this.length = 1;
-	    }
-
-	    var carry = 0;
-	    for (i = this.length - 1; i >= 0 && (carry !== 0 || i >= h); i--) {
-	      var word = this.words[i] | 0;
-	      this.words[i] = (carry << (26 - r)) | (word >>> r);
-	      carry = word & mask;
-	    }
-
-	    // Push carried bits as a mask
-	    if (maskedWords && carry !== 0) {
-	      maskedWords.words[maskedWords.length++] = carry;
-	    }
-
-	    if (this.length === 0) {
-	      this.words[0] = 0;
-	      this.length = 1;
-	    }
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.ishrn = function ishrn (bits, hint, extended) {
-	    // TODO(indutny): implement me
-	    assert(this.negative === 0);
-	    return this.iushrn(bits, hint, extended);
-	  };
-
-	  // Shift-left
-	  BN.prototype.shln = function shln (bits) {
-	    return this.clone().ishln(bits);
-	  };
-
-	  BN.prototype.ushln = function ushln (bits) {
-	    return this.clone().iushln(bits);
-	  };
-
-	  // Shift-right
-	  BN.prototype.shrn = function shrn (bits) {
-	    return this.clone().ishrn(bits);
-	  };
-
-	  BN.prototype.ushrn = function ushrn (bits) {
-	    return this.clone().iushrn(bits);
-	  };
-
-	  // Test if n bit is set
-	  BN.prototype.testn = function testn (bit) {
-	    assert(typeof bit === 'number' && bit >= 0);
-	    var r = bit % 26;
-	    var s = (bit - r) / 26;
-	    var q = 1 << r;
-
-	    // Fast case: bit is much higher than all existing words
-	    if (this.length <= s) return false;
-
-	    // Check bit and return
-	    var w = this.words[s];
-
-	    return !!(w & q);
-	  };
-
-	  // Return only lowers bits of number (in-place)
-	  BN.prototype.imaskn = function imaskn (bits) {
-	    assert(typeof bits === 'number' && bits >= 0);
-	    var r = bits % 26;
-	    var s = (bits - r) / 26;
-
-	    assert(this.negative === 0, 'imaskn works only with positive numbers');
-
-	    if (this.length <= s) {
-	      return this;
-	    }
-
-	    if (r !== 0) {
-	      s++;
-	    }
-	    this.length = Math.min(s, this.length);
-
-	    if (r !== 0) {
-	      var mask = 0x3ffffff ^ ((0x3ffffff >>> r) << r);
-	      this.words[this.length - 1] &= mask;
-	    }
-
-	    return this.strip();
-	  };
-
-	  // Return only lowers bits of number
-	  BN.prototype.maskn = function maskn (bits) {
-	    return this.clone().imaskn(bits);
-	  };
-
-	  // Add plain number `num` to `this`
-	  BN.prototype.iaddn = function iaddn (num) {
-	    assert(typeof num === 'number');
-	    assert(num < 0x4000000);
-	    if (num < 0) return this.isubn(-num);
-
-	    // Possible sign change
-	    if (this.negative !== 0) {
-	      if (this.length === 1 && (this.words[0] | 0) < num) {
-	        this.words[0] = num - (this.words[0] | 0);
-	        this.negative = 0;
-	        return this;
-	      }
-
-	      this.negative = 0;
-	      this.isubn(num);
-	      this.negative = 1;
-	      return this;
-	    }
-
-	    // Add without checks
-	    return this._iaddn(num);
-	  };
-
-	  BN.prototype._iaddn = function _iaddn (num) {
-	    this.words[0] += num;
-
-	    // Carry
-	    for (var i = 0; i < this.length && this.words[i] >= 0x4000000; i++) {
-	      this.words[i] -= 0x4000000;
-	      if (i === this.length - 1) {
-	        this.words[i + 1] = 1;
-	      } else {
-	        this.words[i + 1]++;
-	      }
-	    }
-	    this.length = Math.max(this.length, i + 1);
-
-	    return this;
-	  };
-
-	  // Subtract plain number `num` from `this`
-	  BN.prototype.isubn = function isubn (num) {
-	    assert(typeof num === 'number');
-	    assert(num < 0x4000000);
-	    if (num < 0) return this.iaddn(-num);
-
-	    if (this.negative !== 0) {
-	      this.negative = 0;
-	      this.iaddn(num);
-	      this.negative = 1;
-	      return this;
-	    }
-
-	    this.words[0] -= num;
-
-	    if (this.length === 1 && this.words[0] < 0) {
-	      this.words[0] = -this.words[0];
-	      this.negative = 1;
-	    } else {
-	      // Carry
-	      for (var i = 0; i < this.length && this.words[i] < 0; i++) {
-	        this.words[i] += 0x4000000;
-	        this.words[i + 1] -= 1;
-	      }
-	    }
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.addn = function addn (num) {
-	    return this.clone().iaddn(num);
-	  };
-
-	  BN.prototype.subn = function subn (num) {
-	    return this.clone().isubn(num);
-	  };
-
-	  BN.prototype.iabs = function iabs () {
-	    this.negative = 0;
-
-	    return this;
-	  };
-
-	  BN.prototype.abs = function abs () {
-	    return this.clone().iabs();
-	  };
-
-	  BN.prototype._ishlnsubmul = function _ishlnsubmul (num, mul, shift) {
-	    var len = num.length + shift;
-	    var i;
-
-	    this._expand(len);
-
-	    var w;
-	    var carry = 0;
-	    for (i = 0; i < num.length; i++) {
-	      w = (this.words[i + shift] | 0) + carry;
-	      var right = (num.words[i] | 0) * mul;
-	      w -= right & 0x3ffffff;
-	      carry = (w >> 26) - ((right / 0x4000000) | 0);
-	      this.words[i + shift] = w & 0x3ffffff;
-	    }
-	    for (; i < this.length - shift; i++) {
-	      w = (this.words[i + shift] | 0) + carry;
-	      carry = w >> 26;
-	      this.words[i + shift] = w & 0x3ffffff;
-	    }
-
-	    if (carry === 0) return this.strip();
-
-	    // Subtraction overflow
-	    assert(carry === -1);
-	    carry = 0;
-	    for (i = 0; i < this.length; i++) {
-	      w = -(this.words[i] | 0) + carry;
-	      carry = w >> 26;
-	      this.words[i] = w & 0x3ffffff;
-	    }
-	    this.negative = 1;
-
-	    return this.strip();
-	  };
-
-	  BN.prototype._wordDiv = function _wordDiv (num, mode) {
-	    var shift = this.length - num.length;
-
-	    var a = this.clone();
-	    var b = num;
-
-	    // Normalize
-	    var bhi = b.words[b.length - 1] | 0;
-	    var bhiBits = this._countBits(bhi);
-	    shift = 26 - bhiBits;
-	    if (shift !== 0) {
-	      b = b.ushln(shift);
-	      a.iushln(shift);
-	      bhi = b.words[b.length - 1] | 0;
-	    }
-
-	    // Initialize quotient
-	    var m = a.length - b.length;
-	    var q;
-
-	    if (mode !== 'mod') {
-	      q = new BN(null);
-	      q.length = m + 1;
-	      q.words = new Array(q.length);
-	      for (var i = 0; i < q.length; i++) {
-	        q.words[i] = 0;
-	      }
-	    }
-
-	    var diff = a.clone()._ishlnsubmul(b, 1, m);
-	    if (diff.negative === 0) {
-	      a = diff;
-	      if (q) {
-	        q.words[m] = 1;
-	      }
-	    }
-
-	    for (var j = m - 1; j >= 0; j--) {
-	      var qj = (a.words[b.length + j] | 0) * 0x4000000 +
-	        (a.words[b.length + j - 1] | 0);
-
-	      // NOTE: (qj / bhi) is (0x3ffffff * 0x4000000 + 0x3ffffff) / 0x2000000 max
-	      // (0x7ffffff)
-	      qj = Math.min((qj / bhi) | 0, 0x3ffffff);
-
-	      a._ishlnsubmul(b, qj, j);
-	      while (a.negative !== 0) {
-	        qj--;
-	        a.negative = 0;
-	        a._ishlnsubmul(b, 1, j);
-	        if (!a.isZero()) {
-	          a.negative ^= 1;
-	        }
-	      }
-	      if (q) {
-	        q.words[j] = qj;
-	      }
-	    }
-	    if (q) {
-	      q.strip();
-	    }
-	    a.strip();
-
-	    // Denormalize
-	    if (mode !== 'div' && shift !== 0) {
-	      a.iushrn(shift);
-	    }
-
-	    return {
-	      div: q || null,
-	      mod: a
-	    };
-	  };
-
-	  // NOTE: 1) `mode` can be set to `mod` to request mod only,
-	  //       to `div` to request div only, or be absent to
-	  //       request both div & mod
-	  //       2) `positive` is true if unsigned mod is requested
-	  BN.prototype.divmod = function divmod (num, mode, positive) {
-	    assert(!num.isZero());
-
-	    if (this.isZero()) {
-	      return {
-	        div: new BN(0),
-	        mod: new BN(0)
-	      };
-	    }
-
-	    var div, mod, res;
-	    if (this.negative !== 0 && num.negative === 0) {
-	      res = this.neg().divmod(num, mode);
-
-	      if (mode !== 'mod') {
-	        div = res.div.neg();
-	      }
-
-	      if (mode !== 'div') {
-	        mod = res.mod.neg();
-	        if (positive && mod.negative !== 0) {
-	          mod.iadd(num);
-	        }
-	      }
-
-	      return {
-	        div: div,
-	        mod: mod
-	      };
-	    }
-
-	    if (this.negative === 0 && num.negative !== 0) {
-	      res = this.divmod(num.neg(), mode);
-
-	      if (mode !== 'mod') {
-	        div = res.div.neg();
-	      }
-
-	      return {
-	        div: div,
-	        mod: res.mod
-	      };
-	    }
-
-	    if ((this.negative & num.negative) !== 0) {
-	      res = this.neg().divmod(num.neg(), mode);
-
-	      if (mode !== 'div') {
-	        mod = res.mod.neg();
-	        if (positive && mod.negative !== 0) {
-	          mod.isub(num);
-	        }
-	      }
-
-	      return {
-	        div: res.div,
-	        mod: mod
-	      };
-	    }
-
-	    // Both numbers are positive at this point
-
-	    // Strip both numbers to approximate shift value
-	    if (num.length > this.length || this.cmp(num) < 0) {
-	      return {
-	        div: new BN(0),
-	        mod: this
-	      };
-	    }
-
-	    // Very short reduction
-	    if (num.length === 1) {
-	      if (mode === 'div') {
-	        return {
-	          div: this.divn(num.words[0]),
-	          mod: null
-	        };
-	      }
-
-	      if (mode === 'mod') {
-	        return {
-	          div: null,
-	          mod: new BN(this.modn(num.words[0]))
-	        };
-	      }
-
-	      return {
-	        div: this.divn(num.words[0]),
-	        mod: new BN(this.modn(num.words[0]))
-	      };
-	    }
-
-	    return this._wordDiv(num, mode);
-	  };
-
-	  // Find `this` / `num`
-	  BN.prototype.div = function div (num) {
-	    return this.divmod(num, 'div', false).div;
-	  };
-
-	  // Find `this` % `num`
-	  BN.prototype.mod = function mod (num) {
-	    return this.divmod(num, 'mod', false).mod;
-	  };
-
-	  BN.prototype.umod = function umod (num) {
-	    return this.divmod(num, 'mod', true).mod;
-	  };
-
-	  // Find Round(`this` / `num`)
-	  BN.prototype.divRound = function divRound (num) {
-	    var dm = this.divmod(num);
-
-	    // Fast case - exact division
-	    if (dm.mod.isZero()) return dm.div;
-
-	    var mod = dm.div.negative !== 0 ? dm.mod.isub(num) : dm.mod;
-
-	    var half = num.ushrn(1);
-	    var r2 = num.andln(1);
-	    var cmp = mod.cmp(half);
-
-	    // Round down
-	    if (cmp < 0 || r2 === 1 && cmp === 0) return dm.div;
-
-	    // Round up
-	    return dm.div.negative !== 0 ? dm.div.isubn(1) : dm.div.iaddn(1);
-	  };
-
-	  BN.prototype.modn = function modn (num) {
-	    assert(num <= 0x3ffffff);
-	    var p = (1 << 26) % num;
-
-	    var acc = 0;
-	    for (var i = this.length - 1; i >= 0; i--) {
-	      acc = (p * acc + (this.words[i] | 0)) % num;
-	    }
-
-	    return acc;
-	  };
-
-	  // In-place division by number
-	  BN.prototype.idivn = function idivn (num) {
-	    assert(num <= 0x3ffffff);
-
-	    var carry = 0;
-	    for (var i = this.length - 1; i >= 0; i--) {
-	      var w = (this.words[i] | 0) + carry * 0x4000000;
-	      this.words[i] = (w / num) | 0;
-	      carry = w % num;
-	    }
-
-	    return this.strip();
-	  };
-
-	  BN.prototype.divn = function divn (num) {
-	    return this.clone().idivn(num);
-	  };
-
-	  BN.prototype.egcd = function egcd (p) {
-	    assert(p.negative === 0);
-	    assert(!p.isZero());
-
-	    var x = this;
-	    var y = p.clone();
-
-	    if (x.negative !== 0) {
-	      x = x.umod(p);
-	    } else {
-	      x = x.clone();
-	    }
-
-	    // A * x + B * y = x
-	    var A = new BN(1);
-	    var B = new BN(0);
-
-	    // C * x + D * y = y
-	    var C = new BN(0);
-	    var D = new BN(1);
-
-	    var g = 0;
-
-	    while (x.isEven() && y.isEven()) {
-	      x.iushrn(1);
-	      y.iushrn(1);
-	      ++g;
-	    }
-
-	    var yp = y.clone();
-	    var xp = x.clone();
-
-	    while (!x.isZero()) {
-	      for (var i = 0, im = 1; (x.words[0] & im) === 0 && i < 26; ++i, im <<= 1);
-	      if (i > 0) {
-	        x.iushrn(i);
-	        while (i-- > 0) {
-	          if (A.isOdd() || B.isOdd()) {
-	            A.iadd(yp);
-	            B.isub(xp);
-	          }
-
-	          A.iushrn(1);
-	          B.iushrn(1);
-	        }
-	      }
-
-	      for (var j = 0, jm = 1; (y.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1);
-	      if (j > 0) {
-	        y.iushrn(j);
-	        while (j-- > 0) {
-	          if (C.isOdd() || D.isOdd()) {
-	            C.iadd(yp);
-	            D.isub(xp);
-	          }
-
-	          C.iushrn(1);
-	          D.iushrn(1);
-	        }
-	      }
-
-	      if (x.cmp(y) >= 0) {
-	        x.isub(y);
-	        A.isub(C);
-	        B.isub(D);
-	      } else {
-	        y.isub(x);
-	        C.isub(A);
-	        D.isub(B);
-	      }
-	    }
-
-	    return {
-	      a: C,
-	      b: D,
-	      gcd: y.iushln(g)
-	    };
-	  };
-
-	  // This is reduced incarnation of the binary EEA
-	  // above, designated to invert members of the
-	  // _prime_ fields F(p) at a maximal speed
-	  BN.prototype._invmp = function _invmp (p) {
-	    assert(p.negative === 0);
-	    assert(!p.isZero());
-
-	    var a = this;
-	    var b = p.clone();
-
-	    if (a.negative !== 0) {
-	      a = a.umod(p);
-	    } else {
-	      a = a.clone();
-	    }
-
-	    var x1 = new BN(1);
-	    var x2 = new BN(0);
-
-	    var delta = b.clone();
-
-	    while (a.cmpn(1) > 0 && b.cmpn(1) > 0) {
-	      for (var i = 0, im = 1; (a.words[0] & im) === 0 && i < 26; ++i, im <<= 1);
-	      if (i > 0) {
-	        a.iushrn(i);
-	        while (i-- > 0) {
-	          if (x1.isOdd()) {
-	            x1.iadd(delta);
-	          }
-
-	          x1.iushrn(1);
-	        }
-	      }
-
-	      for (var j = 0, jm = 1; (b.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1);
-	      if (j > 0) {
-	        b.iushrn(j);
-	        while (j-- > 0) {
-	          if (x2.isOdd()) {
-	            x2.iadd(delta);
-	          }
-
-	          x2.iushrn(1);
-	        }
-	      }
-
-	      if (a.cmp(b) >= 0) {
-	        a.isub(b);
-	        x1.isub(x2);
-	      } else {
-	        b.isub(a);
-	        x2.isub(x1);
-	      }
-	    }
-
-	    var res;
-	    if (a.cmpn(1) === 0) {
-	      res = x1;
-	    } else {
-	      res = x2;
-	    }
-
-	    if (res.cmpn(0) < 0) {
-	      res.iadd(p);
-	    }
-
-	    return res;
-	  };
-
-	  BN.prototype.gcd = function gcd (num) {
-	    if (this.isZero()) return num.abs();
-	    if (num.isZero()) return this.abs();
-
-	    var a = this.clone();
-	    var b = num.clone();
-	    a.negative = 0;
-	    b.negative = 0;
-
-	    // Remove common factor of two
-	    for (var shift = 0; a.isEven() && b.isEven(); shift++) {
-	      a.iushrn(1);
-	      b.iushrn(1);
-	    }
-
-	    do {
-	      while (a.isEven()) {
-	        a.iushrn(1);
-	      }
-	      while (b.isEven()) {
-	        b.iushrn(1);
-	      }
-
-	      var r = a.cmp(b);
-	      if (r < 0) {
-	        // Swap `a` and `b` to make `a` always bigger than `b`
-	        var t = a;
-	        a = b;
-	        b = t;
-	      } else if (r === 0 || b.cmpn(1) === 0) {
-	        break;
-	      }
-
-	      a.isub(b);
-	    } while (true);
-
-	    return b.iushln(shift);
-	  };
-
-	  // Invert number in the field F(num)
-	  BN.prototype.invm = function invm (num) {
-	    return this.egcd(num).a.umod(num);
-	  };
-
-	  BN.prototype.isEven = function isEven () {
-	    return (this.words[0] & 1) === 0;
-	  };
-
-	  BN.prototype.isOdd = function isOdd () {
-	    return (this.words[0] & 1) === 1;
-	  };
-
-	  // And first word and num
-	  BN.prototype.andln = function andln (num) {
-	    return this.words[0] & num;
-	  };
-
-	  // Increment at the bit position in-line
-	  BN.prototype.bincn = function bincn (bit) {
-	    assert(typeof bit === 'number');
-	    var r = bit % 26;
-	    var s = (bit - r) / 26;
-	    var q = 1 << r;
-
-	    // Fast case: bit is much higher than all existing words
-	    if (this.length <= s) {
-	      this._expand(s + 1);
-	      this.words[s] |= q;
-	      return this;
-	    }
-
-	    // Add bit and propagate, if needed
-	    var carry = q;
-	    for (var i = s; carry !== 0 && i < this.length; i++) {
-	      var w = this.words[i] | 0;
-	      w += carry;
-	      carry = w >>> 26;
-	      w &= 0x3ffffff;
-	      this.words[i] = w;
-	    }
-	    if (carry !== 0) {
-	      this.words[i] = carry;
-	      this.length++;
-	    }
-	    return this;
-	  };
-
-	  BN.prototype.isZero = function isZero () {
-	    return this.length === 1 && this.words[0] === 0;
-	  };
-
-	  BN.prototype.cmpn = function cmpn (num) {
-	    var negative = num < 0;
-
-	    if (this.negative !== 0 && !negative) return -1;
-	    if (this.negative === 0 && negative) return 1;
-
-	    this.strip();
-
-	    var res;
-	    if (this.length > 1) {
-	      res = 1;
-	    } else {
-	      if (negative) {
-	        num = -num;
-	      }
-
-	      assert(num <= 0x3ffffff, 'Number is too big');
-
-	      var w = this.words[0] | 0;
-	      res = w === num ? 0 : w < num ? -1 : 1;
-	    }
-	    if (this.negative !== 0) return -res | 0;
-	    return res;
-	  };
-
-	  // Compare two numbers and return:
-	  // 1 - if `this` > `num`
-	  // 0 - if `this` == `num`
-	  // -1 - if `this` < `num`
-	  BN.prototype.cmp = function cmp (num) {
-	    if (this.negative !== 0 && num.negative === 0) return -1;
-	    if (this.negative === 0 && num.negative !== 0) return 1;
-
-	    var res = this.ucmp(num);
-	    if (this.negative !== 0) return -res | 0;
-	    return res;
-	  };
-
-	  // Unsigned comparison
-	  BN.prototype.ucmp = function ucmp (num) {
-	    // At this point both numbers have the same sign
-	    if (this.length > num.length) return 1;
-	    if (this.length < num.length) return -1;
-
-	    var res = 0;
-	    for (var i = this.length - 1; i >= 0; i--) {
-	      var a = this.words[i] | 0;
-	      var b = num.words[i] | 0;
-
-	      if (a === b) continue;
-	      if (a < b) {
-	        res = -1;
-	      } else if (a > b) {
-	        res = 1;
-	      }
-	      break;
-	    }
-	    return res;
-	  };
-
-	  BN.prototype.gtn = function gtn (num) {
-	    return this.cmpn(num) === 1;
-	  };
-
-	  BN.prototype.gt = function gt (num) {
-	    return this.cmp(num) === 1;
-	  };
-
-	  BN.prototype.gten = function gten (num) {
-	    return this.cmpn(num) >= 0;
-	  };
-
-	  BN.prototype.gte = function gte (num) {
-	    return this.cmp(num) >= 0;
-	  };
-
-	  BN.prototype.ltn = function ltn (num) {
-	    return this.cmpn(num) === -1;
-	  };
-
-	  BN.prototype.lt = function lt (num) {
-	    return this.cmp(num) === -1;
-	  };
-
-	  BN.prototype.lten = function lten (num) {
-	    return this.cmpn(num) <= 0;
-	  };
-
-	  BN.prototype.lte = function lte (num) {
-	    return this.cmp(num) <= 0;
-	  };
-
-	  BN.prototype.eqn = function eqn (num) {
-	    return this.cmpn(num) === 0;
-	  };
-
-	  BN.prototype.eq = function eq (num) {
-	    return this.cmp(num) === 0;
-	  };
-
-	  //
-	  // A reduce context, could be using montgomery or something better, depending
-	  // on the `m` itself.
-	  //
-	  BN.red = function red (num) {
-	    return new Red(num);
-	  };
-
-	  BN.prototype.toRed = function toRed (ctx) {
-	    assert(!this.red, 'Already a number in reduction context');
-	    assert(this.negative === 0, 'red works only with positives');
-	    return ctx.convertTo(this)._forceRed(ctx);
-	  };
-
-	  BN.prototype.fromRed = function fromRed () {
-	    assert(this.red, 'fromRed works only with numbers in reduction context');
-	    return this.red.convertFrom(this);
-	  };
-
-	  BN.prototype._forceRed = function _forceRed (ctx) {
-	    this.red = ctx;
-	    return this;
-	  };
-
-	  BN.prototype.forceRed = function forceRed (ctx) {
-	    assert(!this.red, 'Already a number in reduction context');
-	    return this._forceRed(ctx);
-	  };
-
-	  BN.prototype.redAdd = function redAdd (num) {
-	    assert(this.red, 'redAdd works only with red numbers');
-	    return this.red.add(this, num);
-	  };
-
-	  BN.prototype.redIAdd = function redIAdd (num) {
-	    assert(this.red, 'redIAdd works only with red numbers');
-	    return this.red.iadd(this, num);
-	  };
-
-	  BN.prototype.redSub = function redSub (num) {
-	    assert(this.red, 'redSub works only with red numbers');
-	    return this.red.sub(this, num);
-	  };
-
-	  BN.prototype.redISub = function redISub (num) {
-	    assert(this.red, 'redISub works only with red numbers');
-	    return this.red.isub(this, num);
-	  };
-
-	  BN.prototype.redShl = function redShl (num) {
-	    assert(this.red, 'redShl works only with red numbers');
-	    return this.red.shl(this, num);
-	  };
-
-	  BN.prototype.redMul = function redMul (num) {
-	    assert(this.red, 'redMul works only with red numbers');
-	    this.red._verify2(this, num);
-	    return this.red.mul(this, num);
-	  };
-
-	  BN.prototype.redIMul = function redIMul (num) {
-	    assert(this.red, 'redMul works only with red numbers');
-	    this.red._verify2(this, num);
-	    return this.red.imul(this, num);
-	  };
-
-	  BN.prototype.redSqr = function redSqr () {
-	    assert(this.red, 'redSqr works only with red numbers');
-	    this.red._verify1(this);
-	    return this.red.sqr(this);
-	  };
-
-	  BN.prototype.redISqr = function redISqr () {
-	    assert(this.red, 'redISqr works only with red numbers');
-	    this.red._verify1(this);
-	    return this.red.isqr(this);
-	  };
-
-	  // Square root over p
-	  BN.prototype.redSqrt = function redSqrt () {
-	    assert(this.red, 'redSqrt works only with red numbers');
-	    this.red._verify1(this);
-	    return this.red.sqrt(this);
-	  };
-
-	  BN.prototype.redInvm = function redInvm () {
-	    assert(this.red, 'redInvm works only with red numbers');
-	    this.red._verify1(this);
-	    return this.red.invm(this);
-	  };
-
-	  // Return negative clone of `this` % `red modulo`
-	  BN.prototype.redNeg = function redNeg () {
-	    assert(this.red, 'redNeg works only with red numbers');
-	    this.red._verify1(this);
-	    return this.red.neg(this);
-	  };
-
-	  BN.prototype.redPow = function redPow (num) {
-	    assert(this.red && !num.red, 'redPow(normalNum)');
-	    this.red._verify1(this);
-	    return this.red.pow(this, num);
-	  };
-
-	  // Prime numbers with efficient reduction
-	  var primes = {
-	    k256: null,
-	    p224: null,
-	    p192: null,
-	    p25519: null
-	  };
-
-	  // Pseudo-Mersenne prime
-	  function MPrime (name, p) {
-	    // P = 2 ^ N - K
-	    this.name = name;
-	    this.p = new BN(p, 16);
-	    this.n = this.p.bitLength();
-	    this.k = new BN(1).iushln(this.n).isub(this.p);
-
-	    this.tmp = this._tmp();
-	  }
-
-	  MPrime.prototype._tmp = function _tmp () {
-	    var tmp = new BN(null);
-	    tmp.words = new Array(Math.ceil(this.n / 13));
-	    return tmp;
-	  };
-
-	  MPrime.prototype.ireduce = function ireduce (num) {
-	    // Assumes that `num` is less than `P^2`
-	    // num = HI * (2 ^ N - K) + HI * K + LO = HI * K + LO (mod P)
-	    var r = num;
-	    var rlen;
-
-	    do {
-	      this.split(r, this.tmp);
-	      r = this.imulK(r);
-	      r = r.iadd(this.tmp);
-	      rlen = r.bitLength();
-	    } while (rlen > this.n);
-
-	    var cmp = rlen < this.n ? -1 : r.ucmp(this.p);
-	    if (cmp === 0) {
-	      r.words[0] = 0;
-	      r.length = 1;
-	    } else if (cmp > 0) {
-	      r.isub(this.p);
-	    } else {
-	      if (r.strip !== undefined) {
-	        // r is BN v4 instance
-	        r.strip();
-	      } else {
-	        // r is BN v5 instance
-	        r._strip();
-	      }
-	    }
-
-	    return r;
-	  };
-
-	  MPrime.prototype.split = function split (input, out) {
-	    input.iushrn(this.n, 0, out);
-	  };
-
-	  MPrime.prototype.imulK = function imulK (num) {
-	    return num.imul(this.k);
-	  };
-
-	  function K256 () {
-	    MPrime.call(
-	      this,
-	      'k256',
-	      'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f');
-	  }
-	  inherits(K256, MPrime);
-
-	  K256.prototype.split = function split (input, output) {
-	    // 256 = 9 * 26 + 22
-	    var mask = 0x3fffff;
-
-	    var outLen = Math.min(input.length, 9);
-	    for (var i = 0; i < outLen; i++) {
-	      output.words[i] = input.words[i];
-	    }
-	    output.length = outLen;
-
-	    if (input.length <= 9) {
-	      input.words[0] = 0;
-	      input.length = 1;
-	      return;
-	    }
-
-	    // Shift by 9 limbs
-	    var prev = input.words[9];
-	    output.words[output.length++] = prev & mask;
-
-	    for (i = 10; i < input.length; i++) {
-	      var next = input.words[i] | 0;
-	      input.words[i - 10] = ((next & mask) << 4) | (prev >>> 22);
-	      prev = next;
-	    }
-	    prev >>>= 22;
-	    input.words[i - 10] = prev;
-	    if (prev === 0 && input.length > 10) {
-	      input.length -= 10;
-	    } else {
-	      input.length -= 9;
-	    }
-	  };
-
-	  K256.prototype.imulK = function imulK (num) {
-	    // K = 0x1000003d1 = [ 0x40, 0x3d1 ]
-	    num.words[num.length] = 0;
-	    num.words[num.length + 1] = 0;
-	    num.length += 2;
-
-	    // bounded at: 0x40 * 0x3ffffff + 0x3d0 = 0x100000390
-	    var lo = 0;
-	    for (var i = 0; i < num.length; i++) {
-	      var w = num.words[i] | 0;
-	      lo += w * 0x3d1;
-	      num.words[i] = lo & 0x3ffffff;
-	      lo = w * 0x40 + ((lo / 0x4000000) | 0);
-	    }
-
-	    // Fast length reduction
-	    if (num.words[num.length - 1] === 0) {
-	      num.length--;
-	      if (num.words[num.length - 1] === 0) {
-	        num.length--;
-	      }
-	    }
-	    return num;
-	  };
-
-	  function P224 () {
-	    MPrime.call(
-	      this,
-	      'p224',
-	      'ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001');
-	  }
-	  inherits(P224, MPrime);
-
-	  function P192 () {
-	    MPrime.call(
-	      this,
-	      'p192',
-	      'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff');
-	  }
-	  inherits(P192, MPrime);
-
-	  function P25519 () {
-	    // 2 ^ 255 - 19
-	    MPrime.call(
-	      this,
-	      '25519',
-	      '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed');
-	  }
-	  inherits(P25519, MPrime);
-
-	  P25519.prototype.imulK = function imulK (num) {
-	    // K = 0x13
-	    var carry = 0;
-	    for (var i = 0; i < num.length; i++) {
-	      var hi = (num.words[i] | 0) * 0x13 + carry;
-	      var lo = hi & 0x3ffffff;
-	      hi >>>= 26;
-
-	      num.words[i] = lo;
-	      carry = hi;
-	    }
-	    if (carry !== 0) {
-	      num.words[num.length++] = carry;
-	    }
-	    return num;
-	  };
-
-	  // Exported mostly for testing purposes, use plain name instead
-	  BN._prime = function prime (name) {
-	    // Cached version of prime
-	    if (primes[name]) return primes[name];
-
-	    var prime;
-	    if (name === 'k256') {
-	      prime = new K256();
-	    } else if (name === 'p224') {
-	      prime = new P224();
-	    } else if (name === 'p192') {
-	      prime = new P192();
-	    } else if (name === 'p25519') {
-	      prime = new P25519();
-	    } else {
-	      throw new Error('Unknown prime ' + name);
-	    }
-	    primes[name] = prime;
-
-	    return prime;
-	  };
-
-	  //
-	  // Base reduction engine
-	  //
-	  function Red (m) {
-	    if (typeof m === 'string') {
-	      var prime = BN._prime(m);
-	      this.m = prime.p;
-	      this.prime = prime;
-	    } else {
-	      assert(m.gtn(1), 'modulus must be greater than 1');
-	      this.m = m;
-	      this.prime = null;
-	    }
-	  }
-
-	  Red.prototype._verify1 = function _verify1 (a) {
-	    assert(a.negative === 0, 'red works only with positives');
-	    assert(a.red, 'red works only with red numbers');
-	  };
-
-	  Red.prototype._verify2 = function _verify2 (a, b) {
-	    assert((a.negative | b.negative) === 0, 'red works only with positives');
-	    assert(a.red && a.red === b.red,
-	      'red works only with red numbers');
-	  };
-
-	  Red.prototype.imod = function imod (a) {
-	    if (this.prime) return this.prime.ireduce(a)._forceRed(this);
-	    return a.umod(this.m)._forceRed(this);
-	  };
-
-	  Red.prototype.neg = function neg (a) {
-	    if (a.isZero()) {
-	      return a.clone();
-	    }
-
-	    return this.m.sub(a)._forceRed(this);
-	  };
-
-	  Red.prototype.add = function add (a, b) {
-	    this._verify2(a, b);
-
-	    var res = a.add(b);
-	    if (res.cmp(this.m) >= 0) {
-	      res.isub(this.m);
-	    }
-	    return res._forceRed(this);
-	  };
-
-	  Red.prototype.iadd = function iadd (a, b) {
-	    this._verify2(a, b);
-
-	    var res = a.iadd(b);
-	    if (res.cmp(this.m) >= 0) {
-	      res.isub(this.m);
-	    }
-	    return res;
-	  };
-
-	  Red.prototype.sub = function sub (a, b) {
-	    this._verify2(a, b);
-
-	    var res = a.sub(b);
-	    if (res.cmpn(0) < 0) {
-	      res.iadd(this.m);
-	    }
-	    return res._forceRed(this);
-	  };
-
-	  Red.prototype.isub = function isub (a, b) {
-	    this._verify2(a, b);
-
-	    var res = a.isub(b);
-	    if (res.cmpn(0) < 0) {
-	      res.iadd(this.m);
-	    }
-	    return res;
-	  };
-
-	  Red.prototype.shl = function shl (a, num) {
-	    this._verify1(a);
-	    return this.imod(a.ushln(num));
-	  };
-
-	  Red.prototype.imul = function imul (a, b) {
-	    this._verify2(a, b);
-	    return this.imod(a.imul(b));
-	  };
-
-	  Red.prototype.mul = function mul (a, b) {
-	    this._verify2(a, b);
-	    return this.imod(a.mul(b));
-	  };
-
-	  Red.prototype.isqr = function isqr (a) {
-	    return this.imul(a, a.clone());
-	  };
-
-	  Red.prototype.sqr = function sqr (a) {
-	    return this.mul(a, a);
-	  };
-
-	  Red.prototype.sqrt = function sqrt (a) {
-	    if (a.isZero()) return a.clone();
-
-	    var mod3 = this.m.andln(3);
-	    assert(mod3 % 2 === 1);
-
-	    // Fast case
-	    if (mod3 === 3) {
-	      var pow = this.m.add(new BN(1)).iushrn(2);
-	      return this.pow(a, pow);
-	    }
-
-	    // Tonelli-Shanks algorithm (Totally unoptimized and slow)
-	    //
-	    // Find Q and S, that Q * 2 ^ S = (P - 1)
-	    var q = this.m.subn(1);
-	    var s = 0;
-	    while (!q.isZero() && q.andln(1) === 0) {
-	      s++;
-	      q.iushrn(1);
-	    }
-	    assert(!q.isZero());
-
-	    var one = new BN(1).toRed(this);
-	    var nOne = one.redNeg();
-
-	    // Find quadratic non-residue
-	    // NOTE: Max is such because of generalized Riemann hypothesis.
-	    var lpow = this.m.subn(1).iushrn(1);
-	    var z = this.m.bitLength();
-	    z = new BN(2 * z * z).toRed(this);
-
-	    while (this.pow(z, lpow).cmp(nOne) !== 0) {
-	      z.redIAdd(nOne);
-	    }
-
-	    var c = this.pow(z, q);
-	    var r = this.pow(a, q.addn(1).iushrn(1));
-	    var t = this.pow(a, q);
-	    var m = s;
-	    while (t.cmp(one) !== 0) {
-	      var tmp = t;
-	      for (var i = 0; tmp.cmp(one) !== 0; i++) {
-	        tmp = tmp.redSqr();
-	      }
-	      assert(i < m);
-	      var b = this.pow(c, new BN(1).iushln(m - i - 1));
-
-	      r = r.redMul(b);
-	      c = b.redSqr();
-	      t = t.redMul(c);
-	      m = i;
-	    }
-
-	    return r;
-	  };
-
-	  Red.prototype.invm = function invm (a) {
-	    var inv = a._invmp(this.m);
-	    if (inv.negative !== 0) {
-	      inv.negative = 0;
-	      return this.imod(inv).redNeg();
-	    } else {
-	      return this.imod(inv);
-	    }
-	  };
-
-	  Red.prototype.pow = function pow (a, num) {
-	    if (num.isZero()) return new BN(1).toRed(this);
-	    if (num.cmpn(1) === 0) return a.clone();
-
-	    var windowSize = 4;
-	    var wnd = new Array(1 << windowSize);
-	    wnd[0] = new BN(1).toRed(this);
-	    wnd[1] = a;
-	    for (var i = 2; i < wnd.length; i++) {
-	      wnd[i] = this.mul(wnd[i - 1], a);
-	    }
-
-	    var res = wnd[0];
-	    var current = 0;
-	    var currentLen = 0;
-	    var start = num.bitLength() % 26;
-	    if (start === 0) {
-	      start = 26;
-	    }
-
-	    for (i = num.length - 1; i >= 0; i--) {
-	      var word = num.words[i];
-	      for (var j = start - 1; j >= 0; j--) {
-	        var bit = (word >> j) & 1;
-	        if (res !== wnd[0]) {
-	          res = this.sqr(res);
-	        }
-
-	        if (bit === 0 && current === 0) {
-	          currentLen = 0;
-	          continue;
-	        }
-
-	        current <<= 1;
-	        current |= bit;
-	        currentLen++;
-	        if (currentLen !== windowSize && (i !== 0 || j !== 0)) continue;
-
-	        res = this.mul(res, wnd[current]);
-	        currentLen = 0;
-	        current = 0;
-	      }
-	      start = 26;
-	    }
-
-	    return res;
-	  };
-
-	  Red.prototype.convertTo = function convertTo (num) {
-	    var r = num.umod(this.m);
-
-	    return r === num ? r.clone() : r;
-	  };
-
-	  Red.prototype.convertFrom = function convertFrom (num) {
-	    var res = num.clone();
-	    res.red = null;
-	    return res;
-	  };
-
-	  //
-	  // Montgomery method engine
-	  //
-
-	  BN.mont = function mont (num) {
-	    return new Mont(num);
-	  };
-
-	  function Mont (m) {
-	    Red.call(this, m);
-
-	    this.shift = this.m.bitLength();
-	    if (this.shift % 26 !== 0) {
-	      this.shift += 26 - (this.shift % 26);
-	    }
-
-	    this.r = new BN(1).iushln(this.shift);
-	    this.r2 = this.imod(this.r.sqr());
-	    this.rinv = this.r._invmp(this.m);
-
-	    this.minv = this.rinv.mul(this.r).isubn(1).div(this.m);
-	    this.minv = this.minv.umod(this.r);
-	    this.minv = this.r.sub(this.minv);
-	  }
-	  inherits(Mont, Red);
-
-	  Mont.prototype.convertTo = function convertTo (num) {
-	    return this.imod(num.ushln(this.shift));
-	  };
-
-	  Mont.prototype.convertFrom = function convertFrom (num) {
-	    var r = this.imod(num.mul(this.rinv));
-	    r.red = null;
-	    return r;
-	  };
-
-	  Mont.prototype.imul = function imul (a, b) {
-	    if (a.isZero() || b.isZero()) {
-	      a.words[0] = 0;
-	      a.length = 1;
-	      return a;
-	    }
-
-	    var t = a.imul(b);
-	    var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
-	    var u = t.isub(c).iushrn(this.shift);
-	    var res = u;
-
-	    if (u.cmp(this.m) >= 0) {
-	      res = u.isub(this.m);
-	    } else if (u.cmpn(0) < 0) {
-	      res = u.iadd(this.m);
-	    }
-
-	    return res._forceRed(this);
-	  };
-
-	  Mont.prototype.mul = function mul (a, b) {
-	    if (a.isZero() || b.isZero()) return new BN(0)._forceRed(this);
-
-	    var t = a.mul(b);
-	    var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
-	    var u = t.isub(c).iushrn(this.shift);
-	    var res = u;
-	    if (u.cmp(this.m) >= 0) {
-	      res = u.isub(this.m);
-	    } else if (u.cmpn(0) < 0) {
-	      res = u.iadd(this.m);
-	    }
-
-	    return res._forceRed(this);
-	  };
-
-	  Mont.prototype.invm = function invm (a) {
-	    // (AR)^-1 * R^2 = (A^-1 * R^-1) * R^2 = A^-1 * R
-	    var res = this.imod(a._invmp(this.m).mul(this.r2));
-	    return res._forceRed(this);
-	  };
-	})(module, commonjsGlobal);
-} (bn));
-
-var minimalisticAssert$1 = assert$m;
-
-function assert$m(val, msg) {
-  if (!val)
-    throw new Error(msg || 'Assertion failed');
-}
-
-assert$m.equal = function assertEqual(l, r, msg) {
-  if (l != r)
-    throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
-};
-
-var utils$v = {};
-
-(function (exports) {
-
-	var utils = exports;
-
-	function toArray(msg, enc) {
-	  if (Array.isArray(msg))
-	    return msg.slice();
-	  if (!msg)
-	    return [];
-	  var res = [];
-	  if (typeof msg !== 'string') {
-	    for (var i = 0; i < msg.length; i++)
-	      res[i] = msg[i] | 0;
-	    return res;
-	  }
-	  if (enc === 'hex') {
-	    msg = msg.replace(/[^a-z0-9]+/ig, '');
-	    if (msg.length % 2 !== 0)
-	      msg = '0' + msg;
-	    for (var i = 0; i < msg.length; i += 2)
-	      res.push(parseInt(msg[i] + msg[i + 1], 16));
-	  } else {
-	    for (var i = 0; i < msg.length; i++) {
-	      var c = msg.charCodeAt(i);
-	      var hi = c >> 8;
-	      var lo = c & 0xff;
-	      if (hi)
-	        res.push(hi, lo);
-	      else
-	        res.push(lo);
-	    }
-	  }
-	  return res;
-	}
-	utils.toArray = toArray;
-
-	function zero2(word) {
-	  if (word.length === 1)
-	    return '0' + word;
-	  else
-	    return word;
-	}
-	utils.zero2 = zero2;
-
-	function toHex(msg) {
-	  var res = '';
-	  for (var i = 0; i < msg.length; i++)
-	    res += zero2(msg[i].toString(16));
-	  return res;
-	}
-	utils.toHex = toHex;
-
-	utils.encode = function encode(arr, enc) {
-	  if (enc === 'hex')
-	    return toHex(arr);
-	  else
-	    return arr;
-	};
-} (utils$v));
-
-(function (exports) {
-
-	var utils = exports;
-	var BN = bn.exports;
-	var minAssert = minimalisticAssert$1;
-	var minUtils = utils$v;
-
-	utils.assert = minAssert;
-	utils.toArray = minUtils.toArray;
-	utils.zero2 = minUtils.zero2;
-	utils.toHex = minUtils.toHex;
-	utils.encode = minUtils.encode;
-
-	// Represent num in a w-NAF form
-	function getNAF(num, w, bits) {
-	  var naf = new Array(Math.max(num.bitLength(), bits) + 1);
-	  naf.fill(0);
-
-	  var ws = 1 << (w + 1);
-	  var k = num.clone();
-
-	  for (var i = 0; i < naf.length; i++) {
-	    var z;
-	    var mod = k.andln(ws - 1);
-	    if (k.isOdd()) {
-	      if (mod > (ws >> 1) - 1)
-	        z = (ws >> 1) - mod;
-	      else
-	        z = mod;
-	      k.isubn(z);
-	    } else {
-	      z = 0;
-	    }
-
-	    naf[i] = z;
-	    k.iushrn(1);
-	  }
-
-	  return naf;
-	}
-	utils.getNAF = getNAF;
-
-	// Represent k1, k2 in a Joint Sparse Form
-	function getJSF(k1, k2) {
-	  var jsf = [
-	    [],
-	    [],
-	  ];
-
-	  k1 = k1.clone();
-	  k2 = k2.clone();
-	  var d1 = 0;
-	  var d2 = 0;
-	  var m8;
-	  while (k1.cmpn(-d1) > 0 || k2.cmpn(-d2) > 0) {
-	    // First phase
-	    var m14 = (k1.andln(3) + d1) & 3;
-	    var m24 = (k2.andln(3) + d2) & 3;
-	    if (m14 === 3)
-	      m14 = -1;
-	    if (m24 === 3)
-	      m24 = -1;
-	    var u1;
-	    if ((m14 & 1) === 0) {
-	      u1 = 0;
-	    } else {
-	      m8 = (k1.andln(7) + d1) & 7;
-	      if ((m8 === 3 || m8 === 5) && m24 === 2)
-	        u1 = -m14;
-	      else
-	        u1 = m14;
-	    }
-	    jsf[0].push(u1);
-
-	    var u2;
-	    if ((m24 & 1) === 0) {
-	      u2 = 0;
-	    } else {
-	      m8 = (k2.andln(7) + d2) & 7;
-	      if ((m8 === 3 || m8 === 5) && m14 === 2)
-	        u2 = -m24;
-	      else
-	        u2 = m24;
-	    }
-	    jsf[1].push(u2);
-
-	    // Second phase
-	    if (2 * d1 === u1 + 1)
-	      d1 = 1 - d1;
-	    if (2 * d2 === u2 + 1)
-	      d2 = 1 - d2;
-	    k1.iushrn(1);
-	    k2.iushrn(1);
-	  }
-
-	  return jsf;
-	}
-	utils.getJSF = getJSF;
-
-	function cachedProperty(obj, name, computer) {
-	  var key = '_' + name;
-	  obj.prototype[name] = function cachedProperty() {
-	    return this[key] !== undefined ? this[key] :
-	      this[key] = computer.call(this);
-	  };
-	}
-	utils.cachedProperty = cachedProperty;
-
-	function parseBytes(bytes) {
-	  return typeof bytes === 'string' ? utils.toArray(bytes, 'hex') :
-	    bytes;
-	}
-	utils.parseBytes = parseBytes;
-
-	function intFromLE(bytes) {
-	  return new BN(bytes, 'hex', 'le');
-	}
-	utils.intFromLE = intFromLE;
-} (utils$w));
-
-var brorand = {exports: {}};
-
-var r$2;
-
-brorand.exports = function rand(len) {
-  if (!r$2)
-    r$2 = new Rand(null);
-
-  return r$2.generate(len);
-};
-
-function Rand(rand) {
-  this.rand = rand;
-}
-brorand.exports.Rand = Rand;
-
-Rand.prototype.generate = function generate(len) {
-  return this._rand(len);
-};
-
-// Emulate crypto API using randy
-Rand.prototype._rand = function _rand(n) {
-  if (this.rand.getBytes)
-    return this.rand.getBytes(n);
-
-  var res = new Uint8Array(n);
-  for (var i = 0; i < res.length; i++)
-    res[i] = this.rand.getByte();
-  return res;
-};
-
-if (typeof self === 'object') {
-  if (self.crypto && self.crypto.getRandomValues) {
-    // Modern browsers
-    Rand.prototype._rand = function _rand(n) {
-      var arr = new Uint8Array(n);
-      self.crypto.getRandomValues(arr);
-      return arr;
-    };
-  } else if (self.msCrypto && self.msCrypto.getRandomValues) {
-    // IE
-    Rand.prototype._rand = function _rand(n) {
-      var arr = new Uint8Array(n);
-      self.msCrypto.getRandomValues(arr);
-      return arr;
-    };
-
-  // Safari's WebWorkers do not have `crypto`
-  } else if (typeof window === 'object') {
-    // Old junk
-    Rand.prototype._rand = function() {
-      throw new Error('Not implemented yet');
-    };
-  }
-} else {
-  // Node.js or Web worker with no crypto support
-  try {
-    var crypto$1 = require('crypto');
-    if (typeof crypto$1.randomBytes !== 'function')
-      throw new Error('Not supported');
-
-    Rand.prototype._rand = function _rand(n) {
-      return crypto$1.randomBytes(n);
-    };
-  } catch (e) {
-  }
-}
-
-var curve = {};
-
-var BN$7 = bn.exports;
-var utils$u = utils$w;
-var getNAF = utils$u.getNAF;
-var getJSF = utils$u.getJSF;
-var assert$l = utils$u.assert;
-
-function BaseCurve(type, conf) {
-  this.type = type;
-  this.p = new BN$7(conf.p, 16);
-
-  // Use Montgomery, when there is no fast reduction for the prime
-  this.red = conf.prime ? BN$7.red(conf.prime) : BN$7.mont(this.p);
-
-  // Useful for many curves
-  this.zero = new BN$7(0).toRed(this.red);
-  this.one = new BN$7(1).toRed(this.red);
-  this.two = new BN$7(2).toRed(this.red);
-
-  // Curve configuration, optional
-  this.n = conf.n && new BN$7(conf.n, 16);
-  this.g = conf.g && this.pointFromJSON(conf.g, conf.gRed);
-
-  // Temporary arrays
-  this._wnafT1 = new Array(4);
-  this._wnafT2 = new Array(4);
-  this._wnafT3 = new Array(4);
-  this._wnafT4 = new Array(4);
-
-  this._bitLength = this.n ? this.n.bitLength() : 0;
-
-  // Generalized Greg Maxwell's trick
-  var adjustCount = this.n && this.p.div(this.n);
-  if (!adjustCount || adjustCount.cmpn(100) > 0) {
-    this.redN = null;
-  } else {
-    this._maxwellTrick = true;
-    this.redN = this.n.toRed(this.red);
-  }
-}
-var base = BaseCurve;
-
-BaseCurve.prototype.point = function point() {
-  throw new Error('Not implemented');
-};
-
-BaseCurve.prototype.validate = function validate() {
-  throw new Error('Not implemented');
-};
-
-BaseCurve.prototype._fixedNafMul = function _fixedNafMul(p, k) {
-  assert$l(p.precomputed);
-  var doubles = p._getDoubles();
-
-  var naf = getNAF(k, 1, this._bitLength);
-  var I = (1 << (doubles.step + 1)) - (doubles.step % 2 === 0 ? 2 : 1);
-  I /= 3;
-
-  // Translate into more windowed form
-  var repr = [];
-  var j;
-  var nafW;
-  for (j = 0; j < naf.length; j += doubles.step) {
-    nafW = 0;
-    for (var l = j + doubles.step - 1; l >= j; l--)
-      nafW = (nafW << 1) + naf[l];
-    repr.push(nafW);
-  }
-
-  var a = this.jpoint(null, null, null);
-  var b = this.jpoint(null, null, null);
-  for (var i = I; i > 0; i--) {
-    for (j = 0; j < repr.length; j++) {
-      nafW = repr[j];
-      if (nafW === i)
-        b = b.mixedAdd(doubles.points[j]);
-      else if (nafW === -i)
-        b = b.mixedAdd(doubles.points[j].neg());
-    }
-    a = a.add(b);
-  }
-  return a.toP();
-};
-
-BaseCurve.prototype._wnafMul = function _wnafMul(p, k) {
-  var w = 4;
-
-  // Precompute window
-  var nafPoints = p._getNAFPoints(w);
-  w = nafPoints.wnd;
-  var wnd = nafPoints.points;
-
-  // Get NAF form
-  var naf = getNAF(k, w, this._bitLength);
-
-  // Add `this`*(N+1) for every w-NAF index
-  var acc = this.jpoint(null, null, null);
-  for (var i = naf.length - 1; i >= 0; i--) {
-    // Count zeroes
-    for (var l = 0; i >= 0 && naf[i] === 0; i--)
-      l++;
-    if (i >= 0)
-      l++;
-    acc = acc.dblp(l);
-
-    if (i < 0)
-      break;
-    var z = naf[i];
-    assert$l(z !== 0);
-    if (p.type === 'affine') {
-      // J +- P
-      if (z > 0)
-        acc = acc.mixedAdd(wnd[(z - 1) >> 1]);
-      else
-        acc = acc.mixedAdd(wnd[(-z - 1) >> 1].neg());
-    } else {
-      // J +- J
-      if (z > 0)
-        acc = acc.add(wnd[(z - 1) >> 1]);
-      else
-        acc = acc.add(wnd[(-z - 1) >> 1].neg());
-    }
-  }
-  return p.type === 'affine' ? acc.toP() : acc;
-};
-
-BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW,
-  points,
-  coeffs,
-  len,
-  jacobianResult) {
-  var wndWidth = this._wnafT1;
-  var wnd = this._wnafT2;
-  var naf = this._wnafT3;
-
-  // Fill all arrays
-  var max = 0;
-  var i;
-  var j;
-  var p;
-  for (i = 0; i < len; i++) {
-    p = points[i];
-    var nafPoints = p._getNAFPoints(defW);
-    wndWidth[i] = nafPoints.wnd;
-    wnd[i] = nafPoints.points;
-  }
-
-  // Comb small window NAFs
-  for (i = len - 1; i >= 1; i -= 2) {
-    var a = i - 1;
-    var b = i;
-    if (wndWidth[a] !== 1 || wndWidth[b] !== 1) {
-      naf[a] = getNAF(coeffs[a], wndWidth[a], this._bitLength);
-      naf[b] = getNAF(coeffs[b], wndWidth[b], this._bitLength);
-      max = Math.max(naf[a].length, max);
-      max = Math.max(naf[b].length, max);
-      continue;
-    }
-
-    var comb = [
-      points[a], /* 1 */
-      null, /* 3 */
-      null, /* 5 */
-      points[b], /* 7 */
-    ];
-
-    // Try to avoid Projective points, if possible
-    if (points[a].y.cmp(points[b].y) === 0) {
-      comb[1] = points[a].add(points[b]);
-      comb[2] = points[a].toJ().mixedAdd(points[b].neg());
-    } else if (points[a].y.cmp(points[b].y.redNeg()) === 0) {
-      comb[1] = points[a].toJ().mixedAdd(points[b]);
-      comb[2] = points[a].add(points[b].neg());
-    } else {
-      comb[1] = points[a].toJ().mixedAdd(points[b]);
-      comb[2] = points[a].toJ().mixedAdd(points[b].neg());
-    }
-
-    var index = [
-      -3, /* -1 -1 */
-      -1, /* -1 0 */
-      -5, /* -1 1 */
-      -7, /* 0 -1 */
-      0, /* 0 0 */
-      7, /* 0 1 */
-      5, /* 1 -1 */
-      1, /* 1 0 */
-      3,  /* 1 1 */
-    ];
-
-    var jsf = getJSF(coeffs[a], coeffs[b]);
-    max = Math.max(jsf[0].length, max);
-    naf[a] = new Array(max);
-    naf[b] = new Array(max);
-    for (j = 0; j < max; j++) {
-      var ja = jsf[0][j] | 0;
-      var jb = jsf[1][j] | 0;
-
-      naf[a][j] = index[(ja + 1) * 3 + (jb + 1)];
-      naf[b][j] = 0;
-      wnd[a] = comb;
-    }
-  }
-
-  var acc = this.jpoint(null, null, null);
-  var tmp = this._wnafT4;
-  for (i = max; i >= 0; i--) {
-    var k = 0;
-
-    while (i >= 0) {
-      var zero = true;
-      for (j = 0; j < len; j++) {
-        tmp[j] = naf[j][i] | 0;
-        if (tmp[j] !== 0)
-          zero = false;
-      }
-      if (!zero)
-        break;
-      k++;
-      i--;
-    }
-    if (i >= 0)
-      k++;
-    acc = acc.dblp(k);
-    if (i < 0)
-      break;
-
-    for (j = 0; j < len; j++) {
-      var z = tmp[j];
-      if (z === 0)
-        continue;
-      else if (z > 0)
-        p = wnd[j][(z - 1) >> 1];
-      else if (z < 0)
-        p = wnd[j][(-z - 1) >> 1].neg();
-
-      if (p.type === 'affine')
-        acc = acc.mixedAdd(p);
-      else
-        acc = acc.add(p);
-    }
-  }
-  // Zeroify references
-  for (i = 0; i < len; i++)
-    wnd[i] = null;
-
-  if (jacobianResult)
-    return acc;
-  else
-    return acc.toP();
-};
-
-function BasePoint(curve, type) {
-  this.curve = curve;
-  this.type = type;
-  this.precomputed = null;
-}
-BaseCurve.BasePoint = BasePoint;
-
-BasePoint.prototype.eq = function eq(/*other*/) {
-  throw new Error('Not implemented');
-};
-
-BasePoint.prototype.validate = function validate() {
-  return this.curve.validate(this);
-};
-
-BaseCurve.prototype.decodePoint = function decodePoint(bytes, enc) {
-  bytes = utils$u.toArray(bytes, enc);
-
-  var len = this.p.byteLength();
-
-  // uncompressed, hybrid-odd, hybrid-even
-  if ((bytes[0] === 0x04 || bytes[0] === 0x06 || bytes[0] === 0x07) &&
-      bytes.length - 1 === 2 * len) {
-    if (bytes[0] === 0x06)
-      assert$l(bytes[bytes.length - 1] % 2 === 0);
-    else if (bytes[0] === 0x07)
-      assert$l(bytes[bytes.length - 1] % 2 === 1);
-
-    var res =  this.point(bytes.slice(1, 1 + len),
-      bytes.slice(1 + len, 1 + 2 * len));
-
-    return res;
-  } else if ((bytes[0] === 0x02 || bytes[0] === 0x03) &&
-              bytes.length - 1 === len) {
-    return this.pointFromX(bytes.slice(1, 1 + len), bytes[0] === 0x03);
-  }
-  throw new Error('Unknown point format');
-};
-
-BasePoint.prototype.encodeCompressed = function encodeCompressed(enc) {
-  return this.encode(enc, true);
-};
-
-BasePoint.prototype._encode = function _encode(compact) {
-  var len = this.curve.p.byteLength();
-  var x = this.getX().toArray('be', len);
-
-  if (compact)
-    return [ this.getY().isEven() ? 0x02 : 0x03 ].concat(x);
-
-  return [ 0x04 ].concat(x, this.getY().toArray('be', len));
-};
-
-BasePoint.prototype.encode = function encode(enc, compact) {
-  return utils$u.encode(this._encode(compact), enc);
-};
-
-BasePoint.prototype.precompute = function precompute(power) {
-  if (this.precomputed)
-    return this;
-
-  var precomputed = {
-    doubles: null,
-    naf: null,
-    beta: null,
-  };
-  precomputed.naf = this._getNAFPoints(8);
-  precomputed.doubles = this._getDoubles(4, power);
-  precomputed.beta = this._getBeta();
-  this.precomputed = precomputed;
-
-  return this;
-};
-
-BasePoint.prototype._hasDoubles = function _hasDoubles(k) {
-  if (!this.precomputed)
-    return false;
-
-  var doubles = this.precomputed.doubles;
-  if (!doubles)
-    return false;
-
-  return doubles.points.length >= Math.ceil((k.bitLength() + 1) / doubles.step);
-};
-
-BasePoint.prototype._getDoubles = function _getDoubles(step, power) {
-  if (this.precomputed && this.precomputed.doubles)
-    return this.precomputed.doubles;
-
-  var doubles = [ this ];
-  var acc = this;
-  for (var i = 0; i < power; i += step) {
-    for (var j = 0; j < step; j++)
-      acc = acc.dbl();
-    doubles.push(acc);
-  }
-  return {
-    step: step,
-    points: doubles,
-  };
-};
-
-BasePoint.prototype._getNAFPoints = function _getNAFPoints(wnd) {
-  if (this.precomputed && this.precomputed.naf)
-    return this.precomputed.naf;
-
-  var res = [ this ];
-  var max = (1 << wnd) - 1;
-  var dbl = max === 1 ? null : this.dbl();
-  for (var i = 1; i < max; i++)
-    res[i] = res[i - 1].add(dbl);
-  return {
-    wnd: wnd,
-    points: res,
-  };
-};
-
-BasePoint.prototype._getBeta = function _getBeta() {
-  return null;
-};
-
-BasePoint.prototype.dblp = function dblp(k) {
-  var r = this;
-  for (var i = 0; i < k; i++)
-    r = r.dbl();
-  return r;
-};
-
-var inherits$5 = {exports: {}};
-
-var inherits_browser$1 = {exports: {}};
-
-var hasRequiredInherits_browser;
-
-function requireInherits_browser () {
-	if (hasRequiredInherits_browser) return inherits_browser$1.exports;
-	hasRequiredInherits_browser = 1;
-	if (typeof Object.create === 'function') {
-	  // implementation from standard node.js 'util' module
-	  inherits_browser$1.exports = function inherits(ctor, superCtor) {
-	    if (superCtor) {
-	      ctor.super_ = superCtor;
-	      ctor.prototype = Object.create(superCtor.prototype, {
-	        constructor: {
-	          value: ctor,
-	          enumerable: false,
-	          writable: true,
-	          configurable: true
-	        }
-	      });
-	    }
-	  };
-	} else {
-	  // old school shim for old browsers
-	  inherits_browser$1.exports = function inherits(ctor, superCtor) {
-	    if (superCtor) {
-	      ctor.super_ = superCtor;
-	      var TempCtor = function () {};
-	      TempCtor.prototype = superCtor.prototype;
-	      ctor.prototype = new TempCtor();
-	      ctor.prototype.constructor = ctor;
-	    }
-	  };
-	}
-	return inherits_browser$1.exports;
-}
-
-(function (module) {
-	try {
-	  var util = require('util');
-	  /* istanbul ignore next */
-	  if (typeof util.inherits !== 'function') throw '';
-	  module.exports = util.inherits;
-	} catch (e) {
-	  /* istanbul ignore next */
-	  module.exports = requireInherits_browser();
-	}
-} (inherits$5));
-
-var utils$t = utils$w;
-var BN$6 = bn.exports;
-var inherits$4 = inherits$5.exports;
-var Base$2 = base;
-
-var assert$k = utils$t.assert;
-
-function ShortCurve(conf) {
-  Base$2.call(this, 'short', conf);
-
-  this.a = new BN$6(conf.a, 16).toRed(this.red);
-  this.b = new BN$6(conf.b, 16).toRed(this.red);
-  this.tinv = this.two.redInvm();
-
-  this.zeroA = this.a.fromRed().cmpn(0) === 0;
-  this.threeA = this.a.fromRed().sub(this.p).cmpn(-3) === 0;
-
-  // If the curve is endomorphic, precalculate beta and lambda
-  this.endo = this._getEndomorphism(conf);
-  this._endoWnafT1 = new Array(4);
-  this._endoWnafT2 = new Array(4);
-}
-inherits$4(ShortCurve, Base$2);
-var short = ShortCurve;
-
-ShortCurve.prototype._getEndomorphism = function _getEndomorphism(conf) {
-  // No efficient endomorphism
-  if (!this.zeroA || !this.g || !this.n || this.p.modn(3) !== 1)
-    return;
-
-  // Compute beta and lambda, that lambda * P = (beta * Px; Py)
-  var beta;
-  var lambda;
-  if (conf.beta) {
-    beta = new BN$6(conf.beta, 16).toRed(this.red);
-  } else {
-    var betas = this._getEndoRoots(this.p);
-    // Choose the smallest beta
-    beta = betas[0].cmp(betas[1]) < 0 ? betas[0] : betas[1];
-    beta = beta.toRed(this.red);
-  }
-  if (conf.lambda) {
-    lambda = new BN$6(conf.lambda, 16);
-  } else {
-    // Choose the lambda that is matching selected beta
-    var lambdas = this._getEndoRoots(this.n);
-    if (this.g.mul(lambdas[0]).x.cmp(this.g.x.redMul(beta)) === 0) {
-      lambda = lambdas[0];
-    } else {
-      lambda = lambdas[1];
-      assert$k(this.g.mul(lambda).x.cmp(this.g.x.redMul(beta)) === 0);
-    }
-  }
-
-  // Get basis vectors, used for balanced length-two representation
-  var basis;
-  if (conf.basis) {
-    basis = conf.basis.map(function(vec) {
-      return {
-        a: new BN$6(vec.a, 16),
-        b: new BN$6(vec.b, 16),
-      };
-    });
-  } else {
-    basis = this._getEndoBasis(lambda);
-  }
-
-  return {
-    beta: beta,
-    lambda: lambda,
-    basis: basis,
-  };
-};
-
-ShortCurve.prototype._getEndoRoots = function _getEndoRoots(num) {
-  // Find roots of for x^2 + x + 1 in F
-  // Root = (-1 +- Sqrt(-3)) / 2
-  //
-  var red = num === this.p ? this.red : BN$6.mont(num);
-  var tinv = new BN$6(2).toRed(red).redInvm();
-  var ntinv = tinv.redNeg();
-
-  var s = new BN$6(3).toRed(red).redNeg().redSqrt().redMul(tinv);
-
-  var l1 = ntinv.redAdd(s).fromRed();
-  var l2 = ntinv.redSub(s).fromRed();
-  return [ l1, l2 ];
-};
-
-ShortCurve.prototype._getEndoBasis = function _getEndoBasis(lambda) {
-  // aprxSqrt >= sqrt(this.n)
-  var aprxSqrt = this.n.ushrn(Math.floor(this.n.bitLength() / 2));
-
-  // 3.74
-  // Run EGCD, until r(L + 1) < aprxSqrt
-  var u = lambda;
-  var v = this.n.clone();
-  var x1 = new BN$6(1);
-  var y1 = new BN$6(0);
-  var x2 = new BN$6(0);
-  var y2 = new BN$6(1);
-
-  // NOTE: all vectors are roots of: a + b * lambda = 0 (mod n)
-  var a0;
-  var b0;
-  // First vector
-  var a1;
-  var b1;
-  // Second vector
-  var a2;
-  var b2;
-
-  var prevR;
-  var i = 0;
-  var r;
-  var x;
-  while (u.cmpn(0) !== 0) {
-    var q = v.div(u);
-    r = v.sub(q.mul(u));
-    x = x2.sub(q.mul(x1));
-    var y = y2.sub(q.mul(y1));
-
-    if (!a1 && r.cmp(aprxSqrt) < 0) {
-      a0 = prevR.neg();
-      b0 = x1;
-      a1 = r.neg();
-      b1 = x;
-    } else if (a1 && ++i === 2) {
-      break;
-    }
-    prevR = r;
-
-    v = u;
-    u = r;
-    x2 = x1;
-    x1 = x;
-    y2 = y1;
-    y1 = y;
-  }
-  a2 = r.neg();
-  b2 = x;
-
-  var len1 = a1.sqr().add(b1.sqr());
-  var len2 = a2.sqr().add(b2.sqr());
-  if (len2.cmp(len1) >= 0) {
-    a2 = a0;
-    b2 = b0;
-  }
-
-  // Normalize signs
-  if (a1.negative) {
-    a1 = a1.neg();
-    b1 = b1.neg();
-  }
-  if (a2.negative) {
-    a2 = a2.neg();
-    b2 = b2.neg();
-  }
-
-  return [
-    { a: a1, b: b1 },
-    { a: a2, b: b2 },
-  ];
-};
-
-ShortCurve.prototype._endoSplit = function _endoSplit(k) {
-  var basis = this.endo.basis;
-  var v1 = basis[0];
-  var v2 = basis[1];
-
-  var c1 = v2.b.mul(k).divRound(this.n);
-  var c2 = v1.b.neg().mul(k).divRound(this.n);
-
-  var p1 = c1.mul(v1.a);
-  var p2 = c2.mul(v2.a);
-  var q1 = c1.mul(v1.b);
-  var q2 = c2.mul(v2.b);
-
-  // Calculate answer
-  var k1 = k.sub(p1).sub(p2);
-  var k2 = q1.add(q2).neg();
-  return { k1: k1, k2: k2 };
-};
-
-ShortCurve.prototype.pointFromX = function pointFromX(x, odd) {
-  x = new BN$6(x, 16);
-  if (!x.red)
-    x = x.toRed(this.red);
-
-  var y2 = x.redSqr().redMul(x).redIAdd(x.redMul(this.a)).redIAdd(this.b);
-  var y = y2.redSqrt();
-  if (y.redSqr().redSub(y2).cmp(this.zero) !== 0)
-    throw new Error('invalid point');
-
-  // XXX Is there any way to tell if the number is odd without converting it
-  // to non-red form?
-  var isOdd = y.fromRed().isOdd();
-  if (odd && !isOdd || !odd && isOdd)
-    y = y.redNeg();
-
-  return this.point(x, y);
-};
-
-ShortCurve.prototype.validate = function validate(point) {
-  if (point.inf)
-    return true;
-
-  var x = point.x;
-  var y = point.y;
-
-  var ax = this.a.redMul(x);
-  var rhs = x.redSqr().redMul(x).redIAdd(ax).redIAdd(this.b);
-  return y.redSqr().redISub(rhs).cmpn(0) === 0;
-};
-
-ShortCurve.prototype._endoWnafMulAdd =
-    function _endoWnafMulAdd(points, coeffs, jacobianResult) {
-      var npoints = this._endoWnafT1;
-      var ncoeffs = this._endoWnafT2;
-      for (var i = 0; i < points.length; i++) {
-        var split = this._endoSplit(coeffs[i]);
-        var p = points[i];
-        var beta = p._getBeta();
-
-        if (split.k1.negative) {
-          split.k1.ineg();
-          p = p.neg(true);
-        }
-        if (split.k2.negative) {
-          split.k2.ineg();
-          beta = beta.neg(true);
-        }
-
-        npoints[i * 2] = p;
-        npoints[i * 2 + 1] = beta;
-        ncoeffs[i * 2] = split.k1;
-        ncoeffs[i * 2 + 1] = split.k2;
-      }
-      var res = this._wnafMulAdd(1, npoints, ncoeffs, i * 2, jacobianResult);
-
-      // Clean-up references to points and coefficients
-      for (var j = 0; j < i * 2; j++) {
-        npoints[j] = null;
-        ncoeffs[j] = null;
-      }
-      return res;
-    };
-
-function Point$2(curve, x, y, isRed) {
-  Base$2.BasePoint.call(this, curve, 'affine');
-  if (x === null && y === null) {
-    this.x = null;
-    this.y = null;
-    this.inf = true;
-  } else {
-    this.x = new BN$6(x, 16);
-    this.y = new BN$6(y, 16);
-    // Force redgomery representation when loading from JSON
-    if (isRed) {
-      this.x.forceRed(this.curve.red);
-      this.y.forceRed(this.curve.red);
-    }
-    if (!this.x.red)
-      this.x = this.x.toRed(this.curve.red);
-    if (!this.y.red)
-      this.y = this.y.toRed(this.curve.red);
-    this.inf = false;
-  }
-}
-inherits$4(Point$2, Base$2.BasePoint);
-
-ShortCurve.prototype.point = function point(x, y, isRed) {
-  return new Point$2(this, x, y, isRed);
-};
-
-ShortCurve.prototype.pointFromJSON = function pointFromJSON(obj, red) {
-  return Point$2.fromJSON(this, obj, red);
-};
-
-Point$2.prototype._getBeta = function _getBeta() {
-  if (!this.curve.endo)
-    return;
-
-  var pre = this.precomputed;
-  if (pre && pre.beta)
-    return pre.beta;
-
-  var beta = this.curve.point(this.x.redMul(this.curve.endo.beta), this.y);
-  if (pre) {
-    var curve = this.curve;
-    var endoMul = function(p) {
-      return curve.point(p.x.redMul(curve.endo.beta), p.y);
-    };
-    pre.beta = beta;
-    beta.precomputed = {
-      beta: null,
-      naf: pre.naf && {
-        wnd: pre.naf.wnd,
-        points: pre.naf.points.map(endoMul),
-      },
-      doubles: pre.doubles && {
-        step: pre.doubles.step,
-        points: pre.doubles.points.map(endoMul),
-      },
-    };
-  }
-  return beta;
-};
-
-Point$2.prototype.toJSON = function toJSON() {
-  if (!this.precomputed)
-    return [ this.x, this.y ];
-
-  return [ this.x, this.y, this.precomputed && {
-    doubles: this.precomputed.doubles && {
-      step: this.precomputed.doubles.step,
-      points: this.precomputed.doubles.points.slice(1),
-    },
-    naf: this.precomputed.naf && {
-      wnd: this.precomputed.naf.wnd,
-      points: this.precomputed.naf.points.slice(1),
-    },
-  } ];
-};
-
-Point$2.fromJSON = function fromJSON(curve, obj, red) {
-  if (typeof obj === 'string')
-    obj = JSON.parse(obj);
-  var res = curve.point(obj[0], obj[1], red);
-  if (!obj[2])
-    return res;
-
-  function obj2point(obj) {
-    return curve.point(obj[0], obj[1], red);
-  }
-
-  var pre = obj[2];
-  res.precomputed = {
-    beta: null,
-    doubles: pre.doubles && {
-      step: pre.doubles.step,
-      points: [ res ].concat(pre.doubles.points.map(obj2point)),
-    },
-    naf: pre.naf && {
-      wnd: pre.naf.wnd,
-      points: [ res ].concat(pre.naf.points.map(obj2point)),
-    },
-  };
-  return res;
-};
-
-Point$2.prototype.inspect = function inspect() {
-  if (this.isInfinity())
-    return '<EC Point Infinity>';
-  return '<EC Point x: ' + this.x.fromRed().toString(16, 2) +
-      ' y: ' + this.y.fromRed().toString(16, 2) + '>';
-};
-
-Point$2.prototype.isInfinity = function isInfinity() {
-  return this.inf;
-};
-
-Point$2.prototype.add = function add(p) {
-  // O + P = P
-  if (this.inf)
-    return p;
-
-  // P + O = P
-  if (p.inf)
-    return this;
-
-  // P + P = 2P
-  if (this.eq(p))
-    return this.dbl();
-
-  // P + (-P) = O
-  if (this.neg().eq(p))
-    return this.curve.point(null, null);
-
-  // P + Q = O
-  if (this.x.cmp(p.x) === 0)
-    return this.curve.point(null, null);
-
-  var c = this.y.redSub(p.y);
-  if (c.cmpn(0) !== 0)
-    c = c.redMul(this.x.redSub(p.x).redInvm());
-  var nx = c.redSqr().redISub(this.x).redISub(p.x);
-  var ny = c.redMul(this.x.redSub(nx)).redISub(this.y);
-  return this.curve.point(nx, ny);
-};
-
-Point$2.prototype.dbl = function dbl() {
-  if (this.inf)
-    return this;
-
-  // 2P = O
-  var ys1 = this.y.redAdd(this.y);
-  if (ys1.cmpn(0) === 0)
-    return this.curve.point(null, null);
-
-  var a = this.curve.a;
-
-  var x2 = this.x.redSqr();
-  var dyinv = ys1.redInvm();
-  var c = x2.redAdd(x2).redIAdd(x2).redIAdd(a).redMul(dyinv);
-
-  var nx = c.redSqr().redISub(this.x.redAdd(this.x));
-  var ny = c.redMul(this.x.redSub(nx)).redISub(this.y);
-  return this.curve.point(nx, ny);
-};
-
-Point$2.prototype.getX = function getX() {
-  return this.x.fromRed();
-};
-
-Point$2.prototype.getY = function getY() {
-  return this.y.fromRed();
-};
-
-Point$2.prototype.mul = function mul(k) {
-  k = new BN$6(k, 16);
-  if (this.isInfinity())
-    return this;
-  else if (this._hasDoubles(k))
-    return this.curve._fixedNafMul(this, k);
-  else if (this.curve.endo)
-    return this.curve._endoWnafMulAdd([ this ], [ k ]);
-  else
-    return this.curve._wnafMul(this, k);
-};
-
-Point$2.prototype.mulAdd = function mulAdd(k1, p2, k2) {
-  var points = [ this, p2 ];
-  var coeffs = [ k1, k2 ];
-  if (this.curve.endo)
-    return this.curve._endoWnafMulAdd(points, coeffs);
-  else
-    return this.curve._wnafMulAdd(1, points, coeffs, 2);
-};
-
-Point$2.prototype.jmulAdd = function jmulAdd(k1, p2, k2) {
-  var points = [ this, p2 ];
-  var coeffs = [ k1, k2 ];
-  if (this.curve.endo)
-    return this.curve._endoWnafMulAdd(points, coeffs, true);
-  else
-    return this.curve._wnafMulAdd(1, points, coeffs, 2, true);
-};
-
-Point$2.prototype.eq = function eq(p) {
-  return this === p ||
-         this.inf === p.inf &&
-             (this.inf || this.x.cmp(p.x) === 0 && this.y.cmp(p.y) === 0);
-};
-
-Point$2.prototype.neg = function neg(_precompute) {
-  if (this.inf)
-    return this;
-
-  var res = this.curve.point(this.x, this.y.redNeg());
-  if (_precompute && this.precomputed) {
-    var pre = this.precomputed;
-    var negate = function(p) {
-      return p.neg();
-    };
-    res.precomputed = {
-      naf: pre.naf && {
-        wnd: pre.naf.wnd,
-        points: pre.naf.points.map(negate),
-      },
-      doubles: pre.doubles && {
-        step: pre.doubles.step,
-        points: pre.doubles.points.map(negate),
-      },
-    };
-  }
-  return res;
-};
-
-Point$2.prototype.toJ = function toJ() {
-  if (this.inf)
-    return this.curve.jpoint(null, null, null);
-
-  var res = this.curve.jpoint(this.x, this.y, this.curve.one);
-  return res;
-};
-
-function JPoint(curve, x, y, z) {
-  Base$2.BasePoint.call(this, curve, 'jacobian');
-  if (x === null && y === null && z === null) {
-    this.x = this.curve.one;
-    this.y = this.curve.one;
-    this.z = new BN$6(0);
-  } else {
-    this.x = new BN$6(x, 16);
-    this.y = new BN$6(y, 16);
-    this.z = new BN$6(z, 16);
-  }
-  if (!this.x.red)
-    this.x = this.x.toRed(this.curve.red);
-  if (!this.y.red)
-    this.y = this.y.toRed(this.curve.red);
-  if (!this.z.red)
-    this.z = this.z.toRed(this.curve.red);
-
-  this.zOne = this.z === this.curve.one;
-}
-inherits$4(JPoint, Base$2.BasePoint);
-
-ShortCurve.prototype.jpoint = function jpoint(x, y, z) {
-  return new JPoint(this, x, y, z);
-};
-
-JPoint.prototype.toP = function toP() {
-  if (this.isInfinity())
-    return this.curve.point(null, null);
-
-  var zinv = this.z.redInvm();
-  var zinv2 = zinv.redSqr();
-  var ax = this.x.redMul(zinv2);
-  var ay = this.y.redMul(zinv2).redMul(zinv);
-
-  return this.curve.point(ax, ay);
-};
-
-JPoint.prototype.neg = function neg() {
-  return this.curve.jpoint(this.x, this.y.redNeg(), this.z);
-};
-
-JPoint.prototype.add = function add(p) {
-  // O + P = P
-  if (this.isInfinity())
-    return p;
-
-  // P + O = P
-  if (p.isInfinity())
-    return this;
-
-  // 12M + 4S + 7A
-  var pz2 = p.z.redSqr();
-  var z2 = this.z.redSqr();
-  var u1 = this.x.redMul(pz2);
-  var u2 = p.x.redMul(z2);
-  var s1 = this.y.redMul(pz2.redMul(p.z));
-  var s2 = p.y.redMul(z2.redMul(this.z));
-
-  var h = u1.redSub(u2);
-  var r = s1.redSub(s2);
-  if (h.cmpn(0) === 0) {
-    if (r.cmpn(0) !== 0)
-      return this.curve.jpoint(null, null, null);
-    else
-      return this.dbl();
-  }
-
-  var h2 = h.redSqr();
-  var h3 = h2.redMul(h);
-  var v = u1.redMul(h2);
-
-  var nx = r.redSqr().redIAdd(h3).redISub(v).redISub(v);
-  var ny = r.redMul(v.redISub(nx)).redISub(s1.redMul(h3));
-  var nz = this.z.redMul(p.z).redMul(h);
-
-  return this.curve.jpoint(nx, ny, nz);
-};
-
-JPoint.prototype.mixedAdd = function mixedAdd(p) {
-  // O + P = P
-  if (this.isInfinity())
-    return p.toJ();
-
-  // P + O = P
-  if (p.isInfinity())
-    return this;
-
-  // 8M + 3S + 7A
-  var z2 = this.z.redSqr();
-  var u1 = this.x;
-  var u2 = p.x.redMul(z2);
-  var s1 = this.y;
-  var s2 = p.y.redMul(z2).redMul(this.z);
-
-  var h = u1.redSub(u2);
-  var r = s1.redSub(s2);
-  if (h.cmpn(0) === 0) {
-    if (r.cmpn(0) !== 0)
-      return this.curve.jpoint(null, null, null);
-    else
-      return this.dbl();
-  }
-
-  var h2 = h.redSqr();
-  var h3 = h2.redMul(h);
-  var v = u1.redMul(h2);
-
-  var nx = r.redSqr().redIAdd(h3).redISub(v).redISub(v);
-  var ny = r.redMul(v.redISub(nx)).redISub(s1.redMul(h3));
-  var nz = this.z.redMul(h);
-
-  return this.curve.jpoint(nx, ny, nz);
-};
-
-JPoint.prototype.dblp = function dblp(pow) {
-  if (pow === 0)
-    return this;
-  if (this.isInfinity())
-    return this;
-  if (!pow)
-    return this.dbl();
-
-  var i;
-  if (this.curve.zeroA || this.curve.threeA) {
-    var r = this;
-    for (i = 0; i < pow; i++)
-      r = r.dbl();
-    return r;
-  }
-
-  // 1M + 2S + 1A + N * (4S + 5M + 8A)
-  // N = 1 => 6M + 6S + 9A
-  var a = this.curve.a;
-  var tinv = this.curve.tinv;
-
-  var jx = this.x;
-  var jy = this.y;
-  var jz = this.z;
-  var jz4 = jz.redSqr().redSqr();
-
-  // Reuse results
-  var jyd = jy.redAdd(jy);
-  for (i = 0; i < pow; i++) {
-    var jx2 = jx.redSqr();
-    var jyd2 = jyd.redSqr();
-    var jyd4 = jyd2.redSqr();
-    var c = jx2.redAdd(jx2).redIAdd(jx2).redIAdd(a.redMul(jz4));
-
-    var t1 = jx.redMul(jyd2);
-    var nx = c.redSqr().redISub(t1.redAdd(t1));
-    var t2 = t1.redISub(nx);
-    var dny = c.redMul(t2);
-    dny = dny.redIAdd(dny).redISub(jyd4);
-    var nz = jyd.redMul(jz);
-    if (i + 1 < pow)
-      jz4 = jz4.redMul(jyd4);
-
-    jx = nx;
-    jz = nz;
-    jyd = dny;
-  }
-
-  return this.curve.jpoint(jx, jyd.redMul(tinv), jz);
-};
-
-JPoint.prototype.dbl = function dbl() {
-  if (this.isInfinity())
-    return this;
-
-  if (this.curve.zeroA)
-    return this._zeroDbl();
-  else if (this.curve.threeA)
-    return this._threeDbl();
-  else
-    return this._dbl();
-};
-
-JPoint.prototype._zeroDbl = function _zeroDbl() {
-  var nx;
-  var ny;
-  var nz;
-  // Z = 1
-  if (this.zOne) {
-    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html
-    //     #doubling-mdbl-2007-bl
-    // 1M + 5S + 14A
-
-    // XX = X1^2
-    var xx = this.x.redSqr();
-    // YY = Y1^2
-    var yy = this.y.redSqr();
-    // YYYY = YY^2
-    var yyyy = yy.redSqr();
-    // S = 2 * ((X1 + YY)^2 - XX - YYYY)
-    var s = this.x.redAdd(yy).redSqr().redISub(xx).redISub(yyyy);
-    s = s.redIAdd(s);
-    // M = 3 * XX + a; a = 0
-    var m = xx.redAdd(xx).redIAdd(xx);
-    // T = M ^ 2 - 2*S
-    var t = m.redSqr().redISub(s).redISub(s);
-
-    // 8 * YYYY
-    var yyyy8 = yyyy.redIAdd(yyyy);
-    yyyy8 = yyyy8.redIAdd(yyyy8);
-    yyyy8 = yyyy8.redIAdd(yyyy8);
-
-    // X3 = T
-    nx = t;
-    // Y3 = M * (S - T) - 8 * YYYY
-    ny = m.redMul(s.redISub(t)).redISub(yyyy8);
-    // Z3 = 2*Y1
-    nz = this.y.redAdd(this.y);
-  } else {
-    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html
-    //     #doubling-dbl-2009-l
-    // 2M + 5S + 13A
-
-    // A = X1^2
-    var a = this.x.redSqr();
-    // B = Y1^2
-    var b = this.y.redSqr();
-    // C = B^2
-    var c = b.redSqr();
-    // D = 2 * ((X1 + B)^2 - A - C)
-    var d = this.x.redAdd(b).redSqr().redISub(a).redISub(c);
-    d = d.redIAdd(d);
-    // E = 3 * A
-    var e = a.redAdd(a).redIAdd(a);
-    // F = E^2
-    var f = e.redSqr();
-
-    // 8 * C
-    var c8 = c.redIAdd(c);
-    c8 = c8.redIAdd(c8);
-    c8 = c8.redIAdd(c8);
-
-    // X3 = F - 2 * D
-    nx = f.redISub(d).redISub(d);
-    // Y3 = E * (D - X3) - 8 * C
-    ny = e.redMul(d.redISub(nx)).redISub(c8);
-    // Z3 = 2 * Y1 * Z1
-    nz = this.y.redMul(this.z);
-    nz = nz.redIAdd(nz);
-  }
-
-  return this.curve.jpoint(nx, ny, nz);
-};
-
-JPoint.prototype._threeDbl = function _threeDbl() {
-  var nx;
-  var ny;
-  var nz;
-  // Z = 1
-  if (this.zOne) {
-    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html
-    //     #doubling-mdbl-2007-bl
-    // 1M + 5S + 15A
-
-    // XX = X1^2
-    var xx = this.x.redSqr();
-    // YY = Y1^2
-    var yy = this.y.redSqr();
-    // YYYY = YY^2
-    var yyyy = yy.redSqr();
-    // S = 2 * ((X1 + YY)^2 - XX - YYYY)
-    var s = this.x.redAdd(yy).redSqr().redISub(xx).redISub(yyyy);
-    s = s.redIAdd(s);
-    // M = 3 * XX + a
-    var m = xx.redAdd(xx).redIAdd(xx).redIAdd(this.curve.a);
-    // T = M^2 - 2 * S
-    var t = m.redSqr().redISub(s).redISub(s);
-    // X3 = T
-    nx = t;
-    // Y3 = M * (S - T) - 8 * YYYY
-    var yyyy8 = yyyy.redIAdd(yyyy);
-    yyyy8 = yyyy8.redIAdd(yyyy8);
-    yyyy8 = yyyy8.redIAdd(yyyy8);
-    ny = m.redMul(s.redISub(t)).redISub(yyyy8);
-    // Z3 = 2 * Y1
-    nz = this.y.redAdd(this.y);
-  } else {
-    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html#doubling-dbl-2001-b
-    // 3M + 5S
-
-    // delta = Z1^2
-    var delta = this.z.redSqr();
-    // gamma = Y1^2
-    var gamma = this.y.redSqr();
-    // beta = X1 * gamma
-    var beta = this.x.redMul(gamma);
-    // alpha = 3 * (X1 - delta) * (X1 + delta)
-    var alpha = this.x.redSub(delta).redMul(this.x.redAdd(delta));
-    alpha = alpha.redAdd(alpha).redIAdd(alpha);
-    // X3 = alpha^2 - 8 * beta
-    var beta4 = beta.redIAdd(beta);
-    beta4 = beta4.redIAdd(beta4);
-    var beta8 = beta4.redAdd(beta4);
-    nx = alpha.redSqr().redISub(beta8);
-    // Z3 = (Y1 + Z1)^2 - gamma - delta
-    nz = this.y.redAdd(this.z).redSqr().redISub(gamma).redISub(delta);
-    // Y3 = alpha * (4 * beta - X3) - 8 * gamma^2
-    var ggamma8 = gamma.redSqr();
-    ggamma8 = ggamma8.redIAdd(ggamma8);
-    ggamma8 = ggamma8.redIAdd(ggamma8);
-    ggamma8 = ggamma8.redIAdd(ggamma8);
-    ny = alpha.redMul(beta4.redISub(nx)).redISub(ggamma8);
-  }
-
-  return this.curve.jpoint(nx, ny, nz);
-};
-
-JPoint.prototype._dbl = function _dbl() {
-  var a = this.curve.a;
-
-  // 4M + 6S + 10A
-  var jx = this.x;
-  var jy = this.y;
-  var jz = this.z;
-  var jz4 = jz.redSqr().redSqr();
-
-  var jx2 = jx.redSqr();
-  var jy2 = jy.redSqr();
-
-  var c = jx2.redAdd(jx2).redIAdd(jx2).redIAdd(a.redMul(jz4));
-
-  var jxd4 = jx.redAdd(jx);
-  jxd4 = jxd4.redIAdd(jxd4);
-  var t1 = jxd4.redMul(jy2);
-  var nx = c.redSqr().redISub(t1.redAdd(t1));
-  var t2 = t1.redISub(nx);
-
-  var jyd8 = jy2.redSqr();
-  jyd8 = jyd8.redIAdd(jyd8);
-  jyd8 = jyd8.redIAdd(jyd8);
-  jyd8 = jyd8.redIAdd(jyd8);
-  var ny = c.redMul(t2).redISub(jyd8);
-  var nz = jy.redAdd(jy).redMul(jz);
-
-  return this.curve.jpoint(nx, ny, nz);
-};
-
-JPoint.prototype.trpl = function trpl() {
-  if (!this.curve.zeroA)
-    return this.dbl().add(this);
-
-  // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#tripling-tpl-2007-bl
-  // 5M + 10S + ...
-
-  // XX = X1^2
-  var xx = this.x.redSqr();
-  // YY = Y1^2
-  var yy = this.y.redSqr();
-  // ZZ = Z1^2
-  var zz = this.z.redSqr();
-  // YYYY = YY^2
-  var yyyy = yy.redSqr();
-  // M = 3 * XX + a * ZZ2; a = 0
-  var m = xx.redAdd(xx).redIAdd(xx);
-  // MM = M^2
-  var mm = m.redSqr();
-  // E = 6 * ((X1 + YY)^2 - XX - YYYY) - MM
-  var e = this.x.redAdd(yy).redSqr().redISub(xx).redISub(yyyy);
-  e = e.redIAdd(e);
-  e = e.redAdd(e).redIAdd(e);
-  e = e.redISub(mm);
-  // EE = E^2
-  var ee = e.redSqr();
-  // T = 16*YYYY
-  var t = yyyy.redIAdd(yyyy);
-  t = t.redIAdd(t);
-  t = t.redIAdd(t);
-  t = t.redIAdd(t);
-  // U = (M + E)^2 - MM - EE - T
-  var u = m.redIAdd(e).redSqr().redISub(mm).redISub(ee).redISub(t);
-  // X3 = 4 * (X1 * EE - 4 * YY * U)
-  var yyu4 = yy.redMul(u);
-  yyu4 = yyu4.redIAdd(yyu4);
-  yyu4 = yyu4.redIAdd(yyu4);
-  var nx = this.x.redMul(ee).redISub(yyu4);
-  nx = nx.redIAdd(nx);
-  nx = nx.redIAdd(nx);
-  // Y3 = 8 * Y1 * (U * (T - U) - E * EE)
-  var ny = this.y.redMul(u.redMul(t.redISub(u)).redISub(e.redMul(ee)));
-  ny = ny.redIAdd(ny);
-  ny = ny.redIAdd(ny);
-  ny = ny.redIAdd(ny);
-  // Z3 = (Z1 + E)^2 - ZZ - EE
-  var nz = this.z.redAdd(e).redSqr().redISub(zz).redISub(ee);
-
-  return this.curve.jpoint(nx, ny, nz);
-};
-
-JPoint.prototype.mul = function mul(k, kbase) {
-  k = new BN$6(k, kbase);
-
-  return this.curve._wnafMul(this, k);
-};
-
-JPoint.prototype.eq = function eq(p) {
-  if (p.type === 'affine')
-    return this.eq(p.toJ());
-
-  if (this === p)
-    return true;
-
-  // x1 * z2^2 == x2 * z1^2
-  var z2 = this.z.redSqr();
-  var pz2 = p.z.redSqr();
-  if (this.x.redMul(pz2).redISub(p.x.redMul(z2)).cmpn(0) !== 0)
-    return false;
-
-  // y1 * z2^3 == y2 * z1^3
-  var z3 = z2.redMul(this.z);
-  var pz3 = pz2.redMul(p.z);
-  return this.y.redMul(pz3).redISub(p.y.redMul(z3)).cmpn(0) === 0;
-};
-
-JPoint.prototype.eqXToP = function eqXToP(x) {
-  var zs = this.z.redSqr();
-  var rx = x.toRed(this.curve.red).redMul(zs);
-  if (this.x.cmp(rx) === 0)
-    return true;
-
-  var xc = x.clone();
-  var t = this.curve.redN.redMul(zs);
-  for (;;) {
-    xc.iadd(this.curve.n);
-    if (xc.cmp(this.curve.p) >= 0)
-      return false;
-
-    rx.redIAdd(t);
-    if (this.x.cmp(rx) === 0)
-      return true;
-  }
-};
-
-JPoint.prototype.inspect = function inspect() {
-  if (this.isInfinity())
-    return '<EC JPoint Infinity>';
-  return '<EC JPoint x: ' + this.x.toString(16, 2) +
-      ' y: ' + this.y.toString(16, 2) +
-      ' z: ' + this.z.toString(16, 2) + '>';
-};
-
-JPoint.prototype.isInfinity = function isInfinity() {
-  // XXX This code assumes that zero is always zero in red
-  return this.z.cmpn(0) === 0;
-};
-
-var BN$5 = bn.exports;
-var inherits$3 = inherits$5.exports;
-var Base$1 = base;
-
-var utils$s = utils$w;
-
-function MontCurve(conf) {
-  Base$1.call(this, 'mont', conf);
-
-  this.a = new BN$5(conf.a, 16).toRed(this.red);
-  this.b = new BN$5(conf.b, 16).toRed(this.red);
-  this.i4 = new BN$5(4).toRed(this.red).redInvm();
-  this.two = new BN$5(2).toRed(this.red);
-  this.a24 = this.i4.redMul(this.a.redAdd(this.two));
-}
-inherits$3(MontCurve, Base$1);
-var mont = MontCurve;
-
-MontCurve.prototype.validate = function validate(point) {
-  var x = point.normalize().x;
-  var x2 = x.redSqr();
-  var rhs = x2.redMul(x).redAdd(x2.redMul(this.a)).redAdd(x);
-  var y = rhs.redSqrt();
-
-  return y.redSqr().cmp(rhs) === 0;
-};
-
-function Point$1(curve, x, z) {
-  Base$1.BasePoint.call(this, curve, 'projective');
-  if (x === null && z === null) {
-    this.x = this.curve.one;
-    this.z = this.curve.zero;
-  } else {
-    this.x = new BN$5(x, 16);
-    this.z = new BN$5(z, 16);
-    if (!this.x.red)
-      this.x = this.x.toRed(this.curve.red);
-    if (!this.z.red)
-      this.z = this.z.toRed(this.curve.red);
-  }
-}
-inherits$3(Point$1, Base$1.BasePoint);
-
-MontCurve.prototype.decodePoint = function decodePoint(bytes, enc) {
-  return this.point(utils$s.toArray(bytes, enc), 1);
-};
-
-MontCurve.prototype.point = function point(x, z) {
-  return new Point$1(this, x, z);
-};
-
-MontCurve.prototype.pointFromJSON = function pointFromJSON(obj) {
-  return Point$1.fromJSON(this, obj);
-};
-
-Point$1.prototype.precompute = function precompute() {
-  // No-op
-};
-
-Point$1.prototype._encode = function _encode() {
-  return this.getX().toArray('be', this.curve.p.byteLength());
-};
-
-Point$1.fromJSON = function fromJSON(curve, obj) {
-  return new Point$1(curve, obj[0], obj[1] || curve.one);
-};
-
-Point$1.prototype.inspect = function inspect() {
-  if (this.isInfinity())
-    return '<EC Point Infinity>';
-  return '<EC Point x: ' + this.x.fromRed().toString(16, 2) +
-      ' z: ' + this.z.fromRed().toString(16, 2) + '>';
-};
-
-Point$1.prototype.isInfinity = function isInfinity() {
-  // XXX This code assumes that zero is always zero in red
-  return this.z.cmpn(0) === 0;
-};
-
-Point$1.prototype.dbl = function dbl() {
-  // http://hyperelliptic.org/EFD/g1p/auto-montgom-xz.html#doubling-dbl-1987-m-3
-  // 2M + 2S + 4A
-
-  // A = X1 + Z1
-  var a = this.x.redAdd(this.z);
-  // AA = A^2
-  var aa = a.redSqr();
-  // B = X1 - Z1
-  var b = this.x.redSub(this.z);
-  // BB = B^2
-  var bb = b.redSqr();
-  // C = AA - BB
-  var c = aa.redSub(bb);
-  // X3 = AA * BB
-  var nx = aa.redMul(bb);
-  // Z3 = C * (BB + A24 * C)
-  var nz = c.redMul(bb.redAdd(this.curve.a24.redMul(c)));
-  return this.curve.point(nx, nz);
-};
-
-Point$1.prototype.add = function add() {
-  throw new Error('Not supported on Montgomery curve');
-};
-
-Point$1.prototype.diffAdd = function diffAdd(p, diff) {
-  // http://hyperelliptic.org/EFD/g1p/auto-montgom-xz.html#diffadd-dadd-1987-m-3
-  // 4M + 2S + 6A
-
-  // A = X2 + Z2
-  var a = this.x.redAdd(this.z);
-  // B = X2 - Z2
-  var b = this.x.redSub(this.z);
-  // C = X3 + Z3
-  var c = p.x.redAdd(p.z);
-  // D = X3 - Z3
-  var d = p.x.redSub(p.z);
-  // DA = D * A
-  var da = d.redMul(a);
-  // CB = C * B
-  var cb = c.redMul(b);
-  // X5 = Z1 * (DA + CB)^2
-  var nx = diff.z.redMul(da.redAdd(cb).redSqr());
-  // Z5 = X1 * (DA - CB)^2
-  var nz = diff.x.redMul(da.redISub(cb).redSqr());
-  return this.curve.point(nx, nz);
-};
-
-Point$1.prototype.mul = function mul(k) {
-  var t = k.clone();
-  var a = this; // (N / 2) * Q + Q
-  var b = this.curve.point(null, null); // (N / 2) * Q
-  var c = this; // Q
-
-  for (var bits = []; t.cmpn(0) !== 0; t.iushrn(1))
-    bits.push(t.andln(1));
-
-  for (var i = bits.length - 1; i >= 0; i--) {
-    if (bits[i] === 0) {
-      // N * Q + Q = ((N / 2) * Q + Q)) + (N / 2) * Q
-      a = a.diffAdd(b, c);
-      // N * Q = 2 * ((N / 2) * Q + Q))
-      b = b.dbl();
-    } else {
-      // N * Q = ((N / 2) * Q + Q) + ((N / 2) * Q)
-      b = a.diffAdd(b, c);
-      // N * Q + Q = 2 * ((N / 2) * Q + Q)
-      a = a.dbl();
-    }
-  }
-  return b;
-};
-
-Point$1.prototype.mulAdd = function mulAdd() {
-  throw new Error('Not supported on Montgomery curve');
-};
-
-Point$1.prototype.jumlAdd = function jumlAdd() {
-  throw new Error('Not supported on Montgomery curve');
-};
-
-Point$1.prototype.eq = function eq(other) {
-  return this.getX().cmp(other.getX()) === 0;
-};
-
-Point$1.prototype.normalize = function normalize() {
-  this.x = this.x.redMul(this.z.redInvm());
-  this.z = this.curve.one;
-  return this;
-};
-
-Point$1.prototype.getX = function getX() {
-  // Normalize coordinates
-  this.normalize();
-
-  return this.x.fromRed();
-};
-
-var utils$r = utils$w;
-var BN$4 = bn.exports;
-var inherits$2 = inherits$5.exports;
-var Base = base;
-
-var assert$j = utils$r.assert;
-
-function EdwardsCurve(conf) {
-  // NOTE: Important as we are creating point in Base.call()
-  this.twisted = (conf.a | 0) !== 1;
-  this.mOneA = this.twisted && (conf.a | 0) === -1;
-  this.extended = this.mOneA;
-
-  Base.call(this, 'edwards', conf);
-
-  this.a = new BN$4(conf.a, 16).umod(this.red.m);
-  this.a = this.a.toRed(this.red);
-  this.c = new BN$4(conf.c, 16).toRed(this.red);
-  this.c2 = this.c.redSqr();
-  this.d = new BN$4(conf.d, 16).toRed(this.red);
-  this.dd = this.d.redAdd(this.d);
-
-  assert$j(!this.twisted || this.c.fromRed().cmpn(1) === 0);
-  this.oneC = (conf.c | 0) === 1;
-}
-inherits$2(EdwardsCurve, Base);
-var edwards = EdwardsCurve;
-
-EdwardsCurve.prototype._mulA = function _mulA(num) {
-  if (this.mOneA)
-    return num.redNeg();
-  else
-    return this.a.redMul(num);
-};
-
-EdwardsCurve.prototype._mulC = function _mulC(num) {
-  if (this.oneC)
-    return num;
-  else
-    return this.c.redMul(num);
-};
-
-// Just for compatibility with Short curve
-EdwardsCurve.prototype.jpoint = function jpoint(x, y, z, t) {
-  return this.point(x, y, z, t);
-};
-
-EdwardsCurve.prototype.pointFromX = function pointFromX(x, odd) {
-  x = new BN$4(x, 16);
-  if (!x.red)
-    x = x.toRed(this.red);
-
-  var x2 = x.redSqr();
-  var rhs = this.c2.redSub(this.a.redMul(x2));
-  var lhs = this.one.redSub(this.c2.redMul(this.d).redMul(x2));
-
-  var y2 = rhs.redMul(lhs.redInvm());
-  var y = y2.redSqrt();
-  if (y.redSqr().redSub(y2).cmp(this.zero) !== 0)
-    throw new Error('invalid point');
-
-  var isOdd = y.fromRed().isOdd();
-  if (odd && !isOdd || !odd && isOdd)
-    y = y.redNeg();
-
-  return this.point(x, y);
-};
-
-EdwardsCurve.prototype.pointFromY = function pointFromY(y, odd) {
-  y = new BN$4(y, 16);
-  if (!y.red)
-    y = y.toRed(this.red);
-
-  // x^2 = (y^2 - c^2) / (c^2 d y^2 - a)
-  var y2 = y.redSqr();
-  var lhs = y2.redSub(this.c2);
-  var rhs = y2.redMul(this.d).redMul(this.c2).redSub(this.a);
-  var x2 = lhs.redMul(rhs.redInvm());
-
-  if (x2.cmp(this.zero) === 0) {
-    if (odd)
-      throw new Error('invalid point');
-    else
-      return this.point(this.zero, y);
-  }
-
-  var x = x2.redSqrt();
-  if (x.redSqr().redSub(x2).cmp(this.zero) !== 0)
-    throw new Error('invalid point');
-
-  if (x.fromRed().isOdd() !== odd)
-    x = x.redNeg();
-
-  return this.point(x, y);
-};
-
-EdwardsCurve.prototype.validate = function validate(point) {
-  if (point.isInfinity())
-    return true;
-
-  // Curve: A * X^2 + Y^2 = C^2 * (1 + D * X^2 * Y^2)
-  point.normalize();
-
-  var x2 = point.x.redSqr();
-  var y2 = point.y.redSqr();
-  var lhs = x2.redMul(this.a).redAdd(y2);
-  var rhs = this.c2.redMul(this.one.redAdd(this.d.redMul(x2).redMul(y2)));
-
-  return lhs.cmp(rhs) === 0;
-};
-
-function Point(curve, x, y, z, t) {
-  Base.BasePoint.call(this, curve, 'projective');
-  if (x === null && y === null && z === null) {
-    this.x = this.curve.zero;
-    this.y = this.curve.one;
-    this.z = this.curve.one;
-    this.t = this.curve.zero;
-    this.zOne = true;
-  } else {
-    this.x = new BN$4(x, 16);
-    this.y = new BN$4(y, 16);
-    this.z = z ? new BN$4(z, 16) : this.curve.one;
-    this.t = t && new BN$4(t, 16);
-    if (!this.x.red)
-      this.x = this.x.toRed(this.curve.red);
-    if (!this.y.red)
-      this.y = this.y.toRed(this.curve.red);
-    if (!this.z.red)
-      this.z = this.z.toRed(this.curve.red);
-    if (this.t && !this.t.red)
-      this.t = this.t.toRed(this.curve.red);
-    this.zOne = this.z === this.curve.one;
-
-    // Use extended coordinates
-    if (this.curve.extended && !this.t) {
-      this.t = this.x.redMul(this.y);
-      if (!this.zOne)
-        this.t = this.t.redMul(this.z.redInvm());
-    }
-  }
-}
-inherits$2(Point, Base.BasePoint);
-
-EdwardsCurve.prototype.pointFromJSON = function pointFromJSON(obj) {
-  return Point.fromJSON(this, obj);
-};
-
-EdwardsCurve.prototype.point = function point(x, y, z, t) {
-  return new Point(this, x, y, z, t);
-};
-
-Point.fromJSON = function fromJSON(curve, obj) {
-  return new Point(curve, obj[0], obj[1], obj[2]);
-};
-
-Point.prototype.inspect = function inspect() {
-  if (this.isInfinity())
-    return '<EC Point Infinity>';
-  return '<EC Point x: ' + this.x.fromRed().toString(16, 2) +
-      ' y: ' + this.y.fromRed().toString(16, 2) +
-      ' z: ' + this.z.fromRed().toString(16, 2) + '>';
-};
-
-Point.prototype.isInfinity = function isInfinity() {
-  // XXX This code assumes that zero is always zero in red
-  return this.x.cmpn(0) === 0 &&
-    (this.y.cmp(this.z) === 0 ||
-    (this.zOne && this.y.cmp(this.curve.c) === 0));
-};
-
-Point.prototype._extDbl = function _extDbl() {
-  // hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
-  //     #doubling-dbl-2008-hwcd
-  // 4M + 4S
-
-  // A = X1^2
-  var a = this.x.redSqr();
-  // B = Y1^2
-  var b = this.y.redSqr();
-  // C = 2 * Z1^2
-  var c = this.z.redSqr();
-  c = c.redIAdd(c);
-  // D = a * A
-  var d = this.curve._mulA(a);
-  // E = (X1 + Y1)^2 - A - B
-  var e = this.x.redAdd(this.y).redSqr().redISub(a).redISub(b);
-  // G = D + B
-  var g = d.redAdd(b);
-  // F = G - C
-  var f = g.redSub(c);
-  // H = D - B
-  var h = d.redSub(b);
-  // X3 = E * F
-  var nx = e.redMul(f);
-  // Y3 = G * H
-  var ny = g.redMul(h);
-  // T3 = E * H
-  var nt = e.redMul(h);
-  // Z3 = F * G
-  var nz = f.redMul(g);
-  return this.curve.point(nx, ny, nz, nt);
-};
-
-Point.prototype._projDbl = function _projDbl() {
-  // hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
-  //     #doubling-dbl-2008-bbjlp
-  //     #doubling-dbl-2007-bl
-  // and others
-  // Generally 3M + 4S or 2M + 4S
-
-  // B = (X1 + Y1)^2
-  var b = this.x.redAdd(this.y).redSqr();
-  // C = X1^2
-  var c = this.x.redSqr();
-  // D = Y1^2
-  var d = this.y.redSqr();
-
-  var nx;
-  var ny;
-  var nz;
-  var e;
-  var h;
-  var j;
-  if (this.curve.twisted) {
-    // E = a * C
-    e = this.curve._mulA(c);
-    // F = E + D
-    var f = e.redAdd(d);
-    if (this.zOne) {
-      // X3 = (B - C - D) * (F - 2)
-      nx = b.redSub(c).redSub(d).redMul(f.redSub(this.curve.two));
-      // Y3 = F * (E - D)
-      ny = f.redMul(e.redSub(d));
-      // Z3 = F^2 - 2 * F
-      nz = f.redSqr().redSub(f).redSub(f);
-    } else {
-      // H = Z1^2
-      h = this.z.redSqr();
-      // J = F - 2 * H
-      j = f.redSub(h).redISub(h);
-      // X3 = (B-C-D)*J
-      nx = b.redSub(c).redISub(d).redMul(j);
-      // Y3 = F * (E - D)
-      ny = f.redMul(e.redSub(d));
-      // Z3 = F * J
-      nz = f.redMul(j);
-    }
-  } else {
-    // E = C + D
-    e = c.redAdd(d);
-    // H = (c * Z1)^2
-    h = this.curve._mulC(this.z).redSqr();
-    // J = E - 2 * H
-    j = e.redSub(h).redSub(h);
-    // X3 = c * (B - E) * J
-    nx = this.curve._mulC(b.redISub(e)).redMul(j);
-    // Y3 = c * E * (C - D)
-    ny = this.curve._mulC(e).redMul(c.redISub(d));
-    // Z3 = E * J
-    nz = e.redMul(j);
-  }
-  return this.curve.point(nx, ny, nz);
-};
-
-Point.prototype.dbl = function dbl() {
-  if (this.isInfinity())
-    return this;
-
-  // Double in extended coordinates
-  if (this.curve.extended)
-    return this._extDbl();
-  else
-    return this._projDbl();
-};
-
-Point.prototype._extAdd = function _extAdd(p) {
-  // hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
-  //     #addition-add-2008-hwcd-3
-  // 8M
-
-  // A = (Y1 - X1) * (Y2 - X2)
-  var a = this.y.redSub(this.x).redMul(p.y.redSub(p.x));
-  // B = (Y1 + X1) * (Y2 + X2)
-  var b = this.y.redAdd(this.x).redMul(p.y.redAdd(p.x));
-  // C = T1 * k * T2
-  var c = this.t.redMul(this.curve.dd).redMul(p.t);
-  // D = Z1 * 2 * Z2
-  var d = this.z.redMul(p.z.redAdd(p.z));
-  // E = B - A
-  var e = b.redSub(a);
-  // F = D - C
-  var f = d.redSub(c);
-  // G = D + C
-  var g = d.redAdd(c);
-  // H = B + A
-  var h = b.redAdd(a);
-  // X3 = E * F
-  var nx = e.redMul(f);
-  // Y3 = G * H
-  var ny = g.redMul(h);
-  // T3 = E * H
-  var nt = e.redMul(h);
-  // Z3 = F * G
-  var nz = f.redMul(g);
-  return this.curve.point(nx, ny, nz, nt);
-};
-
-Point.prototype._projAdd = function _projAdd(p) {
-  // hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
-  //     #addition-add-2008-bbjlp
-  //     #addition-add-2007-bl
-  // 10M + 1S
-
-  // A = Z1 * Z2
-  var a = this.z.redMul(p.z);
-  // B = A^2
-  var b = a.redSqr();
-  // C = X1 * X2
-  var c = this.x.redMul(p.x);
-  // D = Y1 * Y2
-  var d = this.y.redMul(p.y);
-  // E = d * C * D
-  var e = this.curve.d.redMul(c).redMul(d);
-  // F = B - E
-  var f = b.redSub(e);
-  // G = B + E
-  var g = b.redAdd(e);
-  // X3 = A * F * ((X1 + Y1) * (X2 + Y2) - C - D)
-  var tmp = this.x.redAdd(this.y).redMul(p.x.redAdd(p.y)).redISub(c).redISub(d);
-  var nx = a.redMul(f).redMul(tmp);
-  var ny;
-  var nz;
-  if (this.curve.twisted) {
-    // Y3 = A * G * (D - a * C)
-    ny = a.redMul(g).redMul(d.redSub(this.curve._mulA(c)));
-    // Z3 = F * G
-    nz = f.redMul(g);
-  } else {
-    // Y3 = A * G * (D - C)
-    ny = a.redMul(g).redMul(d.redSub(c));
-    // Z3 = c * F * G
-    nz = this.curve._mulC(f).redMul(g);
-  }
-  return this.curve.point(nx, ny, nz);
-};
-
-Point.prototype.add = function add(p) {
-  if (this.isInfinity())
-    return p;
-  if (p.isInfinity())
-    return this;
-
-  if (this.curve.extended)
-    return this._extAdd(p);
-  else
-    return this._projAdd(p);
-};
-
-Point.prototype.mul = function mul(k) {
-  if (this._hasDoubles(k))
-    return this.curve._fixedNafMul(this, k);
-  else
-    return this.curve._wnafMul(this, k);
-};
-
-Point.prototype.mulAdd = function mulAdd(k1, p, k2) {
-  return this.curve._wnafMulAdd(1, [ this, p ], [ k1, k2 ], 2, false);
-};
-
-Point.prototype.jmulAdd = function jmulAdd(k1, p, k2) {
-  return this.curve._wnafMulAdd(1, [ this, p ], [ k1, k2 ], 2, true);
-};
-
-Point.prototype.normalize = function normalize() {
-  if (this.zOne)
-    return this;
-
-  // Normalize coordinates
-  var zi = this.z.redInvm();
-  this.x = this.x.redMul(zi);
-  this.y = this.y.redMul(zi);
-  if (this.t)
-    this.t = this.t.redMul(zi);
-  this.z = this.curve.one;
-  this.zOne = true;
-  return this;
-};
-
-Point.prototype.neg = function neg() {
-  return this.curve.point(this.x.redNeg(),
-    this.y,
-    this.z,
-    this.t && this.t.redNeg());
-};
-
-Point.prototype.getX = function getX() {
-  this.normalize();
-  return this.x.fromRed();
-};
-
-Point.prototype.getY = function getY() {
-  this.normalize();
-  return this.y.fromRed();
-};
-
-Point.prototype.eq = function eq(other) {
-  return this === other ||
-         this.getX().cmp(other.getX()) === 0 &&
-         this.getY().cmp(other.getY()) === 0;
-};
-
-Point.prototype.eqXToP = function eqXToP(x) {
-  var rx = x.toRed(this.curve.red).redMul(this.z);
-  if (this.x.cmp(rx) === 0)
-    return true;
-
-  var xc = x.clone();
-  var t = this.curve.redN.redMul(this.z);
-  for (;;) {
-    xc.iadd(this.curve.n);
-    if (xc.cmp(this.curve.p) >= 0)
-      return false;
-
-    rx.redIAdd(t);
-    if (this.x.cmp(rx) === 0)
-      return true;
-  }
-};
-
-// Compatibility with BaseCurve
-Point.prototype.toP = Point.prototype.normalize;
-Point.prototype.mixedAdd = Point.prototype.add;
-
-(function (exports) {
-
-	var curve = exports;
-
-	curve.base = base;
-	curve.short = short;
-	curve.mont = mont;
-	curve.edwards = edwards;
-} (curve));
-
-var curves$2 = {};
-
-var hash$4 = {};
-
-var utils$q = {};
-
-var assert$i = minimalisticAssert$1;
-var inherits$1 = inherits$5.exports;
-
-utils$q.inherits = inherits$1;
-
-function isSurrogatePair$1(msg, i) {
-  if ((msg.charCodeAt(i) & 0xFC00) !== 0xD800) {
-    return false;
-  }
-  if (i < 0 || i + 1 >= msg.length) {
-    return false;
-  }
-  return (msg.charCodeAt(i + 1) & 0xFC00) === 0xDC00;
-}
-
-function toArray$1(msg, enc) {
-  if (Array.isArray(msg))
-    return msg.slice();
-  if (!msg)
-    return [];
-  var res = [];
-  if (typeof msg === 'string') {
-    if (!enc) {
-      // Inspired by stringToUtf8ByteArray() in closure-library by Google
-      // https://github.com/google/closure-library/blob/8598d87242af59aac233270742c8984e2b2bdbe0/closure/goog/crypt/crypt.js#L117-L143
-      // Apache License 2.0
-      // https://github.com/google/closure-library/blob/master/LICENSE
-      var p = 0;
-      for (var i = 0; i < msg.length; i++) {
-        var c = msg.charCodeAt(i);
-        if (c < 128) {
-          res[p++] = c;
-        } else if (c < 2048) {
-          res[p++] = (c >> 6) | 192;
-          res[p++] = (c & 63) | 128;
-        } else if (isSurrogatePair$1(msg, i)) {
-          c = 0x10000 + ((c & 0x03FF) << 10) + (msg.charCodeAt(++i) & 0x03FF);
-          res[p++] = (c >> 18) | 240;
-          res[p++] = ((c >> 12) & 63) | 128;
-          res[p++] = ((c >> 6) & 63) | 128;
-          res[p++] = (c & 63) | 128;
-        } else {
-          res[p++] = (c >> 12) | 224;
-          res[p++] = ((c >> 6) & 63) | 128;
-          res[p++] = (c & 63) | 128;
-        }
-      }
-    } else if (enc === 'hex') {
-      msg = msg.replace(/[^a-z0-9]+/ig, '');
-      if (msg.length % 2 !== 0)
-        msg = '0' + msg;
-      for (i = 0; i < msg.length; i += 2)
-        res.push(parseInt(msg[i] + msg[i + 1], 16));
-    }
-  } else {
-    for (i = 0; i < msg.length; i++)
-      res[i] = msg[i] | 0;
-  }
-  return res;
-}
-utils$q.toArray = toArray$1;
-
-function toHex$1(msg) {
-  var res = '';
-  for (var i = 0; i < msg.length; i++)
-    res += zero2$1(msg[i].toString(16));
-  return res;
-}
-utils$q.toHex = toHex$1;
-
-function htonl$1(w) {
-  var res = (w >>> 24) |
-            ((w >>> 8) & 0xff00) |
-            ((w << 8) & 0xff0000) |
-            ((w & 0xff) << 24);
-  return res >>> 0;
-}
-utils$q.htonl = htonl$1;
-
-function toHex32$1(msg, endian) {
-  var res = '';
-  for (var i = 0; i < msg.length; i++) {
-    var w = msg[i];
-    if (endian === 'little')
-      w = htonl$1(w);
-    res += zero8$1(w.toString(16));
-  }
-  return res;
-}
-utils$q.toHex32 = toHex32$1;
-
-function zero2$1(word) {
-  if (word.length === 1)
-    return '0' + word;
-  else
-    return word;
-}
-utils$q.zero2 = zero2$1;
-
-function zero8$1(word) {
-  if (word.length === 7)
-    return '0' + word;
-  else if (word.length === 6)
-    return '00' + word;
-  else if (word.length === 5)
-    return '000' + word;
-  else if (word.length === 4)
-    return '0000' + word;
-  else if (word.length === 3)
-    return '00000' + word;
-  else if (word.length === 2)
-    return '000000' + word;
-  else if (word.length === 1)
-    return '0000000' + word;
-  else
-    return word;
-}
-utils$q.zero8 = zero8$1;
-
-function join32$1(msg, start, end, endian) {
-  var len = end - start;
-  assert$i(len % 4 === 0);
-  var res = new Array(len / 4);
-  for (var i = 0, k = start; i < res.length; i++, k += 4) {
-    var w;
-    if (endian === 'big')
-      w = (msg[k] << 24) | (msg[k + 1] << 16) | (msg[k + 2] << 8) | msg[k + 3];
-    else
-      w = (msg[k + 3] << 24) | (msg[k + 2] << 16) | (msg[k + 1] << 8) | msg[k];
-    res[i] = w >>> 0;
-  }
-  return res;
-}
-utils$q.join32 = join32$1;
-
-function split32$1(msg, endian) {
-  var res = new Array(msg.length * 4);
-  for (var i = 0, k = 0; i < msg.length; i++, k += 4) {
-    var m = msg[i];
-    if (endian === 'big') {
-      res[k] = m >>> 24;
-      res[k + 1] = (m >>> 16) & 0xff;
-      res[k + 2] = (m >>> 8) & 0xff;
-      res[k + 3] = m & 0xff;
-    } else {
-      res[k + 3] = m >>> 24;
-      res[k + 2] = (m >>> 16) & 0xff;
-      res[k + 1] = (m >>> 8) & 0xff;
-      res[k] = m & 0xff;
-    }
-  }
-  return res;
-}
-utils$q.split32 = split32$1;
-
-function rotr32$3(w, b) {
-  return (w >>> b) | (w << (32 - b));
-}
-utils$q.rotr32 = rotr32$3;
-
-function rotl32$5(w, b) {
-  return (w << b) | (w >>> (32 - b));
-}
-utils$q.rotl32 = rotl32$5;
-
-function sum32$7(a, b) {
-  return (a + b) >>> 0;
-}
-utils$q.sum32 = sum32$7;
-
-function sum32_3$3(a, b, c) {
-  return (a + b + c) >>> 0;
-}
-utils$q.sum32_3 = sum32_3$3;
-
-function sum32_4$5(a, b, c, d) {
-  return (a + b + c + d) >>> 0;
-}
-utils$q.sum32_4 = sum32_4$5;
-
-function sum32_5$5(a, b, c, d, e) {
-  return (a + b + c + d + e) >>> 0;
-}
-utils$q.sum32_5 = sum32_5$5;
-
-function sum64$3(buf, pos, ah, al) {
-  var bh = buf[pos];
-  var bl = buf[pos + 1];
-
-  var lo = (al + bl) >>> 0;
-  var hi = (lo < al ? 1 : 0) + ah + bh;
-  buf[pos] = hi >>> 0;
-  buf[pos + 1] = lo;
-}
-utils$q.sum64 = sum64$3;
-
-function sum64_hi$3(ah, al, bh, bl) {
-  var lo = (al + bl) >>> 0;
-  var hi = (lo < al ? 1 : 0) + ah + bh;
-  return hi >>> 0;
-}
-utils$q.sum64_hi = sum64_hi$3;
-
-function sum64_lo$3(ah, al, bh, bl) {
-  var lo = al + bl;
-  return lo >>> 0;
-}
-utils$q.sum64_lo = sum64_lo$3;
-
-function sum64_4_hi$3(ah, al, bh, bl, ch, cl, dh, dl) {
-  var carry = 0;
-  var lo = al;
-  lo = (lo + bl) >>> 0;
-  carry += lo < al ? 1 : 0;
-  lo = (lo + cl) >>> 0;
-  carry += lo < cl ? 1 : 0;
-  lo = (lo + dl) >>> 0;
-  carry += lo < dl ? 1 : 0;
-
-  var hi = ah + bh + ch + dh + carry;
-  return hi >>> 0;
-}
-utils$q.sum64_4_hi = sum64_4_hi$3;
-
-function sum64_4_lo$3(ah, al, bh, bl, ch, cl, dh, dl) {
-  var lo = al + bl + cl + dl;
-  return lo >>> 0;
-}
-utils$q.sum64_4_lo = sum64_4_lo$3;
-
-function sum64_5_hi$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
-  var carry = 0;
-  var lo = al;
-  lo = (lo + bl) >>> 0;
-  carry += lo < al ? 1 : 0;
-  lo = (lo + cl) >>> 0;
-  carry += lo < cl ? 1 : 0;
-  lo = (lo + dl) >>> 0;
-  carry += lo < dl ? 1 : 0;
-  lo = (lo + el) >>> 0;
-  carry += lo < el ? 1 : 0;
-
-  var hi = ah + bh + ch + dh + eh + carry;
-  return hi >>> 0;
-}
-utils$q.sum64_5_hi = sum64_5_hi$3;
-
-function sum64_5_lo$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
-  var lo = al + bl + cl + dl + el;
-
-  return lo >>> 0;
-}
-utils$q.sum64_5_lo = sum64_5_lo$3;
-
-function rotr64_hi$3(ah, al, num) {
-  var r = (al << (32 - num)) | (ah >>> num);
-  return r >>> 0;
-}
-utils$q.rotr64_hi = rotr64_hi$3;
-
-function rotr64_lo$3(ah, al, num) {
-  var r = (ah << (32 - num)) | (al >>> num);
-  return r >>> 0;
-}
-utils$q.rotr64_lo = rotr64_lo$3;
-
-function shr64_hi$3(ah, al, num) {
-  return ah >>> num;
-}
-utils$q.shr64_hi = shr64_hi$3;
-
-function shr64_lo$3(ah, al, num) {
-  var r = (ah << (32 - num)) | (al >>> num);
-  return r >>> 0;
-}
-utils$q.shr64_lo = shr64_lo$3;
-
-var common$b = {};
-
-var utils$p = utils$q;
-var assert$h = minimalisticAssert$1;
-
-function BlockHash$9() {
-  this.pending = null;
-  this.pendingTotal = 0;
-  this.blockSize = this.constructor.blockSize;
-  this.outSize = this.constructor.outSize;
-  this.hmacStrength = this.constructor.hmacStrength;
-  this.padLength = this.constructor.padLength / 8;
-  this.endian = 'big';
-
-  this._delta8 = this.blockSize / 8;
-  this._delta32 = this.blockSize / 32;
-}
-common$b.BlockHash = BlockHash$9;
-
-BlockHash$9.prototype.update = function update(msg, enc) {
-  // Convert message to array, pad it, and join into 32bit blocks
-  msg = utils$p.toArray(msg, enc);
-  if (!this.pending)
-    this.pending = msg;
-  else
-    this.pending = this.pending.concat(msg);
-  this.pendingTotal += msg.length;
-
-  // Enough data, try updating
-  if (this.pending.length >= this._delta8) {
-    msg = this.pending;
-
-    // Process pending data in blocks
-    var r = msg.length % this._delta8;
-    this.pending = msg.slice(msg.length - r, msg.length);
-    if (this.pending.length === 0)
-      this.pending = null;
-
-    msg = utils$p.join32(msg, 0, msg.length - r, this.endian);
-    for (var i = 0; i < msg.length; i += this._delta32)
-      this._update(msg, i, i + this._delta32);
-  }
-
-  return this;
-};
-
-BlockHash$9.prototype.digest = function digest(enc) {
-  this.update(this._pad());
-  assert$h(this.pending === null);
-
-  return this._digest(enc);
-};
-
-BlockHash$9.prototype._pad = function pad() {
-  var len = this.pendingTotal;
-  var bytes = this._delta8;
-  var k = bytes - ((len + this.padLength) % bytes);
-  var res = new Array(k + this.padLength);
-  res[0] = 0x80;
-  for (var i = 1; i < k; i++)
-    res[i] = 0;
-
-  // Append length
-  len <<= 3;
-  if (this.endian === 'big') {
-    for (var t = 8; t < this.padLength; t++)
-      res[i++] = 0;
-
-    res[i++] = 0;
-    res[i++] = 0;
-    res[i++] = 0;
-    res[i++] = 0;
-    res[i++] = (len >>> 24) & 0xff;
-    res[i++] = (len >>> 16) & 0xff;
-    res[i++] = (len >>> 8) & 0xff;
-    res[i++] = len & 0xff;
-  } else {
-    res[i++] = len & 0xff;
-    res[i++] = (len >>> 8) & 0xff;
-    res[i++] = (len >>> 16) & 0xff;
-    res[i++] = (len >>> 24) & 0xff;
-    res[i++] = 0;
-    res[i++] = 0;
-    res[i++] = 0;
-    res[i++] = 0;
-
-    for (t = 8; t < this.padLength; t++)
-      res[i++] = 0;
-  }
-
-  return res;
-};
-
-var sha$1 = {};
-
-var common$a = {};
-
-var utils$o = utils$q;
-var rotr32$2 = utils$o.rotr32;
-
-function ft_1$3(s, x, y, z) {
-  if (s === 0)
-    return ch32$3(x, y, z);
-  if (s === 1 || s === 3)
-    return p32$1(x, y, z);
-  if (s === 2)
-    return maj32$3(x, y, z);
-}
-common$a.ft_1 = ft_1$3;
-
-function ch32$3(x, y, z) {
-  return (x & y) ^ ((~x) & z);
-}
-common$a.ch32 = ch32$3;
-
-function maj32$3(x, y, z) {
-  return (x & y) ^ (x & z) ^ (y & z);
-}
-common$a.maj32 = maj32$3;
-
-function p32$1(x, y, z) {
-  return x ^ y ^ z;
-}
-common$a.p32 = p32$1;
-
-function s0_256$3(x) {
-  return rotr32$2(x, 2) ^ rotr32$2(x, 13) ^ rotr32$2(x, 22);
-}
-common$a.s0_256 = s0_256$3;
-
-function s1_256$3(x) {
-  return rotr32$2(x, 6) ^ rotr32$2(x, 11) ^ rotr32$2(x, 25);
-}
-common$a.s1_256 = s1_256$3;
-
-function g0_256$3(x) {
-  return rotr32$2(x, 7) ^ rotr32$2(x, 18) ^ (x >>> 3);
-}
-common$a.g0_256 = g0_256$3;
-
-function g1_256$3(x) {
-  return rotr32$2(x, 17) ^ rotr32$2(x, 19) ^ (x >>> 10);
-}
-common$a.g1_256 = g1_256$3;
-
-var utils$n = utils$q;
-var common$9 = common$b;
-var shaCommon$3 = common$a;
-
-var rotl32$4 = utils$n.rotl32;
-var sum32$6 = utils$n.sum32;
-var sum32_5$4 = utils$n.sum32_5;
-var ft_1$2 = shaCommon$3.ft_1;
-var BlockHash$8 = common$9.BlockHash;
-
-var sha1_K$1 = [
-  0x5A827999, 0x6ED9EBA1,
-  0x8F1BBCDC, 0xCA62C1D6
-];
-
-function SHA1$1() {
-  if (!(this instanceof SHA1$1))
-    return new SHA1$1();
-
-  BlockHash$8.call(this);
-  this.h = [
-    0x67452301, 0xefcdab89, 0x98badcfe,
-    0x10325476, 0xc3d2e1f0 ];
-  this.W = new Array(80);
-}
-
-utils$n.inherits(SHA1$1, BlockHash$8);
-var _1$1 = SHA1$1;
-
-SHA1$1.blockSize = 512;
-SHA1$1.outSize = 160;
-SHA1$1.hmacStrength = 80;
-SHA1$1.padLength = 64;
-
-SHA1$1.prototype._update = function _update(msg, start) {
-  var W = this.W;
-
-  for (var i = 0; i < 16; i++)
-    W[i] = msg[start + i];
-
-  for(; i < W.length; i++)
-    W[i] = rotl32$4(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
-
-  var a = this.h[0];
-  var b = this.h[1];
-  var c = this.h[2];
-  var d = this.h[3];
-  var e = this.h[4];
-
-  for (i = 0; i < W.length; i++) {
-    var s = ~~(i / 20);
-    var t = sum32_5$4(rotl32$4(a, 5), ft_1$2(s, b, c, d), e, W[i], sha1_K$1[s]);
-    e = d;
-    d = c;
-    c = rotl32$4(b, 30);
-    b = a;
-    a = t;
-  }
-
-  this.h[0] = sum32$6(this.h[0], a);
-  this.h[1] = sum32$6(this.h[1], b);
-  this.h[2] = sum32$6(this.h[2], c);
-  this.h[3] = sum32$6(this.h[3], d);
-  this.h[4] = sum32$6(this.h[4], e);
-};
-
-SHA1$1.prototype._digest = function digest(enc) {
-  if (enc === 'hex')
-    return utils$n.toHex32(this.h, 'big');
-  else
-    return utils$n.split32(this.h, 'big');
-};
-
-var utils$m = utils$q;
-var common$8 = common$b;
-var shaCommon$2 = common$a;
-var assert$g = minimalisticAssert$1;
-
-var sum32$5 = utils$m.sum32;
-var sum32_4$4 = utils$m.sum32_4;
-var sum32_5$3 = utils$m.sum32_5;
-var ch32$2 = shaCommon$2.ch32;
-var maj32$2 = shaCommon$2.maj32;
-var s0_256$2 = shaCommon$2.s0_256;
-var s1_256$2 = shaCommon$2.s1_256;
-var g0_256$2 = shaCommon$2.g0_256;
-var g1_256$2 = shaCommon$2.g1_256;
-
-var BlockHash$7 = common$8.BlockHash;
-
-var sha256_K$1 = [
-  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
-  0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
-  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
-  0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
-  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
-  0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-  0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
-  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
-  0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
-  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
-  0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
-  0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-];
-
-function SHA256$3() {
-  if (!(this instanceof SHA256$3))
-    return new SHA256$3();
-
-  BlockHash$7.call(this);
-  this.h = [
-    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
-  ];
-  this.k = sha256_K$1;
-  this.W = new Array(64);
-}
-utils$m.inherits(SHA256$3, BlockHash$7);
-var _256$1 = SHA256$3;
-
-SHA256$3.blockSize = 512;
-SHA256$3.outSize = 256;
-SHA256$3.hmacStrength = 192;
-SHA256$3.padLength = 64;
-
-SHA256$3.prototype._update = function _update(msg, start) {
-  var W = this.W;
-
-  for (var i = 0; i < 16; i++)
-    W[i] = msg[start + i];
-  for (; i < W.length; i++)
-    W[i] = sum32_4$4(g1_256$2(W[i - 2]), W[i - 7], g0_256$2(W[i - 15]), W[i - 16]);
-
-  var a = this.h[0];
-  var b = this.h[1];
-  var c = this.h[2];
-  var d = this.h[3];
-  var e = this.h[4];
-  var f = this.h[5];
-  var g = this.h[6];
-  var h = this.h[7];
-
-  assert$g(this.k.length === W.length);
-  for (i = 0; i < W.length; i++) {
-    var T1 = sum32_5$3(h, s1_256$2(e), ch32$2(e, f, g), this.k[i], W[i]);
-    var T2 = sum32$5(s0_256$2(a), maj32$2(a, b, c));
-    h = g;
-    g = f;
-    f = e;
-    e = sum32$5(d, T1);
-    d = c;
-    c = b;
-    b = a;
-    a = sum32$5(T1, T2);
-  }
-
-  this.h[0] = sum32$5(this.h[0], a);
-  this.h[1] = sum32$5(this.h[1], b);
-  this.h[2] = sum32$5(this.h[2], c);
-  this.h[3] = sum32$5(this.h[3], d);
-  this.h[4] = sum32$5(this.h[4], e);
-  this.h[5] = sum32$5(this.h[5], f);
-  this.h[6] = sum32$5(this.h[6], g);
-  this.h[7] = sum32$5(this.h[7], h);
-};
-
-SHA256$3.prototype._digest = function digest(enc) {
-  if (enc === 'hex')
-    return utils$m.toHex32(this.h, 'big');
-  else
-    return utils$m.split32(this.h, 'big');
-};
-
-var utils$l = utils$q;
-var SHA256$2 = _256$1;
-
-function SHA224$1() {
-  if (!(this instanceof SHA224$1))
-    return new SHA224$1();
-
-  SHA256$2.call(this);
-  this.h = [
-    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
-    0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 ];
-}
-utils$l.inherits(SHA224$1, SHA256$2);
-var _224$1 = SHA224$1;
-
-SHA224$1.blockSize = 512;
-SHA224$1.outSize = 224;
-SHA224$1.hmacStrength = 192;
-SHA224$1.padLength = 64;
-
-SHA224$1.prototype._digest = function digest(enc) {
-  // Just truncate output
-  if (enc === 'hex')
-    return utils$l.toHex32(this.h.slice(0, 7), 'big');
-  else
-    return utils$l.split32(this.h.slice(0, 7), 'big');
-};
-
-var utils$k = utils$q;
-var common$7 = common$b;
-var assert$f = minimalisticAssert$1;
-
-var rotr64_hi$2 = utils$k.rotr64_hi;
-var rotr64_lo$2 = utils$k.rotr64_lo;
-var shr64_hi$2 = utils$k.shr64_hi;
-var shr64_lo$2 = utils$k.shr64_lo;
-var sum64$2 = utils$k.sum64;
-var sum64_hi$2 = utils$k.sum64_hi;
-var sum64_lo$2 = utils$k.sum64_lo;
-var sum64_4_hi$2 = utils$k.sum64_4_hi;
-var sum64_4_lo$2 = utils$k.sum64_4_lo;
-var sum64_5_hi$2 = utils$k.sum64_5_hi;
-var sum64_5_lo$2 = utils$k.sum64_5_lo;
-
-var BlockHash$6 = common$7.BlockHash;
-
-var sha512_K$1 = [
-  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
-  0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
-  0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
-  0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
-  0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
-  0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
-  0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
-  0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
-  0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
-  0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
-  0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
-  0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
-  0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
-  0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
-  0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
-  0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
-  0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
-  0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
-  0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
-  0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
-  0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
-  0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
-  0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
-  0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
-  0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
-  0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
-  0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
-  0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
-  0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
-  0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
-  0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
-  0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
-  0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
-  0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
-  0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
-  0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
-  0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
-  0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
-  0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
-  0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
-];
-
-function SHA512$3() {
-  if (!(this instanceof SHA512$3))
-    return new SHA512$3();
-
-  BlockHash$6.call(this);
-  this.h = [
-    0x6a09e667, 0xf3bcc908,
-    0xbb67ae85, 0x84caa73b,
-    0x3c6ef372, 0xfe94f82b,
-    0xa54ff53a, 0x5f1d36f1,
-    0x510e527f, 0xade682d1,
-    0x9b05688c, 0x2b3e6c1f,
-    0x1f83d9ab, 0xfb41bd6b,
-    0x5be0cd19, 0x137e2179 ];
-  this.k = sha512_K$1;
-  this.W = new Array(160);
-}
-utils$k.inherits(SHA512$3, BlockHash$6);
-var _512$1 = SHA512$3;
-
-SHA512$3.blockSize = 1024;
-SHA512$3.outSize = 512;
-SHA512$3.hmacStrength = 192;
-SHA512$3.padLength = 128;
-
-SHA512$3.prototype._prepareBlock = function _prepareBlock(msg, start) {
-  var W = this.W;
-
-  // 32 x 32bit words
-  for (var i = 0; i < 32; i++)
-    W[i] = msg[start + i];
-  for (; i < W.length; i += 2) {
-    var c0_hi = g1_512_hi$1(W[i - 4], W[i - 3]);  // i - 2
-    var c0_lo = g1_512_lo$1(W[i - 4], W[i - 3]);
-    var c1_hi = W[i - 14];  // i - 7
-    var c1_lo = W[i - 13];
-    var c2_hi = g0_512_hi$1(W[i - 30], W[i - 29]);  // i - 15
-    var c2_lo = g0_512_lo$1(W[i - 30], W[i - 29]);
-    var c3_hi = W[i - 32];  // i - 16
-    var c3_lo = W[i - 31];
-
-    W[i] = sum64_4_hi$2(
-      c0_hi, c0_lo,
-      c1_hi, c1_lo,
-      c2_hi, c2_lo,
-      c3_hi, c3_lo);
-    W[i + 1] = sum64_4_lo$2(
-      c0_hi, c0_lo,
-      c1_hi, c1_lo,
-      c2_hi, c2_lo,
-      c3_hi, c3_lo);
-  }
-};
-
-SHA512$3.prototype._update = function _update(msg, start) {
-  this._prepareBlock(msg, start);
-
-  var W = this.W;
-
-  var ah = this.h[0];
-  var al = this.h[1];
-  var bh = this.h[2];
-  var bl = this.h[3];
-  var ch = this.h[4];
-  var cl = this.h[5];
-  var dh = this.h[6];
-  var dl = this.h[7];
-  var eh = this.h[8];
-  var el = this.h[9];
-  var fh = this.h[10];
-  var fl = this.h[11];
-  var gh = this.h[12];
-  var gl = this.h[13];
-  var hh = this.h[14];
-  var hl = this.h[15];
-
-  assert$f(this.k.length === W.length);
-  for (var i = 0; i < W.length; i += 2) {
-    var c0_hi = hh;
-    var c0_lo = hl;
-    var c1_hi = s1_512_hi$1(eh, el);
-    var c1_lo = s1_512_lo$1(eh, el);
-    var c2_hi = ch64_hi$1(eh, el, fh, fl, gh);
-    var c2_lo = ch64_lo$1(eh, el, fh, fl, gh, gl);
-    var c3_hi = this.k[i];
-    var c3_lo = this.k[i + 1];
-    var c4_hi = W[i];
-    var c4_lo = W[i + 1];
-
-    var T1_hi = sum64_5_hi$2(
-      c0_hi, c0_lo,
-      c1_hi, c1_lo,
-      c2_hi, c2_lo,
-      c3_hi, c3_lo,
-      c4_hi, c4_lo);
-    var T1_lo = sum64_5_lo$2(
-      c0_hi, c0_lo,
-      c1_hi, c1_lo,
-      c2_hi, c2_lo,
-      c3_hi, c3_lo,
-      c4_hi, c4_lo);
-
-    c0_hi = s0_512_hi$1(ah, al);
-    c0_lo = s0_512_lo$1(ah, al);
-    c1_hi = maj64_hi$1(ah, al, bh, bl, ch);
-    c1_lo = maj64_lo$1(ah, al, bh, bl, ch, cl);
-
-    var T2_hi = sum64_hi$2(c0_hi, c0_lo, c1_hi, c1_lo);
-    var T2_lo = sum64_lo$2(c0_hi, c0_lo, c1_hi, c1_lo);
-
-    hh = gh;
-    hl = gl;
-
-    gh = fh;
-    gl = fl;
-
-    fh = eh;
-    fl = el;
-
-    eh = sum64_hi$2(dh, dl, T1_hi, T1_lo);
-    el = sum64_lo$2(dl, dl, T1_hi, T1_lo);
-
-    dh = ch;
-    dl = cl;
-
-    ch = bh;
-    cl = bl;
-
-    bh = ah;
-    bl = al;
-
-    ah = sum64_hi$2(T1_hi, T1_lo, T2_hi, T2_lo);
-    al = sum64_lo$2(T1_hi, T1_lo, T2_hi, T2_lo);
-  }
-
-  sum64$2(this.h, 0, ah, al);
-  sum64$2(this.h, 2, bh, bl);
-  sum64$2(this.h, 4, ch, cl);
-  sum64$2(this.h, 6, dh, dl);
-  sum64$2(this.h, 8, eh, el);
-  sum64$2(this.h, 10, fh, fl);
-  sum64$2(this.h, 12, gh, gl);
-  sum64$2(this.h, 14, hh, hl);
-};
-
-SHA512$3.prototype._digest = function digest(enc) {
-  if (enc === 'hex')
-    return utils$k.toHex32(this.h, 'big');
-  else
-    return utils$k.split32(this.h, 'big');
-};
-
-function ch64_hi$1(xh, xl, yh, yl, zh) {
-  var r = (xh & yh) ^ ((~xh) & zh);
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function ch64_lo$1(xh, xl, yh, yl, zh, zl) {
-  var r = (xl & yl) ^ ((~xl) & zl);
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function maj64_hi$1(xh, xl, yh, yl, zh) {
-  var r = (xh & yh) ^ (xh & zh) ^ (yh & zh);
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function maj64_lo$1(xh, xl, yh, yl, zh, zl) {
-  var r = (xl & yl) ^ (xl & zl) ^ (yl & zl);
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function s0_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 28);
-  var c1_hi = rotr64_hi$2(xl, xh, 2);  // 34
-  var c2_hi = rotr64_hi$2(xl, xh, 7);  // 39
-
-  var r = c0_hi ^ c1_hi ^ c2_hi;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function s0_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 28);
-  var c1_lo = rotr64_lo$2(xl, xh, 2);  // 34
-  var c2_lo = rotr64_lo$2(xl, xh, 7);  // 39
-
-  var r = c0_lo ^ c1_lo ^ c2_lo;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function s1_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 14);
-  var c1_hi = rotr64_hi$2(xh, xl, 18);
-  var c2_hi = rotr64_hi$2(xl, xh, 9);  // 41
-
-  var r = c0_hi ^ c1_hi ^ c2_hi;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function s1_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 14);
-  var c1_lo = rotr64_lo$2(xh, xl, 18);
-  var c2_lo = rotr64_lo$2(xl, xh, 9);  // 41
-
-  var r = c0_lo ^ c1_lo ^ c2_lo;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function g0_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 1);
-  var c1_hi = rotr64_hi$2(xh, xl, 8);
-  var c2_hi = shr64_hi$2(xh, xl, 7);
-
-  var r = c0_hi ^ c1_hi ^ c2_hi;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function g0_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 1);
-  var c1_lo = rotr64_lo$2(xh, xl, 8);
-  var c2_lo = shr64_lo$2(xh, xl, 7);
-
-  var r = c0_lo ^ c1_lo ^ c2_lo;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function g1_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 19);
-  var c1_hi = rotr64_hi$2(xl, xh, 29);  // 61
-  var c2_hi = shr64_hi$2(xh, xl, 6);
-
-  var r = c0_hi ^ c1_hi ^ c2_hi;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-function g1_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 19);
-  var c1_lo = rotr64_lo$2(xl, xh, 29);  // 61
-  var c2_lo = shr64_lo$2(xh, xl, 6);
-
-  var r = c0_lo ^ c1_lo ^ c2_lo;
-  if (r < 0)
-    r += 0x100000000;
-  return r;
-}
-
-var utils$j = utils$q;
-
-var SHA512$2 = _512$1;
-
-function SHA384$1() {
-  if (!(this instanceof SHA384$1))
-    return new SHA384$1();
-
-  SHA512$2.call(this);
-  this.h = [
-    0xcbbb9d5d, 0xc1059ed8,
-    0x629a292a, 0x367cd507,
-    0x9159015a, 0x3070dd17,
-    0x152fecd8, 0xf70e5939,
-    0x67332667, 0xffc00b31,
-    0x8eb44a87, 0x68581511,
-    0xdb0c2e0d, 0x64f98fa7,
-    0x47b5481d, 0xbefa4fa4 ];
-}
-utils$j.inherits(SHA384$1, SHA512$2);
-var _384$1 = SHA384$1;
-
-SHA384$1.blockSize = 1024;
-SHA384$1.outSize = 384;
-SHA384$1.hmacStrength = 192;
-SHA384$1.padLength = 128;
-
-SHA384$1.prototype._digest = function digest(enc) {
-  if (enc === 'hex')
-    return utils$j.toHex32(this.h.slice(0, 12), 'big');
-  else
-    return utils$j.split32(this.h.slice(0, 12), 'big');
-};
-
-sha$1.sha1 = _1$1;
-sha$1.sha224 = _224$1;
-sha$1.sha256 = _256$1;
-sha$1.sha384 = _384$1;
-sha$1.sha512 = _512$1;
-
-var ripemd$1 = {};
-
-var utils$i = utils$q;
-var common$6 = common$b;
-
-var rotl32$3 = utils$i.rotl32;
-var sum32$4 = utils$i.sum32;
-var sum32_3$2 = utils$i.sum32_3;
-var sum32_4$3 = utils$i.sum32_4;
-var BlockHash$5 = common$6.BlockHash;
-
-function RIPEMD160$1() {
-  if (!(this instanceof RIPEMD160$1))
-    return new RIPEMD160$1();
-
-  BlockHash$5.call(this);
-
-  this.h = [ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 ];
-  this.endian = 'little';
-}
-utils$i.inherits(RIPEMD160$1, BlockHash$5);
-ripemd$1.ripemd160 = RIPEMD160$1;
-
-RIPEMD160$1.blockSize = 512;
-RIPEMD160$1.outSize = 160;
-RIPEMD160$1.hmacStrength = 192;
-RIPEMD160$1.padLength = 64;
-
-RIPEMD160$1.prototype._update = function update(msg, start) {
-  var A = this.h[0];
-  var B = this.h[1];
-  var C = this.h[2];
-  var D = this.h[3];
-  var E = this.h[4];
-  var Ah = A;
-  var Bh = B;
-  var Ch = C;
-  var Dh = D;
-  var Eh = E;
-  for (var j = 0; j < 80; j++) {
-    var T = sum32$4(
-      rotl32$3(
-        sum32_4$3(A, f$1(j, B, C, D), msg[r$1[j] + start], K$1(j)),
-        s$1[j]),
-      E);
-    A = E;
-    E = D;
-    D = rotl32$3(C, 10);
-    C = B;
-    B = T;
-    T = sum32$4(
-      rotl32$3(
-        sum32_4$3(Ah, f$1(79 - j, Bh, Ch, Dh), msg[rh$1[j] + start], Kh$1(j)),
-        sh$1[j]),
-      Eh);
-    Ah = Eh;
-    Eh = Dh;
-    Dh = rotl32$3(Ch, 10);
-    Ch = Bh;
-    Bh = T;
-  }
-  T = sum32_3$2(this.h[1], C, Dh);
-  this.h[1] = sum32_3$2(this.h[2], D, Eh);
-  this.h[2] = sum32_3$2(this.h[3], E, Ah);
-  this.h[3] = sum32_3$2(this.h[4], A, Bh);
-  this.h[4] = sum32_3$2(this.h[0], B, Ch);
-  this.h[0] = T;
-};
-
-RIPEMD160$1.prototype._digest = function digest(enc) {
-  if (enc === 'hex')
-    return utils$i.toHex32(this.h, 'little');
-  else
-    return utils$i.split32(this.h, 'little');
-};
-
-function f$1(j, x, y, z) {
-  if (j <= 15)
-    return x ^ y ^ z;
-  else if (j <= 31)
-    return (x & y) | ((~x) & z);
-  else if (j <= 47)
-    return (x | (~y)) ^ z;
-  else if (j <= 63)
-    return (x & z) | (y & (~z));
-  else
-    return x ^ (y | (~z));
-}
-
-function K$1(j) {
-  if (j <= 15)
-    return 0x00000000;
-  else if (j <= 31)
-    return 0x5a827999;
-  else if (j <= 47)
-    return 0x6ed9eba1;
-  else if (j <= 63)
-    return 0x8f1bbcdc;
-  else
-    return 0xa953fd4e;
-}
-
-function Kh$1(j) {
-  if (j <= 15)
-    return 0x50a28be6;
-  else if (j <= 31)
-    return 0x5c4dd124;
-  else if (j <= 47)
-    return 0x6d703ef3;
-  else if (j <= 63)
-    return 0x7a6d76e9;
-  else
-    return 0x00000000;
-}
-
-var r$1 = [
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-  7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
-  3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
-  1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2,
-  4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13
-];
-
-var rh$1 = [
-  5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
-  6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
-  15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
-  8, 6, 4, 1, 3, 11, 15, 0, 5, 12, 2, 13, 9, 7, 10, 14,
-  12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11
-];
-
-var s$1 = [
-  11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
-  7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
-  11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
-  11, 12, 14, 15, 14, 15, 9, 8, 9, 14, 5, 6, 8, 6, 5, 12,
-  9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6
-];
-
-var sh$1 = [
-  8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
-  9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
-  9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
-  15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
-  8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
-];
-
-var utils$h = utils$q;
-var assert$e = minimalisticAssert$1;
-
-function Hmac$1(hash, key, enc) {
-  if (!(this instanceof Hmac$1))
-    return new Hmac$1(hash, key, enc);
-  this.Hash = hash;
-  this.blockSize = hash.blockSize / 8;
-  this.outSize = hash.outSize / 8;
-  this.inner = null;
-  this.outer = null;
-
-  this._init(utils$h.toArray(key, enc));
-}
-var hmac$1 = Hmac$1;
-
-Hmac$1.prototype._init = function init(key) {
-  // Shorten key, if needed
-  if (key.length > this.blockSize)
-    key = new this.Hash().update(key).digest();
-  assert$e(key.length <= this.blockSize);
-
-  // Add padding to key
-  for (var i = key.length; i < this.blockSize; i++)
-    key.push(0);
-
-  for (i = 0; i < key.length; i++)
-    key[i] ^= 0x36;
-  this.inner = new this.Hash().update(key);
-
-  // 0x36 ^ 0x5c = 0x6a
-  for (i = 0; i < key.length; i++)
-    key[i] ^= 0x6a;
-  this.outer = new this.Hash().update(key);
-};
-
-Hmac$1.prototype.update = function update(msg, enc) {
-  this.inner.update(msg, enc);
-  return this;
-};
-
-Hmac$1.prototype.digest = function digest(enc) {
-  this.outer.update(this.inner.digest());
-  return this.outer.digest(enc);
-};
-
-(function (exports) {
-	var hash = exports;
-
-	hash.utils = utils$q;
-	hash.common = common$b;
-	hash.sha = sha$1;
-	hash.ripemd = ripemd$1;
-	hash.hmac = hmac$1;
-
-	// Proxy hash functions to the main object
-	hash.sha1 = hash.sha.sha1;
-	hash.sha256 = hash.sha.sha256;
-	hash.sha224 = hash.sha.sha224;
-	hash.sha384 = hash.sha.sha384;
-	hash.sha512 = hash.sha.sha512;
-	hash.ripemd160 = hash.ripemd.ripemd160;
-} (hash$4));
-
-var secp256k1;
-var hasRequiredSecp256k1;
-
-function requireSecp256k1 () {
-	if (hasRequiredSecp256k1) return secp256k1;
-	hasRequiredSecp256k1 = 1;
-	secp256k1 = {
-	  doubles: {
-	    step: 4,
-	    points: [
-	      [
-	        'e60fce93b59e9ec53011aabc21c23e97b2a31369b87a5ae9c44ee89e2a6dec0a',
-	        'f7e3507399e595929db99f34f57937101296891e44d23f0be1f32cce69616821',
-	      ],
-	      [
-	        '8282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f51508',
-	        '11f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf',
-	      ],
-	      [
-	        '175e159f728b865a72f99cc6c6fc846de0b93833fd2222ed73fce5b551e5b739',
-	        'd3506e0d9e3c79eba4ef97a51ff71f5eacb5955add24345c6efa6ffee9fed695',
-	      ],
-	      [
-	        '363d90d447b00c9c99ceac05b6262ee053441c7e55552ffe526bad8f83ff4640',
-	        '4e273adfc732221953b445397f3363145b9a89008199ecb62003c7f3bee9de9',
-	      ],
-	      [
-	        '8b4b5f165df3c2be8c6244b5b745638843e4a781a15bcd1b69f79a55dffdf80c',
-	        '4aad0a6f68d308b4b3fbd7813ab0da04f9e336546162ee56b3eff0c65fd4fd36',
-	      ],
-	      [
-	        '723cbaa6e5db996d6bf771c00bd548c7b700dbffa6c0e77bcb6115925232fcda',
-	        '96e867b5595cc498a921137488824d6e2660a0653779494801dc069d9eb39f5f',
-	      ],
-	      [
-	        'eebfa4d493bebf98ba5feec812c2d3b50947961237a919839a533eca0e7dd7fa',
-	        '5d9a8ca3970ef0f269ee7edaf178089d9ae4cdc3a711f712ddfd4fdae1de8999',
-	      ],
-	      [
-	        '100f44da696e71672791d0a09b7bde459f1215a29b3c03bfefd7835b39a48db0',
-	        'cdd9e13192a00b772ec8f3300c090666b7ff4a18ff5195ac0fbd5cd62bc65a09',
-	      ],
-	      [
-	        'e1031be262c7ed1b1dc9227a4a04c017a77f8d4464f3b3852c8acde6e534fd2d',
-	        '9d7061928940405e6bb6a4176597535af292dd419e1ced79a44f18f29456a00d',
-	      ],
-	      [
-	        'feea6cae46d55b530ac2839f143bd7ec5cf8b266a41d6af52d5e688d9094696d',
-	        'e57c6b6c97dce1bab06e4e12bf3ecd5c981c8957cc41442d3155debf18090088',
-	      ],
-	      [
-	        'da67a91d91049cdcb367be4be6ffca3cfeed657d808583de33fa978bc1ec6cb1',
-	        '9bacaa35481642bc41f463f7ec9780e5dec7adc508f740a17e9ea8e27a68be1d',
-	      ],
-	      [
-	        '53904faa0b334cdda6e000935ef22151ec08d0f7bb11069f57545ccc1a37b7c0',
-	        '5bc087d0bc80106d88c9eccac20d3c1c13999981e14434699dcb096b022771c8',
-	      ],
-	      [
-	        '8e7bcd0bd35983a7719cca7764ca906779b53a043a9b8bcaeff959f43ad86047',
-	        '10b7770b2a3da4b3940310420ca9514579e88e2e47fd68b3ea10047e8460372a',
-	      ],
-	      [
-	        '385eed34c1cdff21e6d0818689b81bde71a7f4f18397e6690a841e1599c43862',
-	        '283bebc3e8ea23f56701de19e9ebf4576b304eec2086dc8cc0458fe5542e5453',
-	      ],
-	      [
-	        '6f9d9b803ecf191637c73a4413dfa180fddf84a5947fbc9c606ed86c3fac3a7',
-	        '7c80c68e603059ba69b8e2a30e45c4d47ea4dd2f5c281002d86890603a842160',
-	      ],
-	      [
-	        '3322d401243c4e2582a2147c104d6ecbf774d163db0f5e5313b7e0e742d0e6bd',
-	        '56e70797e9664ef5bfb019bc4ddaf9b72805f63ea2873af624f3a2e96c28b2a0',
-	      ],
-	      [
-	        '85672c7d2de0b7da2bd1770d89665868741b3f9af7643397721d74d28134ab83',
-	        '7c481b9b5b43b2eb6374049bfa62c2e5e77f17fcc5298f44c8e3094f790313a6',
-	      ],
-	      [
-	        '948bf809b1988a46b06c9f1919413b10f9226c60f668832ffd959af60c82a0a',
-	        '53a562856dcb6646dc6b74c5d1c3418c6d4dff08c97cd2bed4cb7f88d8c8e589',
-	      ],
-	      [
-	        '6260ce7f461801c34f067ce0f02873a8f1b0e44dfc69752accecd819f38fd8e8',
-	        'bc2da82b6fa5b571a7f09049776a1ef7ecd292238051c198c1a84e95b2b4ae17',
-	      ],
-	      [
-	        'e5037de0afc1d8d43d8348414bbf4103043ec8f575bfdc432953cc8d2037fa2d',
-	        '4571534baa94d3b5f9f98d09fb990bddbd5f5b03ec481f10e0e5dc841d755bda',
-	      ],
-	      [
-	        'e06372b0f4a207adf5ea905e8f1771b4e7e8dbd1c6a6c5b725866a0ae4fce725',
-	        '7a908974bce18cfe12a27bb2ad5a488cd7484a7787104870b27034f94eee31dd',
-	      ],
-	      [
-	        '213c7a715cd5d45358d0bbf9dc0ce02204b10bdde2a3f58540ad6908d0559754',
-	        '4b6dad0b5ae462507013ad06245ba190bb4850f5f36a7eeddff2c27534b458f2',
-	      ],
-	      [
-	        '4e7c272a7af4b34e8dbb9352a5419a87e2838c70adc62cddf0cc3a3b08fbd53c',
-	        '17749c766c9d0b18e16fd09f6def681b530b9614bff7dd33e0b3941817dcaae6',
-	      ],
-	      [
-	        'fea74e3dbe778b1b10f238ad61686aa5c76e3db2be43057632427e2840fb27b6',
-	        '6e0568db9b0b13297cf674deccb6af93126b596b973f7b77701d3db7f23cb96f',
-	      ],
-	      [
-	        '76e64113f677cf0e10a2570d599968d31544e179b760432952c02a4417bdde39',
-	        'c90ddf8dee4e95cf577066d70681f0d35e2a33d2b56d2032b4b1752d1901ac01',
-	      ],
-	      [
-	        'c738c56b03b2abe1e8281baa743f8f9a8f7cc643df26cbee3ab150242bcbb891',
-	        '893fb578951ad2537f718f2eacbfbbbb82314eef7880cfe917e735d9699a84c3',
-	      ],
-	      [
-	        'd895626548b65b81e264c7637c972877d1d72e5f3a925014372e9f6588f6c14b',
-	        'febfaa38f2bc7eae728ec60818c340eb03428d632bb067e179363ed75d7d991f',
-	      ],
-	      [
-	        'b8da94032a957518eb0f6433571e8761ceffc73693e84edd49150a564f676e03',
-	        '2804dfa44805a1e4d7c99cc9762808b092cc584d95ff3b511488e4e74efdf6e7',
-	      ],
-	      [
-	        'e80fea14441fb33a7d8adab9475d7fab2019effb5156a792f1a11778e3c0df5d',
-	        'eed1de7f638e00771e89768ca3ca94472d155e80af322ea9fcb4291b6ac9ec78',
-	      ],
-	      [
-	        'a301697bdfcd704313ba48e51d567543f2a182031efd6915ddc07bbcc4e16070',
-	        '7370f91cfb67e4f5081809fa25d40f9b1735dbf7c0a11a130c0d1a041e177ea1',
-	      ],
-	      [
-	        '90ad85b389d6b936463f9d0512678de208cc330b11307fffab7ac63e3fb04ed4',
-	        'e507a3620a38261affdcbd9427222b839aefabe1582894d991d4d48cb6ef150',
-	      ],
-	      [
-	        '8f68b9d2f63b5f339239c1ad981f162ee88c5678723ea3351b7b444c9ec4c0da',
-	        '662a9f2dba063986de1d90c2b6be215dbbea2cfe95510bfdf23cbf79501fff82',
-	      ],
-	      [
-	        'e4f3fb0176af85d65ff99ff9198c36091f48e86503681e3e6686fd5053231e11',
-	        '1e63633ad0ef4f1c1661a6d0ea02b7286cc7e74ec951d1c9822c38576feb73bc',
-	      ],
-	      [
-	        '8c00fa9b18ebf331eb961537a45a4266c7034f2f0d4e1d0716fb6eae20eae29e',
-	        'efa47267fea521a1a9dc343a3736c974c2fadafa81e36c54e7d2a4c66702414b',
-	      ],
-	      [
-	        'e7a26ce69dd4829f3e10cec0a9e98ed3143d084f308b92c0997fddfc60cb3e41',
-	        '2a758e300fa7984b471b006a1aafbb18d0a6b2c0420e83e20e8a9421cf2cfd51',
-	      ],
-	      [
-	        'b6459e0ee3662ec8d23540c223bcbdc571cbcb967d79424f3cf29eb3de6b80ef',
-	        '67c876d06f3e06de1dadf16e5661db3c4b3ae6d48e35b2ff30bf0b61a71ba45',
-	      ],
-	      [
-	        'd68a80c8280bb840793234aa118f06231d6f1fc67e73c5a5deda0f5b496943e8',
-	        'db8ba9fff4b586d00c4b1f9177b0e28b5b0e7b8f7845295a294c84266b133120',
-	      ],
-	      [
-	        '324aed7df65c804252dc0270907a30b09612aeb973449cea4095980fc28d3d5d',
-	        '648a365774b61f2ff130c0c35aec1f4f19213b0c7e332843967224af96ab7c84',
-	      ],
-	      [
-	        '4df9c14919cde61f6d51dfdbe5fee5dceec4143ba8d1ca888e8bd373fd054c96',
-	        '35ec51092d8728050974c23a1d85d4b5d506cdc288490192ebac06cad10d5d',
-	      ],
-	      [
-	        '9c3919a84a474870faed8a9c1cc66021523489054d7f0308cbfc99c8ac1f98cd',
-	        'ddb84f0f4a4ddd57584f044bf260e641905326f76c64c8e6be7e5e03d4fc599d',
-	      ],
-	      [
-	        '6057170b1dd12fdf8de05f281d8e06bb91e1493a8b91d4cc5a21382120a959e5',
-	        '9a1af0b26a6a4807add9a2daf71df262465152bc3ee24c65e899be932385a2a8',
-	      ],
-	      [
-	        'a576df8e23a08411421439a4518da31880cef0fba7d4df12b1a6973eecb94266',
-	        '40a6bf20e76640b2c92b97afe58cd82c432e10a7f514d9f3ee8be11ae1b28ec8',
-	      ],
-	      [
-	        '7778a78c28dec3e30a05fe9629de8c38bb30d1f5cf9a3a208f763889be58ad71',
-	        '34626d9ab5a5b22ff7098e12f2ff580087b38411ff24ac563b513fc1fd9f43ac',
-	      ],
-	      [
-	        '928955ee637a84463729fd30e7afd2ed5f96274e5ad7e5cb09eda9c06d903ac',
-	        'c25621003d3f42a827b78a13093a95eeac3d26efa8a8d83fc5180e935bcd091f',
-	      ],
-	      [
-	        '85d0fef3ec6db109399064f3a0e3b2855645b4a907ad354527aae75163d82751',
-	        '1f03648413a38c0be29d496e582cf5663e8751e96877331582c237a24eb1f962',
-	      ],
-	      [
-	        'ff2b0dce97eece97c1c9b6041798b85dfdfb6d8882da20308f5404824526087e',
-	        '493d13fef524ba188af4c4dc54d07936c7b7ed6fb90e2ceb2c951e01f0c29907',
-	      ],
-	      [
-	        '827fbbe4b1e880ea9ed2b2e6301b212b57f1ee148cd6dd28780e5e2cf856e241',
-	        'c60f9c923c727b0b71bef2c67d1d12687ff7a63186903166d605b68baec293ec',
-	      ],
-	      [
-	        'eaa649f21f51bdbae7be4ae34ce6e5217a58fdce7f47f9aa7f3b58fa2120e2b3',
-	        'be3279ed5bbbb03ac69a80f89879aa5a01a6b965f13f7e59d47a5305ba5ad93d',
-	      ],
-	      [
-	        'e4a42d43c5cf169d9391df6decf42ee541b6d8f0c9a137401e23632dda34d24f',
-	        '4d9f92e716d1c73526fc99ccfb8ad34ce886eedfa8d8e4f13a7f7131deba9414',
-	      ],
-	      [
-	        '1ec80fef360cbdd954160fadab352b6b92b53576a88fea4947173b9d4300bf19',
-	        'aeefe93756b5340d2f3a4958a7abbf5e0146e77f6295a07b671cdc1cc107cefd',
-	      ],
-	      [
-	        '146a778c04670c2f91b00af4680dfa8bce3490717d58ba889ddb5928366642be',
-	        'b318e0ec3354028add669827f9d4b2870aaa971d2f7e5ed1d0b297483d83efd0',
-	      ],
-	      [
-	        'fa50c0f61d22e5f07e3acebb1aa07b128d0012209a28b9776d76a8793180eef9',
-	        '6b84c6922397eba9b72cd2872281a68a5e683293a57a213b38cd8d7d3f4f2811',
-	      ],
-	      [
-	        'da1d61d0ca721a11b1a5bf6b7d88e8421a288ab5d5bba5220e53d32b5f067ec2',
-	        '8157f55a7c99306c79c0766161c91e2966a73899d279b48a655fba0f1ad836f1',
-	      ],
-	      [
-	        'a8e282ff0c9706907215ff98e8fd416615311de0446f1e062a73b0610d064e13',
-	        '7f97355b8db81c09abfb7f3c5b2515888b679a3e50dd6bd6cef7c73111f4cc0c',
-	      ],
-	      [
-	        '174a53b9c9a285872d39e56e6913cab15d59b1fa512508c022f382de8319497c',
-	        'ccc9dc37abfc9c1657b4155f2c47f9e6646b3a1d8cb9854383da13ac079afa73',
-	      ],
-	      [
-	        '959396981943785c3d3e57edf5018cdbe039e730e4918b3d884fdff09475b7ba',
-	        '2e7e552888c331dd8ba0386a4b9cd6849c653f64c8709385e9b8abf87524f2fd',
-	      ],
-	      [
-	        'd2a63a50ae401e56d645a1153b109a8fcca0a43d561fba2dbb51340c9d82b151',
-	        'e82d86fb6443fcb7565aee58b2948220a70f750af484ca52d4142174dcf89405',
-	      ],
-	      [
-	        '64587e2335471eb890ee7896d7cfdc866bacbdbd3839317b3436f9b45617e073',
-	        'd99fcdd5bf6902e2ae96dd6447c299a185b90a39133aeab358299e5e9faf6589',
-	      ],
-	      [
-	        '8481bde0e4e4d885b3a546d3e549de042f0aa6cea250e7fd358d6c86dd45e458',
-	        '38ee7b8cba5404dd84a25bf39cecb2ca900a79c42b262e556d64b1b59779057e',
-	      ],
-	      [
-	        '13464a57a78102aa62b6979ae817f4637ffcfed3c4b1ce30bcd6303f6caf666b',
-	        '69be159004614580ef7e433453ccb0ca48f300a81d0942e13f495a907f6ecc27',
-	      ],
-	      [
-	        'bc4a9df5b713fe2e9aef430bcc1dc97a0cd9ccede2f28588cada3a0d2d83f366',
-	        'd3a81ca6e785c06383937adf4b798caa6e8a9fbfa547b16d758d666581f33c1',
-	      ],
-	      [
-	        '8c28a97bf8298bc0d23d8c749452a32e694b65e30a9472a3954ab30fe5324caa',
-	        '40a30463a3305193378fedf31f7cc0eb7ae784f0451cb9459e71dc73cbef9482',
-	      ],
-	      [
-	        '8ea9666139527a8c1dd94ce4f071fd23c8b350c5a4bb33748c4ba111faccae0',
-	        '620efabbc8ee2782e24e7c0cfb95c5d735b783be9cf0f8e955af34a30e62b945',
-	      ],
-	      [
-	        'dd3625faef5ba06074669716bbd3788d89bdde815959968092f76cc4eb9a9787',
-	        '7a188fa3520e30d461da2501045731ca941461982883395937f68d00c644a573',
-	      ],
-	      [
-	        'f710d79d9eb962297e4f6232b40e8f7feb2bc63814614d692c12de752408221e',
-	        'ea98e67232d3b3295d3b535532115ccac8612c721851617526ae47a9c77bfc82',
-	      ],
-	    ],
-	  },
-	  naf: {
-	    wnd: 7,
-	    points: [
-	      [
-	        'f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9',
-	        '388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672',
-	      ],
-	      [
-	        '2f8bde4d1a07209355b4a7250a5c5128e88b84bddc619ab7cba8d569b240efe4',
-	        'd8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6',
-	      ],
-	      [
-	        '5cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc',
-	        '6aebca40ba255960a3178d6d861a54dba813d0b813fde7b5a5082628087264da',
-	      ],
-	      [
-	        'acd484e2f0c7f65309ad178a9f559abde09796974c57e714c35f110dfc27ccbe',
-	        'cc338921b0a7d9fd64380971763b61e9add888a4375f8e0f05cc262ac64f9c37',
-	      ],
-	      [
-	        '774ae7f858a9411e5ef4246b70c65aac5649980be5c17891bbec17895da008cb',
-	        'd984a032eb6b5e190243dd56d7b7b365372db1e2dff9d6a8301d74c9c953c61b',
-	      ],
-	      [
-	        'f28773c2d975288bc7d1d205c3748651b075fbc6610e58cddeeddf8f19405aa8',
-	        'ab0902e8d880a89758212eb65cdaf473a1a06da521fa91f29b5cb52db03ed81',
-	      ],
-	      [
-	        'd7924d4f7d43ea965a465ae3095ff41131e5946f3c85f79e44adbcf8e27e080e',
-	        '581e2872a86c72a683842ec228cc6defea40af2bd896d3a5c504dc9ff6a26b58',
-	      ],
-	      [
-	        'defdea4cdb677750a420fee807eacf21eb9898ae79b9768766e4faa04a2d4a34',
-	        '4211ab0694635168e997b0ead2a93daeced1f4a04a95c0f6cfb199f69e56eb77',
-	      ],
-	      [
-	        '2b4ea0a797a443d293ef5cff444f4979f06acfebd7e86d277475656138385b6c',
-	        '85e89bc037945d93b343083b5a1c86131a01f60c50269763b570c854e5c09b7a',
-	      ],
-	      [
-	        '352bbf4a4cdd12564f93fa332ce333301d9ad40271f8107181340aef25be59d5',
-	        '321eb4075348f534d59c18259dda3e1f4a1b3b2e71b1039c67bd3d8bcf81998c',
-	      ],
-	      [
-	        '2fa2104d6b38d11b0230010559879124e42ab8dfeff5ff29dc9cdadd4ecacc3f',
-	        '2de1068295dd865b64569335bd5dd80181d70ecfc882648423ba76b532b7d67',
-	      ],
-	      [
-	        '9248279b09b4d68dab21a9b066edda83263c3d84e09572e269ca0cd7f5453714',
-	        '73016f7bf234aade5d1aa71bdea2b1ff3fc0de2a887912ffe54a32ce97cb3402',
-	      ],
-	      [
-	        'daed4f2be3a8bf278e70132fb0beb7522f570e144bf615c07e996d443dee8729',
-	        'a69dce4a7d6c98e8d4a1aca87ef8d7003f83c230f3afa726ab40e52290be1c55',
-	      ],
-	      [
-	        'c44d12c7065d812e8acf28d7cbb19f9011ecd9e9fdf281b0e6a3b5e87d22e7db',
-	        '2119a460ce326cdc76c45926c982fdac0e106e861edf61c5a039063f0e0e6482',
-	      ],
-	      [
-	        '6a245bf6dc698504c89a20cfded60853152b695336c28063b61c65cbd269e6b4',
-	        'e022cf42c2bd4a708b3f5126f16a24ad8b33ba48d0423b6efd5e6348100d8a82',
-	      ],
-	      [
-	        '1697ffa6fd9de627c077e3d2fe541084ce13300b0bec1146f95ae57f0d0bd6a5',
-	        'b9c398f186806f5d27561506e4557433a2cf15009e498ae7adee9d63d01b2396',
-	      ],
-	      [
-	        '605bdb019981718b986d0f07e834cb0d9deb8360ffb7f61df982345ef27a7479',
-	        '2972d2de4f8d20681a78d93ec96fe23c26bfae84fb14db43b01e1e9056b8c49',
-	      ],
-	      [
-	        '62d14dab4150bf497402fdc45a215e10dcb01c354959b10cfe31c7e9d87ff33d',
-	        '80fc06bd8cc5b01098088a1950eed0db01aa132967ab472235f5642483b25eaf',
-	      ],
-	      [
-	        '80c60ad0040f27dade5b4b06c408e56b2c50e9f56b9b8b425e555c2f86308b6f',
-	        '1c38303f1cc5c30f26e66bad7fe72f70a65eed4cbe7024eb1aa01f56430bd57a',
-	      ],
-	      [
-	        '7a9375ad6167ad54aa74c6348cc54d344cc5dc9487d847049d5eabb0fa03c8fb',
-	        'd0e3fa9eca8726909559e0d79269046bdc59ea10c70ce2b02d499ec224dc7f7',
-	      ],
-	      [
-	        'd528ecd9b696b54c907a9ed045447a79bb408ec39b68df504bb51f459bc3ffc9',
-	        'eecf41253136e5f99966f21881fd656ebc4345405c520dbc063465b521409933',
-	      ],
-	      [
-	        '49370a4b5f43412ea25f514e8ecdad05266115e4a7ecb1387231808f8b45963',
-	        '758f3f41afd6ed428b3081b0512fd62a54c3f3afbb5b6764b653052a12949c9a',
-	      ],
-	      [
-	        '77f230936ee88cbbd73df930d64702ef881d811e0e1498e2f1c13eb1fc345d74',
-	        '958ef42a7886b6400a08266e9ba1b37896c95330d97077cbbe8eb3c7671c60d6',
-	      ],
-	      [
-	        'f2dac991cc4ce4b9ea44887e5c7c0bce58c80074ab9d4dbaeb28531b7739f530',
-	        'e0dedc9b3b2f8dad4da1f32dec2531df9eb5fbeb0598e4fd1a117dba703a3c37',
-	      ],
-	      [
-	        '463b3d9f662621fb1b4be8fbbe2520125a216cdfc9dae3debcba4850c690d45b',
-	        '5ed430d78c296c3543114306dd8622d7c622e27c970a1de31cb377b01af7307e',
-	      ],
-	      [
-	        'f16f804244e46e2a09232d4aff3b59976b98fac14328a2d1a32496b49998f247',
-	        'cedabd9b82203f7e13d206fcdf4e33d92a6c53c26e5cce26d6579962c4e31df6',
-	      ],
-	      [
-	        'caf754272dc84563b0352b7a14311af55d245315ace27c65369e15f7151d41d1',
-	        'cb474660ef35f5f2a41b643fa5e460575f4fa9b7962232a5c32f908318a04476',
-	      ],
-	      [
-	        '2600ca4b282cb986f85d0f1709979d8b44a09c07cb86d7c124497bc86f082120',
-	        '4119b88753c15bd6a693b03fcddbb45d5ac6be74ab5f0ef44b0be9475a7e4b40',
-	      ],
-	      [
-	        '7635ca72d7e8432c338ec53cd12220bc01c48685e24f7dc8c602a7746998e435',
-	        '91b649609489d613d1d5e590f78e6d74ecfc061d57048bad9e76f302c5b9c61',
-	      ],
-	      [
-	        '754e3239f325570cdbbf4a87deee8a66b7f2b33479d468fbc1a50743bf56cc18',
-	        '673fb86e5bda30fb3cd0ed304ea49a023ee33d0197a695d0c5d98093c536683',
-	      ],
-	      [
-	        'e3e6bd1071a1e96aff57859c82d570f0330800661d1c952f9fe2694691d9b9e8',
-	        '59c9e0bba394e76f40c0aa58379a3cb6a5a2283993e90c4167002af4920e37f5',
-	      ],
-	      [
-	        '186b483d056a033826ae73d88f732985c4ccb1f32ba35f4b4cc47fdcf04aa6eb',
-	        '3b952d32c67cf77e2e17446e204180ab21fb8090895138b4a4a797f86e80888b',
-	      ],
-	      [
-	        'df9d70a6b9876ce544c98561f4be4f725442e6d2b737d9c91a8321724ce0963f',
-	        '55eb2dafd84d6ccd5f862b785dc39d4ab157222720ef9da217b8c45cf2ba2417',
-	      ],
-	      [
-	        '5edd5cc23c51e87a497ca815d5dce0f8ab52554f849ed8995de64c5f34ce7143',
-	        'efae9c8dbc14130661e8cec030c89ad0c13c66c0d17a2905cdc706ab7399a868',
-	      ],
-	      [
-	        '290798c2b6476830da12fe02287e9e777aa3fba1c355b17a722d362f84614fba',
-	        'e38da76dcd440621988d00bcf79af25d5b29c094db2a23146d003afd41943e7a',
-	      ],
-	      [
-	        'af3c423a95d9f5b3054754efa150ac39cd29552fe360257362dfdecef4053b45',
-	        'f98a3fd831eb2b749a93b0e6f35cfb40c8cd5aa667a15581bc2feded498fd9c6',
-	      ],
-	      [
-	        '766dbb24d134e745cccaa28c99bf274906bb66b26dcf98df8d2fed50d884249a',
-	        '744b1152eacbe5e38dcc887980da38b897584a65fa06cedd2c924f97cbac5996',
-	      ],
-	      [
-	        '59dbf46f8c94759ba21277c33784f41645f7b44f6c596a58ce92e666191abe3e',
-	        'c534ad44175fbc300f4ea6ce648309a042ce739a7919798cd85e216c4a307f6e',
-	      ],
-	      [
-	        'f13ada95103c4537305e691e74e9a4a8dd647e711a95e73cb62dc6018cfd87b8',
-	        'e13817b44ee14de663bf4bc808341f326949e21a6a75c2570778419bdaf5733d',
-	      ],
-	      [
-	        '7754b4fa0e8aced06d4167a2c59cca4cda1869c06ebadfb6488550015a88522c',
-	        '30e93e864e669d82224b967c3020b8fa8d1e4e350b6cbcc537a48b57841163a2',
-	      ],
-	      [
-	        '948dcadf5990e048aa3874d46abef9d701858f95de8041d2a6828c99e2262519',
-	        'e491a42537f6e597d5d28a3224b1bc25df9154efbd2ef1d2cbba2cae5347d57e',
-	      ],
-	      [
-	        '7962414450c76c1689c7b48f8202ec37fb224cf5ac0bfa1570328a8a3d7c77ab',
-	        '100b610ec4ffb4760d5c1fc133ef6f6b12507a051f04ac5760afa5b29db83437',
-	      ],
-	      [
-	        '3514087834964b54b15b160644d915485a16977225b8847bb0dd085137ec47ca',
-	        'ef0afbb2056205448e1652c48e8127fc6039e77c15c2378b7e7d15a0de293311',
-	      ],
-	      [
-	        'd3cc30ad6b483e4bc79ce2c9dd8bc54993e947eb8df787b442943d3f7b527eaf',
-	        '8b378a22d827278d89c5e9be8f9508ae3c2ad46290358630afb34db04eede0a4',
-	      ],
-	      [
-	        '1624d84780732860ce1c78fcbfefe08b2b29823db913f6493975ba0ff4847610',
-	        '68651cf9b6da903e0914448c6cd9d4ca896878f5282be4c8cc06e2a404078575',
-	      ],
-	      [
-	        '733ce80da955a8a26902c95633e62a985192474b5af207da6df7b4fd5fc61cd4',
-	        'f5435a2bd2badf7d485a4d8b8db9fcce3e1ef8e0201e4578c54673bc1dc5ea1d',
-	      ],
-	      [
-	        '15d9441254945064cf1a1c33bbd3b49f8966c5092171e699ef258dfab81c045c',
-	        'd56eb30b69463e7234f5137b73b84177434800bacebfc685fc37bbe9efe4070d',
-	      ],
-	      [
-	        'a1d0fcf2ec9de675b612136e5ce70d271c21417c9d2b8aaaac138599d0717940',
-	        'edd77f50bcb5a3cab2e90737309667f2641462a54070f3d519212d39c197a629',
-	      ],
-	      [
-	        'e22fbe15c0af8ccc5780c0735f84dbe9a790badee8245c06c7ca37331cb36980',
-	        'a855babad5cd60c88b430a69f53a1a7a38289154964799be43d06d77d31da06',
-	      ],
-	      [
-	        '311091dd9860e8e20ee13473c1155f5f69635e394704eaa74009452246cfa9b3',
-	        '66db656f87d1f04fffd1f04788c06830871ec5a64feee685bd80f0b1286d8374',
-	      ],
-	      [
-	        '34c1fd04d301be89b31c0442d3e6ac24883928b45a9340781867d4232ec2dbdf',
-	        '9414685e97b1b5954bd46f730174136d57f1ceeb487443dc5321857ba73abee',
-	      ],
-	      [
-	        'f219ea5d6b54701c1c14de5b557eb42a8d13f3abbcd08affcc2a5e6b049b8d63',
-	        '4cb95957e83d40b0f73af4544cccf6b1f4b08d3c07b27fb8d8c2962a400766d1',
-	      ],
-	      [
-	        'd7b8740f74a8fbaab1f683db8f45de26543a5490bca627087236912469a0b448',
-	        'fa77968128d9c92ee1010f337ad4717eff15db5ed3c049b3411e0315eaa4593b',
-	      ],
-	      [
-	        '32d31c222f8f6f0ef86f7c98d3a3335ead5bcd32abdd94289fe4d3091aa824bf',
-	        '5f3032f5892156e39ccd3d7915b9e1da2e6dac9e6f26e961118d14b8462e1661',
-	      ],
-	      [
-	        '7461f371914ab32671045a155d9831ea8793d77cd59592c4340f86cbc18347b5',
-	        '8ec0ba238b96bec0cbdddcae0aa442542eee1ff50c986ea6b39847b3cc092ff6',
-	      ],
-	      [
-	        'ee079adb1df1860074356a25aa38206a6d716b2c3e67453d287698bad7b2b2d6',
-	        '8dc2412aafe3be5c4c5f37e0ecc5f9f6a446989af04c4e25ebaac479ec1c8c1e',
-	      ],
-	      [
-	        '16ec93e447ec83f0467b18302ee620f7e65de331874c9dc72bfd8616ba9da6b5',
-	        '5e4631150e62fb40d0e8c2a7ca5804a39d58186a50e497139626778e25b0674d',
-	      ],
-	      [
-	        'eaa5f980c245f6f038978290afa70b6bd8855897f98b6aa485b96065d537bd99',
-	        'f65f5d3e292c2e0819a528391c994624d784869d7e6ea67fb18041024edc07dc',
-	      ],
-	      [
-	        '78c9407544ac132692ee1910a02439958ae04877151342ea96c4b6b35a49f51',
-	        'f3e0319169eb9b85d5404795539a5e68fa1fbd583c064d2462b675f194a3ddb4',
-	      ],
-	      [
-	        '494f4be219a1a77016dcd838431aea0001cdc8ae7a6fc688726578d9702857a5',
-	        '42242a969283a5f339ba7f075e36ba2af925ce30d767ed6e55f4b031880d562c',
-	      ],
-	      [
-	        'a598a8030da6d86c6bc7f2f5144ea549d28211ea58faa70ebf4c1e665c1fe9b5',
-	        '204b5d6f84822c307e4b4a7140737aec23fc63b65b35f86a10026dbd2d864e6b',
-	      ],
-	      [
-	        'c41916365abb2b5d09192f5f2dbeafec208f020f12570a184dbadc3e58595997',
-	        '4f14351d0087efa49d245b328984989d5caf9450f34bfc0ed16e96b58fa9913',
-	      ],
-	      [
-	        '841d6063a586fa475a724604da03bc5b92a2e0d2e0a36acfe4c73a5514742881',
-	        '73867f59c0659e81904f9a1c7543698e62562d6744c169ce7a36de01a8d6154',
-	      ],
-	      [
-	        '5e95bb399a6971d376026947f89bde2f282b33810928be4ded112ac4d70e20d5',
-	        '39f23f366809085beebfc71181313775a99c9aed7d8ba38b161384c746012865',
-	      ],
-	      [
-	        '36e4641a53948fd476c39f8a99fd974e5ec07564b5315d8bf99471bca0ef2f66',
-	        'd2424b1b1abe4eb8164227b085c9aa9456ea13493fd563e06fd51cf5694c78fc',
-	      ],
-	      [
-	        '336581ea7bfbbb290c191a2f507a41cf5643842170e914faeab27c2c579f726',
-	        'ead12168595fe1be99252129b6e56b3391f7ab1410cd1e0ef3dcdcabd2fda224',
-	      ],
-	      [
-	        '8ab89816dadfd6b6a1f2634fcf00ec8403781025ed6890c4849742706bd43ede',
-	        '6fdcef09f2f6d0a044e654aef624136f503d459c3e89845858a47a9129cdd24e',
-	      ],
-	      [
-	        '1e33f1a746c9c5778133344d9299fcaa20b0938e8acff2544bb40284b8c5fb94',
-	        '60660257dd11b3aa9c8ed618d24edff2306d320f1d03010e33a7d2057f3b3b6',
-	      ],
-	      [
-	        '85b7c1dcb3cec1b7ee7f30ded79dd20a0ed1f4cc18cbcfcfa410361fd8f08f31',
-	        '3d98a9cdd026dd43f39048f25a8847f4fcafad1895d7a633c6fed3c35e999511',
-	      ],
-	      [
-	        '29df9fbd8d9e46509275f4b125d6d45d7fbe9a3b878a7af872a2800661ac5f51',
-	        'b4c4fe99c775a606e2d8862179139ffda61dc861c019e55cd2876eb2a27d84b',
-	      ],
-	      [
-	        'a0b1cae06b0a847a3fea6e671aaf8adfdfe58ca2f768105c8082b2e449fce252',
-	        'ae434102edde0958ec4b19d917a6a28e6b72da1834aff0e650f049503a296cf2',
-	      ],
-	      [
-	        '4e8ceafb9b3e9a136dc7ff67e840295b499dfb3b2133e4ba113f2e4c0e121e5',
-	        'cf2174118c8b6d7a4b48f6d534ce5c79422c086a63460502b827ce62a326683c',
-	      ],
-	      [
-	        'd24a44e047e19b6f5afb81c7ca2f69080a5076689a010919f42725c2b789a33b',
-	        '6fb8d5591b466f8fc63db50f1c0f1c69013f996887b8244d2cdec417afea8fa3',
-	      ],
-	      [
-	        'ea01606a7a6c9cdd249fdfcfacb99584001edd28abbab77b5104e98e8e3b35d4',
-	        '322af4908c7312b0cfbfe369f7a7b3cdb7d4494bc2823700cfd652188a3ea98d',
-	      ],
-	      [
-	        'af8addbf2b661c8a6c6328655eb96651252007d8c5ea31be4ad196de8ce2131f',
-	        '6749e67c029b85f52a034eafd096836b2520818680e26ac8f3dfbcdb71749700',
-	      ],
-	      [
-	        'e3ae1974566ca06cc516d47e0fb165a674a3dabcfca15e722f0e3450f45889',
-	        '2aeabe7e4531510116217f07bf4d07300de97e4874f81f533420a72eeb0bd6a4',
-	      ],
-	      [
-	        '591ee355313d99721cf6993ffed1e3e301993ff3ed258802075ea8ced397e246',
-	        'b0ea558a113c30bea60fc4775460c7901ff0b053d25ca2bdeee98f1a4be5d196',
-	      ],
-	      [
-	        '11396d55fda54c49f19aa97318d8da61fa8584e47b084945077cf03255b52984',
-	        '998c74a8cd45ac01289d5833a7beb4744ff536b01b257be4c5767bea93ea57a4',
-	      ],
-	      [
-	        '3c5d2a1ba39c5a1790000738c9e0c40b8dcdfd5468754b6405540157e017aa7a',
-	        'b2284279995a34e2f9d4de7396fc18b80f9b8b9fdd270f6661f79ca4c81bd257',
-	      ],
-	      [
-	        'cc8704b8a60a0defa3a99a7299f2e9c3fbc395afb04ac078425ef8a1793cc030',
-	        'bdd46039feed17881d1e0862db347f8cf395b74fc4bcdc4e940b74e3ac1f1b13',
-	      ],
-	      [
-	        'c533e4f7ea8555aacd9777ac5cad29b97dd4defccc53ee7ea204119b2889b197',
-	        '6f0a256bc5efdf429a2fb6242f1a43a2d9b925bb4a4b3a26bb8e0f45eb596096',
-	      ],
-	      [
-	        'c14f8f2ccb27d6f109f6d08d03cc96a69ba8c34eec07bbcf566d48e33da6593',
-	        'c359d6923bb398f7fd4473e16fe1c28475b740dd098075e6c0e8649113dc3a38',
-	      ],
-	      [
-	        'a6cbc3046bc6a450bac24789fa17115a4c9739ed75f8f21ce441f72e0b90e6ef',
-	        '21ae7f4680e889bb130619e2c0f95a360ceb573c70603139862afd617fa9b9f',
-	      ],
-	      [
-	        '347d6d9a02c48927ebfb86c1359b1caf130a3c0267d11ce6344b39f99d43cc38',
-	        '60ea7f61a353524d1c987f6ecec92f086d565ab687870cb12689ff1e31c74448',
-	      ],
-	      [
-	        'da6545d2181db8d983f7dcb375ef5866d47c67b1bf31c8cf855ef7437b72656a',
-	        '49b96715ab6878a79e78f07ce5680c5d6673051b4935bd897fea824b77dc208a',
-	      ],
-	      [
-	        'c40747cc9d012cb1a13b8148309c6de7ec25d6945d657146b9d5994b8feb1111',
-	        '5ca560753be2a12fc6de6caf2cb489565db936156b9514e1bb5e83037e0fa2d4',
-	      ],
-	      [
-	        '4e42c8ec82c99798ccf3a610be870e78338c7f713348bd34c8203ef4037f3502',
-	        '7571d74ee5e0fb92a7a8b33a07783341a5492144cc54bcc40a94473693606437',
-	      ],
-	      [
-	        '3775ab7089bc6af823aba2e1af70b236d251cadb0c86743287522a1b3b0dedea',
-	        'be52d107bcfa09d8bcb9736a828cfa7fac8db17bf7a76a2c42ad961409018cf7',
-	      ],
-	      [
-	        'cee31cbf7e34ec379d94fb814d3d775ad954595d1314ba8846959e3e82f74e26',
-	        '8fd64a14c06b589c26b947ae2bcf6bfa0149ef0be14ed4d80f448a01c43b1c6d',
-	      ],
-	      [
-	        'b4f9eaea09b6917619f6ea6a4eb5464efddb58fd45b1ebefcdc1a01d08b47986',
-	        '39e5c9925b5a54b07433a4f18c61726f8bb131c012ca542eb24a8ac07200682a',
-	      ],
-	      [
-	        'd4263dfc3d2df923a0179a48966d30ce84e2515afc3dccc1b77907792ebcc60e',
-	        '62dfaf07a0f78feb30e30d6295853ce189e127760ad6cf7fae164e122a208d54',
-	      ],
-	      [
-	        '48457524820fa65a4f8d35eb6930857c0032acc0a4a2de422233eeda897612c4',
-	        '25a748ab367979d98733c38a1fa1c2e7dc6cc07db2d60a9ae7a76aaa49bd0f77',
-	      ],
-	      [
-	        'dfeeef1881101f2cb11644f3a2afdfc2045e19919152923f367a1767c11cceda',
-	        'ecfb7056cf1de042f9420bab396793c0c390bde74b4bbdff16a83ae09a9a7517',
-	      ],
-	      [
-	        '6d7ef6b17543f8373c573f44e1f389835d89bcbc6062ced36c82df83b8fae859',
-	        'cd450ec335438986dfefa10c57fea9bcc521a0959b2d80bbf74b190dca712d10',
-	      ],
-	      [
-	        'e75605d59102a5a2684500d3b991f2e3f3c88b93225547035af25af66e04541f',
-	        'f5c54754a8f71ee540b9b48728473e314f729ac5308b06938360990e2bfad125',
-	      ],
-	      [
-	        'eb98660f4c4dfaa06a2be453d5020bc99a0c2e60abe388457dd43fefb1ed620c',
-	        '6cb9a8876d9cb8520609af3add26cd20a0a7cd8a9411131ce85f44100099223e',
-	      ],
-	      [
-	        '13e87b027d8514d35939f2e6892b19922154596941888336dc3563e3b8dba942',
-	        'fef5a3c68059a6dec5d624114bf1e91aac2b9da568d6abeb2570d55646b8adf1',
-	      ],
-	      [
-	        'ee163026e9fd6fe017c38f06a5be6fc125424b371ce2708e7bf4491691e5764a',
-	        '1acb250f255dd61c43d94ccc670d0f58f49ae3fa15b96623e5430da0ad6c62b2',
-	      ],
-	      [
-	        'b268f5ef9ad51e4d78de3a750c2dc89b1e626d43505867999932e5db33af3d80',
-	        '5f310d4b3c99b9ebb19f77d41c1dee018cf0d34fd4191614003e945a1216e423',
-	      ],
-	      [
-	        'ff07f3118a9df035e9fad85eb6c7bfe42b02f01ca99ceea3bf7ffdba93c4750d',
-	        '438136d603e858a3a5c440c38eccbaddc1d2942114e2eddd4740d098ced1f0d8',
-	      ],
-	      [
-	        '8d8b9855c7c052a34146fd20ffb658bea4b9f69e0d825ebec16e8c3ce2b526a1',
-	        'cdb559eedc2d79f926baf44fb84ea4d44bcf50fee51d7ceb30e2e7f463036758',
-	      ],
-	      [
-	        '52db0b5384dfbf05bfa9d472d7ae26dfe4b851ceca91b1eba54263180da32b63',
-	        'c3b997d050ee5d423ebaf66a6db9f57b3180c902875679de924b69d84a7b375',
-	      ],
-	      [
-	        'e62f9490d3d51da6395efd24e80919cc7d0f29c3f3fa48c6fff543becbd43352',
-	        '6d89ad7ba4876b0b22c2ca280c682862f342c8591f1daf5170e07bfd9ccafa7d',
-	      ],
-	      [
-	        '7f30ea2476b399b4957509c88f77d0191afa2ff5cb7b14fd6d8e7d65aaab1193',
-	        'ca5ef7d4b231c94c3b15389a5f6311e9daff7bb67b103e9880ef4bff637acaec',
-	      ],
-	      [
-	        '5098ff1e1d9f14fb46a210fada6c903fef0fb7b4a1dd1d9ac60a0361800b7a00',
-	        '9731141d81fc8f8084d37c6e7542006b3ee1b40d60dfe5362a5b132fd17ddc0',
-	      ],
-	      [
-	        '32b78c7de9ee512a72895be6b9cbefa6e2f3c4ccce445c96b9f2c81e2778ad58',
-	        'ee1849f513df71e32efc3896ee28260c73bb80547ae2275ba497237794c8753c',
-	      ],
-	      [
-	        'e2cb74fddc8e9fbcd076eef2a7c72b0ce37d50f08269dfc074b581550547a4f7',
-	        'd3aa2ed71c9dd2247a62df062736eb0baddea9e36122d2be8641abcb005cc4a4',
-	      ],
-	      [
-	        '8438447566d4d7bedadc299496ab357426009a35f235cb141be0d99cd10ae3a8',
-	        'c4e1020916980a4da5d01ac5e6ad330734ef0d7906631c4f2390426b2edd791f',
-	      ],
-	      [
-	        '4162d488b89402039b584c6fc6c308870587d9c46f660b878ab65c82c711d67e',
-	        '67163e903236289f776f22c25fb8a3afc1732f2b84b4e95dbda47ae5a0852649',
-	      ],
-	      [
-	        '3fad3fa84caf0f34f0f89bfd2dcf54fc175d767aec3e50684f3ba4a4bf5f683d',
-	        'cd1bc7cb6cc407bb2f0ca647c718a730cf71872e7d0d2a53fa20efcdfe61826',
-	      ],
-	      [
-	        '674f2600a3007a00568c1a7ce05d0816c1fb84bf1370798f1c69532faeb1a86b',
-	        '299d21f9413f33b3edf43b257004580b70db57da0b182259e09eecc69e0d38a5',
-	      ],
-	      [
-	        'd32f4da54ade74abb81b815ad1fb3b263d82d6c692714bcff87d29bd5ee9f08f',
-	        'f9429e738b8e53b968e99016c059707782e14f4535359d582fc416910b3eea87',
-	      ],
-	      [
-	        '30e4e670435385556e593657135845d36fbb6931f72b08cb1ed954f1e3ce3ff6',
-	        '462f9bce619898638499350113bbc9b10a878d35da70740dc695a559eb88db7b',
-	      ],
-	      [
-	        'be2062003c51cc3004682904330e4dee7f3dcd10b01e580bf1971b04d4cad297',
-	        '62188bc49d61e5428573d48a74e1c655b1c61090905682a0d5558ed72dccb9bc',
-	      ],
-	      [
-	        '93144423ace3451ed29e0fb9ac2af211cb6e84a601df5993c419859fff5df04a',
-	        '7c10dfb164c3425f5c71a3f9d7992038f1065224f72bb9d1d902a6d13037b47c',
-	      ],
-	      [
-	        'b015f8044f5fcbdcf21ca26d6c34fb8197829205c7b7d2a7cb66418c157b112c',
-	        'ab8c1e086d04e813744a655b2df8d5f83b3cdc6faa3088c1d3aea1454e3a1d5f',
-	      ],
-	      [
-	        'd5e9e1da649d97d89e4868117a465a3a4f8a18de57a140d36b3f2af341a21b52',
-	        '4cb04437f391ed73111a13cc1d4dd0db1693465c2240480d8955e8592f27447a',
-	      ],
-	      [
-	        'd3ae41047dd7ca065dbf8ed77b992439983005cd72e16d6f996a5316d36966bb',
-	        'bd1aeb21ad22ebb22a10f0303417c6d964f8cdd7df0aca614b10dc14d125ac46',
-	      ],
-	      [
-	        '463e2763d885f958fc66cdd22800f0a487197d0a82e377b49f80af87c897b065',
-	        'bfefacdb0e5d0fd7df3a311a94de062b26b80c61fbc97508b79992671ef7ca7f',
-	      ],
-	      [
-	        '7985fdfd127c0567c6f53ec1bb63ec3158e597c40bfe747c83cddfc910641917',
-	        '603c12daf3d9862ef2b25fe1de289aed24ed291e0ec6708703a5bd567f32ed03',
-	      ],
-	      [
-	        '74a1ad6b5f76e39db2dd249410eac7f99e74c59cb83d2d0ed5ff1543da7703e9',
-	        'cc6157ef18c9c63cd6193d83631bbea0093e0968942e8c33d5737fd790e0db08',
-	      ],
-	      [
-	        '30682a50703375f602d416664ba19b7fc9bab42c72747463a71d0896b22f6da3',
-	        '553e04f6b018b4fa6c8f39e7f311d3176290d0e0f19ca73f17714d9977a22ff8',
-	      ],
-	      [
-	        '9e2158f0d7c0d5f26c3791efefa79597654e7a2b2464f52b1ee6c1347769ef57',
-	        '712fcdd1b9053f09003a3481fa7762e9ffd7c8ef35a38509e2fbf2629008373',
-	      ],
-	      [
-	        '176e26989a43c9cfeba4029c202538c28172e566e3c4fce7322857f3be327d66',
-	        'ed8cc9d04b29eb877d270b4878dc43c19aefd31f4eee09ee7b47834c1fa4b1c3',
-	      ],
-	      [
-	        '75d46efea3771e6e68abb89a13ad747ecf1892393dfc4f1b7004788c50374da8',
-	        '9852390a99507679fd0b86fd2b39a868d7efc22151346e1a3ca4726586a6bed8',
-	      ],
-	      [
-	        '809a20c67d64900ffb698c4c825f6d5f2310fb0451c869345b7319f645605721',
-	        '9e994980d9917e22b76b061927fa04143d096ccc54963e6a5ebfa5f3f8e286c1',
-	      ],
-	      [
-	        '1b38903a43f7f114ed4500b4eac7083fdefece1cf29c63528d563446f972c180',
-	        '4036edc931a60ae889353f77fd53de4a2708b26b6f5da72ad3394119daf408f9',
-	      ],
-	    ],
-	  },
-	};
-	return secp256k1;
-}
-
-(function (exports) {
-
-	var curves = exports;
-
-	var hash = hash$4;
-	var curve$1 = curve;
-	var utils = utils$w;
-
-	var assert = utils.assert;
-
-	function PresetCurve(options) {
-	  if (options.type === 'short')
-	    this.curve = new curve$1.short(options);
-	  else if (options.type === 'edwards')
-	    this.curve = new curve$1.edwards(options);
-	  else
-	    this.curve = new curve$1.mont(options);
-	  this.g = this.curve.g;
-	  this.n = this.curve.n;
-	  this.hash = options.hash;
-
-	  assert(this.g.validate(), 'Invalid curve');
-	  assert(this.g.mul(this.n).isInfinity(), 'Invalid curve, G*N != O');
-	}
-	curves.PresetCurve = PresetCurve;
-
-	function defineCurve(name, options) {
-	  Object.defineProperty(curves, name, {
-	    configurable: true,
-	    enumerable: true,
-	    get: function() {
-	      var curve = new PresetCurve(options);
-	      Object.defineProperty(curves, name, {
-	        configurable: true,
-	        enumerable: true,
-	        value: curve,
-	      });
-	      return curve;
-	    },
-	  });
-	}
-
-	defineCurve('p192', {
-	  type: 'short',
-	  prime: 'p192',
-	  p: 'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff',
-	  a: 'ffffffff ffffffff ffffffff fffffffe ffffffff fffffffc',
-	  b: '64210519 e59c80e7 0fa7e9ab 72243049 feb8deec c146b9b1',
-	  n: 'ffffffff ffffffff ffffffff 99def836 146bc9b1 b4d22831',
-	  hash: hash.sha256,
-	  gRed: false,
-	  g: [
-	    '188da80e b03090f6 7cbf20eb 43a18800 f4ff0afd 82ff1012',
-	    '07192b95 ffc8da78 631011ed 6b24cdd5 73f977a1 1e794811',
-	  ],
-	});
-
-	defineCurve('p224', {
-	  type: 'short',
-	  prime: 'p224',
-	  p: 'ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001',
-	  a: 'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff fffffffe',
-	  b: 'b4050a85 0c04b3ab f5413256 5044b0b7 d7bfd8ba 270b3943 2355ffb4',
-	  n: 'ffffffff ffffffff ffffffff ffff16a2 e0b8f03e 13dd2945 5c5c2a3d',
-	  hash: hash.sha256,
-	  gRed: false,
-	  g: [
-	    'b70e0cbd 6bb4bf7f 321390b9 4a03c1d3 56c21122 343280d6 115c1d21',
-	    'bd376388 b5f723fb 4c22dfe6 cd4375a0 5a074764 44d58199 85007e34',
-	  ],
-	});
-
-	defineCurve('p256', {
-	  type: 'short',
-	  prime: null,
-	  p: 'ffffffff 00000001 00000000 00000000 00000000 ffffffff ffffffff ffffffff',
-	  a: 'ffffffff 00000001 00000000 00000000 00000000 ffffffff ffffffff fffffffc',
-	  b: '5ac635d8 aa3a93e7 b3ebbd55 769886bc 651d06b0 cc53b0f6 3bce3c3e 27d2604b',
-	  n: 'ffffffff 00000000 ffffffff ffffffff bce6faad a7179e84 f3b9cac2 fc632551',
-	  hash: hash.sha256,
-	  gRed: false,
-	  g: [
-	    '6b17d1f2 e12c4247 f8bce6e5 63a440f2 77037d81 2deb33a0 f4a13945 d898c296',
-	    '4fe342e2 fe1a7f9b 8ee7eb4a 7c0f9e16 2bce3357 6b315ece cbb64068 37bf51f5',
-	  ],
-	});
-
-	defineCurve('p384', {
-	  type: 'short',
-	  prime: null,
-	  p: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'fffffffe ffffffff 00000000 00000000 ffffffff',
-	  a: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'fffffffe ffffffff 00000000 00000000 fffffffc',
-	  b: 'b3312fa7 e23ee7e4 988e056b e3f82d19 181d9c6e fe814112 0314088f ' +
-	     '5013875a c656398d 8a2ed19d 2a85c8ed d3ec2aef',
-	  n: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff c7634d81 ' +
-	     'f4372ddf 581a0db2 48b0a77a ecec196a ccc52973',
-	  hash: hash.sha384,
-	  gRed: false,
-	  g: [
-	    'aa87ca22 be8b0537 8eb1c71e f320ad74 6e1d3b62 8ba79b98 59f741e0 82542a38 ' +
-	    '5502f25d bf55296c 3a545e38 72760ab7',
-	    '3617de4a 96262c6f 5d9e98bf 9292dc29 f8f41dbd 289a147c e9da3113 b5f0b8c0 ' +
-	    '0a60b1ce 1d7e819d 7a431d7c 90ea0e5f',
-	  ],
-	});
-
-	defineCurve('p521', {
-	  type: 'short',
-	  prime: null,
-	  p: '000001ff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'ffffffff ffffffff ffffffff ffffffff ffffffff',
-	  a: '000001ff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'ffffffff ffffffff ffffffff ffffffff fffffffc',
-	  b: '00000051 953eb961 8e1c9a1f 929a21a0 b68540ee a2da725b ' +
-	     '99b315f3 b8b48991 8ef109e1 56193951 ec7e937b 1652c0bd ' +
-	     '3bb1bf07 3573df88 3d2c34f1 ef451fd4 6b503f00',
-	  n: '000001ff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
-	     'ffffffff ffffffff fffffffa 51868783 bf2f966b 7fcc0148 ' +
-	     'f709a5d0 3bb5c9b8 899c47ae bb6fb71e 91386409',
-	  hash: hash.sha512,
-	  gRed: false,
-	  g: [
-	    '000000c6 858e06b7 0404e9cd 9e3ecb66 2395b442 9c648139 ' +
-	    '053fb521 f828af60 6b4d3dba a14b5e77 efe75928 fe1dc127 ' +
-	    'a2ffa8de 3348b3c1 856a429b f97e7e31 c2e5bd66',
-	    '00000118 39296a78 9a3bc004 5c8a5fb4 2c7d1bd9 98f54449 ' +
-	    '579b4468 17afbd17 273e662c 97ee7299 5ef42640 c550b901 ' +
-	    '3fad0761 353c7086 a272c240 88be9476 9fd16650',
-	  ],
-	});
-
-	defineCurve('curve25519', {
-	  type: 'mont',
-	  prime: 'p25519',
-	  p: '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed',
-	  a: '76d06',
-	  b: '1',
-	  n: '1000000000000000 0000000000000000 14def9dea2f79cd6 5812631a5cf5d3ed',
-	  hash: hash.sha256,
-	  gRed: false,
-	  g: [
-	    '9',
-	  ],
-	});
-
-	defineCurve('ed25519', {
-	  type: 'edwards',
-	  prime: 'p25519',
-	  p: '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed',
-	  a: '-1',
-	  c: '1',
-	  // -121665 * (121666^(-1)) (mod P)
-	  d: '52036cee2b6ffe73 8cc740797779e898 00700a4d4141d8ab 75eb4dca135978a3',
-	  n: '1000000000000000 0000000000000000 14def9dea2f79cd6 5812631a5cf5d3ed',
-	  hash: hash.sha256,
-	  gRed: false,
-	  g: [
-	    '216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a',
-
-	    // 4/5
-	    '6666666666666666666666666666666666666666666666666666666666666658',
-	  ],
-	});
-
-	var pre;
-	try {
-	  pre = requireSecp256k1();
-	} catch (e) {
-	  pre = undefined;
-	}
-
-	defineCurve('secp256k1', {
-	  type: 'short',
-	  prime: 'k256',
-	  p: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f',
-	  a: '0',
-	  b: '7',
-	  n: 'ffffffff ffffffff ffffffff fffffffe baaedce6 af48a03b bfd25e8c d0364141',
-	  h: '1',
-	  hash: hash.sha256,
-
-	  // Precomputed endomorphism
-	  beta: '7ae96a2b657c07106e64479eac3434e99cf0497512f58995c1396c28719501ee',
-	  lambda: '5363ad4cc05c30e0a5261c028812645a122e22ea20816678df02967c1b23bd72',
-	  basis: [
-	    {
-	      a: '3086d221a7d46bcde86c90e49284eb15',
-	      b: '-e4437ed6010e88286f547fa90abfe4c3',
-	    },
-	    {
-	      a: '114ca50f7a8e2f3f657c1108d9d44cfd8',
-	      b: '3086d221a7d46bcde86c90e49284eb15',
-	    },
-	  ],
-
-	  gRed: false,
-	  g: [
-	    '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
-	    '483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8',
-	    pre,
-	  ],
-	});
-} (curves$2));
-
-var hash$3 = hash$4;
-var utils$g = utils$v;
-var assert$d = minimalisticAssert$1;
-
-function HmacDRBG$1(options) {
-  if (!(this instanceof HmacDRBG$1))
-    return new HmacDRBG$1(options);
-  this.hash = options.hash;
-  this.predResist = !!options.predResist;
-
-  this.outLen = this.hash.outSize;
-  this.minEntropy = options.minEntropy || this.hash.hmacStrength;
-
-  this._reseed = null;
-  this.reseedInterval = null;
-  this.K = null;
-  this.V = null;
-
-  var entropy = utils$g.toArray(options.entropy, options.entropyEnc || 'hex');
-  var nonce = utils$g.toArray(options.nonce, options.nonceEnc || 'hex');
-  var pers = utils$g.toArray(options.pers, options.persEnc || 'hex');
-  assert$d(entropy.length >= (this.minEntropy / 8),
-         'Not enough entropy. Minimum is: ' + this.minEntropy + ' bits');
-  this._init(entropy, nonce, pers);
-}
-var hmacDrbg = HmacDRBG$1;
-
-HmacDRBG$1.prototype._init = function init(entropy, nonce, pers) {
-  var seed = entropy.concat(nonce).concat(pers);
-
-  this.K = new Array(this.outLen / 8);
-  this.V = new Array(this.outLen / 8);
-  for (var i = 0; i < this.V.length; i++) {
-    this.K[i] = 0x00;
-    this.V[i] = 0x01;
-  }
-
-  this._update(seed);
-  this._reseed = 1;
-  this.reseedInterval = 0x1000000000000;  // 2^48
-};
-
-HmacDRBG$1.prototype._hmac = function hmac() {
-  return new hash$3.hmac(this.hash, this.K);
-};
-
-HmacDRBG$1.prototype._update = function update(seed) {
-  var kmac = this._hmac()
-                 .update(this.V)
-                 .update([ 0x00 ]);
-  if (seed)
-    kmac = kmac.update(seed);
-  this.K = kmac.digest();
-  this.V = this._hmac().update(this.V).digest();
-  if (!seed)
-    return;
-
-  this.K = this._hmac()
-               .update(this.V)
-               .update([ 0x01 ])
-               .update(seed)
-               .digest();
-  this.V = this._hmac().update(this.V).digest();
-};
-
-HmacDRBG$1.prototype.reseed = function reseed(entropy, entropyEnc, add, addEnc) {
-  // Optional entropy enc
-  if (typeof entropyEnc !== 'string') {
-    addEnc = add;
-    add = entropyEnc;
-    entropyEnc = null;
-  }
-
-  entropy = utils$g.toArray(entropy, entropyEnc);
-  add = utils$g.toArray(add, addEnc);
-
-  assert$d(entropy.length >= (this.minEntropy / 8),
-         'Not enough entropy. Minimum is: ' + this.minEntropy + ' bits');
-
-  this._update(entropy.concat(add || []));
-  this._reseed = 1;
-};
-
-HmacDRBG$1.prototype.generate = function generate(len, enc, add, addEnc) {
-  if (this._reseed > this.reseedInterval)
-    throw new Error('Reseed is required');
-
-  // Optional encoding
-  if (typeof enc !== 'string') {
-    addEnc = add;
-    add = enc;
-    enc = null;
-  }
-
-  // Optional additional data
-  if (add) {
-    add = utils$g.toArray(add, addEnc || 'hex');
-    this._update(add);
-  }
-
-  var temp = [];
-  while (temp.length < len) {
-    this.V = this._hmac().update(this.V).digest();
-    temp = temp.concat(this.V);
-  }
-
-  var res = temp.slice(0, len);
-  this._update(add);
-  this._reseed++;
-  return utils$g.encode(res, enc);
-};
-
-var BN$3 = bn.exports;
-var utils$f = utils$w;
-var assert$c = utils$f.assert;
-
-function KeyPair$3(ec, options) {
-  this.ec = ec;
-  this.priv = null;
-  this.pub = null;
-
-  // KeyPair(ec, { priv: ..., pub: ... })
-  if (options.priv)
-    this._importPrivate(options.priv, options.privEnc);
-  if (options.pub)
-    this._importPublic(options.pub, options.pubEnc);
-}
-var key$1 = KeyPair$3;
-
-KeyPair$3.fromPublic = function fromPublic(ec, pub, enc) {
-  if (pub instanceof KeyPair$3)
-    return pub;
-
-  return new KeyPair$3(ec, {
-    pub: pub,
-    pubEnc: enc,
-  });
-};
-
-KeyPair$3.fromPrivate = function fromPrivate(ec, priv, enc) {
-  if (priv instanceof KeyPair$3)
-    return priv;
-
-  return new KeyPair$3(ec, {
-    priv: priv,
-    privEnc: enc,
-  });
-};
-
-KeyPair$3.prototype.validate = function validate() {
-  var pub = this.getPublic();
-
-  if (pub.isInfinity())
-    return { result: false, reason: 'Invalid public key' };
-  if (!pub.validate())
-    return { result: false, reason: 'Public key is not a point' };
-  if (!pub.mul(this.ec.curve.n).isInfinity())
-    return { result: false, reason: 'Public key * N != O' };
-
-  return { result: true, reason: null };
-};
-
-KeyPair$3.prototype.getPublic = function getPublic(compact, enc) {
-  // compact is optional argument
-  if (typeof compact === 'string') {
-    enc = compact;
-    compact = null;
-  }
-
-  if (!this.pub)
-    this.pub = this.ec.g.mul(this.priv);
-
-  if (!enc)
-    return this.pub;
-
-  return this.pub.encode(enc, compact);
-};
-
-KeyPair$3.prototype.getPrivate = function getPrivate(enc) {
-  if (enc === 'hex')
-    return this.priv.toString(16, 2);
-  else
-    return this.priv;
-};
-
-KeyPair$3.prototype._importPrivate = function _importPrivate(key, enc) {
-  this.priv = new BN$3(key, enc || 16);
-
-  // Ensure that the priv won't be bigger than n, otherwise we may fail
-  // in fixed multiplication method
-  this.priv = this.priv.umod(this.ec.curve.n);
-};
-
-KeyPair$3.prototype._importPublic = function _importPublic(key, enc) {
-  if (key.x || key.y) {
-    // Montgomery points only have an `x` coordinate.
-    // Weierstrass/Edwards points on the other hand have both `x` and
-    // `y` coordinates.
-    if (this.ec.curve.type === 'mont') {
-      assert$c(key.x, 'Need x coordinate');
-    } else if (this.ec.curve.type === 'short' ||
-               this.ec.curve.type === 'edwards') {
-      assert$c(key.x && key.y, 'Need both x and y coordinate');
-    }
-    this.pub = this.ec.curve.point(key.x, key.y);
-    return;
-  }
-  this.pub = this.ec.curve.decodePoint(key, enc);
-};
-
-// ECDH
-KeyPair$3.prototype.derive = function derive(pub) {
-  if(!pub.validate()) {
-    assert$c(pub.validate(), 'public point not validated');
-  }
-  return pub.mul(this.priv).getX();
-};
-
-// ECDSA
-KeyPair$3.prototype.sign = function sign(msg, enc, options) {
-  return this.ec.sign(msg, this, enc, options);
-};
-
-KeyPair$3.prototype.verify = function verify(msg, signature) {
-  return this.ec.verify(msg, signature, this);
-};
-
-KeyPair$3.prototype.inspect = function inspect() {
-  return '<Key priv: ' + (this.priv && this.priv.toString(16, 2)) +
-         ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
-};
-
-var BN$2 = bn.exports;
-
-var utils$e = utils$w;
-var assert$b = utils$e.assert;
-
-function Signature$3(options, enc) {
-  if (options instanceof Signature$3)
-    return options;
-
-  if (this._importDER(options, enc))
-    return;
-
-  assert$b(options.r && options.s, 'Signature without r or s');
-  this.r = new BN$2(options.r, 16);
-  this.s = new BN$2(options.s, 16);
-  if (options.recoveryParam === undefined)
-    this.recoveryParam = null;
-  else
-    this.recoveryParam = options.recoveryParam;
-}
-var signature$1 = Signature$3;
-
-function Position() {
-  this.place = 0;
-}
-
-function getLength(buf, p) {
-  var initial = buf[p.place++];
-  if (!(initial & 0x80)) {
-    return initial;
-  }
-  var octetLen = initial & 0xf;
-
-  // Indefinite length or overflow
-  if (octetLen === 0 || octetLen > 4) {
-    return false;
-  }
-
-  var val = 0;
-  for (var i = 0, off = p.place; i < octetLen; i++, off++) {
-    val <<= 8;
-    val |= buf[off];
-    val >>>= 0;
-  }
-
-  // Leading zeroes
-  if (val <= 0x7f) {
-    return false;
-  }
-
-  p.place = off;
-  return val;
-}
-
-function rmPadding(buf) {
-  var i = 0;
-  var len = buf.length - 1;
-  while (!buf[i] && !(buf[i + 1] & 0x80) && i < len) {
-    i++;
-  }
-  if (i === 0) {
-    return buf;
-  }
-  return buf.slice(i);
-}
-
-Signature$3.prototype._importDER = function _importDER(data, enc) {
-  data = utils$e.toArray(data, enc);
-  var p = new Position();
-  if (data[p.place++] !== 0x30) {
-    return false;
-  }
-  var len = getLength(data, p);
-  if (len === false) {
-    return false;
-  }
-  if ((len + p.place) !== data.length) {
-    return false;
-  }
-  if (data[p.place++] !== 0x02) {
-    return false;
-  }
-  var rlen = getLength(data, p);
-  if (rlen === false) {
-    return false;
-  }
-  var r = data.slice(p.place, rlen + p.place);
-  p.place += rlen;
-  if (data[p.place++] !== 0x02) {
-    return false;
-  }
-  var slen = getLength(data, p);
-  if (slen === false) {
-    return false;
-  }
-  if (data.length !== slen + p.place) {
-    return false;
-  }
-  var s = data.slice(p.place, slen + p.place);
-  if (r[0] === 0) {
-    if (r[1] & 0x80) {
-      r = r.slice(1);
-    } else {
-      // Leading zeroes
-      return false;
-    }
-  }
-  if (s[0] === 0) {
-    if (s[1] & 0x80) {
-      s = s.slice(1);
-    } else {
-      // Leading zeroes
-      return false;
-    }
-  }
-
-  this.r = new BN$2(r);
-  this.s = new BN$2(s);
-  this.recoveryParam = null;
-
-  return true;
-};
-
-function constructLength(arr, len) {
-  if (len < 0x80) {
-    arr.push(len);
-    return;
-  }
-  var octets = 1 + (Math.log(len) / Math.LN2 >>> 3);
-  arr.push(octets | 0x80);
-  while (--octets) {
-    arr.push((len >>> (octets << 3)) & 0xff);
-  }
-  arr.push(len);
-}
-
-Signature$3.prototype.toDER = function toDER(enc) {
-  var r = this.r.toArray();
-  var s = this.s.toArray();
-
-  // Pad values
-  if (r[0] & 0x80)
-    r = [ 0 ].concat(r);
-  // Pad values
-  if (s[0] & 0x80)
-    s = [ 0 ].concat(s);
-
-  r = rmPadding(r);
-  s = rmPadding(s);
-
-  while (!s[0] && !(s[1] & 0x80)) {
-    s = s.slice(1);
-  }
-  var arr = [ 0x02 ];
-  constructLength(arr, r.length);
-  arr = arr.concat(r);
-  arr.push(0x02);
-  constructLength(arr, s.length);
-  var backHalf = arr.concat(s);
-  var res = [ 0x30 ];
-  constructLength(res, backHalf.length);
-  res = res.concat(backHalf);
-  return utils$e.encode(res, enc);
-};
-
-var BN$1 = bn.exports;
-var HmacDRBG = hmacDrbg;
-var utils$d = utils$w;
-var curves$1 = curves$2;
-var rand = brorand.exports;
-var assert$a = utils$d.assert;
-
-var KeyPair$2 = key$1;
-var Signature$2 = signature$1;
-
-function EC$1(options) {
-  if (!(this instanceof EC$1))
-    return new EC$1(options);
-
-  // Shortcut `elliptic.ec(curve-name)`
-  if (typeof options === 'string') {
-    assert$a(Object.prototype.hasOwnProperty.call(curves$1, options),
-      'Unknown curve ' + options);
-
-    options = curves$1[options];
-  }
-
-  // Shortcut for `elliptic.ec(elliptic.curves.curveName)`
-  if (options instanceof curves$1.PresetCurve)
-    options = { curve: options };
-
-  this.curve = options.curve.curve;
-  this.n = this.curve.n;
-  this.nh = this.n.ushrn(1);
-  this.g = this.curve.g;
-
-  // Point on curve
-  this.g = options.curve.g;
-  this.g.precompute(options.curve.n.bitLength() + 1);
-
-  // Hash for function for DRBG
-  this.hash = options.hash || options.curve.hash;
-}
-var ec$1 = EC$1;
-
-EC$1.prototype.keyPair = function keyPair(options) {
-  return new KeyPair$2(this, options);
-};
-
-EC$1.prototype.keyFromPrivate = function keyFromPrivate(priv, enc) {
-  return KeyPair$2.fromPrivate(this, priv, enc);
-};
-
-EC$1.prototype.keyFromPublic = function keyFromPublic(pub, enc) {
-  return KeyPair$2.fromPublic(this, pub, enc);
-};
-
-EC$1.prototype.genKeyPair = function genKeyPair(options) {
-  if (!options)
-    options = {};
-
-  // Instantiate Hmac_DRBG
-  var drbg = new HmacDRBG({
-    hash: this.hash,
-    pers: options.pers,
-    persEnc: options.persEnc || 'utf8',
-    entropy: options.entropy || rand(this.hash.hmacStrength),
-    entropyEnc: options.entropy && options.entropyEnc || 'utf8',
-    nonce: this.n.toArray(),
-  });
-
-  var bytes = this.n.byteLength();
-  var ns2 = this.n.sub(new BN$1(2));
-  for (;;) {
-    var priv = new BN$1(drbg.generate(bytes));
-    if (priv.cmp(ns2) > 0)
-      continue;
-
-    priv.iaddn(1);
-    return this.keyFromPrivate(priv);
-  }
-};
-
-EC$1.prototype._truncateToN = function _truncateToN(msg, truncOnly) {
-  var delta = msg.byteLength() * 8 - this.n.bitLength();
-  if (delta > 0)
-    msg = msg.ushrn(delta);
-  if (!truncOnly && msg.cmp(this.n) >= 0)
-    return msg.sub(this.n);
-  else
-    return msg;
-};
-
-EC$1.prototype.sign = function sign(msg, key, enc, options) {
-  if (typeof enc === 'object') {
-    options = enc;
-    enc = null;
-  }
-  if (!options)
-    options = {};
-
-  key = this.keyFromPrivate(key, enc);
-  msg = this._truncateToN(new BN$1(msg, 16));
-
-  // Zero-extend key to provide enough entropy
-  var bytes = this.n.byteLength();
-  var bkey = key.getPrivate().toArray('be', bytes);
-
-  // Zero-extend nonce to have the same byte size as N
-  var nonce = msg.toArray('be', bytes);
-
-  // Instantiate Hmac_DRBG
-  var drbg = new HmacDRBG({
-    hash: this.hash,
-    entropy: bkey,
-    nonce: nonce,
-    pers: options.pers,
-    persEnc: options.persEnc || 'utf8',
-  });
-
-  // Number of bytes to generate
-  var ns1 = this.n.sub(new BN$1(1));
-
-  for (var iter = 0; ; iter++) {
-    var k = options.k ?
-      options.k(iter) :
-      new BN$1(drbg.generate(this.n.byteLength()));
-    k = this._truncateToN(k, true);
-    if (k.cmpn(1) <= 0 || k.cmp(ns1) >= 0)
-      continue;
-
-    var kp = this.g.mul(k);
-    if (kp.isInfinity())
-      continue;
-
-    var kpX = kp.getX();
-    var r = kpX.umod(this.n);
-    if (r.cmpn(0) === 0)
-      continue;
-
-    var s = k.invm(this.n).mul(r.mul(key.getPrivate()).iadd(msg));
-    s = s.umod(this.n);
-    if (s.cmpn(0) === 0)
-      continue;
-
-    var recoveryParam = (kp.getY().isOdd() ? 1 : 0) |
-                        (kpX.cmp(r) !== 0 ? 2 : 0);
-
-    // Use complement of `s`, if it is > `n / 2`
-    if (options.canonical && s.cmp(this.nh) > 0) {
-      s = this.n.sub(s);
-      recoveryParam ^= 1;
-    }
-
-    return new Signature$2({ r: r, s: s, recoveryParam: recoveryParam });
-  }
-};
-
-EC$1.prototype.verify = function verify(msg, signature, key, enc) {
-  msg = this._truncateToN(new BN$1(msg, 16));
-  key = this.keyFromPublic(key, enc);
-  signature = new Signature$2(signature, 'hex');
-
-  // Perform primitive values validation
-  var r = signature.r;
-  var s = signature.s;
-  if (r.cmpn(1) < 0 || r.cmp(this.n) >= 0)
-    return false;
-  if (s.cmpn(1) < 0 || s.cmp(this.n) >= 0)
-    return false;
-
-  // Validate signature
-  var sinv = s.invm(this.n);
-  var u1 = sinv.mul(msg).umod(this.n);
-  var u2 = sinv.mul(r).umod(this.n);
-  var p;
-
-  if (!this.curve._maxwellTrick) {
-    p = this.g.mulAdd(u1, key.getPublic(), u2);
-    if (p.isInfinity())
-      return false;
-
-    return p.getX().umod(this.n).cmp(r) === 0;
-  }
-
-  // NOTE: Greg Maxwell's trick, inspired by:
-  // https://git.io/vad3K
-
-  p = this.g.jmulAdd(u1, key.getPublic(), u2);
-  if (p.isInfinity())
-    return false;
-
-  // Compare `p.x` of Jacobian point with `r`,
-  // this will do `p.x == r * p.z^2` instead of multiplying `p.x` by the
-  // inverse of `p.z^2`
-  return p.eqXToP(r);
-};
-
-EC$1.prototype.recoverPubKey = function(msg, signature, j, enc) {
-  assert$a((3 & j) === j, 'The recovery param is more than two bits');
-  signature = new Signature$2(signature, enc);
-
-  var n = this.n;
-  var e = new BN$1(msg);
-  var r = signature.r;
-  var s = signature.s;
-
-  // A set LSB signifies that the y-coordinate is odd
-  var isYOdd = j & 1;
-  var isSecondKey = j >> 1;
-  if (r.cmp(this.curve.p.umod(this.curve.n)) >= 0 && isSecondKey)
-    throw new Error('Unable to find sencond key candinate');
-
-  // 1.1. Let x = r + jn.
-  if (isSecondKey)
-    r = this.curve.pointFromX(r.add(this.curve.n), isYOdd);
-  else
-    r = this.curve.pointFromX(r, isYOdd);
-
-  var rInv = signature.r.invm(n);
-  var s1 = n.sub(e).mul(rInv).umod(n);
-  var s2 = s.mul(rInv).umod(n);
-
-  // 1.6.1 Compute Q = r^-1 (sR -  eG)
-  //               Q = r^-1 (sR + -eG)
-  return this.g.mulAdd(s1, r, s2);
-};
-
-EC$1.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
-  signature = new Signature$2(signature, enc);
-  if (signature.recoveryParam !== null)
-    return signature.recoveryParam;
-
-  for (var i = 0; i < 4; i++) {
-    var Qprime;
-    try {
-      Qprime = this.recoverPubKey(e, signature, i);
-    } catch (e) {
-      continue;
-    }
-
-    if (Qprime.eq(Q))
-      return i;
-  }
-  throw new Error('Unable to find valid recovery factor');
-};
-
-var utils$c = utils$w;
-var assert$9 = utils$c.assert;
-var parseBytes$2 = utils$c.parseBytes;
-var cachedProperty$1 = utils$c.cachedProperty;
-
-/**
-* @param {EDDSA} eddsa - instance
-* @param {Object} params - public/private key parameters
-*
-* @param {Array<Byte>} [params.secret] - secret seed bytes
-* @param {Point} [params.pub] - public key point (aka `A` in eddsa terms)
-* @param {Array<Byte>} [params.pub] - public key point encoded as bytes
-*
-*/
-function KeyPair$1(eddsa, params) {
-  this.eddsa = eddsa;
-  this._secret = parseBytes$2(params.secret);
-  if (eddsa.isPoint(params.pub))
-    this._pub = params.pub;
-  else
-    this._pubBytes = parseBytes$2(params.pub);
-}
-
-KeyPair$1.fromPublic = function fromPublic(eddsa, pub) {
-  if (pub instanceof KeyPair$1)
-    return pub;
-  return new KeyPair$1(eddsa, { pub: pub });
-};
-
-KeyPair$1.fromSecret = function fromSecret(eddsa, secret) {
-  if (secret instanceof KeyPair$1)
-    return secret;
-  return new KeyPair$1(eddsa, { secret: secret });
-};
-
-KeyPair$1.prototype.secret = function secret() {
-  return this._secret;
-};
-
-cachedProperty$1(KeyPair$1, 'pubBytes', function pubBytes() {
-  return this.eddsa.encodePoint(this.pub());
-});
-
-cachedProperty$1(KeyPair$1, 'pub', function pub() {
-  if (this._pubBytes)
-    return this.eddsa.decodePoint(this._pubBytes);
-  return this.eddsa.g.mul(this.priv());
-});
-
-cachedProperty$1(KeyPair$1, 'privBytes', function privBytes() {
-  var eddsa = this.eddsa;
-  var hash = this.hash();
-  var lastIx = eddsa.encodingLength - 1;
-
-  var a = hash.slice(0, eddsa.encodingLength);
-  a[0] &= 248;
-  a[lastIx] &= 127;
-  a[lastIx] |= 64;
-
-  return a;
-});
-
-cachedProperty$1(KeyPair$1, 'priv', function priv() {
-  return this.eddsa.decodeInt(this.privBytes());
-});
-
-cachedProperty$1(KeyPair$1, 'hash', function hash() {
-  return this.eddsa.hash().update(this.secret()).digest();
-});
-
-cachedProperty$1(KeyPair$1, 'messagePrefix', function messagePrefix() {
-  return this.hash().slice(this.eddsa.encodingLength);
-});
-
-KeyPair$1.prototype.sign = function sign(message) {
-  assert$9(this._secret, 'KeyPair can only verify');
-  return this.eddsa.sign(message, this);
-};
-
-KeyPair$1.prototype.verify = function verify(message, sig) {
-  return this.eddsa.verify(message, sig, this);
-};
-
-KeyPair$1.prototype.getSecret = function getSecret(enc) {
-  assert$9(this._secret, 'KeyPair is public only');
-  return utils$c.encode(this.secret(), enc);
-};
-
-KeyPair$1.prototype.getPublic = function getPublic(enc) {
-  return utils$c.encode(this.pubBytes(), enc);
-};
-
-var key = KeyPair$1;
-
-var BN = bn.exports;
-var utils$b = utils$w;
-var assert$8 = utils$b.assert;
-var cachedProperty = utils$b.cachedProperty;
-var parseBytes$1 = utils$b.parseBytes;
-
-/**
-* @param {EDDSA} eddsa - eddsa instance
-* @param {Array<Bytes>|Object} sig -
-* @param {Array<Bytes>|Point} [sig.R] - R point as Point or bytes
-* @param {Array<Bytes>|bn} [sig.S] - S scalar as bn or bytes
-* @param {Array<Bytes>} [sig.Rencoded] - R point encoded
-* @param {Array<Bytes>} [sig.Sencoded] - S scalar encoded
-*/
-function Signature$1(eddsa, sig) {
-  this.eddsa = eddsa;
-
-  if (typeof sig !== 'object')
-    sig = parseBytes$1(sig);
-
-  if (Array.isArray(sig)) {
-    sig = {
-      R: sig.slice(0, eddsa.encodingLength),
-      S: sig.slice(eddsa.encodingLength),
-    };
-  }
-
-  assert$8(sig.R && sig.S, 'Signature without R or S');
-
-  if (eddsa.isPoint(sig.R))
-    this._R = sig.R;
-  if (sig.S instanceof BN)
-    this._S = sig.S;
-
-  this._Rencoded = Array.isArray(sig.R) ? sig.R : sig.Rencoded;
-  this._Sencoded = Array.isArray(sig.S) ? sig.S : sig.Sencoded;
-}
-
-cachedProperty(Signature$1, 'S', function S() {
-  return this.eddsa.decodeInt(this.Sencoded());
-});
-
-cachedProperty(Signature$1, 'R', function R() {
-  return this.eddsa.decodePoint(this.Rencoded());
-});
-
-cachedProperty(Signature$1, 'Rencoded', function Rencoded() {
-  return this.eddsa.encodePoint(this.R());
-});
-
-cachedProperty(Signature$1, 'Sencoded', function Sencoded() {
-  return this.eddsa.encodeInt(this.S());
-});
-
-Signature$1.prototype.toBytes = function toBytes() {
-  return this.Rencoded().concat(this.Sencoded());
-};
-
-Signature$1.prototype.toHex = function toHex() {
-  return utils$b.encode(this.toBytes(), 'hex').toUpperCase();
-};
-
-var signature = Signature$1;
-
-var hash$2 = hash$4;
-var curves = curves$2;
-var utils$a = utils$w;
-var assert$7 = utils$a.assert;
-var parseBytes = utils$a.parseBytes;
-var KeyPair = key;
-var Signature = signature;
-
-function EDDSA(curve) {
-  assert$7(curve === 'ed25519', 'only tested with ed25519 so far');
-
-  if (!(this instanceof EDDSA))
-    return new EDDSA(curve);
-
-  curve = curves[curve].curve;
-  this.curve = curve;
-  this.g = curve.g;
-  this.g.precompute(curve.n.bitLength() + 1);
-
-  this.pointClass = curve.point().constructor;
-  this.encodingLength = Math.ceil(curve.n.bitLength() / 8);
-  this.hash = hash$2.sha512;
-}
-
-var eddsa = EDDSA;
-
-/**
-* @param {Array|String} message - message bytes
-* @param {Array|String|KeyPair} secret - secret bytes or a keypair
-* @returns {Signature} - signature
-*/
-EDDSA.prototype.sign = function sign(message, secret) {
-  message = parseBytes(message);
-  var key = this.keyFromSecret(secret);
-  var r = this.hashInt(key.messagePrefix(), message);
-  var R = this.g.mul(r);
-  var Rencoded = this.encodePoint(R);
-  var s_ = this.hashInt(Rencoded, key.pubBytes(), message)
-    .mul(key.priv());
-  var S = r.add(s_).umod(this.curve.n);
-  return this.makeSignature({ R: R, S: S, Rencoded: Rencoded });
-};
-
-/**
-* @param {Array} message - message bytes
-* @param {Array|String|Signature} sig - sig bytes
-* @param {Array|String|Point|KeyPair} pub - public key
-* @returns {Boolean} - true if public key matches sig of message
-*/
-EDDSA.prototype.verify = function verify(message, sig, pub) {
-  message = parseBytes(message);
-  sig = this.makeSignature(sig);
-  var key = this.keyFromPublic(pub);
-  var h = this.hashInt(sig.Rencoded(), key.pubBytes(), message);
-  var SG = this.g.mul(sig.S());
-  var RplusAh = sig.R().add(key.pub().mul(h));
-  return RplusAh.eq(SG);
-};
-
-EDDSA.prototype.hashInt = function hashInt() {
-  var hash = this.hash();
-  for (var i = 0; i < arguments.length; i++)
-    hash.update(arguments[i]);
-  return utils$a.intFromLE(hash.digest()).umod(this.curve.n);
-};
-
-EDDSA.prototype.keyFromPublic = function keyFromPublic(pub) {
-  return KeyPair.fromPublic(this, pub);
-};
-
-EDDSA.prototype.keyFromSecret = function keyFromSecret(secret) {
-  return KeyPair.fromSecret(this, secret);
-};
-
-EDDSA.prototype.makeSignature = function makeSignature(sig) {
-  if (sig instanceof Signature)
-    return sig;
-  return new Signature(this, sig);
-};
-
-/**
-* * https://tools.ietf.org/html/draft-josefsson-eddsa-ed25519-03#section-5.2
-*
-* EDDSA defines methods for encoding and decoding points and integers. These are
-* helper convenience methods, that pass along to utility functions implied
-* parameters.
-*
-*/
-EDDSA.prototype.encodePoint = function encodePoint(point) {
-  var enc = point.getY().toArray('le', this.encodingLength);
-  enc[this.encodingLength - 1] |= point.getX().isOdd() ? 0x80 : 0;
-  return enc;
-};
-
-EDDSA.prototype.decodePoint = function decodePoint(bytes) {
-  bytes = utils$a.parseBytes(bytes);
-
-  var lastIx = bytes.length - 1;
-  var normed = bytes.slice(0, lastIx).concat(bytes[lastIx] & ~0x80);
-  var xIsOdd = (bytes[lastIx] & 0x80) !== 0;
-
-  var y = utils$a.intFromLE(normed);
-  return this.curve.pointFromY(y, xIsOdd);
-};
-
-EDDSA.prototype.encodeInt = function encodeInt(num) {
-  return num.toArray('le', this.encodingLength);
-};
-
-EDDSA.prototype.decodeInt = function decodeInt(bytes) {
-  return utils$a.intFromLE(bytes);
-};
-
-EDDSA.prototype.isPoint = function isPoint(val) {
-  return val instanceof this.pointClass;
-};
-
-(function (exports) {
-
-	var elliptic = exports;
-
-	elliptic.version = require$$0.version;
-	elliptic.utils = utils$w;
-	elliptic.rand = brorand.exports;
-	elliptic.curve = curve;
-	elliptic.curves = curves$2;
-
-	// Protocols
-	elliptic.ec = ec$1;
-	elliptic.eddsa = eddsa;
-} (elliptic));
-
-const EC = elliptic.ec;
-
-const ec = new EC('secp256k1');
-const ecparams = ec.curve;
-
-// Hack, we can not use bn.js@5, while elliptic uses bn.js@4
-// See https://github.com/indutny/elliptic/issues/191#issuecomment-569888758
-ecparams.n.constructor;
-
-var sha3 = {exports: {}};
-
-(function (module) {
-	/*jslint bitwise: true */
-	(function () {
-
-	  var INPUT_ERROR = 'input is invalid type';
-	  var FINALIZE_ERROR = 'finalize already called';
-	  var WINDOW = typeof window === 'object';
-	  var root = WINDOW ? window : {};
-	  if (root.JS_SHA3_NO_WINDOW) {
-	    WINDOW = false;
-	  }
-	  var WEB_WORKER = !WINDOW && typeof self === 'object';
-	  var NODE_JS = !root.JS_SHA3_NO_NODE_JS && typeof browser$1$1 === 'object' && browser$1$1.versions && browser$1$1.versions.node;
-	  if (NODE_JS) {
-	    root = commonjsGlobal;
-	  } else if (WEB_WORKER) {
-	    root = self;
-	  }
-	  var COMMON_JS = !root.JS_SHA3_NO_COMMON_JS && 'object' === 'object' && module.exports;
-	  var ARRAY_BUFFER = !root.JS_SHA3_NO_ARRAY_BUFFER && typeof ArrayBuffer !== 'undefined';
-	  var HEX_CHARS = '0123456789abcdef'.split('');
-	  var SHAKE_PADDING = [31, 7936, 2031616, 520093696];
-	  var CSHAKE_PADDING = [4, 1024, 262144, 67108864];
-	  var KECCAK_PADDING = [1, 256, 65536, 16777216];
-	  var PADDING = [6, 1536, 393216, 100663296];
-	  var SHIFT = [0, 8, 16, 24];
-	  var RC = [1, 0, 32898, 0, 32906, 2147483648, 2147516416, 2147483648, 32907, 0, 2147483649,
-	    0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0,
-	    2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771,
-	    2147483648, 32770, 2147483648, 128, 2147483648, 32778, 0, 2147483658, 2147483648,
-	    2147516545, 2147483648, 32896, 2147483648, 2147483649, 0, 2147516424, 2147483648];
-	  var BITS = [224, 256, 384, 512];
-	  var SHAKE_BITS = [128, 256];
-	  var OUTPUT_TYPES = ['hex', 'buffer', 'arrayBuffer', 'array', 'digest'];
-	  var CSHAKE_BYTEPAD = {
-	    '128': 168,
-	    '256': 136
-	  };
-
-	  if (root.JS_SHA3_NO_NODE_JS || !Array.isArray) {
-	    Array.isArray = function (obj) {
-	      return Object.prototype.toString.call(obj) === '[object Array]';
-	    };
-	  }
-
-	  if (ARRAY_BUFFER && (root.JS_SHA3_NO_ARRAY_BUFFER_IS_VIEW || !ArrayBuffer.isView)) {
-	    ArrayBuffer.isView = function (obj) {
-	      return typeof obj === 'object' && obj.buffer && obj.buffer.constructor === ArrayBuffer;
-	    };
-	  }
-
-	  var createOutputMethod = function (bits, padding, outputType) {
-	    return function (message) {
-	      return new Keccak(bits, padding, bits).update(message)[outputType]();
-	    };
-	  };
-
-	  var createShakeOutputMethod = function (bits, padding, outputType) {
-	    return function (message, outputBits) {
-	      return new Keccak(bits, padding, outputBits).update(message)[outputType]();
-	    };
-	  };
-
-	  var createCshakeOutputMethod = function (bits, padding, outputType) {
-	    return function (message, outputBits, n, s) {
-	      return methods['cshake' + bits].update(message, outputBits, n, s)[outputType]();
-	    };
-	  };
-
-	  var createKmacOutputMethod = function (bits, padding, outputType) {
-	    return function (key, message, outputBits, s) {
-	      return methods['kmac' + bits].update(key, message, outputBits, s)[outputType]();
-	    };
-	  };
-
-	  var createOutputMethods = function (method, createMethod, bits, padding) {
-	    for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
-	      var type = OUTPUT_TYPES[i];
-	      method[type] = createMethod(bits, padding, type);
-	    }
-	    return method;
-	  };
-
-	  var createMethod = function (bits, padding) {
-	    var method = createOutputMethod(bits, padding, 'hex');
-	    method.create = function () {
-	      return new Keccak(bits, padding, bits);
-	    };
-	    method.update = function (message) {
-	      return method.create().update(message);
-	    };
-	    return createOutputMethods(method, createOutputMethod, bits, padding);
-	  };
-
-	  var createShakeMethod = function (bits, padding) {
-	    var method = createShakeOutputMethod(bits, padding, 'hex');
-	    method.create = function (outputBits) {
-	      return new Keccak(bits, padding, outputBits);
-	    };
-	    method.update = function (message, outputBits) {
-	      return method.create(outputBits).update(message);
-	    };
-	    return createOutputMethods(method, createShakeOutputMethod, bits, padding);
-	  };
-
-	  var createCshakeMethod = function (bits, padding) {
-	    var w = CSHAKE_BYTEPAD[bits];
-	    var method = createCshakeOutputMethod(bits, padding, 'hex');
-	    method.create = function (outputBits, n, s) {
-	      if (!n && !s) {
-	        return methods['shake' + bits].create(outputBits);
-	      } else {
-	        return new Keccak(bits, padding, outputBits).bytepad([n, s], w);
-	      }
-	    };
-	    method.update = function (message, outputBits, n, s) {
-	      return method.create(outputBits, n, s).update(message);
-	    };
-	    return createOutputMethods(method, createCshakeOutputMethod, bits, padding);
-	  };
-
-	  var createKmacMethod = function (bits, padding) {
-	    var w = CSHAKE_BYTEPAD[bits];
-	    var method = createKmacOutputMethod(bits, padding, 'hex');
-	    method.create = function (key, outputBits, s) {
-	      return new Kmac(bits, padding, outputBits).bytepad(['KMAC', s], w).bytepad([key], w);
-	    };
-	    method.update = function (key, message, outputBits, s) {
-	      return method.create(key, outputBits, s).update(message);
-	    };
-	    return createOutputMethods(method, createKmacOutputMethod, bits, padding);
-	  };
-
-	  var algorithms = [
-	    { name: 'keccak', padding: KECCAK_PADDING, bits: BITS, createMethod: createMethod },
-	    { name: 'sha3', padding: PADDING, bits: BITS, createMethod: createMethod },
-	    { name: 'shake', padding: SHAKE_PADDING, bits: SHAKE_BITS, createMethod: createShakeMethod },
-	    { name: 'cshake', padding: CSHAKE_PADDING, bits: SHAKE_BITS, createMethod: createCshakeMethod },
-	    { name: 'kmac', padding: CSHAKE_PADDING, bits: SHAKE_BITS, createMethod: createKmacMethod }
-	  ];
-
-	  var methods = {}, methodNames = [];
-
-	  for (var i = 0; i < algorithms.length; ++i) {
-	    var algorithm = algorithms[i];
-	    var bits = algorithm.bits;
-	    for (var j = 0; j < bits.length; ++j) {
-	      var methodName = algorithm.name + '_' + bits[j];
-	      methodNames.push(methodName);
-	      methods[methodName] = algorithm.createMethod(bits[j], algorithm.padding);
-	      if (algorithm.name !== 'sha3') {
-	        var newMethodName = algorithm.name + bits[j];
-	        methodNames.push(newMethodName);
-	        methods[newMethodName] = methods[methodName];
-	      }
-	    }
-	  }
-
-	  function Keccak(bits, padding, outputBits) {
-	    this.blocks = [];
-	    this.s = [];
-	    this.padding = padding;
-	    this.outputBits = outputBits;
-	    this.reset = true;
-	    this.finalized = false;
-	    this.block = 0;
-	    this.start = 0;
-	    this.blockCount = (1600 - (bits << 1)) >> 5;
-	    this.byteCount = this.blockCount << 2;
-	    this.outputBlocks = outputBits >> 5;
-	    this.extraBytes = (outputBits & 31) >> 3;
-
-	    for (var i = 0; i < 50; ++i) {
-	      this.s[i] = 0;
-	    }
-	  }
-
-	  Keccak.prototype.update = function (message) {
-	    if (this.finalized) {
-	      throw new Error(FINALIZE_ERROR);
-	    }
-	    var notString, type = typeof message;
-	    if (type !== 'string') {
-	      if (type === 'object') {
-	        if (message === null) {
-	          throw new Error(INPUT_ERROR);
-	        } else if (ARRAY_BUFFER && message.constructor === ArrayBuffer) {
-	          message = new Uint8Array(message);
-	        } else if (!Array.isArray(message)) {
-	          if (!ARRAY_BUFFER || !ArrayBuffer.isView(message)) {
-	            throw new Error(INPUT_ERROR);
-	          }
-	        }
-	      } else {
-	        throw new Error(INPUT_ERROR);
-	      }
-	      notString = true;
-	    }
-	    var blocks = this.blocks, byteCount = this.byteCount, length = message.length,
-	      blockCount = this.blockCount, index = 0, s = this.s, i, code;
-
-	    while (index < length) {
-	      if (this.reset) {
-	        this.reset = false;
-	        blocks[0] = this.block;
-	        for (i = 1; i < blockCount + 1; ++i) {
-	          blocks[i] = 0;
-	        }
-	      }
-	      if (notString) {
-	        for (i = this.start; index < length && i < byteCount; ++index) {
-	          blocks[i >> 2] |= message[index] << SHIFT[i++ & 3];
-	        }
-	      } else {
-	        for (i = this.start; index < length && i < byteCount; ++index) {
-	          code = message.charCodeAt(index);
-	          if (code < 0x80) {
-	            blocks[i >> 2] |= code << SHIFT[i++ & 3];
-	          } else if (code < 0x800) {
-	            blocks[i >> 2] |= (0xc0 | (code >> 6)) << SHIFT[i++ & 3];
-	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-	          } else if (code < 0xd800 || code >= 0xe000) {
-	            blocks[i >> 2] |= (0xe0 | (code >> 12)) << SHIFT[i++ & 3];
-	            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
-	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-	          } else {
-	            code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
-	            blocks[i >> 2] |= (0xf0 | (code >> 18)) << SHIFT[i++ & 3];
-	            blocks[i >> 2] |= (0x80 | ((code >> 12) & 0x3f)) << SHIFT[i++ & 3];
-	            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
-	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
-	          }
-	        }
-	      }
-	      this.lastByteIndex = i;
-	      if (i >= byteCount) {
-	        this.start = i - byteCount;
-	        this.block = blocks[blockCount];
-	        for (i = 0; i < blockCount; ++i) {
-	          s[i] ^= blocks[i];
-	        }
-	        f(s);
-	        this.reset = true;
-	      } else {
-	        this.start = i;
-	      }
-	    }
-	    return this;
-	  };
-
-	  Keccak.prototype.encode = function (x, right) {
-	    var o = x & 255, n = 1;
-	    var bytes = [o];
-	    x = x >> 8;
-	    o = x & 255;
-	    while (o > 0) {
-	      bytes.unshift(o);
-	      x = x >> 8;
-	      o = x & 255;
-	      ++n;
-	    }
-	    if (right) {
-	      bytes.push(n);
-	    } else {
-	      bytes.unshift(n);
-	    }
-	    this.update(bytes);
-	    return bytes.length;
-	  };
-
-	  Keccak.prototype.encodeString = function (str) {
-	    var notString, type = typeof str;
-	    if (type !== 'string') {
-	      if (type === 'object') {
-	        if (str === null) {
-	          throw new Error(INPUT_ERROR);
-	        } else if (ARRAY_BUFFER && str.constructor === ArrayBuffer) {
-	          str = new Uint8Array(str);
-	        } else if (!Array.isArray(str)) {
-	          if (!ARRAY_BUFFER || !ArrayBuffer.isView(str)) {
-	            throw new Error(INPUT_ERROR);
-	          }
-	        }
-	      } else {
-	        throw new Error(INPUT_ERROR);
-	      }
-	      notString = true;
-	    }
-	    var bytes = 0, length = str.length;
-	    if (notString) {
-	      bytes = length;
-	    } else {
-	      for (var i = 0; i < str.length; ++i) {
-	        var code = str.charCodeAt(i);
-	        if (code < 0x80) {
-	          bytes += 1;
-	        } else if (code < 0x800) {
-	          bytes += 2;
-	        } else if (code < 0xd800 || code >= 0xe000) {
-	          bytes += 3;
-	        } else {
-	          code = 0x10000 + (((code & 0x3ff) << 10) | (str.charCodeAt(++i) & 0x3ff));
-	          bytes += 4;
-	        }
-	      }
-	    }
-	    bytes += this.encode(bytes * 8);
-	    this.update(str);
-	    return bytes;
-	  };
-
-	  Keccak.prototype.bytepad = function (strs, w) {
-	    var bytes = this.encode(w);
-	    for (var i = 0; i < strs.length; ++i) {
-	      bytes += this.encodeString(strs[i]);
-	    }
-	    var paddingBytes = w - bytes % w;
-	    var zeros = [];
-	    zeros.length = paddingBytes;
-	    this.update(zeros);
-	    return this;
-	  };
-
-	  Keccak.prototype.finalize = function () {
-	    if (this.finalized) {
-	      return;
-	    }
-	    this.finalized = true;
-	    var blocks = this.blocks, i = this.lastByteIndex, blockCount = this.blockCount, s = this.s;
-	    blocks[i >> 2] |= this.padding[i & 3];
-	    if (this.lastByteIndex === this.byteCount) {
-	      blocks[0] = blocks[blockCount];
-	      for (i = 1; i < blockCount + 1; ++i) {
-	        blocks[i] = 0;
-	      }
-	    }
-	    blocks[blockCount - 1] |= 0x80000000;
-	    for (i = 0; i < blockCount; ++i) {
-	      s[i] ^= blocks[i];
-	    }
-	    f(s);
-	  };
-
-	  Keccak.prototype.toString = Keccak.prototype.hex = function () {
-	    this.finalize();
-
-	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
-	      extraBytes = this.extraBytes, i = 0, j = 0;
-	    var hex = '', block;
-	    while (j < outputBlocks) {
-	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
-	        block = s[i];
-	        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F] +
-	          HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F] +
-	          HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F] +
-	          HEX_CHARS[(block >> 28) & 0x0F] + HEX_CHARS[(block >> 24) & 0x0F];
-	      }
-	      if (j % blockCount === 0) {
-	        f(s);
-	        i = 0;
-	      }
-	    }
-	    if (extraBytes) {
-	      block = s[i];
-	      hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F];
-	      if (extraBytes > 1) {
-	        hex += HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F];
-	      }
-	      if (extraBytes > 2) {
-	        hex += HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F];
-	      }
-	    }
-	    return hex;
-	  };
-
-	  Keccak.prototype.arrayBuffer = function () {
-	    this.finalize();
-
-	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
-	      extraBytes = this.extraBytes, i = 0, j = 0;
-	    var bytes = this.outputBits >> 3;
-	    var buffer;
-	    if (extraBytes) {
-	      buffer = new ArrayBuffer((outputBlocks + 1) << 2);
-	    } else {
-	      buffer = new ArrayBuffer(bytes);
-	    }
-	    var array = new Uint32Array(buffer);
-	    while (j < outputBlocks) {
-	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
-	        array[j] = s[i];
-	      }
-	      if (j % blockCount === 0) {
-	        f(s);
-	      }
-	    }
-	    if (extraBytes) {
-	      array[i] = s[i];
-	      buffer = buffer.slice(0, bytes);
-	    }
-	    return buffer;
-	  };
-
-	  Keccak.prototype.buffer = Keccak.prototype.arrayBuffer;
-
-	  Keccak.prototype.digest = Keccak.prototype.array = function () {
-	    this.finalize();
-
-	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
-	      extraBytes = this.extraBytes, i = 0, j = 0;
-	    var array = [], offset, block;
-	    while (j < outputBlocks) {
-	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
-	        offset = j << 2;
-	        block = s[i];
-	        array[offset] = block & 0xFF;
-	        array[offset + 1] = (block >> 8) & 0xFF;
-	        array[offset + 2] = (block >> 16) & 0xFF;
-	        array[offset + 3] = (block >> 24) & 0xFF;
-	      }
-	      if (j % blockCount === 0) {
-	        f(s);
-	      }
-	    }
-	    if (extraBytes) {
-	      offset = j << 2;
-	      block = s[i];
-	      array[offset] = block & 0xFF;
-	      if (extraBytes > 1) {
-	        array[offset + 1] = (block >> 8) & 0xFF;
-	      }
-	      if (extraBytes > 2) {
-	        array[offset + 2] = (block >> 16) & 0xFF;
-	      }
-	    }
-	    return array;
-	  };
-
-	  function Kmac(bits, padding, outputBits) {
-	    Keccak.call(this, bits, padding, outputBits);
-	  }
-
-	  Kmac.prototype = new Keccak();
-
-	  Kmac.prototype.finalize = function () {
-	    this.encode(this.outputBits, true);
-	    return Keccak.prototype.finalize.call(this);
-	  };
-
-	  var f = function (s) {
-	    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9,
-	      b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17,
-	      b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33,
-	      b34, b35, b36, b37, b38, b39, b40, b41, b42, b43, b44, b45, b46, b47, b48, b49;
-	    for (n = 0; n < 48; n += 2) {
-	      c0 = s[0] ^ s[10] ^ s[20] ^ s[30] ^ s[40];
-	      c1 = s[1] ^ s[11] ^ s[21] ^ s[31] ^ s[41];
-	      c2 = s[2] ^ s[12] ^ s[22] ^ s[32] ^ s[42];
-	      c3 = s[3] ^ s[13] ^ s[23] ^ s[33] ^ s[43];
-	      c4 = s[4] ^ s[14] ^ s[24] ^ s[34] ^ s[44];
-	      c5 = s[5] ^ s[15] ^ s[25] ^ s[35] ^ s[45];
-	      c6 = s[6] ^ s[16] ^ s[26] ^ s[36] ^ s[46];
-	      c7 = s[7] ^ s[17] ^ s[27] ^ s[37] ^ s[47];
-	      c8 = s[8] ^ s[18] ^ s[28] ^ s[38] ^ s[48];
-	      c9 = s[9] ^ s[19] ^ s[29] ^ s[39] ^ s[49];
-
-	      h = c8 ^ ((c2 << 1) | (c3 >>> 31));
-	      l = c9 ^ ((c3 << 1) | (c2 >>> 31));
-	      s[0] ^= h;
-	      s[1] ^= l;
-	      s[10] ^= h;
-	      s[11] ^= l;
-	      s[20] ^= h;
-	      s[21] ^= l;
-	      s[30] ^= h;
-	      s[31] ^= l;
-	      s[40] ^= h;
-	      s[41] ^= l;
-	      h = c0 ^ ((c4 << 1) | (c5 >>> 31));
-	      l = c1 ^ ((c5 << 1) | (c4 >>> 31));
-	      s[2] ^= h;
-	      s[3] ^= l;
-	      s[12] ^= h;
-	      s[13] ^= l;
-	      s[22] ^= h;
-	      s[23] ^= l;
-	      s[32] ^= h;
-	      s[33] ^= l;
-	      s[42] ^= h;
-	      s[43] ^= l;
-	      h = c2 ^ ((c6 << 1) | (c7 >>> 31));
-	      l = c3 ^ ((c7 << 1) | (c6 >>> 31));
-	      s[4] ^= h;
-	      s[5] ^= l;
-	      s[14] ^= h;
-	      s[15] ^= l;
-	      s[24] ^= h;
-	      s[25] ^= l;
-	      s[34] ^= h;
-	      s[35] ^= l;
-	      s[44] ^= h;
-	      s[45] ^= l;
-	      h = c4 ^ ((c8 << 1) | (c9 >>> 31));
-	      l = c5 ^ ((c9 << 1) | (c8 >>> 31));
-	      s[6] ^= h;
-	      s[7] ^= l;
-	      s[16] ^= h;
-	      s[17] ^= l;
-	      s[26] ^= h;
-	      s[27] ^= l;
-	      s[36] ^= h;
-	      s[37] ^= l;
-	      s[46] ^= h;
-	      s[47] ^= l;
-	      h = c6 ^ ((c0 << 1) | (c1 >>> 31));
-	      l = c7 ^ ((c1 << 1) | (c0 >>> 31));
-	      s[8] ^= h;
-	      s[9] ^= l;
-	      s[18] ^= h;
-	      s[19] ^= l;
-	      s[28] ^= h;
-	      s[29] ^= l;
-	      s[38] ^= h;
-	      s[39] ^= l;
-	      s[48] ^= h;
-	      s[49] ^= l;
-
-	      b0 = s[0];
-	      b1 = s[1];
-	      b32 = (s[11] << 4) | (s[10] >>> 28);
-	      b33 = (s[10] << 4) | (s[11] >>> 28);
-	      b14 = (s[20] << 3) | (s[21] >>> 29);
-	      b15 = (s[21] << 3) | (s[20] >>> 29);
-	      b46 = (s[31] << 9) | (s[30] >>> 23);
-	      b47 = (s[30] << 9) | (s[31] >>> 23);
-	      b28 = (s[40] << 18) | (s[41] >>> 14);
-	      b29 = (s[41] << 18) | (s[40] >>> 14);
-	      b20 = (s[2] << 1) | (s[3] >>> 31);
-	      b21 = (s[3] << 1) | (s[2] >>> 31);
-	      b2 = (s[13] << 12) | (s[12] >>> 20);
-	      b3 = (s[12] << 12) | (s[13] >>> 20);
-	      b34 = (s[22] << 10) | (s[23] >>> 22);
-	      b35 = (s[23] << 10) | (s[22] >>> 22);
-	      b16 = (s[33] << 13) | (s[32] >>> 19);
-	      b17 = (s[32] << 13) | (s[33] >>> 19);
-	      b48 = (s[42] << 2) | (s[43] >>> 30);
-	      b49 = (s[43] << 2) | (s[42] >>> 30);
-	      b40 = (s[5] << 30) | (s[4] >>> 2);
-	      b41 = (s[4] << 30) | (s[5] >>> 2);
-	      b22 = (s[14] << 6) | (s[15] >>> 26);
-	      b23 = (s[15] << 6) | (s[14] >>> 26);
-	      b4 = (s[25] << 11) | (s[24] >>> 21);
-	      b5 = (s[24] << 11) | (s[25] >>> 21);
-	      b36 = (s[34] << 15) | (s[35] >>> 17);
-	      b37 = (s[35] << 15) | (s[34] >>> 17);
-	      b18 = (s[45] << 29) | (s[44] >>> 3);
-	      b19 = (s[44] << 29) | (s[45] >>> 3);
-	      b10 = (s[6] << 28) | (s[7] >>> 4);
-	      b11 = (s[7] << 28) | (s[6] >>> 4);
-	      b42 = (s[17] << 23) | (s[16] >>> 9);
-	      b43 = (s[16] << 23) | (s[17] >>> 9);
-	      b24 = (s[26] << 25) | (s[27] >>> 7);
-	      b25 = (s[27] << 25) | (s[26] >>> 7);
-	      b6 = (s[36] << 21) | (s[37] >>> 11);
-	      b7 = (s[37] << 21) | (s[36] >>> 11);
-	      b38 = (s[47] << 24) | (s[46] >>> 8);
-	      b39 = (s[46] << 24) | (s[47] >>> 8);
-	      b30 = (s[8] << 27) | (s[9] >>> 5);
-	      b31 = (s[9] << 27) | (s[8] >>> 5);
-	      b12 = (s[18] << 20) | (s[19] >>> 12);
-	      b13 = (s[19] << 20) | (s[18] >>> 12);
-	      b44 = (s[29] << 7) | (s[28] >>> 25);
-	      b45 = (s[28] << 7) | (s[29] >>> 25);
-	      b26 = (s[38] << 8) | (s[39] >>> 24);
-	      b27 = (s[39] << 8) | (s[38] >>> 24);
-	      b8 = (s[48] << 14) | (s[49] >>> 18);
-	      b9 = (s[49] << 14) | (s[48] >>> 18);
-
-	      s[0] = b0 ^ (~b2 & b4);
-	      s[1] = b1 ^ (~b3 & b5);
-	      s[10] = b10 ^ (~b12 & b14);
-	      s[11] = b11 ^ (~b13 & b15);
-	      s[20] = b20 ^ (~b22 & b24);
-	      s[21] = b21 ^ (~b23 & b25);
-	      s[30] = b30 ^ (~b32 & b34);
-	      s[31] = b31 ^ (~b33 & b35);
-	      s[40] = b40 ^ (~b42 & b44);
-	      s[41] = b41 ^ (~b43 & b45);
-	      s[2] = b2 ^ (~b4 & b6);
-	      s[3] = b3 ^ (~b5 & b7);
-	      s[12] = b12 ^ (~b14 & b16);
-	      s[13] = b13 ^ (~b15 & b17);
-	      s[22] = b22 ^ (~b24 & b26);
-	      s[23] = b23 ^ (~b25 & b27);
-	      s[32] = b32 ^ (~b34 & b36);
-	      s[33] = b33 ^ (~b35 & b37);
-	      s[42] = b42 ^ (~b44 & b46);
-	      s[43] = b43 ^ (~b45 & b47);
-	      s[4] = b4 ^ (~b6 & b8);
-	      s[5] = b5 ^ (~b7 & b9);
-	      s[14] = b14 ^ (~b16 & b18);
-	      s[15] = b15 ^ (~b17 & b19);
-	      s[24] = b24 ^ (~b26 & b28);
-	      s[25] = b25 ^ (~b27 & b29);
-	      s[34] = b34 ^ (~b36 & b38);
-	      s[35] = b35 ^ (~b37 & b39);
-	      s[44] = b44 ^ (~b46 & b48);
-	      s[45] = b45 ^ (~b47 & b49);
-	      s[6] = b6 ^ (~b8 & b0);
-	      s[7] = b7 ^ (~b9 & b1);
-	      s[16] = b16 ^ (~b18 & b10);
-	      s[17] = b17 ^ (~b19 & b11);
-	      s[26] = b26 ^ (~b28 & b20);
-	      s[27] = b27 ^ (~b29 & b21);
-	      s[36] = b36 ^ (~b38 & b30);
-	      s[37] = b37 ^ (~b39 & b31);
-	      s[46] = b46 ^ (~b48 & b40);
-	      s[47] = b47 ^ (~b49 & b41);
-	      s[8] = b8 ^ (~b0 & b2);
-	      s[9] = b9 ^ (~b1 & b3);
-	      s[18] = b18 ^ (~b10 & b12);
-	      s[19] = b19 ^ (~b11 & b13);
-	      s[28] = b28 ^ (~b20 & b22);
-	      s[29] = b29 ^ (~b21 & b23);
-	      s[38] = b38 ^ (~b30 & b32);
-	      s[39] = b39 ^ (~b31 & b33);
-	      s[48] = b48 ^ (~b40 & b42);
-	      s[49] = b49 ^ (~b41 & b43);
-
-	      s[0] ^= RC[n];
-	      s[1] ^= RC[n + 1];
-	    }
-	  };
-
-	  if (COMMON_JS) {
-	    module.exports = methods;
-	  } else {
-	    for (i = 0; i < methodNames.length; ++i) {
-	      root[methodNames[i]] = methods[methodNames[i]];
-	    }
-	  }
-	})();
-} (sha3));
+var RpcClient = browser;
 
 const toBuffer = arr => {
-  if (Buffer$1.isBuffer(arr)) {
+  if (Buffer.isBuffer(arr)) {
     return arr;
   } else if (arr instanceof Uint8Array) {
-    return Buffer$1.from(arr.buffer, arr.byteOffset, arr.byteLength);
+    return Buffer.from(arr.buffer, arr.byteOffset, arr.byteLength);
   } else {
-    return Buffer$1.from(arr);
+    return Buffer.from(arr);
   }
 };
 
@@ -32132,15 +18650,15 @@ class Struct {
   }
 
   encode() {
-    return Buffer$1.from(serialize_1(SOLANA_SCHEMA, this));
+    return Buffer.from(serialize(SOLANA_SCHEMA, this));
   }
 
   static decode(data) {
-    return deserialize_1(SOLANA_SCHEMA, this, data);
+    return deserialize(SOLANA_SCHEMA, this, data);
   }
 
   static decodeUnchecked(data) {
-    return deserializeUnchecked_1(SOLANA_SCHEMA, this, data);
+    return deserializeUnchecked(SOLANA_SCHEMA, this, data);
   }
 
 } // Class representing a Rust-compatible enum, since enums are only strings or
@@ -32179,15 +18697,15 @@ class PublicKey extends Struct {
     } else {
       if (typeof value === 'string') {
         // assume base 58 encoding by default
-        const decoded = bs58.decode(value);
+        const decoded = bs58$1.decode(value);
 
         if (decoded.length != 32) {
           throw new Error(`Invalid public key input`);
         }
 
-        this._bn = new BN$8(decoded);
+        this._bn = new BN(decoded);
       } else {
-        this._bn = new BN$8(value);
+        this._bn = new BN(value);
       }
 
       if (this._bn.byteLength() > 32) {
@@ -32212,7 +18730,7 @@ class PublicKey extends Struct {
 
 
   toBase58() {
-    return bs58.encode(this.toBytes());
+    return bs58$1.encode(this.toBytes());
   }
 
   toJSON() {
@@ -32232,13 +18750,13 @@ class PublicKey extends Struct {
 
 
   toBuffer() {
-    const b = this._bn.toArrayLike(Buffer$1);
+    const b = this._bn.toArrayLike(Buffer);
 
     if (b.length === 32) {
       return b;
     }
 
-    const zeroPad = Buffer$1.alloc(32);
+    const zeroPad = Buffer.alloc(32);
     b.copy(zeroPad, 32 - b.length);
     return zeroPad;
   }
@@ -32260,9 +18778,9 @@ class PublicKey extends Struct {
 
 
   static async createWithSeed(fromPublicKey, seed, programId) {
-    const buffer = Buffer$1.concat([fromPublicKey.toBuffer(), Buffer$1.from(seed), programId.toBuffer()]);
+    const buffer = Buffer.concat([fromPublicKey.toBuffer(), Buffer.from(seed), programId.toBuffer()]);
     const hash = sha256(new Uint8Array(buffer)).slice(2);
-    return new PublicKey(Buffer$1.from(hash, 'hex'));
+    return new PublicKey(Buffer.from(hash, 'hex'));
   }
   /**
    * Derive a program address from seeds and a program ID.
@@ -32272,17 +18790,17 @@ class PublicKey extends Struct {
 
 
   static createProgramAddressSync(seeds, programId) {
-    let buffer = Buffer$1.alloc(0);
+    let buffer = Buffer.alloc(0);
     seeds.forEach(function (seed) {
       if (seed.length > MAX_SEED_LENGTH) {
         throw new TypeError(`Max seed length exceeded`);
       }
 
-      buffer = Buffer$1.concat([buffer, toBuffer(seed)]);
+      buffer = Buffer.concat([buffer, toBuffer(seed)]);
     });
-    buffer = Buffer$1.concat([buffer, programId.toBuffer(), Buffer$1.from('ProgramDerivedAddress')]);
+    buffer = Buffer.concat([buffer, programId.toBuffer(), Buffer.from('ProgramDerivedAddress')]);
     let hash = sha256(new Uint8Array(buffer)).slice(2);
-    let publicKeyBytes = new BN$8(hash, 16).toArray(undefined, 32);
+    let publicKeyBytes = new BN(hash, 16).toArray(undefined, 32);
 
     if (is_on_curve(publicKeyBytes)) {
       throw new Error(`Invalid seeds, address must fall off the curve`);
@@ -32316,7 +18834,7 @@ class PublicKey extends Struct {
 
     while (nonce != 0) {
       try {
-        const seedsWithNonce = seeds.concat(Buffer$1.from([nonce]));
+        const seedsWithNonce = seeds.concat(Buffer.from([nonce]));
         address = this.createProgramAddressSync(seedsWithNonce, programId);
       } catch (err) {
         if (err instanceof TypeError) {
@@ -32447,13 +18965,13 @@ const rustString = (property = 'string') => {
 
   rslShim.encode = (str, b, offset) => {
     const data = {
-      chars: Buffer$1.from(str, 'utf8')
+      chars: Buffer.from(str, 'utf8')
     };
     return _encode(data, b, offset);
   };
 
   rslShim.alloc = str => {
-    return u32().span + u32().span + Buffer$1.from(str, 'utf8').length;
+    return u32().span + u32().span + Buffer.from(str, 'utf8').length;
   };
 
   return rslShim;
@@ -32565,23 +19083,23 @@ class Message {
         accounts,
         programIdIndex
       } = instruction;
-      const data = Array.from(bs58.decode(instruction.data));
+      const data = Array.from(bs58$1.decode(instruction.data));
       let keyIndicesCount = [];
       encodeLength(keyIndicesCount, accounts.length);
       let dataCount = [];
       encodeLength(dataCount, data.length);
       return {
         programIdIndex,
-        keyIndicesCount: Buffer$1.from(keyIndicesCount),
+        keyIndicesCount: Buffer.from(keyIndicesCount),
         keyIndices: accounts,
-        dataLength: Buffer$1.from(dataCount),
+        dataLength: Buffer.from(dataCount),
         data
       };
     });
     let instructionCount = [];
     encodeLength(instructionCount, instructions.length);
-    let instructionBuffer = Buffer$1.alloc(PACKET_DATA_SIZE);
-    Buffer$1.from(instructionCount).copy(instructionBuffer);
+    let instructionBuffer = Buffer.alloc(PACKET_DATA_SIZE);
+    Buffer.from(instructionCount).copy(instructionBuffer);
     let instructionBufferLength = instructionCount.length;
     instructions.forEach(instruction => {
       const instructionLayout = struct([u8('programIdIndex'), blob(instruction.keyIndicesCount.length, 'keyIndicesCount'), seq(u8('keyIndex'), instruction.keyIndices.length, 'keyIndices'), blob(instruction.dataLength.length, 'dataLength'), seq(u8('userdatum'), instruction.data.length, 'data')]);
@@ -32591,14 +19109,14 @@ class Message {
     instructionBuffer = instructionBuffer.slice(0, instructionBufferLength);
     const signDataLayout = struct([blob(1, 'numRequiredSignatures'), blob(1, 'numReadonlySignedAccounts'), blob(1, 'numReadonlyUnsignedAccounts'), blob(keyCount.length, 'keyCount'), seq(publicKey('key'), numKeys, 'keys'), publicKey('recentBlockhash')]);
     const transaction = {
-      numRequiredSignatures: Buffer$1.from([this.header.numRequiredSignatures]),
-      numReadonlySignedAccounts: Buffer$1.from([this.header.numReadonlySignedAccounts]),
-      numReadonlyUnsignedAccounts: Buffer$1.from([this.header.numReadonlyUnsignedAccounts]),
-      keyCount: Buffer$1.from(keyCount),
+      numRequiredSignatures: Buffer.from([this.header.numRequiredSignatures]),
+      numReadonlySignedAccounts: Buffer.from([this.header.numReadonlySignedAccounts]),
+      numReadonlyUnsignedAccounts: Buffer.from([this.header.numReadonlyUnsignedAccounts]),
+      keyCount: Buffer.from(keyCount),
       keys: this.accountKeys.map(key => toBuffer(key.toBytes())),
-      recentBlockhash: bs58.decode(this.recentBlockhash)
+      recentBlockhash: bs58$1.decode(this.recentBlockhash)
     };
-    let signData = Buffer$1.alloc(2048);
+    let signData = Buffer.alloc(2048);
     const length = signDataLayout.encode(transaction, signData);
     instructionBuffer.copy(signData, length);
     return signData.slice(0, length + instructionBuffer.length);
@@ -32620,7 +19138,7 @@ class Message {
     for (let i = 0; i < accountCount; i++) {
       const account = byteArray.slice(0, PUBKEY_LENGTH);
       byteArray = byteArray.slice(PUBKEY_LENGTH);
-      accountKeys.push(bs58.encode(Buffer$1.from(account)));
+      accountKeys.push(bs58$1.encode(Buffer.from(account)));
     }
 
     const recentBlockhash = byteArray.slice(0, PUBKEY_LENGTH);
@@ -32635,7 +19153,7 @@ class Message {
       byteArray = byteArray.slice(accountCount);
       const dataLength = decodeLength(byteArray);
       const dataSlice = byteArray.slice(0, dataLength);
-      const data = bs58.encode(Buffer$1.from(dataSlice));
+      const data = bs58$1.encode(Buffer.from(dataSlice));
       byteArray = byteArray.slice(dataLength);
       instructions.push({
         programIdIndex,
@@ -32650,7 +19168,7 @@ class Message {
         numReadonlySignedAccounts,
         numReadonlyUnsignedAccounts
       },
-      recentBlockhash: bs58.encode(Buffer$1.from(recentBlockhash)),
+      recentBlockhash: bs58$1.encode(Buffer.from(recentBlockhash)),
       accountKeys,
       instructions
     };
@@ -32676,7 +19194,7 @@ let TransactionStatus;
   TransactionStatus[TransactionStatus["TIMED_OUT"] = 2] = "TIMED_OUT";
 })(TransactionStatus || (TransactionStatus = {}));
 
-const DEFAULT_SIGNATURE = Buffer$1.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
+const DEFAULT_SIGNATURE = Buffer.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
 /**
  * Account metadata used to define instructions
  */
@@ -32700,7 +19218,7 @@ class TransactionInstruction {
   constructor(opts) {
     this.keys = void 0;
     this.programId = void 0;
-    this.data = Buffer$1.alloc(0);
+    this.data = Buffer.alloc(0);
     this.programId = opts.programId;
     this.keys = opts.keys;
 
@@ -33016,7 +19534,7 @@ class Transaction {
       return {
         programIdIndex: accountKeys.indexOf(programId.toString()),
         accounts: instruction.keys.map(meta => accountKeys.indexOf(meta.pubkey.toString())),
-        data: bs58.encode(data)
+        data: bs58$1.encode(data)
       };
     });
     compiledInstructions.forEach(instruction => {
@@ -33221,7 +19739,7 @@ class Transaction {
       throw new Error(`unknown signer: ${pubkey.toString()}`);
     }
 
-    this.signatures[index].signature = Buffer$1.from(signature);
+    this.signatures[index].signature = Buffer.from(signature);
   }
   /**
    * Verify signatures of a complete, signed Transaction
@@ -33287,15 +19805,15 @@ class Transaction {
     const signatureCount = [];
     encodeLength(signatureCount, signatures.length);
     const transactionLength = signatureCount.length + signatures.length * 64 + signData.length;
-    const wireTransaction = Buffer$1.alloc(transactionLength);
+    const wireTransaction = Buffer.alloc(transactionLength);
     assert(signatures.length < 256);
-    Buffer$1.from(signatureCount).copy(wireTransaction, 0);
+    Buffer.from(signatureCount).copy(wireTransaction, 0);
     signatures.forEach(({
       signature
     }, index) => {
       if (signature !== null) {
         assert(signature.length === 64, `signature has invalid length`);
-        Buffer$1.from(signature).copy(wireTransaction, signatureCount.length + index * 64);
+        Buffer.from(signature).copy(wireTransaction, signatureCount.length + index * 64);
       }
     });
     signData.copy(wireTransaction, signatureCount.length + signatures.length * 64);
@@ -33346,7 +19864,7 @@ class Transaction {
     for (let i = 0; i < signatureCount; i++) {
       const signature = byteArray.slice(0, SIGNATURE_LENGTH_IN_BYTES);
       byteArray = byteArray.slice(SIGNATURE_LENGTH_IN_BYTES);
-      signatures.push(bs58.encode(Buffer$1.from(signature)));
+      signatures.push(bs58$1.encode(Buffer.from(signature)));
     }
 
     return Transaction.populate(Message.from(byteArray), signatures);
@@ -33366,7 +19884,7 @@ class Transaction {
 
     signatures.forEach((signature, index) => {
       const sigPubkeyPair = {
-        signature: signature == bs58.encode(DEFAULT_SIGNATURE) ? null : bs58.decode(signature),
+        signature: signature == bs58$1.encode(DEFAULT_SIGNATURE) ? null : bs58$1.decode(signature),
         publicKey: message.accountKeys[index]
       };
       transaction.signatures.push(sigPubkeyPair);
@@ -33383,7 +19901,7 @@ class Transaction {
       transaction.instructions.push(new TransactionInstruction({
         keys,
         programId: message.accountKeys[instruction.programIdIndex],
-        data: bs58.decode(instruction.data)
+        data: bs58$1.decode(instruction.data)
       }));
     });
     transaction._message = message;
@@ -33481,11 +19999,11 @@ const bigInt = length => property => {
 
   bigIntLayout.decode = (buffer, offset) => {
     const src = decode(buffer, offset);
-    return toBigIntLE_1(Buffer$1.from(src));
+    return toBigIntLE(Buffer.from(src));
   };
 
   bigIntLayout.encode = (bigInt, buffer, offset) => {
-    const src = toBufferLE_1(bigInt, length);
+    const src = toBufferLE(bigInt, length);
     return encode(src, buffer, offset);
   };
 
@@ -33851,7 +20369,7 @@ function makeWebsocketUrl(endpoint) {
 var _process$env$npm_pack;
 const PublicKeyFromString = coerce(instance(PublicKey), string(), value => new PublicKey(value));
 const RawAccountDataResult = tuple([string(), literal('base64')]);
-const BufferFromRawAccountData = coerce(instance(Buffer$1), RawAccountDataResult, value => Buffer$1.from(value[0], 'base64'));
+const BufferFromRawAccountData = coerce(instance(Buffer), RawAccountDataResult, value => Buffer.from(value[0], 'base64'));
 /**
  * Attempt to use a recent blockhash for up to 30 seconds
  * @internal
@@ -34074,7 +20592,7 @@ function createRpcClient(url, useHttps, httpHeaders, customFetch, fetchMiddlewar
     };
   }
 
-  const clientBrowser = new browser(async (request, callback) => {
+  const clientBrowser = new RpcClient(async (request, callback) => {
     const agent = undefined;
     const options = {
       method: 'POST',
@@ -34297,7 +20815,7 @@ const KeyedAccountInfoResult = type({
   pubkey: PublicKeyFromString,
   account: AccountInfoResult
 });
-const ParsedOrRawAccountData = coerce(union([instance(Buffer$1), ParsedAccountDataResult]), union([RawAccountDataResult, ParsedAccountDataResult]), value => {
+const ParsedOrRawAccountData = coerce(union([instance(Buffer), ParsedAccountDataResult]), union([RawAccountDataResult, ParsedAccountDataResult]), value => {
   if (Array.isArray(value)) {
     return create(value, BufferFromRawAccountData);
   } else {
@@ -35348,7 +21866,7 @@ class Connection {
     let decodedSignature;
 
     try {
-      decodedSignature = bs58.decode(rawSignature);
+      decodedSignature = bs58$1.decode(rawSignature);
     } catch (err) {
       throw new Error('signature must be base58 encoded: ' + rawSignature);
     }
