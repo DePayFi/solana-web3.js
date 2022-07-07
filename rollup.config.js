@@ -23,27 +23,25 @@ export default {
       file: 'dist/umd/index.js'
     },
   ],
-  external: ['borsh', 'bigint-buffer', 'js-sha3'],
+  external: ['borsh', 'bigint-buffer', 'js-sha3', 'rpc-websockets'],
   treeshake: {
     moduleSideEffects: false,
   },
   plugins: [
     nodePolyfills(),
     json(),
-    resolve({
-      extensions: ['.js','.jsx','.ts']
-    }),
+    resolve(),
     commonjs(),
+    babel({
+      exclude: '**/node_modules/**',
+      extensions: ['.js','.ts'],
+      babelHelpers: 'bundled'
+    }),
     nodeResolve({
       browser: true,
       dedupe: ['bn.js', 'buffer'],
       extensions: ['.js','.ts'],
       preferBuiltins: false
-    }),
-    babel({
-      exclude: '**/node_modules/**',
-      extensions: ['.js','.ts'],
-      babelHelpers: 'bundled'
     }),
     replace({
       preventAssignment: true,

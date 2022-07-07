@@ -1,1 +1,3 @@
-export default {}
+export default {
+  'rpc-websockets': 'RPCWebSocket',
+}
