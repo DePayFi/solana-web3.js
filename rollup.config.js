@@ -23,7 +23,12 @@ export default {
       file: 'dist/umd/index.js'
     },
   ],
-  external: ['borsh', 'bigint-buffer', 'js-sha3', 'rpc-websockets'],
+  external: [
+    'borsh',
+    'bigint-buffer',
+    'js-sha3',
+    'rpc-websockets',
+  ],
   treeshake: {
     moduleSideEffects: false,
   },
