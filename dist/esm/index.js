@@ -34,7 +34,7 @@ var _polyfillNode_crypto$1 = /*#__PURE__*/Object.freeze({
 	'default': _polyfillNode_crypto
 });
 
-var require$$0$6 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_crypto$1);
+var require$$0$7 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_crypto$1);
 
 (function (module) {
 	(function(nacl) {
@@ -2415,7 +2415,7 @@ var require$$0$6 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_crypto$1);
 	    });
 	  } else if (typeof commonjsRequire !== 'undefined') {
 	    // Node.js.
-	    crypto = require$$0$6;
+	    crypto = require$$0$7;
 	    if (crypto && crypto.randomBytes) {
 	      nacl.setPRNG(function(x, n) {
 	        var i, v = crypto.randomBytes(n);
@@ -3649,7 +3649,7 @@ function hexSlice (buf, start, end) {
 
   var out = '';
   for (var i = start; i < end; ++i) {
-    out += toHex$1(buf[i]);
+    out += toHex$2(buf[i]);
   }
   return out
 }
@@ -4271,7 +4271,7 @@ function stringtrim (str) {
   return str.replace(/^\s+|\s+$/g, '')
 }
 
-function toHex$1 (n) {
+function toHex$2 (n) {
   if (n < 16) return '0' + n.toString(16)
   return n.toString(16)
 }
@@ -4424,9 +4424,9 @@ var _polyfillNode_buffer = /*#__PURE__*/Object.freeze({
 	kMaxLength: _kMaxLength
 });
 
-var bn = {exports: {}};
+var bn$2 = {exports: {}};
 
-var require$$0$5 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_buffer);
+var require$$0$6 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_buffer);
 
 (function (module) {
 	(function (module, exports) {
@@ -4483,7 +4483,7 @@ var require$$0$5 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_buffer);
 	    if (typeof window !== 'undefined' && typeof window.Buffer !== 'undefined') {
 	      Buffer = window.Buffer;
 	    } else {
-	      Buffer = require$$0$5.Buffer;
+	      Buffer = require$$0$6.Buffer;
 	    }
 	  } catch (e) {
 	  }
@@ -7777,9 +7777,9 @@ var require$$0$5 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_buffer);
 	    return res._forceRed(this);
 	  };
 	})(module, commonjsGlobal);
-} (bn));
+} (bn$2));
 
-var BN = bn.exports;
+var BN$9 = bn$2.exports;
 
 var safeBuffer = {exports: {}};
 
@@ -7787,7 +7787,7 @@ var safeBuffer = {exports: {}};
 
 (function (module, exports) {
 	/* eslint-disable node/no-deprecated-api */
-	var buffer = require$$0$5;
+	var buffer = require$$0$6;
 	var Buffer = buffer.Buffer;
 
 	// alternative to using Object.keys for old browsers
@@ -7859,7 +7859,7 @@ var safeBuffer = {exports: {}};
 // file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 // @ts-ignore
 var _Buffer = safeBuffer.exports.Buffer;
-function base$1 (ALPHABET) {
+function base$2 (ALPHABET) {
   if (ALPHABET.length >= 255) { throw new TypeError('Alphabet too long') }
   var BASE_MAP = new Uint8Array(256);
   for (var j = 0; j < BASE_MAP.length; j++) {
@@ -7969,7 +7969,7 @@ function base$1 (ALPHABET) {
     decode: decode
   }
 }
-var src = base$1;
+var src = base$2;
 
 var basex = src;
 var ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
@@ -7978,7 +7978,7 @@ var bs58 = basex(ALPHABET);
 
 var bs58$1 = bs58;
 
-var lib = {};
+var lib$2 = {};
 
 // This is free and unencumbered software released into the public domain.
 // See LICENSE.md for more information.
@@ -8344,9 +8344,9 @@ TextDecoder$1.prototype = {
  *     defaults to 'utf-8'.
  * @param {Object=} options
  */
-function TextEncoder(encoding, options) {
-  if (!(this instanceof TextEncoder))
-    return new TextEncoder(encoding, options);
+function TextEncoder$1(encoding, options) {
+  if (!(this instanceof TextEncoder$1))
+    return new TextEncoder$1(encoding, options);
   encoding = encoding !== undefined ? String(encoding).toLowerCase() : DEFAULT_ENCODING;
   if (encoding !== DEFAULT_ENCODING) {
     throw new Error('Encoding not supported. Only utf-8 is supported');
@@ -8363,7 +8363,7 @@ function TextEncoder(encoding, options) {
   Object.defineProperty(this, 'encoding', {value: 'utf-8'});
 }
 
-TextEncoder.prototype = {
+TextEncoder$1.prototype = {
   /**
    * @param {string=} opt_string The string to encode.
    * @param {Object=} options
@@ -8620,7 +8620,7 @@ function UTF8Encoder(options) {
 
 var encoding_lib = /*#__PURE__*/Object.freeze({
 	__proto__: null,
-	TextEncoder: TextEncoder,
+	TextEncoder: TextEncoder$1,
 	TextDecoder: TextDecoder$1
 });
 
@@ -8654,9 +8654,9 @@ var __importStar = (commonjsGlobal && commonjsGlobal.__importStar) || function (
 var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(lib, "__esModule", { value: true });
-var deserializeUnchecked_1 = lib.deserializeUnchecked = deserialize_1 = lib.deserialize = serialize_1 = lib.serialize = lib.BinaryReader = lib.BinaryWriter = lib.BorshError = lib.baseDecode = lib.baseEncode = void 0;
-const bn_js_1 = __importDefault(bn.exports);
+Object.defineProperty(lib$2, "__esModule", { value: true });
+var deserializeUnchecked_1 = lib$2.deserializeUnchecked = deserialize_1 = lib$2.deserialize = serialize_1 = lib$2.serialize = lib$2.BinaryReader = lib$2.BinaryWriter = lib$2.BorshError = lib$2.baseDecode = lib$2.baseEncode = void 0;
+const bn_js_1 = __importDefault(bn$2.exports);
 const bs58_1 = __importDefault(bs58);
 // TODO: Make sure this polyfill not included when not required
 const encoding = __importStar(require$$2$2);
@@ -8668,11 +8668,11 @@ function baseEncode(value) {
     }
     return bs58_1.default.encode(Buffer.from(value));
 }
-lib.baseEncode = baseEncode;
+lib$2.baseEncode = baseEncode;
 function baseDecode(value) {
     return Buffer.from(bs58_1.default.decode(value));
 }
-lib.baseDecode = baseDecode;
+lib$2.baseDecode = baseDecode;
 const INITIAL_LENGTH = 1024;
 class BorshError extends Error {
     constructor(message) {
@@ -8686,7 +8686,7 @@ class BorshError extends Error {
         this.message = this.originalMessage + ": " + this.fieldPath.join(".");
     }
 }
-lib.BorshError = BorshError;
+lib$2.BorshError = BorshError;
 /// Binary encoder.
 class BinaryWriter {
     constructor() {
@@ -8759,7 +8759,7 @@ class BinaryWriter {
         return this.buf.subarray(0, this.length);
     }
 }
-lib.BinaryWriter = BinaryWriter;
+lib$2.BinaryWriter = BinaryWriter;
 function handlingRangeError(target, propertyKey, propertyDescriptor) {
     const originalMethod = propertyDescriptor.value;
     propertyDescriptor.value = function (...args) {
@@ -8874,7 +8874,7 @@ __decorate([
 __decorate([
     handlingRangeError
 ], BinaryReader.prototype, "readArray", null);
-lib.BinaryReader = BinaryReader;
+lib$2.BinaryReader = BinaryReader;
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -8976,7 +8976,7 @@ function serialize(schema, obj, Writer = BinaryWriter) {
     serializeStruct(schema, obj, writer);
     return writer.toArray();
 }
-var serialize_1 = lib.serialize = serialize;
+var serialize_1 = lib$2.serialize = serialize;
 function deserializeField(schema, fieldName, fieldType, reader) {
     try {
         if (typeof fieldType === "string") {
@@ -9058,15 +9058,15 @@ function deserialize(schema, classType, buffer, Reader = BinaryReader) {
     }
     return result;
 }
-var deserialize_1 = lib.deserialize = deserialize;
+var deserialize_1 = lib$2.deserialize = deserialize;
 /// Deserializes object from bytes using schema, without checking the length read
 function deserializeUnchecked(schema, classType, buffer, Reader = BinaryReader) {
     const reader = new Reader(buffer);
     return deserializeStruct(schema, classType, reader);
 }
-deserializeUnchecked_1 = lib.deserializeUnchecked = deserializeUnchecked;
+deserializeUnchecked_1 = lib$2.deserializeUnchecked = deserializeUnchecked;
 
-var Layout$1 = {};
+var Layout$3 = {};
 
 /* The MIT License (MIT)
  *
@@ -9090,10 +9090,10 @@ var Layout$1 = {};
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-Object.defineProperty(Layout$1, "__esModule", { value: true });
-Layout$1.s16 = Layout$1.s8 = Layout$1.nu64be = Layout$1.u48be = Layout$1.u40be = Layout$1.u32be = Layout$1.u24be = Layout$1.u16be = nu64 = Layout$1.nu64 = Layout$1.u48 = Layout$1.u40 = u32 = Layout$1.u32 = Layout$1.u24 = u16 = Layout$1.u16 = u8 = Layout$1.u8 = offset = Layout$1.offset = Layout$1.greedy = Layout$1.Constant = Layout$1.UTF8 = Layout$1.CString = Layout$1.Blob = Layout$1.Boolean = Layout$1.BitField = Layout$1.BitStructure = Layout$1.VariantLayout = Layout$1.Union = Layout$1.UnionLayoutDiscriminator = Layout$1.UnionDiscriminator = Layout$1.Structure = Layout$1.Sequence = Layout$1.DoubleBE = Layout$1.Double = Layout$1.FloatBE = Layout$1.Float = Layout$1.NearInt64BE = Layout$1.NearInt64 = Layout$1.NearUInt64BE = Layout$1.NearUInt64 = Layout$1.IntBE = Layout$1.Int = Layout$1.UIntBE = Layout$1.UInt = Layout$1.OffsetLayout = Layout$1.GreedyCount = Layout$1.ExternalLayout = Layout$1.bindConstructorLayout = Layout$1.nameWithProperty = Layout$1.Layout = Layout$1.uint8ArrayToBuffer = Layout$1.checkUint8Array = void 0;
-Layout$1.constant = Layout$1.utf8 = Layout$1.cstr = blob = Layout$1.blob = Layout$1.unionLayoutDiscriminator = Layout$1.union = seq = Layout$1.seq = Layout$1.bits = struct = Layout$1.struct = Layout$1.f64be = Layout$1.f64 = Layout$1.f32be = Layout$1.f32 = Layout$1.ns64be = Layout$1.s48be = Layout$1.s40be = Layout$1.s32be = Layout$1.s24be = Layout$1.s16be = ns64 = Layout$1.ns64 = Layout$1.s48 = Layout$1.s40 = Layout$1.s32 = Layout$1.s24 = void 0;
-const buffer_1 = require$$0$5;
+Object.defineProperty(Layout$3, "__esModule", { value: true });
+Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
+Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = blob = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = seq = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
+const buffer_1 = require$$0$6;
 /* Check if a value is a Uint8Array.
  *
  * @ignore */
@@ -9102,7 +9102,7 @@ function checkUint8Array(b) {
         throw new TypeError('b must be a Uint8Array');
     }
 }
-Layout$1.checkUint8Array = checkUint8Array;
+Layout$3.checkUint8Array = checkUint8Array;
 /* Create a Buffer instance from a Uint8Array.
  *
  * @ignore */
@@ -9110,7 +9110,7 @@ function uint8ArrayToBuffer(b) {
     checkUint8Array(b);
     return buffer_1.Buffer.from(b.buffer, b.byteOffset, b.length);
 }
-Layout$1.uint8ArrayToBuffer = uint8ArrayToBuffer;
+Layout$3.uint8ArrayToBuffer = uint8ArrayToBuffer;
 /**
  * Base class for layout objects.
  *
@@ -9127,7 +9127,7 @@ Layout$1.uint8ArrayToBuffer = uint8ArrayToBuffer;
  *
  * @abstract
  */
-class Layout {
+class Layout$2 {
     constructor(span, property) {
         if (!Number.isInteger(span)) {
             throw new TypeError('span must be an integer');
@@ -9238,19 +9238,19 @@ class Layout {
         return undefined;
     }
 }
-Layout$1.Layout = Layout;
+Layout$3.Layout = Layout$2;
 /* Provide text that carries a name (such as for a function that will
  * be throwing an error) annotated with the property of a given layout
  * (such as one for which the value was unacceptable).
  *
  * @ignore */
-function nameWithProperty(name, lo) {
+function nameWithProperty$1(name, lo) {
     if (lo.property) {
         return name + '[' + lo.property + ']';
     }
     return name;
 }
-Layout$1.nameWithProperty = nameWithProperty;
+Layout$3.nameWithProperty = nameWithProperty$1;
 /**
  * Augment a class so that instances can be encoded/decoded using a
  * given layout.
@@ -9280,14 +9280,14 @@ Layout$1.nameWithProperty = nameWithProperty;
  */
 // `Class` must be a constructor Function, but the assignment of a `layout_` property to it makes it difficult to type
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-function bindConstructorLayout(Class, layout) {
+function bindConstructorLayout$1(Class, layout) {
     if ('function' !== typeof Class) {
         throw new TypeError('Class must be constructor');
     }
     if (Object.prototype.hasOwnProperty.call(Class, 'layout_')) {
         throw new Error('Class is already bound to a layout');
     }
-    if (!(layout && (layout instanceof Layout))) {
+    if (!(layout && (layout instanceof Layout$2))) {
         throw new TypeError('layout must be a Layout');
     }
     if (Object.prototype.hasOwnProperty.call(layout, 'boundConstructor_')) {
@@ -9309,7 +9309,7 @@ function bindConstructorLayout(Class, layout) {
         writable: true,
     });
 }
-Layout$1.bindConstructorLayout = bindConstructorLayout;
+Layout$3.bindConstructorLayout = bindConstructorLayout$1;
 /**
  * An object that behaves like a layout but does not consume space
  * within its containing layout.
@@ -9331,7 +9331,7 @@ Layout$1.bindConstructorLayout = bindConstructorLayout;
  * @abstract
  * @augments {Layout}
  */
-class ExternalLayout extends Layout {
+class ExternalLayout$1 extends Layout$2 {
     /**
      * Return `true` iff the external layout decodes to an unsigned
      * integer layout.
@@ -9347,7 +9347,7 @@ class ExternalLayout extends Layout {
         throw new Error('ExternalLayout is abstract');
     }
 }
-Layout$1.ExternalLayout = ExternalLayout;
+Layout$3.ExternalLayout = ExternalLayout$1;
 /**
  * An {@link ExternalLayout} that determines its {@link
  * Layout#decode|value} based on offset into and length of the buffer
@@ -9363,7 +9363,7 @@ Layout$1.ExternalLayout = ExternalLayout;
  *
  * @augments {ExternalLayout}
  */
-class GreedyCount extends ExternalLayout {
+class GreedyCount$1 extends ExternalLayout$1 {
     constructor(elementSpan = 1, property) {
         if ((!Number.isInteger(elementSpan)) || (0 >= elementSpan)) {
             throw new TypeError('elementSpan must be a (positive) integer');
@@ -9389,7 +9389,7 @@ class GreedyCount extends ExternalLayout {
         return 0;
     }
 }
-Layout$1.GreedyCount = GreedyCount;
+Layout$3.GreedyCount = GreedyCount$1;
 /**
  * An {@link ExternalLayout} that supports accessing a {@link Layout}
  * at a fixed offset from the start of another Layout.  The offset may
@@ -9410,9 +9410,9 @@ Layout$1.GreedyCount = GreedyCount;
  *
  * @augments {Layout}
  */
-class OffsetLayout extends ExternalLayout {
+class OffsetLayout$1 extends ExternalLayout$1 {
     constructor(layout, offset = 0, property) {
-        if (!(layout instanceof Layout)) {
+        if (!(layout instanceof Layout$2)) {
             throw new TypeError('layout must be a Layout');
         }
         if (!Number.isInteger(offset)) {
@@ -9431,8 +9431,8 @@ class OffsetLayout extends ExternalLayout {
     }
     /** @override */
     isCount() {
-        return ((this.layout instanceof UInt)
-            || (this.layout instanceof UIntBE));
+        return ((this.layout instanceof UInt$1)
+            || (this.layout instanceof UIntBE$1));
     }
     /** @override */
     decode(b, offset = 0) {
@@ -9443,7 +9443,7 @@ class OffsetLayout extends ExternalLayout {
         return this.layout.encode(src, b, offset + this.offset);
     }
 }
-Layout$1.OffsetLayout = OffsetLayout;
+Layout$3.OffsetLayout = OffsetLayout$1;
 /**
  * Represent an unsigned integer in little-endian format.
  *
@@ -9460,7 +9460,7 @@ Layout$1.OffsetLayout = OffsetLayout;
  *
  * @augments {Layout}
  */
-class UInt extends Layout {
+class UInt$1 extends Layout$2 {
     constructor(span, property) {
         super(span, property);
         if (6 < this.span) {
@@ -9477,7 +9477,7 @@ class UInt extends Layout {
         return this.span;
     }
 }
-Layout$1.UInt = UInt;
+Layout$3.UInt = UInt$1;
 /**
  * Represent an unsigned integer in big-endian format.
  *
@@ -9494,7 +9494,7 @@ Layout$1.UInt = UInt;
  *
  * @augments {Layout}
  */
-class UIntBE extends Layout {
+class UIntBE$1 extends Layout$2 {
     constructor(span, property) {
         super(span, property);
         if (6 < this.span) {
@@ -9511,7 +9511,7 @@ class UIntBE extends Layout {
         return this.span;
     }
 }
-Layout$1.UIntBE = UIntBE;
+Layout$3.UIntBE = UIntBE$1;
 /**
  * Represent a signed integer in little-endian format.
  *
@@ -9528,7 +9528,7 @@ Layout$1.UIntBE = UIntBE;
  *
  * @augments {Layout}
  */
-class Int extends Layout {
+class Int$1 extends Layout$2 {
     constructor(span, property) {
         super(span, property);
         if (6 < this.span) {
@@ -9545,7 +9545,7 @@ class Int extends Layout {
         return this.span;
     }
 }
-Layout$1.Int = Int;
+Layout$3.Int = Int$1;
 /**
  * Represent a signed integer in big-endian format.
  *
@@ -9562,7 +9562,7 @@ Layout$1.Int = Int;
  *
  * @augments {Layout}
  */
-class IntBE extends Layout {
+class IntBE$1 extends Layout$2 {
     constructor(span, property) {
         super(span, property);
         if (6 < this.span) {
@@ -9579,18 +9579,18 @@ class IntBE extends Layout {
         return this.span;
     }
 }
-Layout$1.IntBE = IntBE;
-const V2E32 = Math.pow(2, 32);
+Layout$3.IntBE = IntBE$1;
+const V2E32$1 = Math.pow(2, 32);
 /* True modulus high and low 32-bit words, where low word is always
  * non-negative. */
-function divmodInt64(src) {
-    const hi32 = Math.floor(src / V2E32);
-    const lo32 = src - (hi32 * V2E32);
+function divmodInt64$1(src) {
+    const hi32 = Math.floor(src / V2E32$1);
+    const lo32 = src - (hi32 * V2E32$1);
     return { hi32, lo32 };
 }
 /* Reconstruct Number from quotient and non-negative remainder */
-function roundedInt64(hi32, lo32) {
-    return hi32 * V2E32 + lo32;
+function roundedInt64$1(hi32, lo32) {
+    return hi32 * V2E32$1 + lo32;
 }
 /**
  * Represent an unsigned 64-bit integer in little-endian format when
@@ -9603,7 +9603,7 @@ function roundedInt64(hi32, lo32) {
  *
  * @augments {Layout}
  */
-class NearUInt64 extends Layout {
+class NearUInt64$1 extends Layout$2 {
     constructor(property) {
         super(8, property);
     }
@@ -9612,18 +9612,18 @@ class NearUInt64 extends Layout {
         const buffer = uint8ArrayToBuffer(b);
         const lo32 = buffer.readUInt32LE(offset);
         const hi32 = buffer.readUInt32LE(offset + 4);
-        return roundedInt64(hi32, lo32);
+        return roundedInt64$1(hi32, lo32);
     }
     /** @override */
     encode(src, b, offset = 0) {
-        const split = divmodInt64(src);
+        const split = divmodInt64$1(src);
         const buffer = uint8ArrayToBuffer(b);
         buffer.writeUInt32LE(split.lo32, offset);
         buffer.writeUInt32LE(split.hi32, offset + 4);
         return 8;
     }
 }
-Layout$1.NearUInt64 = NearUInt64;
+Layout$3.NearUInt64 = NearUInt64$1;
 /**
  * Represent an unsigned 64-bit integer in big-endian format when
  * encoded and as a near integral JavaScript Number when decoded.
@@ -9635,7 +9635,7 @@ Layout$1.NearUInt64 = NearUInt64;
  *
  * @augments {Layout}
  */
-class NearUInt64BE extends Layout {
+class NearUInt64BE$1 extends Layout$2 {
     constructor(property) {
         super(8, property);
     }
@@ -9644,18 +9644,18 @@ class NearUInt64BE extends Layout {
         const buffer = uint8ArrayToBuffer(b);
         const hi32 = buffer.readUInt32BE(offset);
         const lo32 = buffer.readUInt32BE(offset + 4);
-        return roundedInt64(hi32, lo32);
+        return roundedInt64$1(hi32, lo32);
     }
     /** @override */
     encode(src, b, offset = 0) {
-        const split = divmodInt64(src);
+        const split = divmodInt64$1(src);
         const buffer = uint8ArrayToBuffer(b);
         buffer.writeUInt32BE(split.hi32, offset);
         buffer.writeUInt32BE(split.lo32, offset + 4);
         return 8;
     }
 }
-Layout$1.NearUInt64BE = NearUInt64BE;
+Layout$3.NearUInt64BE = NearUInt64BE$1;
 /**
  * Represent a signed 64-bit integer in little-endian format when
  * encoded and as a near integral JavaScript Number when decoded.
@@ -9667,7 +9667,7 @@ Layout$1.NearUInt64BE = NearUInt64BE;
  *
  * @augments {Layout}
  */
-class NearInt64 extends Layout {
+class NearInt64$1 extends Layout$2 {
     constructor(property) {
         super(8, property);
     }
@@ -9676,18 +9676,18 @@ class NearInt64 extends Layout {
         const buffer = uint8ArrayToBuffer(b);
         const lo32 = buffer.readUInt32LE(offset);
         const hi32 = buffer.readInt32LE(offset + 4);
-        return roundedInt64(hi32, lo32);
+        return roundedInt64$1(hi32, lo32);
     }
     /** @override */
     encode(src, b, offset = 0) {
-        const split = divmodInt64(src);
+        const split = divmodInt64$1(src);
         const buffer = uint8ArrayToBuffer(b);
         buffer.writeUInt32LE(split.lo32, offset);
         buffer.writeInt32LE(split.hi32, offset + 4);
         return 8;
     }
 }
-Layout$1.NearInt64 = NearInt64;
+Layout$3.NearInt64 = NearInt64$1;
 /**
  * Represent a signed 64-bit integer in big-endian format when
  * encoded and as a near integral JavaScript Number when decoded.
@@ -9699,7 +9699,7 @@ Layout$1.NearInt64 = NearInt64;
  *
  * @augments {Layout}
  */
-class NearInt64BE extends Layout {
+class NearInt64BE$1 extends Layout$2 {
     constructor(property) {
         super(8, property);
     }
@@ -9708,18 +9708,18 @@ class NearInt64BE extends Layout {
         const buffer = uint8ArrayToBuffer(b);
         const hi32 = buffer.readInt32BE(offset);
         const lo32 = buffer.readUInt32BE(offset + 4);
-        return roundedInt64(hi32, lo32);
+        return roundedInt64$1(hi32, lo32);
     }
     /** @override */
     encode(src, b, offset = 0) {
-        const split = divmodInt64(src);
+        const split = divmodInt64$1(src);
         const buffer = uint8ArrayToBuffer(b);
         buffer.writeInt32BE(split.hi32, offset);
         buffer.writeUInt32BE(split.lo32, offset + 4);
         return 8;
     }
 }
-Layout$1.NearInt64BE = NearInt64BE;
+Layout$3.NearInt64BE = NearInt64BE$1;
 /**
  * Represent a 32-bit floating point number in little-endian format.
  *
@@ -9730,7 +9730,7 @@ Layout$1.NearInt64BE = NearInt64BE;
  *
  * @augments {Layout}
  */
-class Float extends Layout {
+class Float$1 extends Layout$2 {
     constructor(property) {
         super(4, property);
     }
@@ -9744,7 +9744,7 @@ class Float extends Layout {
         return 4;
     }
 }
-Layout$1.Float = Float;
+Layout$3.Float = Float$1;
 /**
  * Represent a 32-bit floating point number in big-endian format.
  *
@@ -9755,7 +9755,7 @@ Layout$1.Float = Float;
  *
  * @augments {Layout}
  */
-class FloatBE extends Layout {
+class FloatBE$1 extends Layout$2 {
     constructor(property) {
         super(4, property);
     }
@@ -9769,7 +9769,7 @@ class FloatBE extends Layout {
         return 4;
     }
 }
-Layout$1.FloatBE = FloatBE;
+Layout$3.FloatBE = FloatBE$1;
 /**
  * Represent a 64-bit floating point number in little-endian format.
  *
@@ -9780,7 +9780,7 @@ Layout$1.FloatBE = FloatBE;
  *
  * @augments {Layout}
  */
-class Double extends Layout {
+class Double$1 extends Layout$2 {
     constructor(property) {
         super(8, property);
     }
@@ -9794,7 +9794,7 @@ class Double extends Layout {
         return 8;
     }
 }
-Layout$1.Double = Double;
+Layout$3.Double = Double$1;
 /**
  * Represent a 64-bit floating point number in big-endian format.
  *
@@ -9805,7 +9805,7 @@ Layout$1.Double = Double;
  *
  * @augments {Layout}
  */
-class DoubleBE extends Layout {
+class DoubleBE$1 extends Layout$2 {
     constructor(property) {
         super(8, property);
     }
@@ -9819,7 +9819,7 @@ class DoubleBE extends Layout {
         return 8;
     }
 }
-Layout$1.DoubleBE = DoubleBE;
+Layout$3.DoubleBE = DoubleBE$1;
 /**
  * Represent a contiguous sequence of a specific layout as an Array.
  *
@@ -9837,18 +9837,18 @@ Layout$1.DoubleBE = DoubleBE;
  *
  * @augments {Layout}
  */
-class Sequence extends Layout {
+class Sequence$1 extends Layout$2 {
     constructor(elementLayout, count, property) {
-        if (!(elementLayout instanceof Layout)) {
+        if (!(elementLayout instanceof Layout$2)) {
             throw new TypeError('elementLayout must be a Layout');
         }
-        if (!(((count instanceof ExternalLayout) && count.isCount())
+        if (!(((count instanceof ExternalLayout$1) && count.isCount())
             || (Number.isInteger(count) && (0 <= count)))) {
             throw new TypeError('count must be non-negative integer '
                 + 'or an unsigned integer ExternalLayout');
         }
         let span = -1;
-        if ((!(count instanceof ExternalLayout))
+        if ((!(count instanceof ExternalLayout$1))
             && (0 < elementLayout.span)) {
             span = count * elementLayout.span;
         }
@@ -9869,7 +9869,7 @@ class Sequence extends Layout {
         }
         let span = 0;
         let count = this.count;
-        if (count instanceof ExternalLayout) {
+        if (count instanceof ExternalLayout$1) {
             count = count.decode(b, offset);
         }
         if (0 < this.elementLayout.span) {
@@ -9889,7 +9889,7 @@ class Sequence extends Layout {
         const rv = [];
         let i = 0;
         let count = this.count;
-        if (count instanceof ExternalLayout) {
+        if (count instanceof ExternalLayout$1) {
             count = count.decode(b, offset);
         }
         while (i < count) {
@@ -9914,13 +9914,13 @@ class Sequence extends Layout {
         const span = src.reduce((span, v) => {
             return span + elo.encode(v, b, offset + span);
         }, 0);
-        if (this.count instanceof ExternalLayout) {
+        if (this.count instanceof ExternalLayout$1) {
             this.count.encode(src.length, b, offset);
         }
         return span;
     }
 }
-Layout$1.Sequence = Sequence;
+Layout$3.Sequence = Sequence$1;
 /**
  * Represent a contiguous sequence of arbitrary layout elements as an
  * Object.
@@ -9953,10 +9953,10 @@ Layout$1.Sequence = Sequence;
  *
  * @augments {Layout}
  */
-class Structure extends Layout {
+class Structure$1 extends Layout$2 {
     constructor(fields, property, decodePrefixes) {
         if (!(Array.isArray(fields)
-            && fields.reduce((acc, v) => acc && (v instanceof Layout), true))) {
+            && fields.reduce((acc, v) => acc && (v instanceof Layout$2), true))) {
             throw new TypeError('fields must be array of Layout instances');
         }
         if (('boolean' === typeof property)
@@ -10127,7 +10127,7 @@ class Structure extends Layout {
         return undefined;
     }
 }
-Layout$1.Structure = Structure;
+Layout$3.Structure = Structure$1;
 /**
  * An object that can provide a {@link
  * Union#discriminator|discriminator} API for {@link Union}.
@@ -10142,7 +10142,7 @@ Layout$1.Structure = Structure;
  *
  * @abstract
  */
-class UnionDiscriminator {
+class UnionDiscriminator$1 {
     constructor(property) {
         /** The {@link Layout#property|property} to be used when the
          * discriminator is referenced in isolation (generally when {@link
@@ -10165,7 +10165,7 @@ class UnionDiscriminator {
         throw new Error('UnionDiscriminator is abstract');
     }
 }
-Layout$1.UnionDiscriminator = UnionDiscriminator;
+Layout$3.UnionDiscriminator = UnionDiscriminator$1;
 /**
  * An object that can provide a {@link
  * UnionDiscriminator|discriminator API} for {@link Union} using an
@@ -10183,9 +10183,9 @@ Layout$1.UnionDiscriminator = UnionDiscriminator;
  *
  * @augments {UnionDiscriminator}
  */
-class UnionLayoutDiscriminator extends UnionDiscriminator {
+class UnionLayoutDiscriminator$1 extends UnionDiscriminator$1 {
     constructor(layout, property) {
-        if (!((layout instanceof ExternalLayout)
+        if (!((layout instanceof ExternalLayout$1)
             && layout.isCount())) {
             throw new TypeError('layout must be an unsigned integer ExternalLayout');
         }
@@ -10203,7 +10203,7 @@ class UnionLayoutDiscriminator extends UnionDiscriminator {
         return this.layout.encode(src, b, offset);
     }
 }
-Layout$1.UnionLayoutDiscriminator = UnionLayoutDiscriminator;
+Layout$3.UnionLayoutDiscriminator = UnionLayoutDiscriminator$1;
 /**
  * Represent any number of span-compatible layouts.
  *
@@ -10263,18 +10263,18 @@ Layout$1.UnionLayoutDiscriminator = UnionLayoutDiscriminator;
  *
  * @augments {Layout}
  */
-class Union extends Layout {
+class Union$1 extends Layout$2 {
     constructor(discr, defaultLayout, property) {
         let discriminator;
-        if ((discr instanceof UInt)
-            || (discr instanceof UIntBE)) {
-            discriminator = new UnionLayoutDiscriminator(new OffsetLayout(discr));
+        if ((discr instanceof UInt$1)
+            || (discr instanceof UIntBE$1)) {
+            discriminator = new UnionLayoutDiscriminator$1(new OffsetLayout$1(discr));
         }
-        else if ((discr instanceof ExternalLayout)
+        else if ((discr instanceof ExternalLayout$1)
             && discr.isCount()) {
-            discriminator = new UnionLayoutDiscriminator(discr);
+            discriminator = new UnionLayoutDiscriminator$1(discr);
         }
-        else if (!(discr instanceof UnionDiscriminator)) {
+        else if (!(discr instanceof UnionDiscriminator$1)) {
             throw new TypeError('discr must be a UnionDiscriminator '
                 + 'or an unsigned integer layout');
         }
@@ -10285,7 +10285,7 @@ class Union extends Layout {
             defaultLayout = null;
         }
         if (!((null === defaultLayout)
-            || (defaultLayout instanceof Layout))) {
+            || (defaultLayout instanceof Layout$2))) {
             throw new TypeError('defaultLayout must be null or a Layout');
         }
         if (null !== defaultLayout) {
@@ -10303,8 +10303,8 @@ class Union extends Layout {
         let span = -1;
         if (defaultLayout) {
             span = defaultLayout.span;
-            if ((0 <= span) && ((discr instanceof UInt)
-                || (discr instanceof UIntBE))) {
+            if ((0 <= span) && ((discr instanceof UInt$1)
+                || (discr instanceof UIntBE$1))) {
                 span += discriminator.layout.span;
             }
         }
@@ -10323,8 +10323,8 @@ class Union extends Layout {
          *
          * If `false` the discriminator is obtained from somewhere
          * else. */
-        this.usesPrefixDiscriminator = (discr instanceof UInt)
-            || (discr instanceof UIntBE);
+        this.usesPrefixDiscriminator = (discr instanceof UInt$1)
+            || (discr instanceof UIntBE$1);
         /** The layout for non-discriminator content when the value of the
          * discriminator is not recognized.
          *
@@ -10511,7 +10511,7 @@ class Union extends Layout {
      *
      * @return {VariantLayout} */
     addVariant(variant, layout, property) {
-        const rv = new VariantLayout(this, variant, layout, property);
+        const rv = new VariantLayout$1(this, variant, layout, property);
         this.registry[variant] = rv;
         return rv;
     }
@@ -10540,7 +10540,7 @@ class Union extends Layout {
         return this.registry[variant];
     }
 }
-Layout$1.Union = Union;
+Layout$3.Union = Union$1;
 /**
  * Represent a specific variant within a containing union.
  *
@@ -10570,9 +10570,9 @@ Layout$1.Union = Union;
  *
  * @augments {Layout}
  */
-class VariantLayout extends Layout {
+class VariantLayout$1 extends Layout$2 {
     constructor(union, variant, layout, property) {
-        if (!(union instanceof Union)) {
+        if (!(union instanceof Union$1)) {
             throw new TypeError('union must be a Union');
         }
         if ((!Number.isInteger(variant)) || (0 > variant)) {
@@ -10584,7 +10584,7 @@ class VariantLayout extends Layout {
             layout = null;
         }
         if (layout) {
-            if (!(layout instanceof Layout)) {
+            if (!(layout instanceof Layout$2)) {
                 throw new TypeError('layout must be a Layout');
             }
             if ((null !== union.defaultLayout)
@@ -10686,14 +10686,14 @@ class VariantLayout extends Layout {
         return undefined;
     }
 }
-Layout$1.VariantLayout = VariantLayout;
+Layout$3.VariantLayout = VariantLayout$1;
 /** JavaScript chose to define bitwise operations as operating on
  * signed 32-bit values in 2's complement form, meaning any integer
  * with bit 31 set is going to look negative.  For right shifts that's
  * not a problem, because `>>>` is a logical shift, but for every
  * other bitwise operator we have to compensate for possible negative
  * results. */
-function fixBitwiseResult(v) {
+function fixBitwiseResult$1(v) {
     if (0 > v) {
         v += 0x100000000;
     }
@@ -10730,10 +10730,10 @@ function fixBitwiseResult(v) {
  *
  * @augments {Layout}
  */
-class BitStructure extends Layout {
+class BitStructure$1 extends Layout$2 {
     constructor(word, msb, property) {
-        if (!((word instanceof UInt)
-            || (word instanceof UIntBE))) {
+        if (!((word instanceof UInt$1)
+            || (word instanceof UIntBE$1))) {
             throw new TypeError('word must be a UInt or UIntBE layout');
         }
         if (('string' === typeof msb)
@@ -10769,7 +10769,7 @@ class BitStructure extends Layout {
          * value without going through the mutator. */
         let value = 0;
         this._packedSetValue = function (v) {
-            value = fixBitwiseResult(v);
+            value = fixBitwiseResult$1(v);
             return this;
         };
         this._packedGetValue = function () {
@@ -10816,7 +10816,7 @@ class BitStructure extends Layout {
      *
      * @return {BitField} */
     addField(bits, property) {
-        const bf = new BitField(this, bits, property);
+        const bf = new BitField$1(this, bits, property);
         this.fields.push(bf);
         return bf;
     }
@@ -10831,7 +10831,7 @@ class BitStructure extends Layout {
     // eslint-disable-next-line @typescript-eslint/ban-types
     addBoolean(property) {
         // This is my Boolean, not the Javascript one.
-        const bf = new Boolean$1(this, property);
+        const bf = new Boolean$2(this, property);
         this.fields.push(bf);
         return bf;
     }
@@ -10855,7 +10855,7 @@ class BitStructure extends Layout {
         return undefined;
     }
 }
-Layout$1.BitStructure = BitStructure;
+Layout$3.BitStructure = BitStructure$1;
 /**
  * Represent a sequence of bits within a {@link BitStructure}.
  *
@@ -10876,9 +10876,9 @@ Layout$1.BitStructure = BitStructure;
  * @param {string} [property] - initializer for {@link
  * Layout#property|property}.
  */
-class BitField {
+class BitField$1 {
     constructor(container, bits, property) {
-        if (!(container instanceof BitStructure)) {
+        if (!(container instanceof BitStructure$1)) {
             throw new TypeError('container must be a BitStructure');
         }
         if ((!Number.isInteger(bits)) || (0 >= bits)) {
@@ -10914,7 +10914,7 @@ class BitField {
         }
         /** A mask of {@link BitField#bits|bits} isolating the field value
          * within the containing packed unsigned integer. */
-        this.wordMask = fixBitwiseResult(this.valueMask << this.start);
+        this.wordMask = fixBitwiseResult$1(this.valueMask << this.start);
         /** The property name used when this bitfield is represented in an
          * Object.
          *
@@ -10931,7 +10931,7 @@ class BitField {
      * bit field. */
     decode(b, offset) {
         const word = this.container._packedGetValue();
-        const wordValue = fixBitwiseResult(word & this.wordMask);
+        const wordValue = fixBitwiseResult$1(word & this.wordMask);
         const value = wordValue >>> this.start;
         return value;
     }
@@ -10943,17 +10943,17 @@ class BitField {
     encode(value) {
         if ('number' !== typeof value
             || !Number.isInteger(value)
-            || (value !== fixBitwiseResult(value & this.valueMask))) {
-            throw new TypeError(nameWithProperty('BitField.encode', this)
+            || (value !== fixBitwiseResult$1(value & this.valueMask))) {
+            throw new TypeError(nameWithProperty$1('BitField.encode', this)
                 + ' value must be integer not exceeding ' + this.valueMask);
         }
         const word = this.container._packedGetValue();
-        const wordValue = fixBitwiseResult(value << this.start);
-        this.container._packedSetValue(fixBitwiseResult(word & ~this.wordMask)
+        const wordValue = fixBitwiseResult$1(value << this.start);
+        this.container._packedSetValue(fixBitwiseResult$1(word & ~this.wordMask)
             | wordValue);
     }
 }
-Layout$1.BitField = BitField;
+Layout$3.BitField = BitField$1;
 /**
  * Represent a single bit within a {@link BitStructure} as a
  * JavaScript boolean.
@@ -10971,7 +10971,7 @@ Layout$1.BitField = BitField;
  * @augments {BitField}
  */
 /* eslint-disable no-extend-native */
-class Boolean$1 extends BitField {
+class Boolean$2 extends BitField$1 {
     constructor(container, property) {
         super(container, 1, property);
     }
@@ -10990,7 +10990,7 @@ class Boolean$1 extends BitField {
         super.encode(value);
     }
 }
-Layout$1.Boolean = Boolean$1;
+Layout$3.Boolean = Boolean$2;
 /* eslint-enable no-extend-native */
 /**
  * Contain a fixed-length block of arbitrary data, represented as a
@@ -11006,15 +11006,15 @@ Layout$1.Boolean = Boolean$1;
  *
  * @augments {Layout}
  */
-class Blob extends Layout {
+class Blob$1 extends Layout$2 {
     constructor(length, property) {
-        if (!(((length instanceof ExternalLayout) && length.isCount())
+        if (!(((length instanceof ExternalLayout$1) && length.isCount())
             || (Number.isInteger(length) && (0 <= length)))) {
             throw new TypeError('length must be positive integer '
                 + 'or an unsigned integer ExternalLayout');
         }
         let span = -1;
-        if (!(length instanceof ExternalLayout)) {
+        if (!(length instanceof ExternalLayout$1)) {
             span = length;
         }
         super(span, property);
@@ -11048,11 +11048,11 @@ class Blob extends Layout {
      * count after `src` is encoded. */
     encode(src, b, offset) {
         let span = this.length;
-        if (this.length instanceof ExternalLayout) {
+        if (this.length instanceof ExternalLayout$1) {
             span = src.length;
         }
         if (!(src instanceof Uint8Array && span === src.length)) {
-            throw new TypeError(nameWithProperty('Blob.encode', this)
+            throw new TypeError(nameWithProperty$1('Blob.encode', this)
                 + ' requires (length ' + span + ') Uint8Array as src');
         }
         if ((offset + span) > b.length) {
@@ -11060,13 +11060,13 @@ class Blob extends Layout {
         }
         const srcBuffer = uint8ArrayToBuffer(src);
         uint8ArrayToBuffer(b).write(srcBuffer.toString('hex'), offset, span, 'hex');
-        if (this.length instanceof ExternalLayout) {
+        if (this.length instanceof ExternalLayout$1) {
             this.length.encode(span, b, offset);
         }
         return span;
     }
 }
-Layout$1.Blob = Blob;
+Layout$3.Blob = Blob$1;
 /**
  * Contain a `NUL`-terminated UTF8 string.
  *
@@ -11080,7 +11080,7 @@ Layout$1.Blob = Blob;
  *
  * @augments {Layout}
  */
-class CString extends Layout {
+class CString$1 extends Layout$2 {
     constructor(property) {
         super(-1, property);
     }
@@ -11117,7 +11117,7 @@ class CString extends Layout {
         return span + 1;
     }
 }
-Layout$1.CString = CString;
+Layout$3.CString = CString$1;
 /**
  * Contain a UTF8 string with implicit length.
  *
@@ -11137,7 +11137,7 @@ Layout$1.CString = CString;
  *
  * @augments {Layout}
  */
-class UTF8 extends Layout {
+class UTF8$1 extends Layout$2 {
     constructor(maxSpan, property) {
         if (('string' === typeof maxSpan) && (undefined === property)) {
             property = maxSpan;
@@ -11195,7 +11195,7 @@ class UTF8 extends Layout {
         return span;
     }
 }
-Layout$1.UTF8 = UTF8;
+Layout$3.UTF8 = UTF8$1;
 /**
  * Contain a constant value.
  *
@@ -11215,7 +11215,7 @@ Layout$1.UTF8 = UTF8;
  *
  * @augments {Layout}
  */
-class Constant extends Layout {
+class Constant$1 extends Layout$2 {
     constructor(value, property) {
         super(0, property);
         /** The value produced by this constant when the layout is {@link
@@ -11239,115 +11239,115 @@ class Constant extends Layout {
         return 0;
     }
 }
-Layout$1.Constant = Constant;
+Layout$3.Constant = Constant$1;
 /** Factory for {@link GreedyCount}. */
-Layout$1.greedy = ((elementSpan, property) => new GreedyCount(elementSpan, property));
+Layout$3.greedy = ((elementSpan, property) => new GreedyCount$1(elementSpan, property));
 /** Factory for {@link OffsetLayout}. */
-var offset = Layout$1.offset = ((layout, offset, property) => new OffsetLayout(layout, offset, property));
+var offset = Layout$3.offset = ((layout, offset, property) => new OffsetLayout$1(layout, offset, property));
 /** Factory for {@link UInt|unsigned int layouts} spanning one
  * byte. */
-var u8 = Layout$1.u8 = ((property) => new UInt(1, property));
+var u8 = Layout$3.u8 = ((property) => new UInt$1(1, property));
 /** Factory for {@link UInt|little-endian unsigned int layouts}
  * spanning two bytes. */
-var u16 = Layout$1.u16 = ((property) => new UInt(2, property));
+var u16 = Layout$3.u16 = ((property) => new UInt$1(2, property));
 /** Factory for {@link UInt|little-endian unsigned int layouts}
  * spanning three bytes. */
-Layout$1.u24 = ((property) => new UInt(3, property));
+Layout$3.u24 = ((property) => new UInt$1(3, property));
 /** Factory for {@link UInt|little-endian unsigned int layouts}
  * spanning four bytes. */
-var u32 = Layout$1.u32 = ((property) => new UInt(4, property));
+var u32 = Layout$3.u32 = ((property) => new UInt$1(4, property));
 /** Factory for {@link UInt|little-endian unsigned int layouts}
  * spanning five bytes. */
-Layout$1.u40 = ((property) => new UInt(5, property));
+Layout$3.u40 = ((property) => new UInt$1(5, property));
 /** Factory for {@link UInt|little-endian unsigned int layouts}
  * spanning six bytes. */
-Layout$1.u48 = ((property) => new UInt(6, property));
+Layout$3.u48 = ((property) => new UInt$1(6, property));
 /** Factory for {@link NearUInt64|little-endian unsigned int
  * layouts} interpreted as Numbers. */
-var nu64 = Layout$1.nu64 = ((property) => new NearUInt64(property));
+var nu64 = Layout$3.nu64 = ((property) => new NearUInt64$1(property));
 /** Factory for {@link UInt|big-endian unsigned int layouts}
  * spanning two bytes. */
-Layout$1.u16be = ((property) => new UIntBE(2, property));
+Layout$3.u16be = ((property) => new UIntBE$1(2, property));
 /** Factory for {@link UInt|big-endian unsigned int layouts}
  * spanning three bytes. */
-Layout$1.u24be = ((property) => new UIntBE(3, property));
+Layout$3.u24be = ((property) => new UIntBE$1(3, property));
 /** Factory for {@link UInt|big-endian unsigned int layouts}
  * spanning four bytes. */
-Layout$1.u32be = ((property) => new UIntBE(4, property));
+Layout$3.u32be = ((property) => new UIntBE$1(4, property));
 /** Factory for {@link UInt|big-endian unsigned int layouts}
  * spanning five bytes. */
-Layout$1.u40be = ((property) => new UIntBE(5, property));
+Layout$3.u40be = ((property) => new UIntBE$1(5, property));
 /** Factory for {@link UInt|big-endian unsigned int layouts}
  * spanning six bytes. */
-Layout$1.u48be = ((property) => new UIntBE(6, property));
+Layout$3.u48be = ((property) => new UIntBE$1(6, property));
 /** Factory for {@link NearUInt64BE|big-endian unsigned int
  * layouts} interpreted as Numbers. */
-Layout$1.nu64be = ((property) => new NearUInt64BE(property));
+Layout$3.nu64be = ((property) => new NearUInt64BE$1(property));
 /** Factory for {@link Int|signed int layouts} spanning one
  * byte. */
-Layout$1.s8 = ((property) => new Int(1, property));
+Layout$3.s8 = ((property) => new Int$1(1, property));
 /** Factory for {@link Int|little-endian signed int layouts}
  * spanning two bytes. */
-Layout$1.s16 = ((property) => new Int(2, property));
+Layout$3.s16 = ((property) => new Int$1(2, property));
 /** Factory for {@link Int|little-endian signed int layouts}
  * spanning three bytes. */
-Layout$1.s24 = ((property) => new Int(3, property));
+Layout$3.s24 = ((property) => new Int$1(3, property));
 /** Factory for {@link Int|little-endian signed int layouts}
  * spanning four bytes. */
-Layout$1.s32 = ((property) => new Int(4, property));
+Layout$3.s32 = ((property) => new Int$1(4, property));
 /** Factory for {@link Int|little-endian signed int layouts}
  * spanning five bytes. */
-Layout$1.s40 = ((property) => new Int(5, property));
+Layout$3.s40 = ((property) => new Int$1(5, property));
 /** Factory for {@link Int|little-endian signed int layouts}
  * spanning six bytes. */
-Layout$1.s48 = ((property) => new Int(6, property));
+Layout$3.s48 = ((property) => new Int$1(6, property));
 /** Factory for {@link NearInt64|little-endian signed int layouts}
  * interpreted as Numbers. */
-var ns64 = Layout$1.ns64 = ((property) => new NearInt64(property));
+var ns64 = Layout$3.ns64 = ((property) => new NearInt64$1(property));
 /** Factory for {@link Int|big-endian signed int layouts}
  * spanning two bytes. */
-Layout$1.s16be = ((property) => new IntBE(2, property));
+Layout$3.s16be = ((property) => new IntBE$1(2, property));
 /** Factory for {@link Int|big-endian signed int layouts}
  * spanning three bytes. */
-Layout$1.s24be = ((property) => new IntBE(3, property));
+Layout$3.s24be = ((property) => new IntBE$1(3, property));
 /** Factory for {@link Int|big-endian signed int layouts}
  * spanning four bytes. */
-Layout$1.s32be = ((property) => new IntBE(4, property));
+Layout$3.s32be = ((property) => new IntBE$1(4, property));
 /** Factory for {@link Int|big-endian signed int layouts}
  * spanning five bytes. */
-Layout$1.s40be = ((property) => new IntBE(5, property));
+Layout$3.s40be = ((property) => new IntBE$1(5, property));
 /** Factory for {@link Int|big-endian signed int layouts}
  * spanning six bytes. */
-Layout$1.s48be = ((property) => new IntBE(6, property));
+Layout$3.s48be = ((property) => new IntBE$1(6, property));
 /** Factory for {@link NearInt64BE|big-endian signed int layouts}
  * interpreted as Numbers. */
-Layout$1.ns64be = ((property) => new NearInt64BE(property));
+Layout$3.ns64be = ((property) => new NearInt64BE$1(property));
 /** Factory for {@link Float|little-endian 32-bit floating point} values. */
-Layout$1.f32 = ((property) => new Float(property));
+Layout$3.f32 = ((property) => new Float$1(property));
 /** Factory for {@link FloatBE|big-endian 32-bit floating point} values. */
-Layout$1.f32be = ((property) => new FloatBE(property));
+Layout$3.f32be = ((property) => new FloatBE$1(property));
 /** Factory for {@link Double|little-endian 64-bit floating point} values. */
-Layout$1.f64 = ((property) => new Double(property));
+Layout$3.f64 = ((property) => new Double$1(property));
 /** Factory for {@link DoubleBE|big-endian 64-bit floating point} values. */
-Layout$1.f64be = ((property) => new DoubleBE(property));
+Layout$3.f64be = ((property) => new DoubleBE$1(property));
 /** Factory for {@link Structure} values. */
-var struct = Layout$1.struct = ((fields, property, decodePrefixes) => new Structure(fields, property, decodePrefixes));
+var struct = Layout$3.struct = ((fields, property, decodePrefixes) => new Structure$1(fields, property, decodePrefixes));
 /** Factory for {@link BitStructure} values. */
-Layout$1.bits = ((word, msb, property) => new BitStructure(word, msb, property));
+Layout$3.bits = ((word, msb, property) => new BitStructure$1(word, msb, property));
 /** Factory for {@link Sequence} values. */
-var seq = Layout$1.seq = ((elementLayout, count, property) => new Sequence(elementLayout, count, property));
+var seq = Layout$3.seq = ((elementLayout, count, property) => new Sequence$1(elementLayout, count, property));
 /** Factory for {@link Union} values. */
-Layout$1.union = ((discr, defaultLayout, property) => new Union(discr, defaultLayout, property));
+Layout$3.union = ((discr, defaultLayout, property) => new Union$1(discr, defaultLayout, property));
 /** Factory for {@link UnionLayoutDiscriminator} values. */
-Layout$1.unionLayoutDiscriminator = ((layout, property) => new UnionLayoutDiscriminator(layout, property));
+Layout$3.unionLayoutDiscriminator = ((layout, property) => new UnionLayoutDiscriminator$1(layout, property));
 /** Factory for {@link Blob} values. */
-var blob = Layout$1.blob = ((length, property) => new Blob(length, property));
+var blob = Layout$3.blob = ((length, property) => new Blob$1(length, property));
 /** Factory for {@link CString} values. */
-Layout$1.cstr = ((property) => new CString(property));
+Layout$3.cstr = ((property) => new CString$1(property));
 /** Factory for {@link UTF8} values. */
-Layout$1.utf8 = ((maxSpan, property) => new UTF8(maxSpan, property));
+Layout$3.utf8 = ((maxSpan, property) => new UTF8$1(maxSpan, property));
 /** Factory for {@link Constant} values. */
-Layout$1.constant = ((value, property) => new Constant(value, property));
+Layout$3.constant = ((value, property) => new Constant$1(value, property));
 
 var browser$2 = {};
 
@@ -11657,7 +11657,7 @@ class Struct$1 {
 
 
   assert(value) {
-    return assert$8(value, this);
+    return assert$p(value, this);
   }
   /**
    * Create a value with the struct's coercion logic, then validate it.
@@ -11703,7 +11703,7 @@ class Struct$1 {
  * Assert that a value passes a struct, throwing if it doesn't.
  */
 
-function assert$8(value, struct) {
+function assert$p(value, struct) {
   const result = validate$1(value, struct);
 
   if (result[0]) {
@@ -12088,7 +12088,7 @@ function requireClassCallCheck () {
 	return classCallCheck.exports;
 }
 
-var inherits$3 = {exports: {}};
+var inherits$9 = {exports: {}};
 
 var setPrototypeOf = {exports: {}};
 
@@ -12114,7 +12114,7 @@ function requireSetPrototypeOf () {
 var hasRequiredInherits;
 
 function requireInherits () {
-	if (hasRequiredInherits) return inherits$3.exports;
+	if (hasRequiredInherits) return inherits$9.exports;
 	hasRequiredInherits = 1;
 	(function (module) {
 		var setPrototypeOf = requireSetPrototypeOf();
@@ -12138,8 +12138,8 @@ function requireInherits () {
 		}
 
 		module.exports = _inherits, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (inherits$3));
-	return inherits$3.exports;
+} (inherits$9));
+	return inherits$9.exports;
 }
 
 var possibleConstructorReturn = {exports: {}};
@@ -12373,7 +12373,7 @@ var platform$1 = 'browser';
 var browser$1 = true;
 var env = {};
 var argv = [];
-var version$4 = ''; // empty string to avoid regexp issues
+var version$5 = ''; // empty string to avoid regexp issues
 var versions = {};
 var release$1 = {};
 var config = {};
@@ -12437,7 +12437,7 @@ var browser$1$1 = {
   browser: browser$1,
   env: env,
   argv: argv,
-  version: version$4,
+  version: version$5,
   versions: versions,
   on: on,
   addListener: addListener,
@@ -12935,7 +12935,7 @@ var _polyfillNode_events = /*#__PURE__*/Object.freeze({
 	EventEmitter: EventEmitter
 });
 
-var require$$0$4 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_events);
+var require$$0$5 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_events);
 
 var hasFetch = isFunction$1(global$1.fetch) && isFunction$1(global$1.ReadableStream);
 
@@ -12990,9 +12990,9 @@ function isFunction$1(value) {
 
 xhr = null; // Help gc
 
-var inherits$1;
+var inherits$7;
 if (typeof Object.create === 'function'){
-  inherits$1 = function inherits(ctor, superCtor) {
+  inherits$7 = function inherits(ctor, superCtor) {
     // implementation from standard node.js 'util' module
     ctor.super_ = superCtor;
     ctor.prototype = Object.create(superCtor.prototype, {
@@ -13005,7 +13005,7 @@ if (typeof Object.create === 'function'){
     });
   };
 } else {
-  inherits$1 = function inherits(ctor, superCtor) {
+  inherits$7 = function inherits(ctor, superCtor) {
     ctor.super_ = superCtor;
     var TempCtor = function () {};
     TempCtor.prototype = superCtor.prototype;
@@ -13013,7 +13013,7 @@ if (typeof Object.create === 'function'){
     ctor.prototype.constructor = ctor;
   };
 }
-var inherits$2 = inherits$1;
+var inherits$8 = inherits$7;
 
 var formatRegExp = /%[sdj%]/g;
 function format$1(f) {
@@ -13762,7 +13762,7 @@ function base64DetectIncompleteChar(buffer) {
 Readable.ReadableState = ReadableState;
 
 var debug = debuglog('stream');
-inherits$2(Readable, EventEmitter);
+inherits$8(Readable, EventEmitter);
 
 function prependListener(emitter, event, fn) {
   // Sadly this is not cacheable as some libraries bundle their own
@@ -14648,7 +14648,7 @@ function indexOf(xs, x) {
 
 // A bit simpler than readable streams.
 Writable.WritableState = WritableState;
-inherits$2(Writable, EventEmitter);
+inherits$8(Writable, EventEmitter);
 
 function nop() {}
 
@@ -15119,7 +15119,7 @@ function CorkedRequest(state) {
   };
 }
 
-inherits$2(Duplex, Readable);
+inherits$8(Duplex, Readable);
 
 var keys = Object.keys(Writable.prototype);
 for (var v = 0; v < keys.length; v++) {
@@ -15158,7 +15158,7 @@ function onEndNT(self) {
 }
 
 // a transform stream is a readable/writable stream where you do
-inherits$2(Transform, Duplex);
+inherits$8(Transform, Duplex);
 
 function TransformState(stream) {
   this.afterTransform = function (er, data) {
@@ -15285,7 +15285,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-inherits$2(PassThrough, Transform);
+inherits$8(PassThrough, Transform);
 function PassThrough(options) {
   if (!(this instanceof PassThrough)) return new PassThrough(options);
 
@@ -15296,7 +15296,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-inherits$2(Stream, EventEmitter);
+inherits$8(Stream, EventEmitter);
 Stream.Readable = Readable;
 Stream.Writable = Writable;
 Stream.Duplex = Duplex;
@@ -15503,7 +15503,7 @@ function IncomingMessage(xhr, response, mode) {
   }
 }
 
-inherits$2(IncomingMessage, Readable);
+inherits$8(IncomingMessage, Readable);
 
 IncomingMessage.prototype._read = function() {};
 
@@ -15668,7 +15668,7 @@ function ClientRequest(opts) {
   });
 }
 
-inherits$2(ClientRequest, Writable);
+inherits$8(ClientRequest, Writable);
 // Taken from http://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
 var unsafeHeaders = [
   'accept-charset',
@@ -15892,7 +15892,7 @@ ClientRequest.prototype.setSocketKeepAlive = function() {};
 var maxInt = 2147483647; // aka. 0x7FFFFFFF or 2^31-1
 
 /** Bootstring parameters */
-var base = 36;
+var base$1 = 36;
 var tMin = 1;
 var tMax = 26;
 var skew = 38;
@@ -15904,14 +15904,14 @@ var regexNonASCII = /[^\x20-\x7E]/; // unprintable ASCII chars + non-ASCII chars
 var regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g; // RFC 3490 separators
 
 /** Error messages */
-var errors = {
+var errors$1 = {
   'overflow': 'Overflow: input needs wider integers to process',
   'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
   'invalid-input': 'Invalid input'
 };
 
 /** Convenience shortcuts */
-var baseMinusTMin = base - tMin;
+var baseMinusTMin = base$1 - tMin;
 var floor = Math.floor;
 var stringFromCharCode = String.fromCharCode;
 
@@ -15924,7 +15924,7 @@ var stringFromCharCode = String.fromCharCode;
  * @returns {Error} Throws a `RangeError` with the applicable error message.
  */
 function error(type) {
-  throw new RangeError(errors[type]);
+  throw new RangeError(errors$1[type]);
 }
 
 /**
@@ -16035,7 +16035,7 @@ function adapt(delta, numPoints, firstTime) {
   var k = 0;
   delta = firstTime ? floor(delta / damp) : delta >> 1;
   delta += floor(delta / numPoints);
-  for ( /* no initialization */ ; delta > baseMinusTMin * tMax >> 1; k += base) {
+  for ( /* no initialization */ ; delta > baseMinusTMin * tMax >> 1; k += base$1) {
     delta = floor(delta / baseMinusTMin);
   }
   return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
@@ -16128,13 +16128,13 @@ function encode(input) {
 
       if (currentValue == n) {
         // Represent delta as a generalized variable-length integer
-        for (q = delta, k = base; /* no condition */ ; k += base) {
+        for (q = delta, k = base$1; /* no condition */ ; k += base$1) {
           t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
           if (q < t) {
             break;
           }
           qMinusT = q - t;
-          baseMinusT = base - t;
+          baseMinusT = base$1 - t;
           output.push(
             stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
           );
@@ -17361,7 +17361,7 @@ var _polyfillNode_http$1 = /*#__PURE__*/Object.freeze({
 	'default': _polyfillNode_http
 });
 
-var require$$1$1 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_http$1);
+var require$$1$3 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_http$1);
 
 var _polyfillNode_net = {};
 
@@ -17381,7 +17381,7 @@ var _polyfillNode_tls$1 = /*#__PURE__*/Object.freeze({
 
 var require$$4 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_tls$1);
 
-var require$$0$3 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_stream);
+var require$$0$4 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_stream);
 
 var require$$14 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_url$1);
 
@@ -22996,7 +22996,7 @@ var _binding = /*#__PURE__*/Object.freeze({
 	Zlib: Zlib$1
 });
 
-function assert$7 (a, msg) {
+function assert$o (a, msg) {
   if (!a) {
     throw new Error(msg);
   }
@@ -23353,7 +23353,7 @@ function Zlib(opts, mode) {
   this.once('end', this.close);
 }
 
-inherits$2(Zlib, Transform);
+inherits$8(Zlib, Transform);
 
 Zlib.prototype.params = function(level, strategy, callback) {
   if (level < binding.Z_MIN_LEVEL ||
@@ -23516,7 +23516,7 @@ Zlib.prototype._processChunk = function(chunk, flushFlag, cb) {
       return;
 
     var have = availOutBefore - availOutAfter;
-    assert$7(have >= 0, 'have should not go down');
+    assert$o(have >= 0, 'have should not go down');
 
     if (have > 0) {
       var out = self._buffer.slice(self._offset, self._offset + have);
@@ -23568,13 +23568,13 @@ Zlib.prototype._processChunk = function(chunk, flushFlag, cb) {
   }
 };
 
-inherits$2(Deflate, Zlib);
-inherits$2(Inflate, Zlib);
-inherits$2(Gzip, Zlib);
-inherits$2(Gunzip, Zlib);
-inherits$2(DeflateRaw, Zlib);
-inherits$2(InflateRaw, Zlib);
-inherits$2(Unzip, Zlib);
+inherits$8(Deflate, Zlib);
+inherits$8(Inflate, Zlib);
+inherits$8(Gzip, Zlib);
+inherits$8(Gunzip, Zlib);
+inherits$8(DeflateRaw, Zlib);
+inherits$8(InflateRaw, Zlib);
+inherits$8(Unzip, Zlib);
 var _polyfillNode_zlib = {
   codes: codes,
   createDeflate: createDeflate,
@@ -23643,7 +23643,7 @@ var _polyfillNode_zlib$1 = /*#__PURE__*/Object.freeze({
 	'default': _polyfillNode_zlib
 });
 
-var require$$0$2 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_zlib$1);
+var require$$0$3 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_zlib$1);
 
 var bufferUtil = {exports: {}};
 
@@ -23678,7 +23678,7 @@ var _polyfillNode_fs$1 = /*#__PURE__*/Object.freeze({
 	'default': _polyfillNode_fs
 });
 
-var require$$0$1 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_fs$1);
+var require$$0$2 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_fs$1);
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -23928,7 +23928,7 @@ var _polyfillNode_path$1 = /*#__PURE__*/Object.freeze({
 	'default': _polyfillNode_path
 });
 
-var require$$1 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_path$1);
+var require$$1$2 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_path$1);
 
 /*
 The MIT License (MIT)
@@ -24087,8 +24087,8 @@ var hasRequiredNodeGypBuild;
 function requireNodeGypBuild () {
 	if (hasRequiredNodeGypBuild) return nodeGypBuild;
 	hasRequiredNodeGypBuild = 1;
-	var fs = require$$0$1;
-	var path = require$$1;
+	var fs = require$$0$2;
+	var path = require$$1$2;
 	var os = require$$2;
 
 	// Workaround to fix webpack's build warnings: 'the request of a dependency is an expression'
@@ -24559,7 +24559,7 @@ function requirePermessageDeflate () {
 	if (hasRequiredPermessageDeflate) return permessageDeflate;
 	hasRequiredPermessageDeflate = 1;
 
-	const zlib = require$$0$2;
+	const zlib = require$$0$3;
 
 	const bufferUtil = requireBufferUtil();
 	const Limiter = requireLimiter();
@@ -25302,7 +25302,7 @@ function requireReceiver () {
 	if (hasRequiredReceiver) return receiver;
 	hasRequiredReceiver = 1;
 
-	const { Writable } = require$$0$3;
+	const { Writable } = require$$0$4;
 
 	const PerMessageDeflate = requirePermessageDeflate();
 	const {
@@ -25927,7 +25927,7 @@ var hasRequiredSender;
 function requireSender () {
 	if (hasRequiredSender) return sender;
 	hasRequiredSender = 1;
-	const { randomFillSync } = require$$0$6;
+	const { randomFillSync } = require$$0$7;
 
 	const PerMessageDeflate = requirePermessageDeflate();
 	const { EMPTY_BUFFER } = requireConstants();
@@ -26894,12 +26894,12 @@ function requireWebsocket$1 () {
 	if (hasRequiredWebsocket$1) return websocket;
 	hasRequiredWebsocket$1 = 1;
 
-	const EventEmitter = require$$0$4;
+	const EventEmitter = require$$0$5;
 	const https = require$$2$1;
-	const http = require$$1$1;
+	const http = require$$1$3;
 	const net = require$$3;
 	const tls = require$$4;
-	const { randomBytes, createHash } = require$$0$6;
+	const { randomBytes, createHash } = require$$0$7;
 	const { URL } = require$$14;
 
 	const PerMessageDeflate = requirePermessageDeflate();
@@ -28195,7 +28195,7 @@ function requireStream () {
 	if (hasRequiredStream) return stream;
 	hasRequiredStream = 1;
 
-	const { Duplex } = require$$0$3;
+	const { Duplex } = require$$0$4;
 
 	/**
 	 * Emits the `'close'` event on a stream.
@@ -28432,9 +28432,9 @@ function requireWebsocketServer () {
 	if (hasRequiredWebsocketServer) return websocketServer;
 	hasRequiredWebsocketServer = 1;
 
-	const EventEmitter = require$$0$4;
-	const http = require$$1$1;
-	const { createHash } = require$$0$6;
+	const EventEmitter = require$$0$5;
+	const http = require$$1$3;
+	const { createHash } = require$$0$7;
 
 	const extension = requireExtension();
 	const PerMessageDeflate = requirePermessageDeflate();
@@ -30921,7 +30921,7 @@ function v4(options, buf, offset) {
 
 // Adapted from Chris Veness' SHA1 code at
 // http://www.movable-type.co.uk/scripts/sha1.html
-function f$1(s, x, y, z) {
+function f$2(s, x, y, z) {
   switch (s) {
     case 0:
       return x & y ^ ~x & z;
@@ -30996,7 +30996,7 @@ function sha1(bytes) {
 
     for (var _t2 = 0; _t2 < 80; ++_t2) {
       var s = Math.floor(_t2 / 20);
-      var T = ROTL(a, 5) + f$1(s, b, c, d) + e + K[s] + W[_t2] >>> 0;
+      var T = ROTL(a, 5) + f$2(s, b, c, d) + e + K[s] + W[_t2] >>> 0;
       e = d;
       d = c;
       c = ROTL(b, 30) >>> 0;
@@ -31019,7 +31019,7 @@ var v5$1 = v5;
 
 var nil = '00000000-0000-0000-0000-000000000000';
 
-function version$3(uuid) {
+function version$4(uuid) {
   if (!validate(uuid)) {
     throw TypeError('Invalid UUID');
   }
@@ -31034,26 +31034,26 @@ var esmBrowser = /*#__PURE__*/Object.freeze({
 	v4: v4,
 	v5: v5$1,
 	NIL: nil,
-	version: version$3,
+	version: version$4,
 	validate: validate,
 	stringify: stringify$1,
 	parse: parse
 });
 
-var require$$0 = /*@__PURE__*/getAugmentedNamespace(esmBrowser);
+var require$$0$1 = /*@__PURE__*/getAugmentedNamespace(esmBrowser);
 
-var utils$a = {};
+var utils$x = {};
 
 var hasRequiredUtils;
 
 function requireUtils () {
-	if (hasRequiredUtils) return utils$a;
+	if (hasRequiredUtils) return utils$x;
 	hasRequiredUtils = 1;
 
-	Object.defineProperty(utils$a, "__esModule", {
+	Object.defineProperty(utils$x, "__esModule", {
 	  value: true
 	});
-	utils$a.createError = createError;
+	utils$x.createError = createError;
 	var errors = new Map([[-32000, "Event not provided"], [-32600, "Invalid Request"], [-32601, "Method not found"], [-32602, "Invalid params"], [-32603, "Internal error"], [-32604, "Params not found"], [-32605, "Method forbidden"], [-32606, "Event forbidden"], [-32700, "Parse error"]]);
 	/**
 	 * Creates a JSON-RPC 2.0-compliant error.
@@ -31070,7 +31070,7 @@ function requireUtils () {
 	  if (details) error["data"] = details;
 	  return error;
 	}
-	return utils$a;
+	return utils$x;
 }
 
 var hasRequiredServer;
@@ -31113,7 +31113,7 @@ function requireServer () {
 
 		var _ws = requireWs();
 
-		var _uuid = require$$0;
+		var _uuid = require$$0$1;
 
 		var _url = _interopRequireDefault(require$$14);
 
@@ -32234,7 +32234,7 @@ function requireServer () {
 	exports.Client = Client;
 } (dist));
 
-const uuid$1 = require$$0.v4;
+const uuid$1 = require$$0$1.v4;
 
 /**
  *  Generates a JSON-RPC 1.0 or 2.0 request
@@ -32296,7 +32296,7 @@ const generateRequest$1 = function(method, params, id, options) {
 
 var generateRequest_1 = generateRequest$1;
 
-const uuid = require$$0.v4;
+const uuid = require$$0$1.v4;
 const generateRequest = generateRequest_1;
 
 /**
@@ -32459,6 +32459,10293 @@ ClientBrowser.prototype._parseResponse = function(err, responseText, callback) {
 };
 
 var RpcClient = browser;
+
+const errors = {
+  IMPOSSIBLE_CASE: 'Impossible case. Please create issue.',
+  TWEAK_ADD:
+    'The tweak was out of range or the resulted private key is invalid',
+  TWEAK_MUL: 'The tweak was out of range or equal to zero',
+  CONTEXT_RANDOMIZE_UNKNOW: 'Unknow error on context randomization',
+  SECKEY_INVALID: 'Private Key is invalid',
+  PUBKEY_PARSE: 'Public Key could not be parsed',
+  PUBKEY_SERIALIZE: 'Public Key serialization error',
+  PUBKEY_COMBINE: 'The sum of the public keys is not valid',
+  SIG_PARSE: 'Signature could not be parsed',
+  SIGN: 'The nonce generation function failed, or the private key was invalid',
+  RECOVER: 'Public key could not be recover',
+  ECDH: 'Scalar was invalid (zero or overflow)'
+};
+
+function assert$n (cond, msg) {
+  if (!cond) throw new Error(msg)
+}
+
+function isUint8Array (name, value, length) {
+  assert$n(value instanceof Uint8Array, `Expected ${name} to be an Uint8Array`);
+
+  if (length !== undefined) {
+    if (Array.isArray(length)) {
+      const numbers = length.join(', ');
+      const msg = `Expected ${name} to be an Uint8Array with length [${numbers}]`;
+      assert$n(length.includes(value.length), msg);
+    } else {
+      const msg = `Expected ${name} to be an Uint8Array with length ${length}`;
+      assert$n(value.length === length, msg);
+    }
+  }
+}
+
+function isCompressed (value) {
+  assert$n(toTypeString(value) === 'Boolean', 'Expected compressed to be a Boolean');
+}
+
+function getAssertedOutput (output = (len) => new Uint8Array(len), length) {
+  if (typeof output === 'function') output = output(length);
+  isUint8Array('output', output, length);
+  return output
+}
+
+function toTypeString (value) {
+  return Object.prototype.toString.call(value).slice(8, -1)
+}
+
+var lib$1 = (secp256k1) => {
+  return {
+    contextRandomize (seed) {
+      assert$n(
+        seed === null || seed instanceof Uint8Array,
+        'Expected seed to be an Uint8Array or null'
+      );
+      if (seed !== null) isUint8Array('seed', seed, 32);
+
+      switch (secp256k1.contextRandomize(seed)) {
+        case 1:
+          throw new Error(errors.CONTEXT_RANDOMIZE_UNKNOW)
+      }
+    },
+
+    privateKeyVerify (seckey) {
+      isUint8Array('private key', seckey, 32);
+
+      return secp256k1.privateKeyVerify(seckey) === 0
+    },
+
+    privateKeyNegate (seckey) {
+      isUint8Array('private key', seckey, 32);
+
+      switch (secp256k1.privateKeyNegate(seckey)) {
+        case 0:
+          return seckey
+        case 1:
+          throw new Error(errors.IMPOSSIBLE_CASE)
+      }
+    },
+
+    privateKeyTweakAdd (seckey, tweak) {
+      isUint8Array('private key', seckey, 32);
+      isUint8Array('tweak', tweak, 32);
+
+      switch (secp256k1.privateKeyTweakAdd(seckey, tweak)) {
+        case 0:
+          return seckey
+        case 1:
+          throw new Error(errors.TWEAK_ADD)
+      }
+    },
+
+    privateKeyTweakMul (seckey, tweak) {
+      isUint8Array('private key', seckey, 32);
+      isUint8Array('tweak', tweak, 32);
+
+      switch (secp256k1.privateKeyTweakMul(seckey, tweak)) {
+        case 0:
+          return seckey
+        case 1:
+          throw new Error(errors.TWEAK_MUL)
+      }
+    },
+
+    publicKeyVerify (pubkey) {
+      isUint8Array('public key', pubkey, [33, 65]);
+
+      return secp256k1.publicKeyVerify(pubkey) === 0
+    },
+
+    publicKeyCreate (seckey, compressed = true, output) {
+      isUint8Array('private key', seckey, 32);
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.publicKeyCreate(output, seckey)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.SECKEY_INVALID)
+        case 2:
+          throw new Error(errors.PUBKEY_SERIALIZE)
+      }
+    },
+
+    publicKeyConvert (pubkey, compressed = true, output) {
+      isUint8Array('public key', pubkey, [33, 65]);
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.publicKeyConvert(output, pubkey)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.PUBKEY_PARSE)
+        case 2:
+          throw new Error(errors.PUBKEY_SERIALIZE)
+      }
+    },
+
+    publicKeyNegate (pubkey, compressed = true, output) {
+      isUint8Array('public key', pubkey, [33, 65]);
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.publicKeyNegate(output, pubkey)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.PUBKEY_PARSE)
+        case 2:
+          throw new Error(errors.IMPOSSIBLE_CASE)
+        case 3:
+          throw new Error(errors.PUBKEY_SERIALIZE)
+      }
+    },
+
+    publicKeyCombine (pubkeys, compressed = true, output) {
+      assert$n(Array.isArray(pubkeys), 'Expected public keys to be an Array');
+      assert$n(pubkeys.length > 0, 'Expected public keys array will have more than zero items');
+      for (const pubkey of pubkeys) {
+        isUint8Array('public key', pubkey, [33, 65]);
+      }
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.publicKeyCombine(output, pubkeys)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.PUBKEY_PARSE)
+        case 2:
+          throw new Error(errors.PUBKEY_COMBINE)
+        case 3:
+          throw new Error(errors.PUBKEY_SERIALIZE)
+      }
+    },
+
+    publicKeyTweakAdd (pubkey, tweak, compressed = true, output) {
+      isUint8Array('public key', pubkey, [33, 65]);
+      isUint8Array('tweak', tweak, 32);
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.publicKeyTweakAdd(output, pubkey, tweak)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.PUBKEY_PARSE)
+        case 2:
+          throw new Error(errors.TWEAK_ADD)
+      }
+    },
+
+    publicKeyTweakMul (pubkey, tweak, compressed = true, output) {
+      isUint8Array('public key', pubkey, [33, 65]);
+      isUint8Array('tweak', tweak, 32);
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.publicKeyTweakMul(output, pubkey, tweak)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.PUBKEY_PARSE)
+        case 2:
+          throw new Error(errors.TWEAK_MUL)
+      }
+    },
+
+    signatureNormalize (sig) {
+      isUint8Array('signature', sig, 64);
+
+      switch (secp256k1.signatureNormalize(sig)) {
+        case 0:
+          return sig
+        case 1:
+          throw new Error(errors.SIG_PARSE)
+      }
+    },
+
+    signatureExport (sig, output) {
+      isUint8Array('signature', sig, 64);
+      output = getAssertedOutput(output, 72);
+
+      const obj = { output, outputlen: 72 };
+      switch (secp256k1.signatureExport(obj, sig)) {
+        case 0:
+          return output.slice(0, obj.outputlen)
+        case 1:
+          throw new Error(errors.SIG_PARSE)
+        case 2:
+          throw new Error(errors.IMPOSSIBLE_CASE)
+      }
+    },
+
+    signatureImport (sig, output) {
+      isUint8Array('signature', sig);
+      output = getAssertedOutput(output, 64);
+
+      switch (secp256k1.signatureImport(output, sig)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.SIG_PARSE)
+        case 2:
+          throw new Error(errors.IMPOSSIBLE_CASE)
+      }
+    },
+
+    ecdsaSign (msg32, seckey, options = {}, output) {
+      isUint8Array('message', msg32, 32);
+      isUint8Array('private key', seckey, 32);
+      assert$n(toTypeString(options) === 'Object', 'Expected options to be an Object');
+      if (options.data !== undefined) isUint8Array('options.data', options.data);
+      if (options.noncefn !== undefined) assert$n(toTypeString(options.noncefn) === 'Function', 'Expected options.noncefn to be a Function');
+      output = getAssertedOutput(output, 64);
+
+      const obj = { signature: output, recid: null };
+      switch (secp256k1.ecdsaSign(obj, msg32, seckey, options.data, options.noncefn)) {
+        case 0:
+          return obj
+        case 1:
+          throw new Error(errors.SIGN)
+        case 2:
+          throw new Error(errors.IMPOSSIBLE_CASE)
+      }
+    },
+
+    ecdsaVerify (sig, msg32, pubkey) {
+      isUint8Array('signature', sig, 64);
+      isUint8Array('message', msg32, 32);
+      isUint8Array('public key', pubkey, [33, 65]);
+
+      switch (secp256k1.ecdsaVerify(sig, msg32, pubkey)) {
+        case 0:
+          return true
+        case 3:
+          return false
+        case 1:
+          throw new Error(errors.SIG_PARSE)
+        case 2:
+          throw new Error(errors.PUBKEY_PARSE)
+      }
+    },
+
+    ecdsaRecover (sig, recid, msg32, compressed = true, output) {
+      isUint8Array('signature', sig, 64);
+      assert$n(
+        toTypeString(recid) === 'Number' &&
+          recid >= 0 &&
+          recid <= 3,
+        'Expected recovery id to be a Number within interval [0, 3]'
+      );
+      isUint8Array('message', msg32, 32);
+      isCompressed(compressed);
+      output = getAssertedOutput(output, compressed ? 33 : 65);
+
+      switch (secp256k1.ecdsaRecover(output, sig, recid, msg32)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.SIG_PARSE)
+        case 2:
+          throw new Error(errors.RECOVER)
+        case 3:
+          throw new Error(errors.IMPOSSIBLE_CASE)
+      }
+    },
+
+    ecdh (pubkey, seckey, options = {}, output) {
+      isUint8Array('public key', pubkey, [33, 65]);
+      isUint8Array('private key', seckey, 32);
+      assert$n(toTypeString(options) === 'Object', 'Expected options to be an Object');
+      if (options.data !== undefined) isUint8Array('options.data', options.data);
+      if (options.hashfn !== undefined) {
+        assert$n(toTypeString(options.hashfn) === 'Function', 'Expected options.hashfn to be a Function');
+        if (options.xbuf !== undefined) isUint8Array('options.xbuf', options.xbuf, 32);
+        if (options.ybuf !== undefined) isUint8Array('options.ybuf', options.ybuf, 32);
+        isUint8Array('output', output);
+      } else {
+        output = getAssertedOutput(output, 32);
+      }
+
+      switch (secp256k1.ecdh(output, pubkey, seckey, options.data, options.hashfn, options.xbuf, options.ybuf)) {
+        case 0:
+          return output
+        case 1:
+          throw new Error(errors.PUBKEY_PARSE)
+        case 2:
+          throw new Error(errors.ECDH)
+      }
+    }
+  }
+};
+
+var elliptic$2 = {};
+
+var name = "elliptic";
+var version$3 = "6.5.4";
+var description = "EC cryptography";
+var main = "lib/elliptic.js";
+var files = [
+	"lib"
+];
+var scripts = {
+	lint: "eslint lib test",
+	"lint:fix": "npm run lint -- --fix",
+	unit: "istanbul test _mocha --reporter=spec test/index.js",
+	test: "npm run lint && npm run unit",
+	version: "grunt dist && git add dist/"
+};
+var repository = {
+	type: "git",
+	url: "git@github.com:indutny/elliptic"
+};
+var keywords = [
+	"EC",
+	"Elliptic",
+	"curve",
+	"Cryptography"
+];
+var author = "Fedor Indutny <fedor@indutny.com>";
+var license = "MIT";
+var bugs = {
+	url: "https://github.com/indutny/elliptic/issues"
+};
+var homepage = "https://github.com/indutny/elliptic";
+var devDependencies = {
+	brfs: "^2.0.2",
+	coveralls: "^3.1.0",
+	eslint: "^7.6.0",
+	grunt: "^1.2.1",
+	"grunt-browserify": "^5.3.0",
+	"grunt-cli": "^1.3.2",
+	"grunt-contrib-connect": "^3.0.0",
+	"grunt-contrib-copy": "^1.0.0",
+	"grunt-contrib-uglify": "^5.0.0",
+	"grunt-mocha-istanbul": "^5.0.2",
+	"grunt-saucelabs": "^9.0.1",
+	istanbul: "^0.4.5",
+	mocha: "^8.0.1"
+};
+var dependencies = {
+	"bn.js": "^4.11.9",
+	brorand: "^1.1.0",
+	"hash.js": "^1.0.0",
+	"hmac-drbg": "^1.0.1",
+	inherits: "^2.0.4",
+	"minimalistic-assert": "^1.0.1",
+	"minimalistic-crypto-utils": "^1.0.1"
+};
+var require$$0 = {
+	name: name,
+	version: version$3,
+	description: description,
+	main: main,
+	files: files,
+	scripts: scripts,
+	repository: repository,
+	keywords: keywords,
+	author: author,
+	license: license,
+	bugs: bugs,
+	homepage: homepage,
+	devDependencies: devDependencies,
+	dependencies: dependencies
+};
+
+var utils$w = {};
+
+var bn$1 = {exports: {}};
+
+(function (module) {
+	(function (module, exports) {
+
+	  // Utils
+	  function assert (val, msg) {
+	    if (!val) throw new Error(msg || 'Assertion failed');
+	  }
+
+	  // Could use `inherits` module, but don't want to move from single file
+	  // architecture yet.
+	  function inherits (ctor, superCtor) {
+	    ctor.super_ = superCtor;
+	    var TempCtor = function () {};
+	    TempCtor.prototype = superCtor.prototype;
+	    ctor.prototype = new TempCtor();
+	    ctor.prototype.constructor = ctor;
+	  }
+
+	  // BN
+
+	  function BN (number, base, endian) {
+	    if (BN.isBN(number)) {
+	      return number;
+	    }
+
+	    this.negative = 0;
+	    this.words = null;
+	    this.length = 0;
+
+	    // Reduction context
+	    this.red = null;
+
+	    if (number !== null) {
+	      if (base === 'le' || base === 'be') {
+	        endian = base;
+	        base = 10;
+	      }
+
+	      this._init(number || 0, base || 10, endian || 'be');
+	    }
+	  }
+	  if (typeof module === 'object') {
+	    module.exports = BN;
+	  } else {
+	    exports.BN = BN;
+	  }
+
+	  BN.BN = BN;
+	  BN.wordSize = 26;
+
+	  var Buffer;
+	  try {
+	    if (typeof window !== 'undefined' && typeof window.Buffer !== 'undefined') {
+	      Buffer = window.Buffer;
+	    } else {
+	      Buffer = require$$0$6.Buffer;
+	    }
+	  } catch (e) {
+	  }
+
+	  BN.isBN = function isBN (num) {
+	    if (num instanceof BN) {
+	      return true;
+	    }
+
+	    return num !== null && typeof num === 'object' &&
+	      num.constructor.wordSize === BN.wordSize && Array.isArray(num.words);
+	  };
+
+	  BN.max = function max (left, right) {
+	    if (left.cmp(right) > 0) return left;
+	    return right;
+	  };
+
+	  BN.min = function min (left, right) {
+	    if (left.cmp(right) < 0) return left;
+	    return right;
+	  };
+
+	  BN.prototype._init = function init (number, base, endian) {
+	    if (typeof number === 'number') {
+	      return this._initNumber(number, base, endian);
+	    }
+
+	    if (typeof number === 'object') {
+	      return this._initArray(number, base, endian);
+	    }
+
+	    if (base === 'hex') {
+	      base = 16;
+	    }
+	    assert(base === (base | 0) && base >= 2 && base <= 36);
+
+	    number = number.toString().replace(/\s+/g, '');
+	    var start = 0;
+	    if (number[0] === '-') {
+	      start++;
+	      this.negative = 1;
+	    }
+
+	    if (start < number.length) {
+	      if (base === 16) {
+	        this._parseHex(number, start, endian);
+	      } else {
+	        this._parseBase(number, base, start);
+	        if (endian === 'le') {
+	          this._initArray(this.toArray(), base, endian);
+	        }
+	      }
+	    }
+	  };
+
+	  BN.prototype._initNumber = function _initNumber (number, base, endian) {
+	    if (number < 0) {
+	      this.negative = 1;
+	      number = -number;
+	    }
+	    if (number < 0x4000000) {
+	      this.words = [ number & 0x3ffffff ];
+	      this.length = 1;
+	    } else if (number < 0x10000000000000) {
+	      this.words = [
+	        number & 0x3ffffff,
+	        (number / 0x4000000) & 0x3ffffff
+	      ];
+	      this.length = 2;
+	    } else {
+	      assert(number < 0x20000000000000); // 2 ^ 53 (unsafe)
+	      this.words = [
+	        number & 0x3ffffff,
+	        (number / 0x4000000) & 0x3ffffff,
+	        1
+	      ];
+	      this.length = 3;
+	    }
+
+	    if (endian !== 'le') return;
+
+	    // Reverse the bytes
+	    this._initArray(this.toArray(), base, endian);
+	  };
+
+	  BN.prototype._initArray = function _initArray (number, base, endian) {
+	    // Perhaps a Uint8Array
+	    assert(typeof number.length === 'number');
+	    if (number.length <= 0) {
+	      this.words = [ 0 ];
+	      this.length = 1;
+	      return this;
+	    }
+
+	    this.length = Math.ceil(number.length / 3);
+	    this.words = new Array(this.length);
+	    for (var i = 0; i < this.length; i++) {
+	      this.words[i] = 0;
+	    }
+
+	    var j, w;
+	    var off = 0;
+	    if (endian === 'be') {
+	      for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
+	        w = number[i] | (number[i - 1] << 8) | (number[i - 2] << 16);
+	        this.words[j] |= (w << off) & 0x3ffffff;
+	        this.words[j + 1] = (w >>> (26 - off)) & 0x3ffffff;
+	        off += 24;
+	        if (off >= 26) {
+	          off -= 26;
+	          j++;
+	        }
+	      }
+	    } else if (endian === 'le') {
+	      for (i = 0, j = 0; i < number.length; i += 3) {
+	        w = number[i] | (number[i + 1] << 8) | (number[i + 2] << 16);
+	        this.words[j] |= (w << off) & 0x3ffffff;
+	        this.words[j + 1] = (w >>> (26 - off)) & 0x3ffffff;
+	        off += 24;
+	        if (off >= 26) {
+	          off -= 26;
+	          j++;
+	        }
+	      }
+	    }
+	    return this.strip();
+	  };
+
+	  function parseHex4Bits (string, index) {
+	    var c = string.charCodeAt(index);
+	    // 'A' - 'F'
+	    if (c >= 65 && c <= 70) {
+	      return c - 55;
+	    // 'a' - 'f'
+	    } else if (c >= 97 && c <= 102) {
+	      return c - 87;
+	    // '0' - '9'
+	    } else {
+	      return (c - 48) & 0xf;
+	    }
+	  }
+
+	  function parseHexByte (string, lowerBound, index) {
+	    var r = parseHex4Bits(string, index);
+	    if (index - 1 >= lowerBound) {
+	      r |= parseHex4Bits(string, index - 1) << 4;
+	    }
+	    return r;
+	  }
+
+	  BN.prototype._parseHex = function _parseHex (number, start, endian) {
+	    // Create possibly bigger array to ensure that it fits the number
+	    this.length = Math.ceil((number.length - start) / 6);
+	    this.words = new Array(this.length);
+	    for (var i = 0; i < this.length; i++) {
+	      this.words[i] = 0;
+	    }
+
+	    // 24-bits chunks
+	    var off = 0;
+	    var j = 0;
+
+	    var w;
+	    if (endian === 'be') {
+	      for (i = number.length - 1; i >= start; i -= 2) {
+	        w = parseHexByte(number, start, i) << off;
+	        this.words[j] |= w & 0x3ffffff;
+	        if (off >= 18) {
+	          off -= 18;
+	          j += 1;
+	          this.words[j] |= w >>> 26;
+	        } else {
+	          off += 8;
+	        }
+	      }
+	    } else {
+	      var parseLength = number.length - start;
+	      for (i = parseLength % 2 === 0 ? start + 1 : start; i < number.length; i += 2) {
+	        w = parseHexByte(number, start, i) << off;
+	        this.words[j] |= w & 0x3ffffff;
+	        if (off >= 18) {
+	          off -= 18;
+	          j += 1;
+	          this.words[j] |= w >>> 26;
+	        } else {
+	          off += 8;
+	        }
+	      }
+	    }
+
+	    this.strip();
+	  };
+
+	  function parseBase (str, start, end, mul) {
+	    var r = 0;
+	    var len = Math.min(str.length, end);
+	    for (var i = start; i < len; i++) {
+	      var c = str.charCodeAt(i) - 48;
+
+	      r *= mul;
+
+	      // 'a'
+	      if (c >= 49) {
+	        r += c - 49 + 0xa;
+
+	      // 'A'
+	      } else if (c >= 17) {
+	        r += c - 17 + 0xa;
+
+	      // '0' - '9'
+	      } else {
+	        r += c;
+	      }
+	    }
+	    return r;
+	  }
+
+	  BN.prototype._parseBase = function _parseBase (number, base, start) {
+	    // Initialize as zero
+	    this.words = [ 0 ];
+	    this.length = 1;
+
+	    // Find length of limb in base
+	    for (var limbLen = 0, limbPow = 1; limbPow <= 0x3ffffff; limbPow *= base) {
+	      limbLen++;
+	    }
+	    limbLen--;
+	    limbPow = (limbPow / base) | 0;
+
+	    var total = number.length - start;
+	    var mod = total % limbLen;
+	    var end = Math.min(total, total - mod) + start;
+
+	    var word = 0;
+	    for (var i = start; i < end; i += limbLen) {
+	      word = parseBase(number, i, i + limbLen, base);
+
+	      this.imuln(limbPow);
+	      if (this.words[0] + word < 0x4000000) {
+	        this.words[0] += word;
+	      } else {
+	        this._iaddn(word);
+	      }
+	    }
+
+	    if (mod !== 0) {
+	      var pow = 1;
+	      word = parseBase(number, i, number.length, base);
+
+	      for (i = 0; i < mod; i++) {
+	        pow *= base;
+	      }
+
+	      this.imuln(pow);
+	      if (this.words[0] + word < 0x4000000) {
+	        this.words[0] += word;
+	      } else {
+	        this._iaddn(word);
+	      }
+	    }
+
+	    this.strip();
+	  };
+
+	  BN.prototype.copy = function copy (dest) {
+	    dest.words = new Array(this.length);
+	    for (var i = 0; i < this.length; i++) {
+	      dest.words[i] = this.words[i];
+	    }
+	    dest.length = this.length;
+	    dest.negative = this.negative;
+	    dest.red = this.red;
+	  };
+
+	  BN.prototype.clone = function clone () {
+	    var r = new BN(null);
+	    this.copy(r);
+	    return r;
+	  };
+
+	  BN.prototype._expand = function _expand (size) {
+	    while (this.length < size) {
+	      this.words[this.length++] = 0;
+	    }
+	    return this;
+	  };
+
+	  // Remove leading `0` from `this`
+	  BN.prototype.strip = function strip () {
+	    while (this.length > 1 && this.words[this.length - 1] === 0) {
+	      this.length--;
+	    }
+	    return this._normSign();
+	  };
+
+	  BN.prototype._normSign = function _normSign () {
+	    // -0 = 0
+	    if (this.length === 1 && this.words[0] === 0) {
+	      this.negative = 0;
+	    }
+	    return this;
+	  };
+
+	  BN.prototype.inspect = function inspect () {
+	    return (this.red ? '<BN-R: ' : '<BN: ') + this.toString(16) + '>';
+	  };
+
+	  /*
+
+	  var zeros = [];
+	  var groupSizes = [];
+	  var groupBases = [];
+
+	  var s = '';
+	  var i = -1;
+	  while (++i < BN.wordSize) {
+	    zeros[i] = s;
+	    s += '0';
+	  }
+	  groupSizes[0] = 0;
+	  groupSizes[1] = 0;
+	  groupBases[0] = 0;
+	  groupBases[1] = 0;
+	  var base = 2 - 1;
+	  while (++base < 36 + 1) {
+	    var groupSize = 0;
+	    var groupBase = 1;
+	    while (groupBase < (1 << BN.wordSize) / base) {
+	      groupBase *= base;
+	      groupSize += 1;
+	    }
+	    groupSizes[base] = groupSize;
+	    groupBases[base] = groupBase;
+	  }
+
+	  */
+
+	  var zeros = [
+	    '',
+	    '0',
+	    '00',
+	    '000',
+	    '0000',
+	    '00000',
+	    '000000',
+	    '0000000',
+	    '00000000',
+	    '000000000',
+	    '0000000000',
+	    '00000000000',
+	    '000000000000',
+	    '0000000000000',
+	    '00000000000000',
+	    '000000000000000',
+	    '0000000000000000',
+	    '00000000000000000',
+	    '000000000000000000',
+	    '0000000000000000000',
+	    '00000000000000000000',
+	    '000000000000000000000',
+	    '0000000000000000000000',
+	    '00000000000000000000000',
+	    '000000000000000000000000',
+	    '0000000000000000000000000'
+	  ];
+
+	  var groupSizes = [
+	    0, 0,
+	    25, 16, 12, 11, 10, 9, 8,
+	    8, 7, 7, 7, 7, 6, 6,
+	    6, 6, 6, 6, 6, 5, 5,
+	    5, 5, 5, 5, 5, 5, 5,
+	    5, 5, 5, 5, 5, 5, 5
+	  ];
+
+	  var groupBases = [
+	    0, 0,
+	    33554432, 43046721, 16777216, 48828125, 60466176, 40353607, 16777216,
+	    43046721, 10000000, 19487171, 35831808, 62748517, 7529536, 11390625,
+	    16777216, 24137569, 34012224, 47045881, 64000000, 4084101, 5153632,
+	    6436343, 7962624, 9765625, 11881376, 14348907, 17210368, 20511149,
+	    24300000, 28629151, 33554432, 39135393, 45435424, 52521875, 60466176
+	  ];
+
+	  BN.prototype.toString = function toString (base, padding) {
+	    base = base || 10;
+	    padding = padding | 0 || 1;
+
+	    var out;
+	    if (base === 16 || base === 'hex') {
+	      out = '';
+	      var off = 0;
+	      var carry = 0;
+	      for (var i = 0; i < this.length; i++) {
+	        var w = this.words[i];
+	        var word = (((w << off) | carry) & 0xffffff).toString(16);
+	        carry = (w >>> (24 - off)) & 0xffffff;
+	        if (carry !== 0 || i !== this.length - 1) {
+	          out = zeros[6 - word.length] + word + out;
+	        } else {
+	          out = word + out;
+	        }
+	        off += 2;
+	        if (off >= 26) {
+	          off -= 26;
+	          i--;
+	        }
+	      }
+	      if (carry !== 0) {
+	        out = carry.toString(16) + out;
+	      }
+	      while (out.length % padding !== 0) {
+	        out = '0' + out;
+	      }
+	      if (this.negative !== 0) {
+	        out = '-' + out;
+	      }
+	      return out;
+	    }
+
+	    if (base === (base | 0) && base >= 2 && base <= 36) {
+	      // var groupSize = Math.floor(BN.wordSize * Math.LN2 / Math.log(base));
+	      var groupSize = groupSizes[base];
+	      // var groupBase = Math.pow(base, groupSize);
+	      var groupBase = groupBases[base];
+	      out = '';
+	      var c = this.clone();
+	      c.negative = 0;
+	      while (!c.isZero()) {
+	        var r = c.modn(groupBase).toString(base);
+	        c = c.idivn(groupBase);
+
+	        if (!c.isZero()) {
+	          out = zeros[groupSize - r.length] + r + out;
+	        } else {
+	          out = r + out;
+	        }
+	      }
+	      if (this.isZero()) {
+	        out = '0' + out;
+	      }
+	      while (out.length % padding !== 0) {
+	        out = '0' + out;
+	      }
+	      if (this.negative !== 0) {
+	        out = '-' + out;
+	      }
+	      return out;
+	    }
+
+	    assert(false, 'Base should be between 2 and 36');
+	  };
+
+	  BN.prototype.toNumber = function toNumber () {
+	    var ret = this.words[0];
+	    if (this.length === 2) {
+	      ret += this.words[1] * 0x4000000;
+	    } else if (this.length === 3 && this.words[2] === 0x01) {
+	      // NOTE: at this stage it is known that the top bit is set
+	      ret += 0x10000000000000 + (this.words[1] * 0x4000000);
+	    } else if (this.length > 2) {
+	      assert(false, 'Number can only safely store up to 53 bits');
+	    }
+	    return (this.negative !== 0) ? -ret : ret;
+	  };
+
+	  BN.prototype.toJSON = function toJSON () {
+	    return this.toString(16);
+	  };
+
+	  BN.prototype.toBuffer = function toBuffer (endian, length) {
+	    assert(typeof Buffer !== 'undefined');
+	    return this.toArrayLike(Buffer, endian, length);
+	  };
+
+	  BN.prototype.toArray = function toArray (endian, length) {
+	    return this.toArrayLike(Array, endian, length);
+	  };
+
+	  BN.prototype.toArrayLike = function toArrayLike (ArrayType, endian, length) {
+	    var byteLength = this.byteLength();
+	    var reqLength = length || Math.max(1, byteLength);
+	    assert(byteLength <= reqLength, 'byte array longer than desired length');
+	    assert(reqLength > 0, 'Requested array length <= 0');
+
+	    this.strip();
+	    var littleEndian = endian === 'le';
+	    var res = new ArrayType(reqLength);
+
+	    var b, i;
+	    var q = this.clone();
+	    if (!littleEndian) {
+	      // Assume big-endian
+	      for (i = 0; i < reqLength - byteLength; i++) {
+	        res[i] = 0;
+	      }
+
+	      for (i = 0; !q.isZero(); i++) {
+	        b = q.andln(0xff);
+	        q.iushrn(8);
+
+	        res[reqLength - i - 1] = b;
+	      }
+	    } else {
+	      for (i = 0; !q.isZero(); i++) {
+	        b = q.andln(0xff);
+	        q.iushrn(8);
+
+	        res[i] = b;
+	      }
+
+	      for (; i < reqLength; i++) {
+	        res[i] = 0;
+	      }
+	    }
+
+	    return res;
+	  };
+
+	  if (Math.clz32) {
+	    BN.prototype._countBits = function _countBits (w) {
+	      return 32 - Math.clz32(w);
+	    };
+	  } else {
+	    BN.prototype._countBits = function _countBits (w) {
+	      var t = w;
+	      var r = 0;
+	      if (t >= 0x1000) {
+	        r += 13;
+	        t >>>= 13;
+	      }
+	      if (t >= 0x40) {
+	        r += 7;
+	        t >>>= 7;
+	      }
+	      if (t >= 0x8) {
+	        r += 4;
+	        t >>>= 4;
+	      }
+	      if (t >= 0x02) {
+	        r += 2;
+	        t >>>= 2;
+	      }
+	      return r + t;
+	    };
+	  }
+
+	  BN.prototype._zeroBits = function _zeroBits (w) {
+	    // Short-cut
+	    if (w === 0) return 26;
+
+	    var t = w;
+	    var r = 0;
+	    if ((t & 0x1fff) === 0) {
+	      r += 13;
+	      t >>>= 13;
+	    }
+	    if ((t & 0x7f) === 0) {
+	      r += 7;
+	      t >>>= 7;
+	    }
+	    if ((t & 0xf) === 0) {
+	      r += 4;
+	      t >>>= 4;
+	    }
+	    if ((t & 0x3) === 0) {
+	      r += 2;
+	      t >>>= 2;
+	    }
+	    if ((t & 0x1) === 0) {
+	      r++;
+	    }
+	    return r;
+	  };
+
+	  // Return number of used bits in a BN
+	  BN.prototype.bitLength = function bitLength () {
+	    var w = this.words[this.length - 1];
+	    var hi = this._countBits(w);
+	    return (this.length - 1) * 26 + hi;
+	  };
+
+	  function toBitArray (num) {
+	    var w = new Array(num.bitLength());
+
+	    for (var bit = 0; bit < w.length; bit++) {
+	      var off = (bit / 26) | 0;
+	      var wbit = bit % 26;
+
+	      w[bit] = (num.words[off] & (1 << wbit)) >>> wbit;
+	    }
+
+	    return w;
+	  }
+
+	  // Number of trailing zero bits
+	  BN.prototype.zeroBits = function zeroBits () {
+	    if (this.isZero()) return 0;
+
+	    var r = 0;
+	    for (var i = 0; i < this.length; i++) {
+	      var b = this._zeroBits(this.words[i]);
+	      r += b;
+	      if (b !== 26) break;
+	    }
+	    return r;
+	  };
+
+	  BN.prototype.byteLength = function byteLength () {
+	    return Math.ceil(this.bitLength() / 8);
+	  };
+
+	  BN.prototype.toTwos = function toTwos (width) {
+	    if (this.negative !== 0) {
+	      return this.abs().inotn(width).iaddn(1);
+	    }
+	    return this.clone();
+	  };
+
+	  BN.prototype.fromTwos = function fromTwos (width) {
+	    if (this.testn(width - 1)) {
+	      return this.notn(width).iaddn(1).ineg();
+	    }
+	    return this.clone();
+	  };
+
+	  BN.prototype.isNeg = function isNeg () {
+	    return this.negative !== 0;
+	  };
+
+	  // Return negative clone of `this`
+	  BN.prototype.neg = function neg () {
+	    return this.clone().ineg();
+	  };
+
+	  BN.prototype.ineg = function ineg () {
+	    if (!this.isZero()) {
+	      this.negative ^= 1;
+	    }
+
+	    return this;
+	  };
+
+	  // Or `num` with `this` in-place
+	  BN.prototype.iuor = function iuor (num) {
+	    while (this.length < num.length) {
+	      this.words[this.length++] = 0;
+	    }
+
+	    for (var i = 0; i < num.length; i++) {
+	      this.words[i] = this.words[i] | num.words[i];
+	    }
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.ior = function ior (num) {
+	    assert((this.negative | num.negative) === 0);
+	    return this.iuor(num);
+	  };
+
+	  // Or `num` with `this`
+	  BN.prototype.or = function or (num) {
+	    if (this.length > num.length) return this.clone().ior(num);
+	    return num.clone().ior(this);
+	  };
+
+	  BN.prototype.uor = function uor (num) {
+	    if (this.length > num.length) return this.clone().iuor(num);
+	    return num.clone().iuor(this);
+	  };
+
+	  // And `num` with `this` in-place
+	  BN.prototype.iuand = function iuand (num) {
+	    // b = min-length(num, this)
+	    var b;
+	    if (this.length > num.length) {
+	      b = num;
+	    } else {
+	      b = this;
+	    }
+
+	    for (var i = 0; i < b.length; i++) {
+	      this.words[i] = this.words[i] & num.words[i];
+	    }
+
+	    this.length = b.length;
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.iand = function iand (num) {
+	    assert((this.negative | num.negative) === 0);
+	    return this.iuand(num);
+	  };
+
+	  // And `num` with `this`
+	  BN.prototype.and = function and (num) {
+	    if (this.length > num.length) return this.clone().iand(num);
+	    return num.clone().iand(this);
+	  };
+
+	  BN.prototype.uand = function uand (num) {
+	    if (this.length > num.length) return this.clone().iuand(num);
+	    return num.clone().iuand(this);
+	  };
+
+	  // Xor `num` with `this` in-place
+	  BN.prototype.iuxor = function iuxor (num) {
+	    // a.length > b.length
+	    var a;
+	    var b;
+	    if (this.length > num.length) {
+	      a = this;
+	      b = num;
+	    } else {
+	      a = num;
+	      b = this;
+	    }
+
+	    for (var i = 0; i < b.length; i++) {
+	      this.words[i] = a.words[i] ^ b.words[i];
+	    }
+
+	    if (this !== a) {
+	      for (; i < a.length; i++) {
+	        this.words[i] = a.words[i];
+	      }
+	    }
+
+	    this.length = a.length;
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.ixor = function ixor (num) {
+	    assert((this.negative | num.negative) === 0);
+	    return this.iuxor(num);
+	  };
+
+	  // Xor `num` with `this`
+	  BN.prototype.xor = function xor (num) {
+	    if (this.length > num.length) return this.clone().ixor(num);
+	    return num.clone().ixor(this);
+	  };
+
+	  BN.prototype.uxor = function uxor (num) {
+	    if (this.length > num.length) return this.clone().iuxor(num);
+	    return num.clone().iuxor(this);
+	  };
+
+	  // Not ``this`` with ``width`` bitwidth
+	  BN.prototype.inotn = function inotn (width) {
+	    assert(typeof width === 'number' && width >= 0);
+
+	    var bytesNeeded = Math.ceil(width / 26) | 0;
+	    var bitsLeft = width % 26;
+
+	    // Extend the buffer with leading zeroes
+	    this._expand(bytesNeeded);
+
+	    if (bitsLeft > 0) {
+	      bytesNeeded--;
+	    }
+
+	    // Handle complete words
+	    for (var i = 0; i < bytesNeeded; i++) {
+	      this.words[i] = ~this.words[i] & 0x3ffffff;
+	    }
+
+	    // Handle the residue
+	    if (bitsLeft > 0) {
+	      this.words[i] = ~this.words[i] & (0x3ffffff >> (26 - bitsLeft));
+	    }
+
+	    // And remove leading zeroes
+	    return this.strip();
+	  };
+
+	  BN.prototype.notn = function notn (width) {
+	    return this.clone().inotn(width);
+	  };
+
+	  // Set `bit` of `this`
+	  BN.prototype.setn = function setn (bit, val) {
+	    assert(typeof bit === 'number' && bit >= 0);
+
+	    var off = (bit / 26) | 0;
+	    var wbit = bit % 26;
+
+	    this._expand(off + 1);
+
+	    if (val) {
+	      this.words[off] = this.words[off] | (1 << wbit);
+	    } else {
+	      this.words[off] = this.words[off] & ~(1 << wbit);
+	    }
+
+	    return this.strip();
+	  };
+
+	  // Add `num` to `this` in-place
+	  BN.prototype.iadd = function iadd (num) {
+	    var r;
+
+	    // negative + positive
+	    if (this.negative !== 0 && num.negative === 0) {
+	      this.negative = 0;
+	      r = this.isub(num);
+	      this.negative ^= 1;
+	      return this._normSign();
+
+	    // positive + negative
+	    } else if (this.negative === 0 && num.negative !== 0) {
+	      num.negative = 0;
+	      r = this.isub(num);
+	      num.negative = 1;
+	      return r._normSign();
+	    }
+
+	    // a.length > b.length
+	    var a, b;
+	    if (this.length > num.length) {
+	      a = this;
+	      b = num;
+	    } else {
+	      a = num;
+	      b = this;
+	    }
+
+	    var carry = 0;
+	    for (var i = 0; i < b.length; i++) {
+	      r = (a.words[i] | 0) + (b.words[i] | 0) + carry;
+	      this.words[i] = r & 0x3ffffff;
+	      carry = r >>> 26;
+	    }
+	    for (; carry !== 0 && i < a.length; i++) {
+	      r = (a.words[i] | 0) + carry;
+	      this.words[i] = r & 0x3ffffff;
+	      carry = r >>> 26;
+	    }
+
+	    this.length = a.length;
+	    if (carry !== 0) {
+	      this.words[this.length] = carry;
+	      this.length++;
+	    // Copy the rest of the words
+	    } else if (a !== this) {
+	      for (; i < a.length; i++) {
+	        this.words[i] = a.words[i];
+	      }
+	    }
+
+	    return this;
+	  };
+
+	  // Add `num` to `this`
+	  BN.prototype.add = function add (num) {
+	    var res;
+	    if (num.negative !== 0 && this.negative === 0) {
+	      num.negative = 0;
+	      res = this.sub(num);
+	      num.negative ^= 1;
+	      return res;
+	    } else if (num.negative === 0 && this.negative !== 0) {
+	      this.negative = 0;
+	      res = num.sub(this);
+	      this.negative = 1;
+	      return res;
+	    }
+
+	    if (this.length > num.length) return this.clone().iadd(num);
+
+	    return num.clone().iadd(this);
+	  };
+
+	  // Subtract `num` from `this` in-place
+	  BN.prototype.isub = function isub (num) {
+	    // this - (-num) = this + num
+	    if (num.negative !== 0) {
+	      num.negative = 0;
+	      var r = this.iadd(num);
+	      num.negative = 1;
+	      return r._normSign();
+
+	    // -this - num = -(this + num)
+	    } else if (this.negative !== 0) {
+	      this.negative = 0;
+	      this.iadd(num);
+	      this.negative = 1;
+	      return this._normSign();
+	    }
+
+	    // At this point both numbers are positive
+	    var cmp = this.cmp(num);
+
+	    // Optimization - zeroify
+	    if (cmp === 0) {
+	      this.negative = 0;
+	      this.length = 1;
+	      this.words[0] = 0;
+	      return this;
+	    }
+
+	    // a > b
+	    var a, b;
+	    if (cmp > 0) {
+	      a = this;
+	      b = num;
+	    } else {
+	      a = num;
+	      b = this;
+	    }
+
+	    var carry = 0;
+	    for (var i = 0; i < b.length; i++) {
+	      r = (a.words[i] | 0) - (b.words[i] | 0) + carry;
+	      carry = r >> 26;
+	      this.words[i] = r & 0x3ffffff;
+	    }
+	    for (; carry !== 0 && i < a.length; i++) {
+	      r = (a.words[i] | 0) + carry;
+	      carry = r >> 26;
+	      this.words[i] = r & 0x3ffffff;
+	    }
+
+	    // Copy rest of the words
+	    if (carry === 0 && i < a.length && a !== this) {
+	      for (; i < a.length; i++) {
+	        this.words[i] = a.words[i];
+	      }
+	    }
+
+	    this.length = Math.max(this.length, i);
+
+	    if (a !== this) {
+	      this.negative = 1;
+	    }
+
+	    return this.strip();
+	  };
+
+	  // Subtract `num` from `this`
+	  BN.prototype.sub = function sub (num) {
+	    return this.clone().isub(num);
+	  };
+
+	  function smallMulTo (self, num, out) {
+	    out.negative = num.negative ^ self.negative;
+	    var len = (self.length + num.length) | 0;
+	    out.length = len;
+	    len = (len - 1) | 0;
+
+	    // Peel one iteration (compiler can't do it, because of code complexity)
+	    var a = self.words[0] | 0;
+	    var b = num.words[0] | 0;
+	    var r = a * b;
+
+	    var lo = r & 0x3ffffff;
+	    var carry = (r / 0x4000000) | 0;
+	    out.words[0] = lo;
+
+	    for (var k = 1; k < len; k++) {
+	      // Sum all words with the same `i + j = k` and accumulate `ncarry`,
+	      // note that ncarry could be >= 0x3ffffff
+	      var ncarry = carry >>> 26;
+	      var rword = carry & 0x3ffffff;
+	      var maxJ = Math.min(k, num.length - 1);
+	      for (var j = Math.max(0, k - self.length + 1); j <= maxJ; j++) {
+	        var i = (k - j) | 0;
+	        a = self.words[i] | 0;
+	        b = num.words[j] | 0;
+	        r = a * b + rword;
+	        ncarry += (r / 0x4000000) | 0;
+	        rword = r & 0x3ffffff;
+	      }
+	      out.words[k] = rword | 0;
+	      carry = ncarry | 0;
+	    }
+	    if (carry !== 0) {
+	      out.words[k] = carry | 0;
+	    } else {
+	      out.length--;
+	    }
+
+	    return out.strip();
+	  }
+
+	  // TODO(indutny): it may be reasonable to omit it for users who don't need
+	  // to work with 256-bit numbers, otherwise it gives 20% improvement for 256-bit
+	  // multiplication (like elliptic secp256k1).
+	  var comb10MulTo = function comb10MulTo (self, num, out) {
+	    var a = self.words;
+	    var b = num.words;
+	    var o = out.words;
+	    var c = 0;
+	    var lo;
+	    var mid;
+	    var hi;
+	    var a0 = a[0] | 0;
+	    var al0 = a0 & 0x1fff;
+	    var ah0 = a0 >>> 13;
+	    var a1 = a[1] | 0;
+	    var al1 = a1 & 0x1fff;
+	    var ah1 = a1 >>> 13;
+	    var a2 = a[2] | 0;
+	    var al2 = a2 & 0x1fff;
+	    var ah2 = a2 >>> 13;
+	    var a3 = a[3] | 0;
+	    var al3 = a3 & 0x1fff;
+	    var ah3 = a3 >>> 13;
+	    var a4 = a[4] | 0;
+	    var al4 = a4 & 0x1fff;
+	    var ah4 = a4 >>> 13;
+	    var a5 = a[5] | 0;
+	    var al5 = a5 & 0x1fff;
+	    var ah5 = a5 >>> 13;
+	    var a6 = a[6] | 0;
+	    var al6 = a6 & 0x1fff;
+	    var ah6 = a6 >>> 13;
+	    var a7 = a[7] | 0;
+	    var al7 = a7 & 0x1fff;
+	    var ah7 = a7 >>> 13;
+	    var a8 = a[8] | 0;
+	    var al8 = a8 & 0x1fff;
+	    var ah8 = a8 >>> 13;
+	    var a9 = a[9] | 0;
+	    var al9 = a9 & 0x1fff;
+	    var ah9 = a9 >>> 13;
+	    var b0 = b[0] | 0;
+	    var bl0 = b0 & 0x1fff;
+	    var bh0 = b0 >>> 13;
+	    var b1 = b[1] | 0;
+	    var bl1 = b1 & 0x1fff;
+	    var bh1 = b1 >>> 13;
+	    var b2 = b[2] | 0;
+	    var bl2 = b2 & 0x1fff;
+	    var bh2 = b2 >>> 13;
+	    var b3 = b[3] | 0;
+	    var bl3 = b3 & 0x1fff;
+	    var bh3 = b3 >>> 13;
+	    var b4 = b[4] | 0;
+	    var bl4 = b4 & 0x1fff;
+	    var bh4 = b4 >>> 13;
+	    var b5 = b[5] | 0;
+	    var bl5 = b5 & 0x1fff;
+	    var bh5 = b5 >>> 13;
+	    var b6 = b[6] | 0;
+	    var bl6 = b6 & 0x1fff;
+	    var bh6 = b6 >>> 13;
+	    var b7 = b[7] | 0;
+	    var bl7 = b7 & 0x1fff;
+	    var bh7 = b7 >>> 13;
+	    var b8 = b[8] | 0;
+	    var bl8 = b8 & 0x1fff;
+	    var bh8 = b8 >>> 13;
+	    var b9 = b[9] | 0;
+	    var bl9 = b9 & 0x1fff;
+	    var bh9 = b9 >>> 13;
+
+	    out.negative = self.negative ^ num.negative;
+	    out.length = 19;
+	    /* k = 0 */
+	    lo = Math.imul(al0, bl0);
+	    mid = Math.imul(al0, bh0);
+	    mid = (mid + Math.imul(ah0, bl0)) | 0;
+	    hi = Math.imul(ah0, bh0);
+	    var w0 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w0 >>> 26)) | 0;
+	    w0 &= 0x3ffffff;
+	    /* k = 1 */
+	    lo = Math.imul(al1, bl0);
+	    mid = Math.imul(al1, bh0);
+	    mid = (mid + Math.imul(ah1, bl0)) | 0;
+	    hi = Math.imul(ah1, bh0);
+	    lo = (lo + Math.imul(al0, bl1)) | 0;
+	    mid = (mid + Math.imul(al0, bh1)) | 0;
+	    mid = (mid + Math.imul(ah0, bl1)) | 0;
+	    hi = (hi + Math.imul(ah0, bh1)) | 0;
+	    var w1 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w1 >>> 26)) | 0;
+	    w1 &= 0x3ffffff;
+	    /* k = 2 */
+	    lo = Math.imul(al2, bl0);
+	    mid = Math.imul(al2, bh0);
+	    mid = (mid + Math.imul(ah2, bl0)) | 0;
+	    hi = Math.imul(ah2, bh0);
+	    lo = (lo + Math.imul(al1, bl1)) | 0;
+	    mid = (mid + Math.imul(al1, bh1)) | 0;
+	    mid = (mid + Math.imul(ah1, bl1)) | 0;
+	    hi = (hi + Math.imul(ah1, bh1)) | 0;
+	    lo = (lo + Math.imul(al0, bl2)) | 0;
+	    mid = (mid + Math.imul(al0, bh2)) | 0;
+	    mid = (mid + Math.imul(ah0, bl2)) | 0;
+	    hi = (hi + Math.imul(ah0, bh2)) | 0;
+	    var w2 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w2 >>> 26)) | 0;
+	    w2 &= 0x3ffffff;
+	    /* k = 3 */
+	    lo = Math.imul(al3, bl0);
+	    mid = Math.imul(al3, bh0);
+	    mid = (mid + Math.imul(ah3, bl0)) | 0;
+	    hi = Math.imul(ah3, bh0);
+	    lo = (lo + Math.imul(al2, bl1)) | 0;
+	    mid = (mid + Math.imul(al2, bh1)) | 0;
+	    mid = (mid + Math.imul(ah2, bl1)) | 0;
+	    hi = (hi + Math.imul(ah2, bh1)) | 0;
+	    lo = (lo + Math.imul(al1, bl2)) | 0;
+	    mid = (mid + Math.imul(al1, bh2)) | 0;
+	    mid = (mid + Math.imul(ah1, bl2)) | 0;
+	    hi = (hi + Math.imul(ah1, bh2)) | 0;
+	    lo = (lo + Math.imul(al0, bl3)) | 0;
+	    mid = (mid + Math.imul(al0, bh3)) | 0;
+	    mid = (mid + Math.imul(ah0, bl3)) | 0;
+	    hi = (hi + Math.imul(ah0, bh3)) | 0;
+	    var w3 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w3 >>> 26)) | 0;
+	    w3 &= 0x3ffffff;
+	    /* k = 4 */
+	    lo = Math.imul(al4, bl0);
+	    mid = Math.imul(al4, bh0);
+	    mid = (mid + Math.imul(ah4, bl0)) | 0;
+	    hi = Math.imul(ah4, bh0);
+	    lo = (lo + Math.imul(al3, bl1)) | 0;
+	    mid = (mid + Math.imul(al3, bh1)) | 0;
+	    mid = (mid + Math.imul(ah3, bl1)) | 0;
+	    hi = (hi + Math.imul(ah3, bh1)) | 0;
+	    lo = (lo + Math.imul(al2, bl2)) | 0;
+	    mid = (mid + Math.imul(al2, bh2)) | 0;
+	    mid = (mid + Math.imul(ah2, bl2)) | 0;
+	    hi = (hi + Math.imul(ah2, bh2)) | 0;
+	    lo = (lo + Math.imul(al1, bl3)) | 0;
+	    mid = (mid + Math.imul(al1, bh3)) | 0;
+	    mid = (mid + Math.imul(ah1, bl3)) | 0;
+	    hi = (hi + Math.imul(ah1, bh3)) | 0;
+	    lo = (lo + Math.imul(al0, bl4)) | 0;
+	    mid = (mid + Math.imul(al0, bh4)) | 0;
+	    mid = (mid + Math.imul(ah0, bl4)) | 0;
+	    hi = (hi + Math.imul(ah0, bh4)) | 0;
+	    var w4 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w4 >>> 26)) | 0;
+	    w4 &= 0x3ffffff;
+	    /* k = 5 */
+	    lo = Math.imul(al5, bl0);
+	    mid = Math.imul(al5, bh0);
+	    mid = (mid + Math.imul(ah5, bl0)) | 0;
+	    hi = Math.imul(ah5, bh0);
+	    lo = (lo + Math.imul(al4, bl1)) | 0;
+	    mid = (mid + Math.imul(al4, bh1)) | 0;
+	    mid = (mid + Math.imul(ah4, bl1)) | 0;
+	    hi = (hi + Math.imul(ah4, bh1)) | 0;
+	    lo = (lo + Math.imul(al3, bl2)) | 0;
+	    mid = (mid + Math.imul(al3, bh2)) | 0;
+	    mid = (mid + Math.imul(ah3, bl2)) | 0;
+	    hi = (hi + Math.imul(ah3, bh2)) | 0;
+	    lo = (lo + Math.imul(al2, bl3)) | 0;
+	    mid = (mid + Math.imul(al2, bh3)) | 0;
+	    mid = (mid + Math.imul(ah2, bl3)) | 0;
+	    hi = (hi + Math.imul(ah2, bh3)) | 0;
+	    lo = (lo + Math.imul(al1, bl4)) | 0;
+	    mid = (mid + Math.imul(al1, bh4)) | 0;
+	    mid = (mid + Math.imul(ah1, bl4)) | 0;
+	    hi = (hi + Math.imul(ah1, bh4)) | 0;
+	    lo = (lo + Math.imul(al0, bl5)) | 0;
+	    mid = (mid + Math.imul(al0, bh5)) | 0;
+	    mid = (mid + Math.imul(ah0, bl5)) | 0;
+	    hi = (hi + Math.imul(ah0, bh5)) | 0;
+	    var w5 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w5 >>> 26)) | 0;
+	    w5 &= 0x3ffffff;
+	    /* k = 6 */
+	    lo = Math.imul(al6, bl0);
+	    mid = Math.imul(al6, bh0);
+	    mid = (mid + Math.imul(ah6, bl0)) | 0;
+	    hi = Math.imul(ah6, bh0);
+	    lo = (lo + Math.imul(al5, bl1)) | 0;
+	    mid = (mid + Math.imul(al5, bh1)) | 0;
+	    mid = (mid + Math.imul(ah5, bl1)) | 0;
+	    hi = (hi + Math.imul(ah5, bh1)) | 0;
+	    lo = (lo + Math.imul(al4, bl2)) | 0;
+	    mid = (mid + Math.imul(al4, bh2)) | 0;
+	    mid = (mid + Math.imul(ah4, bl2)) | 0;
+	    hi = (hi + Math.imul(ah4, bh2)) | 0;
+	    lo = (lo + Math.imul(al3, bl3)) | 0;
+	    mid = (mid + Math.imul(al3, bh3)) | 0;
+	    mid = (mid + Math.imul(ah3, bl3)) | 0;
+	    hi = (hi + Math.imul(ah3, bh3)) | 0;
+	    lo = (lo + Math.imul(al2, bl4)) | 0;
+	    mid = (mid + Math.imul(al2, bh4)) | 0;
+	    mid = (mid + Math.imul(ah2, bl4)) | 0;
+	    hi = (hi + Math.imul(ah2, bh4)) | 0;
+	    lo = (lo + Math.imul(al1, bl5)) | 0;
+	    mid = (mid + Math.imul(al1, bh5)) | 0;
+	    mid = (mid + Math.imul(ah1, bl5)) | 0;
+	    hi = (hi + Math.imul(ah1, bh5)) | 0;
+	    lo = (lo + Math.imul(al0, bl6)) | 0;
+	    mid = (mid + Math.imul(al0, bh6)) | 0;
+	    mid = (mid + Math.imul(ah0, bl6)) | 0;
+	    hi = (hi + Math.imul(ah0, bh6)) | 0;
+	    var w6 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w6 >>> 26)) | 0;
+	    w6 &= 0x3ffffff;
+	    /* k = 7 */
+	    lo = Math.imul(al7, bl0);
+	    mid = Math.imul(al7, bh0);
+	    mid = (mid + Math.imul(ah7, bl0)) | 0;
+	    hi = Math.imul(ah7, bh0);
+	    lo = (lo + Math.imul(al6, bl1)) | 0;
+	    mid = (mid + Math.imul(al6, bh1)) | 0;
+	    mid = (mid + Math.imul(ah6, bl1)) | 0;
+	    hi = (hi + Math.imul(ah6, bh1)) | 0;
+	    lo = (lo + Math.imul(al5, bl2)) | 0;
+	    mid = (mid + Math.imul(al5, bh2)) | 0;
+	    mid = (mid + Math.imul(ah5, bl2)) | 0;
+	    hi = (hi + Math.imul(ah5, bh2)) | 0;
+	    lo = (lo + Math.imul(al4, bl3)) | 0;
+	    mid = (mid + Math.imul(al4, bh3)) | 0;
+	    mid = (mid + Math.imul(ah4, bl3)) | 0;
+	    hi = (hi + Math.imul(ah4, bh3)) | 0;
+	    lo = (lo + Math.imul(al3, bl4)) | 0;
+	    mid = (mid + Math.imul(al3, bh4)) | 0;
+	    mid = (mid + Math.imul(ah3, bl4)) | 0;
+	    hi = (hi + Math.imul(ah3, bh4)) | 0;
+	    lo = (lo + Math.imul(al2, bl5)) | 0;
+	    mid = (mid + Math.imul(al2, bh5)) | 0;
+	    mid = (mid + Math.imul(ah2, bl5)) | 0;
+	    hi = (hi + Math.imul(ah2, bh5)) | 0;
+	    lo = (lo + Math.imul(al1, bl6)) | 0;
+	    mid = (mid + Math.imul(al1, bh6)) | 0;
+	    mid = (mid + Math.imul(ah1, bl6)) | 0;
+	    hi = (hi + Math.imul(ah1, bh6)) | 0;
+	    lo = (lo + Math.imul(al0, bl7)) | 0;
+	    mid = (mid + Math.imul(al0, bh7)) | 0;
+	    mid = (mid + Math.imul(ah0, bl7)) | 0;
+	    hi = (hi + Math.imul(ah0, bh7)) | 0;
+	    var w7 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w7 >>> 26)) | 0;
+	    w7 &= 0x3ffffff;
+	    /* k = 8 */
+	    lo = Math.imul(al8, bl0);
+	    mid = Math.imul(al8, bh0);
+	    mid = (mid + Math.imul(ah8, bl0)) | 0;
+	    hi = Math.imul(ah8, bh0);
+	    lo = (lo + Math.imul(al7, bl1)) | 0;
+	    mid = (mid + Math.imul(al7, bh1)) | 0;
+	    mid = (mid + Math.imul(ah7, bl1)) | 0;
+	    hi = (hi + Math.imul(ah7, bh1)) | 0;
+	    lo = (lo + Math.imul(al6, bl2)) | 0;
+	    mid = (mid + Math.imul(al6, bh2)) | 0;
+	    mid = (mid + Math.imul(ah6, bl2)) | 0;
+	    hi = (hi + Math.imul(ah6, bh2)) | 0;
+	    lo = (lo + Math.imul(al5, bl3)) | 0;
+	    mid = (mid + Math.imul(al5, bh3)) | 0;
+	    mid = (mid + Math.imul(ah5, bl3)) | 0;
+	    hi = (hi + Math.imul(ah5, bh3)) | 0;
+	    lo = (lo + Math.imul(al4, bl4)) | 0;
+	    mid = (mid + Math.imul(al4, bh4)) | 0;
+	    mid = (mid + Math.imul(ah4, bl4)) | 0;
+	    hi = (hi + Math.imul(ah4, bh4)) | 0;
+	    lo = (lo + Math.imul(al3, bl5)) | 0;
+	    mid = (mid + Math.imul(al3, bh5)) | 0;
+	    mid = (mid + Math.imul(ah3, bl5)) | 0;
+	    hi = (hi + Math.imul(ah3, bh5)) | 0;
+	    lo = (lo + Math.imul(al2, bl6)) | 0;
+	    mid = (mid + Math.imul(al2, bh6)) | 0;
+	    mid = (mid + Math.imul(ah2, bl6)) | 0;
+	    hi = (hi + Math.imul(ah2, bh6)) | 0;
+	    lo = (lo + Math.imul(al1, bl7)) | 0;
+	    mid = (mid + Math.imul(al1, bh7)) | 0;
+	    mid = (mid + Math.imul(ah1, bl7)) | 0;
+	    hi = (hi + Math.imul(ah1, bh7)) | 0;
+	    lo = (lo + Math.imul(al0, bl8)) | 0;
+	    mid = (mid + Math.imul(al0, bh8)) | 0;
+	    mid = (mid + Math.imul(ah0, bl8)) | 0;
+	    hi = (hi + Math.imul(ah0, bh8)) | 0;
+	    var w8 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w8 >>> 26)) | 0;
+	    w8 &= 0x3ffffff;
+	    /* k = 9 */
+	    lo = Math.imul(al9, bl0);
+	    mid = Math.imul(al9, bh0);
+	    mid = (mid + Math.imul(ah9, bl0)) | 0;
+	    hi = Math.imul(ah9, bh0);
+	    lo = (lo + Math.imul(al8, bl1)) | 0;
+	    mid = (mid + Math.imul(al8, bh1)) | 0;
+	    mid = (mid + Math.imul(ah8, bl1)) | 0;
+	    hi = (hi + Math.imul(ah8, bh1)) | 0;
+	    lo = (lo + Math.imul(al7, bl2)) | 0;
+	    mid = (mid + Math.imul(al7, bh2)) | 0;
+	    mid = (mid + Math.imul(ah7, bl2)) | 0;
+	    hi = (hi + Math.imul(ah7, bh2)) | 0;
+	    lo = (lo + Math.imul(al6, bl3)) | 0;
+	    mid = (mid + Math.imul(al6, bh3)) | 0;
+	    mid = (mid + Math.imul(ah6, bl3)) | 0;
+	    hi = (hi + Math.imul(ah6, bh3)) | 0;
+	    lo = (lo + Math.imul(al5, bl4)) | 0;
+	    mid = (mid + Math.imul(al5, bh4)) | 0;
+	    mid = (mid + Math.imul(ah5, bl4)) | 0;
+	    hi = (hi + Math.imul(ah5, bh4)) | 0;
+	    lo = (lo + Math.imul(al4, bl5)) | 0;
+	    mid = (mid + Math.imul(al4, bh5)) | 0;
+	    mid = (mid + Math.imul(ah4, bl5)) | 0;
+	    hi = (hi + Math.imul(ah4, bh5)) | 0;
+	    lo = (lo + Math.imul(al3, bl6)) | 0;
+	    mid = (mid + Math.imul(al3, bh6)) | 0;
+	    mid = (mid + Math.imul(ah3, bl6)) | 0;
+	    hi = (hi + Math.imul(ah3, bh6)) | 0;
+	    lo = (lo + Math.imul(al2, bl7)) | 0;
+	    mid = (mid + Math.imul(al2, bh7)) | 0;
+	    mid = (mid + Math.imul(ah2, bl7)) | 0;
+	    hi = (hi + Math.imul(ah2, bh7)) | 0;
+	    lo = (lo + Math.imul(al1, bl8)) | 0;
+	    mid = (mid + Math.imul(al1, bh8)) | 0;
+	    mid = (mid + Math.imul(ah1, bl8)) | 0;
+	    hi = (hi + Math.imul(ah1, bh8)) | 0;
+	    lo = (lo + Math.imul(al0, bl9)) | 0;
+	    mid = (mid + Math.imul(al0, bh9)) | 0;
+	    mid = (mid + Math.imul(ah0, bl9)) | 0;
+	    hi = (hi + Math.imul(ah0, bh9)) | 0;
+	    var w9 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w9 >>> 26)) | 0;
+	    w9 &= 0x3ffffff;
+	    /* k = 10 */
+	    lo = Math.imul(al9, bl1);
+	    mid = Math.imul(al9, bh1);
+	    mid = (mid + Math.imul(ah9, bl1)) | 0;
+	    hi = Math.imul(ah9, bh1);
+	    lo = (lo + Math.imul(al8, bl2)) | 0;
+	    mid = (mid + Math.imul(al8, bh2)) | 0;
+	    mid = (mid + Math.imul(ah8, bl2)) | 0;
+	    hi = (hi + Math.imul(ah8, bh2)) | 0;
+	    lo = (lo + Math.imul(al7, bl3)) | 0;
+	    mid = (mid + Math.imul(al7, bh3)) | 0;
+	    mid = (mid + Math.imul(ah7, bl3)) | 0;
+	    hi = (hi + Math.imul(ah7, bh3)) | 0;
+	    lo = (lo + Math.imul(al6, bl4)) | 0;
+	    mid = (mid + Math.imul(al6, bh4)) | 0;
+	    mid = (mid + Math.imul(ah6, bl4)) | 0;
+	    hi = (hi + Math.imul(ah6, bh4)) | 0;
+	    lo = (lo + Math.imul(al5, bl5)) | 0;
+	    mid = (mid + Math.imul(al5, bh5)) | 0;
+	    mid = (mid + Math.imul(ah5, bl5)) | 0;
+	    hi = (hi + Math.imul(ah5, bh5)) | 0;
+	    lo = (lo + Math.imul(al4, bl6)) | 0;
+	    mid = (mid + Math.imul(al4, bh6)) | 0;
+	    mid = (mid + Math.imul(ah4, bl6)) | 0;
+	    hi = (hi + Math.imul(ah4, bh6)) | 0;
+	    lo = (lo + Math.imul(al3, bl7)) | 0;
+	    mid = (mid + Math.imul(al3, bh7)) | 0;
+	    mid = (mid + Math.imul(ah3, bl7)) | 0;
+	    hi = (hi + Math.imul(ah3, bh7)) | 0;
+	    lo = (lo + Math.imul(al2, bl8)) | 0;
+	    mid = (mid + Math.imul(al2, bh8)) | 0;
+	    mid = (mid + Math.imul(ah2, bl8)) | 0;
+	    hi = (hi + Math.imul(ah2, bh8)) | 0;
+	    lo = (lo + Math.imul(al1, bl9)) | 0;
+	    mid = (mid + Math.imul(al1, bh9)) | 0;
+	    mid = (mid + Math.imul(ah1, bl9)) | 0;
+	    hi = (hi + Math.imul(ah1, bh9)) | 0;
+	    var w10 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w10 >>> 26)) | 0;
+	    w10 &= 0x3ffffff;
+	    /* k = 11 */
+	    lo = Math.imul(al9, bl2);
+	    mid = Math.imul(al9, bh2);
+	    mid = (mid + Math.imul(ah9, bl2)) | 0;
+	    hi = Math.imul(ah9, bh2);
+	    lo = (lo + Math.imul(al8, bl3)) | 0;
+	    mid = (mid + Math.imul(al8, bh3)) | 0;
+	    mid = (mid + Math.imul(ah8, bl3)) | 0;
+	    hi = (hi + Math.imul(ah8, bh3)) | 0;
+	    lo = (lo + Math.imul(al7, bl4)) | 0;
+	    mid = (mid + Math.imul(al7, bh4)) | 0;
+	    mid = (mid + Math.imul(ah7, bl4)) | 0;
+	    hi = (hi + Math.imul(ah7, bh4)) | 0;
+	    lo = (lo + Math.imul(al6, bl5)) | 0;
+	    mid = (mid + Math.imul(al6, bh5)) | 0;
+	    mid = (mid + Math.imul(ah6, bl5)) | 0;
+	    hi = (hi + Math.imul(ah6, bh5)) | 0;
+	    lo = (lo + Math.imul(al5, bl6)) | 0;
+	    mid = (mid + Math.imul(al5, bh6)) | 0;
+	    mid = (mid + Math.imul(ah5, bl6)) | 0;
+	    hi = (hi + Math.imul(ah5, bh6)) | 0;
+	    lo = (lo + Math.imul(al4, bl7)) | 0;
+	    mid = (mid + Math.imul(al4, bh7)) | 0;
+	    mid = (mid + Math.imul(ah4, bl7)) | 0;
+	    hi = (hi + Math.imul(ah4, bh7)) | 0;
+	    lo = (lo + Math.imul(al3, bl8)) | 0;
+	    mid = (mid + Math.imul(al3, bh8)) | 0;
+	    mid = (mid + Math.imul(ah3, bl8)) | 0;
+	    hi = (hi + Math.imul(ah3, bh8)) | 0;
+	    lo = (lo + Math.imul(al2, bl9)) | 0;
+	    mid = (mid + Math.imul(al2, bh9)) | 0;
+	    mid = (mid + Math.imul(ah2, bl9)) | 0;
+	    hi = (hi + Math.imul(ah2, bh9)) | 0;
+	    var w11 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w11 >>> 26)) | 0;
+	    w11 &= 0x3ffffff;
+	    /* k = 12 */
+	    lo = Math.imul(al9, bl3);
+	    mid = Math.imul(al9, bh3);
+	    mid = (mid + Math.imul(ah9, bl3)) | 0;
+	    hi = Math.imul(ah9, bh3);
+	    lo = (lo + Math.imul(al8, bl4)) | 0;
+	    mid = (mid + Math.imul(al8, bh4)) | 0;
+	    mid = (mid + Math.imul(ah8, bl4)) | 0;
+	    hi = (hi + Math.imul(ah8, bh4)) | 0;
+	    lo = (lo + Math.imul(al7, bl5)) | 0;
+	    mid = (mid + Math.imul(al7, bh5)) | 0;
+	    mid = (mid + Math.imul(ah7, bl5)) | 0;
+	    hi = (hi + Math.imul(ah7, bh5)) | 0;
+	    lo = (lo + Math.imul(al6, bl6)) | 0;
+	    mid = (mid + Math.imul(al6, bh6)) | 0;
+	    mid = (mid + Math.imul(ah6, bl6)) | 0;
+	    hi = (hi + Math.imul(ah6, bh6)) | 0;
+	    lo = (lo + Math.imul(al5, bl7)) | 0;
+	    mid = (mid + Math.imul(al5, bh7)) | 0;
+	    mid = (mid + Math.imul(ah5, bl7)) | 0;
+	    hi = (hi + Math.imul(ah5, bh7)) | 0;
+	    lo = (lo + Math.imul(al4, bl8)) | 0;
+	    mid = (mid + Math.imul(al4, bh8)) | 0;
+	    mid = (mid + Math.imul(ah4, bl8)) | 0;
+	    hi = (hi + Math.imul(ah4, bh8)) | 0;
+	    lo = (lo + Math.imul(al3, bl9)) | 0;
+	    mid = (mid + Math.imul(al3, bh9)) | 0;
+	    mid = (mid + Math.imul(ah3, bl9)) | 0;
+	    hi = (hi + Math.imul(ah3, bh9)) | 0;
+	    var w12 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w12 >>> 26)) | 0;
+	    w12 &= 0x3ffffff;
+	    /* k = 13 */
+	    lo = Math.imul(al9, bl4);
+	    mid = Math.imul(al9, bh4);
+	    mid = (mid + Math.imul(ah9, bl4)) | 0;
+	    hi = Math.imul(ah9, bh4);
+	    lo = (lo + Math.imul(al8, bl5)) | 0;
+	    mid = (mid + Math.imul(al8, bh5)) | 0;
+	    mid = (mid + Math.imul(ah8, bl5)) | 0;
+	    hi = (hi + Math.imul(ah8, bh5)) | 0;
+	    lo = (lo + Math.imul(al7, bl6)) | 0;
+	    mid = (mid + Math.imul(al7, bh6)) | 0;
+	    mid = (mid + Math.imul(ah7, bl6)) | 0;
+	    hi = (hi + Math.imul(ah7, bh6)) | 0;
+	    lo = (lo + Math.imul(al6, bl7)) | 0;
+	    mid = (mid + Math.imul(al6, bh7)) | 0;
+	    mid = (mid + Math.imul(ah6, bl7)) | 0;
+	    hi = (hi + Math.imul(ah6, bh7)) | 0;
+	    lo = (lo + Math.imul(al5, bl8)) | 0;
+	    mid = (mid + Math.imul(al5, bh8)) | 0;
+	    mid = (mid + Math.imul(ah5, bl8)) | 0;
+	    hi = (hi + Math.imul(ah5, bh8)) | 0;
+	    lo = (lo + Math.imul(al4, bl9)) | 0;
+	    mid = (mid + Math.imul(al4, bh9)) | 0;
+	    mid = (mid + Math.imul(ah4, bl9)) | 0;
+	    hi = (hi + Math.imul(ah4, bh9)) | 0;
+	    var w13 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w13 >>> 26)) | 0;
+	    w13 &= 0x3ffffff;
+	    /* k = 14 */
+	    lo = Math.imul(al9, bl5);
+	    mid = Math.imul(al9, bh5);
+	    mid = (mid + Math.imul(ah9, bl5)) | 0;
+	    hi = Math.imul(ah9, bh5);
+	    lo = (lo + Math.imul(al8, bl6)) | 0;
+	    mid = (mid + Math.imul(al8, bh6)) | 0;
+	    mid = (mid + Math.imul(ah8, bl6)) | 0;
+	    hi = (hi + Math.imul(ah8, bh6)) | 0;
+	    lo = (lo + Math.imul(al7, bl7)) | 0;
+	    mid = (mid + Math.imul(al7, bh7)) | 0;
+	    mid = (mid + Math.imul(ah7, bl7)) | 0;
+	    hi = (hi + Math.imul(ah7, bh7)) | 0;
+	    lo = (lo + Math.imul(al6, bl8)) | 0;
+	    mid = (mid + Math.imul(al6, bh8)) | 0;
+	    mid = (mid + Math.imul(ah6, bl8)) | 0;
+	    hi = (hi + Math.imul(ah6, bh8)) | 0;
+	    lo = (lo + Math.imul(al5, bl9)) | 0;
+	    mid = (mid + Math.imul(al5, bh9)) | 0;
+	    mid = (mid + Math.imul(ah5, bl9)) | 0;
+	    hi = (hi + Math.imul(ah5, bh9)) | 0;
+	    var w14 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w14 >>> 26)) | 0;
+	    w14 &= 0x3ffffff;
+	    /* k = 15 */
+	    lo = Math.imul(al9, bl6);
+	    mid = Math.imul(al9, bh6);
+	    mid = (mid + Math.imul(ah9, bl6)) | 0;
+	    hi = Math.imul(ah9, bh6);
+	    lo = (lo + Math.imul(al8, bl7)) | 0;
+	    mid = (mid + Math.imul(al8, bh7)) | 0;
+	    mid = (mid + Math.imul(ah8, bl7)) | 0;
+	    hi = (hi + Math.imul(ah8, bh7)) | 0;
+	    lo = (lo + Math.imul(al7, bl8)) | 0;
+	    mid = (mid + Math.imul(al7, bh8)) | 0;
+	    mid = (mid + Math.imul(ah7, bl8)) | 0;
+	    hi = (hi + Math.imul(ah7, bh8)) | 0;
+	    lo = (lo + Math.imul(al6, bl9)) | 0;
+	    mid = (mid + Math.imul(al6, bh9)) | 0;
+	    mid = (mid + Math.imul(ah6, bl9)) | 0;
+	    hi = (hi + Math.imul(ah6, bh9)) | 0;
+	    var w15 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w15 >>> 26)) | 0;
+	    w15 &= 0x3ffffff;
+	    /* k = 16 */
+	    lo = Math.imul(al9, bl7);
+	    mid = Math.imul(al9, bh7);
+	    mid = (mid + Math.imul(ah9, bl7)) | 0;
+	    hi = Math.imul(ah9, bh7);
+	    lo = (lo + Math.imul(al8, bl8)) | 0;
+	    mid = (mid + Math.imul(al8, bh8)) | 0;
+	    mid = (mid + Math.imul(ah8, bl8)) | 0;
+	    hi = (hi + Math.imul(ah8, bh8)) | 0;
+	    lo = (lo + Math.imul(al7, bl9)) | 0;
+	    mid = (mid + Math.imul(al7, bh9)) | 0;
+	    mid = (mid + Math.imul(ah7, bl9)) | 0;
+	    hi = (hi + Math.imul(ah7, bh9)) | 0;
+	    var w16 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w16 >>> 26)) | 0;
+	    w16 &= 0x3ffffff;
+	    /* k = 17 */
+	    lo = Math.imul(al9, bl8);
+	    mid = Math.imul(al9, bh8);
+	    mid = (mid + Math.imul(ah9, bl8)) | 0;
+	    hi = Math.imul(ah9, bh8);
+	    lo = (lo + Math.imul(al8, bl9)) | 0;
+	    mid = (mid + Math.imul(al8, bh9)) | 0;
+	    mid = (mid + Math.imul(ah8, bl9)) | 0;
+	    hi = (hi + Math.imul(ah8, bh9)) | 0;
+	    var w17 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w17 >>> 26)) | 0;
+	    w17 &= 0x3ffffff;
+	    /* k = 18 */
+	    lo = Math.imul(al9, bl9);
+	    mid = Math.imul(al9, bh9);
+	    mid = (mid + Math.imul(ah9, bl9)) | 0;
+	    hi = Math.imul(ah9, bh9);
+	    var w18 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w18 >>> 26)) | 0;
+	    w18 &= 0x3ffffff;
+	    o[0] = w0;
+	    o[1] = w1;
+	    o[2] = w2;
+	    o[3] = w3;
+	    o[4] = w4;
+	    o[5] = w5;
+	    o[6] = w6;
+	    o[7] = w7;
+	    o[8] = w8;
+	    o[9] = w9;
+	    o[10] = w10;
+	    o[11] = w11;
+	    o[12] = w12;
+	    o[13] = w13;
+	    o[14] = w14;
+	    o[15] = w15;
+	    o[16] = w16;
+	    o[17] = w17;
+	    o[18] = w18;
+	    if (c !== 0) {
+	      o[19] = c;
+	      out.length++;
+	    }
+	    return out;
+	  };
+
+	  // Polyfill comb
+	  if (!Math.imul) {
+	    comb10MulTo = smallMulTo;
+	  }
+
+	  function bigMulTo (self, num, out) {
+	    out.negative = num.negative ^ self.negative;
+	    out.length = self.length + num.length;
+
+	    var carry = 0;
+	    var hncarry = 0;
+	    for (var k = 0; k < out.length - 1; k++) {
+	      // Sum all words with the same `i + j = k` and accumulate `ncarry`,
+	      // note that ncarry could be >= 0x3ffffff
+	      var ncarry = hncarry;
+	      hncarry = 0;
+	      var rword = carry & 0x3ffffff;
+	      var maxJ = Math.min(k, num.length - 1);
+	      for (var j = Math.max(0, k - self.length + 1); j <= maxJ; j++) {
+	        var i = k - j;
+	        var a = self.words[i] | 0;
+	        var b = num.words[j] | 0;
+	        var r = a * b;
+
+	        var lo = r & 0x3ffffff;
+	        ncarry = (ncarry + ((r / 0x4000000) | 0)) | 0;
+	        lo = (lo + rword) | 0;
+	        rword = lo & 0x3ffffff;
+	        ncarry = (ncarry + (lo >>> 26)) | 0;
+
+	        hncarry += ncarry >>> 26;
+	        ncarry &= 0x3ffffff;
+	      }
+	      out.words[k] = rword;
+	      carry = ncarry;
+	      ncarry = hncarry;
+	    }
+	    if (carry !== 0) {
+	      out.words[k] = carry;
+	    } else {
+	      out.length--;
+	    }
+
+	    return out.strip();
+	  }
+
+	  function jumboMulTo (self, num, out) {
+	    var fftm = new FFTM();
+	    return fftm.mulp(self, num, out);
+	  }
+
+	  BN.prototype.mulTo = function mulTo (num, out) {
+	    var res;
+	    var len = this.length + num.length;
+	    if (this.length === 10 && num.length === 10) {
+	      res = comb10MulTo(this, num, out);
+	    } else if (len < 63) {
+	      res = smallMulTo(this, num, out);
+	    } else if (len < 1024) {
+	      res = bigMulTo(this, num, out);
+	    } else {
+	      res = jumboMulTo(this, num, out);
+	    }
+
+	    return res;
+	  };
+
+	  // Cooley-Tukey algorithm for FFT
+	  // slightly revisited to rely on looping instead of recursion
+
+	  function FFTM (x, y) {
+	    this.x = x;
+	    this.y = y;
+	  }
+
+	  FFTM.prototype.makeRBT = function makeRBT (N) {
+	    var t = new Array(N);
+	    var l = BN.prototype._countBits(N) - 1;
+	    for (var i = 0; i < N; i++) {
+	      t[i] = this.revBin(i, l, N);
+	    }
+
+	    return t;
+	  };
+
+	  // Returns binary-reversed representation of `x`
+	  FFTM.prototype.revBin = function revBin (x, l, N) {
+	    if (x === 0 || x === N - 1) return x;
+
+	    var rb = 0;
+	    for (var i = 0; i < l; i++) {
+	      rb |= (x & 1) << (l - i - 1);
+	      x >>= 1;
+	    }
+
+	    return rb;
+	  };
+
+	  // Performs "tweedling" phase, therefore 'emulating'
+	  // behaviour of the recursive algorithm
+	  FFTM.prototype.permute = function permute (rbt, rws, iws, rtws, itws, N) {
+	    for (var i = 0; i < N; i++) {
+	      rtws[i] = rws[rbt[i]];
+	      itws[i] = iws[rbt[i]];
+	    }
+	  };
+
+	  FFTM.prototype.transform = function transform (rws, iws, rtws, itws, N, rbt) {
+	    this.permute(rbt, rws, iws, rtws, itws, N);
+
+	    for (var s = 1; s < N; s <<= 1) {
+	      var l = s << 1;
+
+	      var rtwdf = Math.cos(2 * Math.PI / l);
+	      var itwdf = Math.sin(2 * Math.PI / l);
+
+	      for (var p = 0; p < N; p += l) {
+	        var rtwdf_ = rtwdf;
+	        var itwdf_ = itwdf;
+
+	        for (var j = 0; j < s; j++) {
+	          var re = rtws[p + j];
+	          var ie = itws[p + j];
+
+	          var ro = rtws[p + j + s];
+	          var io = itws[p + j + s];
+
+	          var rx = rtwdf_ * ro - itwdf_ * io;
+
+	          io = rtwdf_ * io + itwdf_ * ro;
+	          ro = rx;
+
+	          rtws[p + j] = re + ro;
+	          itws[p + j] = ie + io;
+
+	          rtws[p + j + s] = re - ro;
+	          itws[p + j + s] = ie - io;
+
+	          /* jshint maxdepth : false */
+	          if (j !== l) {
+	            rx = rtwdf * rtwdf_ - itwdf * itwdf_;
+
+	            itwdf_ = rtwdf * itwdf_ + itwdf * rtwdf_;
+	            rtwdf_ = rx;
+	          }
+	        }
+	      }
+	    }
+	  };
+
+	  FFTM.prototype.guessLen13b = function guessLen13b (n, m) {
+	    var N = Math.max(m, n) | 1;
+	    var odd = N & 1;
+	    var i = 0;
+	    for (N = N / 2 | 0; N; N = N >>> 1) {
+	      i++;
+	    }
+
+	    return 1 << i + 1 + odd;
+	  };
+
+	  FFTM.prototype.conjugate = function conjugate (rws, iws, N) {
+	    if (N <= 1) return;
+
+	    for (var i = 0; i < N / 2; i++) {
+	      var t = rws[i];
+
+	      rws[i] = rws[N - i - 1];
+	      rws[N - i - 1] = t;
+
+	      t = iws[i];
+
+	      iws[i] = -iws[N - i - 1];
+	      iws[N - i - 1] = -t;
+	    }
+	  };
+
+	  FFTM.prototype.normalize13b = function normalize13b (ws, N) {
+	    var carry = 0;
+	    for (var i = 0; i < N / 2; i++) {
+	      var w = Math.round(ws[2 * i + 1] / N) * 0x2000 +
+	        Math.round(ws[2 * i] / N) +
+	        carry;
+
+	      ws[i] = w & 0x3ffffff;
+
+	      if (w < 0x4000000) {
+	        carry = 0;
+	      } else {
+	        carry = w / 0x4000000 | 0;
+	      }
+	    }
+
+	    return ws;
+	  };
+
+	  FFTM.prototype.convert13b = function convert13b (ws, len, rws, N) {
+	    var carry = 0;
+	    for (var i = 0; i < len; i++) {
+	      carry = carry + (ws[i] | 0);
+
+	      rws[2 * i] = carry & 0x1fff; carry = carry >>> 13;
+	      rws[2 * i + 1] = carry & 0x1fff; carry = carry >>> 13;
+	    }
+
+	    // Pad with zeroes
+	    for (i = 2 * len; i < N; ++i) {
+	      rws[i] = 0;
+	    }
+
+	    assert(carry === 0);
+	    assert((carry & ~0x1fff) === 0);
+	  };
+
+	  FFTM.prototype.stub = function stub (N) {
+	    var ph = new Array(N);
+	    for (var i = 0; i < N; i++) {
+	      ph[i] = 0;
+	    }
+
+	    return ph;
+	  };
+
+	  FFTM.prototype.mulp = function mulp (x, y, out) {
+	    var N = 2 * this.guessLen13b(x.length, y.length);
+
+	    var rbt = this.makeRBT(N);
+
+	    var _ = this.stub(N);
+
+	    var rws = new Array(N);
+	    var rwst = new Array(N);
+	    var iwst = new Array(N);
+
+	    var nrws = new Array(N);
+	    var nrwst = new Array(N);
+	    var niwst = new Array(N);
+
+	    var rmws = out.words;
+	    rmws.length = N;
+
+	    this.convert13b(x.words, x.length, rws, N);
+	    this.convert13b(y.words, y.length, nrws, N);
+
+	    this.transform(rws, _, rwst, iwst, N, rbt);
+	    this.transform(nrws, _, nrwst, niwst, N, rbt);
+
+	    for (var i = 0; i < N; i++) {
+	      var rx = rwst[i] * nrwst[i] - iwst[i] * niwst[i];
+	      iwst[i] = rwst[i] * niwst[i] + iwst[i] * nrwst[i];
+	      rwst[i] = rx;
+	    }
+
+	    this.conjugate(rwst, iwst, N);
+	    this.transform(rwst, iwst, rmws, _, N, rbt);
+	    this.conjugate(rmws, _, N);
+	    this.normalize13b(rmws, N);
+
+	    out.negative = x.negative ^ y.negative;
+	    out.length = x.length + y.length;
+	    return out.strip();
+	  };
+
+	  // Multiply `this` by `num`
+	  BN.prototype.mul = function mul (num) {
+	    var out = new BN(null);
+	    out.words = new Array(this.length + num.length);
+	    return this.mulTo(num, out);
+	  };
+
+	  // Multiply employing FFT
+	  BN.prototype.mulf = function mulf (num) {
+	    var out = new BN(null);
+	    out.words = new Array(this.length + num.length);
+	    return jumboMulTo(this, num, out);
+	  };
+
+	  // In-place Multiplication
+	  BN.prototype.imul = function imul (num) {
+	    return this.clone().mulTo(num, this);
+	  };
+
+	  BN.prototype.imuln = function imuln (num) {
+	    assert(typeof num === 'number');
+	    assert(num < 0x4000000);
+
+	    // Carry
+	    var carry = 0;
+	    for (var i = 0; i < this.length; i++) {
+	      var w = (this.words[i] | 0) * num;
+	      var lo = (w & 0x3ffffff) + (carry & 0x3ffffff);
+	      carry >>= 26;
+	      carry += (w / 0x4000000) | 0;
+	      // NOTE: lo is 27bit maximum
+	      carry += lo >>> 26;
+	      this.words[i] = lo & 0x3ffffff;
+	    }
+
+	    if (carry !== 0) {
+	      this.words[i] = carry;
+	      this.length++;
+	    }
+
+	    return this;
+	  };
+
+	  BN.prototype.muln = function muln (num) {
+	    return this.clone().imuln(num);
+	  };
+
+	  // `this` * `this`
+	  BN.prototype.sqr = function sqr () {
+	    return this.mul(this);
+	  };
+
+	  // `this` * `this` in-place
+	  BN.prototype.isqr = function isqr () {
+	    return this.imul(this.clone());
+	  };
+
+	  // Math.pow(`this`, `num`)
+	  BN.prototype.pow = function pow (num) {
+	    var w = toBitArray(num);
+	    if (w.length === 0) return new BN(1);
+
+	    // Skip leading zeroes
+	    var res = this;
+	    for (var i = 0; i < w.length; i++, res = res.sqr()) {
+	      if (w[i] !== 0) break;
+	    }
+
+	    if (++i < w.length) {
+	      for (var q = res.sqr(); i < w.length; i++, q = q.sqr()) {
+	        if (w[i] === 0) continue;
+
+	        res = res.mul(q);
+	      }
+	    }
+
+	    return res;
+	  };
+
+	  // Shift-left in-place
+	  BN.prototype.iushln = function iushln (bits) {
+	    assert(typeof bits === 'number' && bits >= 0);
+	    var r = bits % 26;
+	    var s = (bits - r) / 26;
+	    var carryMask = (0x3ffffff >>> (26 - r)) << (26 - r);
+	    var i;
+
+	    if (r !== 0) {
+	      var carry = 0;
+
+	      for (i = 0; i < this.length; i++) {
+	        var newCarry = this.words[i] & carryMask;
+	        var c = ((this.words[i] | 0) - newCarry) << r;
+	        this.words[i] = c | carry;
+	        carry = newCarry >>> (26 - r);
+	      }
+
+	      if (carry) {
+	        this.words[i] = carry;
+	        this.length++;
+	      }
+	    }
+
+	    if (s !== 0) {
+	      for (i = this.length - 1; i >= 0; i--) {
+	        this.words[i + s] = this.words[i];
+	      }
+
+	      for (i = 0; i < s; i++) {
+	        this.words[i] = 0;
+	      }
+
+	      this.length += s;
+	    }
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.ishln = function ishln (bits) {
+	    // TODO(indutny): implement me
+	    assert(this.negative === 0);
+	    return this.iushln(bits);
+	  };
+
+	  // Shift-right in-place
+	  // NOTE: `hint` is a lowest bit before trailing zeroes
+	  // NOTE: if `extended` is present - it will be filled with destroyed bits
+	  BN.prototype.iushrn = function iushrn (bits, hint, extended) {
+	    assert(typeof bits === 'number' && bits >= 0);
+	    var h;
+	    if (hint) {
+	      h = (hint - (hint % 26)) / 26;
+	    } else {
+	      h = 0;
+	    }
+
+	    var r = bits % 26;
+	    var s = Math.min((bits - r) / 26, this.length);
+	    var mask = 0x3ffffff ^ ((0x3ffffff >>> r) << r);
+	    var maskedWords = extended;
+
+	    h -= s;
+	    h = Math.max(0, h);
+
+	    // Extended mode, copy masked part
+	    if (maskedWords) {
+	      for (var i = 0; i < s; i++) {
+	        maskedWords.words[i] = this.words[i];
+	      }
+	      maskedWords.length = s;
+	    }
+
+	    if (s === 0) ; else if (this.length > s) {
+	      this.length -= s;
+	      for (i = 0; i < this.length; i++) {
+	        this.words[i] = this.words[i + s];
+	      }
+	    } else {
+	      this.words[0] = 0;
+	      this.length = 1;
+	    }
+
+	    var carry = 0;
+	    for (i = this.length - 1; i >= 0 && (carry !== 0 || i >= h); i--) {
+	      var word = this.words[i] | 0;
+	      this.words[i] = (carry << (26 - r)) | (word >>> r);
+	      carry = word & mask;
+	    }
+
+	    // Push carried bits as a mask
+	    if (maskedWords && carry !== 0) {
+	      maskedWords.words[maskedWords.length++] = carry;
+	    }
+
+	    if (this.length === 0) {
+	      this.words[0] = 0;
+	      this.length = 1;
+	    }
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.ishrn = function ishrn (bits, hint, extended) {
+	    // TODO(indutny): implement me
+	    assert(this.negative === 0);
+	    return this.iushrn(bits, hint, extended);
+	  };
+
+	  // Shift-left
+	  BN.prototype.shln = function shln (bits) {
+	    return this.clone().ishln(bits);
+	  };
+
+	  BN.prototype.ushln = function ushln (bits) {
+	    return this.clone().iushln(bits);
+	  };
+
+	  // Shift-right
+	  BN.prototype.shrn = function shrn (bits) {
+	    return this.clone().ishrn(bits);
+	  };
+
+	  BN.prototype.ushrn = function ushrn (bits) {
+	    return this.clone().iushrn(bits);
+	  };
+
+	  // Test if n bit is set
+	  BN.prototype.testn = function testn (bit) {
+	    assert(typeof bit === 'number' && bit >= 0);
+	    var r = bit % 26;
+	    var s = (bit - r) / 26;
+	    var q = 1 << r;
+
+	    // Fast case: bit is much higher than all existing words
+	    if (this.length <= s) return false;
+
+	    // Check bit and return
+	    var w = this.words[s];
+
+	    return !!(w & q);
+	  };
+
+	  // Return only lowers bits of number (in-place)
+	  BN.prototype.imaskn = function imaskn (bits) {
+	    assert(typeof bits === 'number' && bits >= 0);
+	    var r = bits % 26;
+	    var s = (bits - r) / 26;
+
+	    assert(this.negative === 0, 'imaskn works only with positive numbers');
+
+	    if (this.length <= s) {
+	      return this;
+	    }
+
+	    if (r !== 0) {
+	      s++;
+	    }
+	    this.length = Math.min(s, this.length);
+
+	    if (r !== 0) {
+	      var mask = 0x3ffffff ^ ((0x3ffffff >>> r) << r);
+	      this.words[this.length - 1] &= mask;
+	    }
+
+	    return this.strip();
+	  };
+
+	  // Return only lowers bits of number
+	  BN.prototype.maskn = function maskn (bits) {
+	    return this.clone().imaskn(bits);
+	  };
+
+	  // Add plain number `num` to `this`
+	  BN.prototype.iaddn = function iaddn (num) {
+	    assert(typeof num === 'number');
+	    assert(num < 0x4000000);
+	    if (num < 0) return this.isubn(-num);
+
+	    // Possible sign change
+	    if (this.negative !== 0) {
+	      if (this.length === 1 && (this.words[0] | 0) < num) {
+	        this.words[0] = num - (this.words[0] | 0);
+	        this.negative = 0;
+	        return this;
+	      }
+
+	      this.negative = 0;
+	      this.isubn(num);
+	      this.negative = 1;
+	      return this;
+	    }
+
+	    // Add without checks
+	    return this._iaddn(num);
+	  };
+
+	  BN.prototype._iaddn = function _iaddn (num) {
+	    this.words[0] += num;
+
+	    // Carry
+	    for (var i = 0; i < this.length && this.words[i] >= 0x4000000; i++) {
+	      this.words[i] -= 0x4000000;
+	      if (i === this.length - 1) {
+	        this.words[i + 1] = 1;
+	      } else {
+	        this.words[i + 1]++;
+	      }
+	    }
+	    this.length = Math.max(this.length, i + 1);
+
+	    return this;
+	  };
+
+	  // Subtract plain number `num` from `this`
+	  BN.prototype.isubn = function isubn (num) {
+	    assert(typeof num === 'number');
+	    assert(num < 0x4000000);
+	    if (num < 0) return this.iaddn(-num);
+
+	    if (this.negative !== 0) {
+	      this.negative = 0;
+	      this.iaddn(num);
+	      this.negative = 1;
+	      return this;
+	    }
+
+	    this.words[0] -= num;
+
+	    if (this.length === 1 && this.words[0] < 0) {
+	      this.words[0] = -this.words[0];
+	      this.negative = 1;
+	    } else {
+	      // Carry
+	      for (var i = 0; i < this.length && this.words[i] < 0; i++) {
+	        this.words[i] += 0x4000000;
+	        this.words[i + 1] -= 1;
+	      }
+	    }
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.addn = function addn (num) {
+	    return this.clone().iaddn(num);
+	  };
+
+	  BN.prototype.subn = function subn (num) {
+	    return this.clone().isubn(num);
+	  };
+
+	  BN.prototype.iabs = function iabs () {
+	    this.negative = 0;
+
+	    return this;
+	  };
+
+	  BN.prototype.abs = function abs () {
+	    return this.clone().iabs();
+	  };
+
+	  BN.prototype._ishlnsubmul = function _ishlnsubmul (num, mul, shift) {
+	    var len = num.length + shift;
+	    var i;
+
+	    this._expand(len);
+
+	    var w;
+	    var carry = 0;
+	    for (i = 0; i < num.length; i++) {
+	      w = (this.words[i + shift] | 0) + carry;
+	      var right = (num.words[i] | 0) * mul;
+	      w -= right & 0x3ffffff;
+	      carry = (w >> 26) - ((right / 0x4000000) | 0);
+	      this.words[i + shift] = w & 0x3ffffff;
+	    }
+	    for (; i < this.length - shift; i++) {
+	      w = (this.words[i + shift] | 0) + carry;
+	      carry = w >> 26;
+	      this.words[i + shift] = w & 0x3ffffff;
+	    }
+
+	    if (carry === 0) return this.strip();
+
+	    // Subtraction overflow
+	    assert(carry === -1);
+	    carry = 0;
+	    for (i = 0; i < this.length; i++) {
+	      w = -(this.words[i] | 0) + carry;
+	      carry = w >> 26;
+	      this.words[i] = w & 0x3ffffff;
+	    }
+	    this.negative = 1;
+
+	    return this.strip();
+	  };
+
+	  BN.prototype._wordDiv = function _wordDiv (num, mode) {
+	    var shift = this.length - num.length;
+
+	    var a = this.clone();
+	    var b = num;
+
+	    // Normalize
+	    var bhi = b.words[b.length - 1] | 0;
+	    var bhiBits = this._countBits(bhi);
+	    shift = 26 - bhiBits;
+	    if (shift !== 0) {
+	      b = b.ushln(shift);
+	      a.iushln(shift);
+	      bhi = b.words[b.length - 1] | 0;
+	    }
+
+	    // Initialize quotient
+	    var m = a.length - b.length;
+	    var q;
+
+	    if (mode !== 'mod') {
+	      q = new BN(null);
+	      q.length = m + 1;
+	      q.words = new Array(q.length);
+	      for (var i = 0; i < q.length; i++) {
+	        q.words[i] = 0;
+	      }
+	    }
+
+	    var diff = a.clone()._ishlnsubmul(b, 1, m);
+	    if (diff.negative === 0) {
+	      a = diff;
+	      if (q) {
+	        q.words[m] = 1;
+	      }
+	    }
+
+	    for (var j = m - 1; j >= 0; j--) {
+	      var qj = (a.words[b.length + j] | 0) * 0x4000000 +
+	        (a.words[b.length + j - 1] | 0);
+
+	      // NOTE: (qj / bhi) is (0x3ffffff * 0x4000000 + 0x3ffffff) / 0x2000000 max
+	      // (0x7ffffff)
+	      qj = Math.min((qj / bhi) | 0, 0x3ffffff);
+
+	      a._ishlnsubmul(b, qj, j);
+	      while (a.negative !== 0) {
+	        qj--;
+	        a.negative = 0;
+	        a._ishlnsubmul(b, 1, j);
+	        if (!a.isZero()) {
+	          a.negative ^= 1;
+	        }
+	      }
+	      if (q) {
+	        q.words[j] = qj;
+	      }
+	    }
+	    if (q) {
+	      q.strip();
+	    }
+	    a.strip();
+
+	    // Denormalize
+	    if (mode !== 'div' && shift !== 0) {
+	      a.iushrn(shift);
+	    }
+
+	    return {
+	      div: q || null,
+	      mod: a
+	    };
+	  };
+
+	  // NOTE: 1) `mode` can be set to `mod` to request mod only,
+	  //       to `div` to request div only, or be absent to
+	  //       request both div & mod
+	  //       2) `positive` is true if unsigned mod is requested
+	  BN.prototype.divmod = function divmod (num, mode, positive) {
+	    assert(!num.isZero());
+
+	    if (this.isZero()) {
+	      return {
+	        div: new BN(0),
+	        mod: new BN(0)
+	      };
+	    }
+
+	    var div, mod, res;
+	    if (this.negative !== 0 && num.negative === 0) {
+	      res = this.neg().divmod(num, mode);
+
+	      if (mode !== 'mod') {
+	        div = res.div.neg();
+	      }
+
+	      if (mode !== 'div') {
+	        mod = res.mod.neg();
+	        if (positive && mod.negative !== 0) {
+	          mod.iadd(num);
+	        }
+	      }
+
+	      return {
+	        div: div,
+	        mod: mod
+	      };
+	    }
+
+	    if (this.negative === 0 && num.negative !== 0) {
+	      res = this.divmod(num.neg(), mode);
+
+	      if (mode !== 'mod') {
+	        div = res.div.neg();
+	      }
+
+	      return {
+	        div: div,
+	        mod: res.mod
+	      };
+	    }
+
+	    if ((this.negative & num.negative) !== 0) {
+	      res = this.neg().divmod(num.neg(), mode);
+
+	      if (mode !== 'div') {
+	        mod = res.mod.neg();
+	        if (positive && mod.negative !== 0) {
+	          mod.isub(num);
+	        }
+	      }
+
+	      return {
+	        div: res.div,
+	        mod: mod
+	      };
+	    }
+
+	    // Both numbers are positive at this point
+
+	    // Strip both numbers to approximate shift value
+	    if (num.length > this.length || this.cmp(num) < 0) {
+	      return {
+	        div: new BN(0),
+	        mod: this
+	      };
+	    }
+
+	    // Very short reduction
+	    if (num.length === 1) {
+	      if (mode === 'div') {
+	        return {
+	          div: this.divn(num.words[0]),
+	          mod: null
+	        };
+	      }
+
+	      if (mode === 'mod') {
+	        return {
+	          div: null,
+	          mod: new BN(this.modn(num.words[0]))
+	        };
+	      }
+
+	      return {
+	        div: this.divn(num.words[0]),
+	        mod: new BN(this.modn(num.words[0]))
+	      };
+	    }
+
+	    return this._wordDiv(num, mode);
+	  };
+
+	  // Find `this` / `num`
+	  BN.prototype.div = function div (num) {
+	    return this.divmod(num, 'div', false).div;
+	  };
+
+	  // Find `this` % `num`
+	  BN.prototype.mod = function mod (num) {
+	    return this.divmod(num, 'mod', false).mod;
+	  };
+
+	  BN.prototype.umod = function umod (num) {
+	    return this.divmod(num, 'mod', true).mod;
+	  };
+
+	  // Find Round(`this` / `num`)
+	  BN.prototype.divRound = function divRound (num) {
+	    var dm = this.divmod(num);
+
+	    // Fast case - exact division
+	    if (dm.mod.isZero()) return dm.div;
+
+	    var mod = dm.div.negative !== 0 ? dm.mod.isub(num) : dm.mod;
+
+	    var half = num.ushrn(1);
+	    var r2 = num.andln(1);
+	    var cmp = mod.cmp(half);
+
+	    // Round down
+	    if (cmp < 0 || r2 === 1 && cmp === 0) return dm.div;
+
+	    // Round up
+	    return dm.div.negative !== 0 ? dm.div.isubn(1) : dm.div.iaddn(1);
+	  };
+
+	  BN.prototype.modn = function modn (num) {
+	    assert(num <= 0x3ffffff);
+	    var p = (1 << 26) % num;
+
+	    var acc = 0;
+	    for (var i = this.length - 1; i >= 0; i--) {
+	      acc = (p * acc + (this.words[i] | 0)) % num;
+	    }
+
+	    return acc;
+	  };
+
+	  // In-place division by number
+	  BN.prototype.idivn = function idivn (num) {
+	    assert(num <= 0x3ffffff);
+
+	    var carry = 0;
+	    for (var i = this.length - 1; i >= 0; i--) {
+	      var w = (this.words[i] | 0) + carry * 0x4000000;
+	      this.words[i] = (w / num) | 0;
+	      carry = w % num;
+	    }
+
+	    return this.strip();
+	  };
+
+	  BN.prototype.divn = function divn (num) {
+	    return this.clone().idivn(num);
+	  };
+
+	  BN.prototype.egcd = function egcd (p) {
+	    assert(p.negative === 0);
+	    assert(!p.isZero());
+
+	    var x = this;
+	    var y = p.clone();
+
+	    if (x.negative !== 0) {
+	      x = x.umod(p);
+	    } else {
+	      x = x.clone();
+	    }
+
+	    // A * x + B * y = x
+	    var A = new BN(1);
+	    var B = new BN(0);
+
+	    // C * x + D * y = y
+	    var C = new BN(0);
+	    var D = new BN(1);
+
+	    var g = 0;
+
+	    while (x.isEven() && y.isEven()) {
+	      x.iushrn(1);
+	      y.iushrn(1);
+	      ++g;
+	    }
+
+	    var yp = y.clone();
+	    var xp = x.clone();
+
+	    while (!x.isZero()) {
+	      for (var i = 0, im = 1; (x.words[0] & im) === 0 && i < 26; ++i, im <<= 1);
+	      if (i > 0) {
+	        x.iushrn(i);
+	        while (i-- > 0) {
+	          if (A.isOdd() || B.isOdd()) {
+	            A.iadd(yp);
+	            B.isub(xp);
+	          }
+
+	          A.iushrn(1);
+	          B.iushrn(1);
+	        }
+	      }
+
+	      for (var j = 0, jm = 1; (y.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1);
+	      if (j > 0) {
+	        y.iushrn(j);
+	        while (j-- > 0) {
+	          if (C.isOdd() || D.isOdd()) {
+	            C.iadd(yp);
+	            D.isub(xp);
+	          }
+
+	          C.iushrn(1);
+	          D.iushrn(1);
+	        }
+	      }
+
+	      if (x.cmp(y) >= 0) {
+	        x.isub(y);
+	        A.isub(C);
+	        B.isub(D);
+	      } else {
+	        y.isub(x);
+	        C.isub(A);
+	        D.isub(B);
+	      }
+	    }
+
+	    return {
+	      a: C,
+	      b: D,
+	      gcd: y.iushln(g)
+	    };
+	  };
+
+	  // This is reduced incarnation of the binary EEA
+	  // above, designated to invert members of the
+	  // _prime_ fields F(p) at a maximal speed
+	  BN.prototype._invmp = function _invmp (p) {
+	    assert(p.negative === 0);
+	    assert(!p.isZero());
+
+	    var a = this;
+	    var b = p.clone();
+
+	    if (a.negative !== 0) {
+	      a = a.umod(p);
+	    } else {
+	      a = a.clone();
+	    }
+
+	    var x1 = new BN(1);
+	    var x2 = new BN(0);
+
+	    var delta = b.clone();
+
+	    while (a.cmpn(1) > 0 && b.cmpn(1) > 0) {
+	      for (var i = 0, im = 1; (a.words[0] & im) === 0 && i < 26; ++i, im <<= 1);
+	      if (i > 0) {
+	        a.iushrn(i);
+	        while (i-- > 0) {
+	          if (x1.isOdd()) {
+	            x1.iadd(delta);
+	          }
+
+	          x1.iushrn(1);
+	        }
+	      }
+
+	      for (var j = 0, jm = 1; (b.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1);
+	      if (j > 0) {
+	        b.iushrn(j);
+	        while (j-- > 0) {
+	          if (x2.isOdd()) {
+	            x2.iadd(delta);
+	          }
+
+	          x2.iushrn(1);
+	        }
+	      }
+
+	      if (a.cmp(b) >= 0) {
+	        a.isub(b);
+	        x1.isub(x2);
+	      } else {
+	        b.isub(a);
+	        x2.isub(x1);
+	      }
+	    }
+
+	    var res;
+	    if (a.cmpn(1) === 0) {
+	      res = x1;
+	    } else {
+	      res = x2;
+	    }
+
+	    if (res.cmpn(0) < 0) {
+	      res.iadd(p);
+	    }
+
+	    return res;
+	  };
+
+	  BN.prototype.gcd = function gcd (num) {
+	    if (this.isZero()) return num.abs();
+	    if (num.isZero()) return this.abs();
+
+	    var a = this.clone();
+	    var b = num.clone();
+	    a.negative = 0;
+	    b.negative = 0;
+
+	    // Remove common factor of two
+	    for (var shift = 0; a.isEven() && b.isEven(); shift++) {
+	      a.iushrn(1);
+	      b.iushrn(1);
+	    }
+
+	    do {
+	      while (a.isEven()) {
+	        a.iushrn(1);
+	      }
+	      while (b.isEven()) {
+	        b.iushrn(1);
+	      }
+
+	      var r = a.cmp(b);
+	      if (r < 0) {
+	        // Swap `a` and `b` to make `a` always bigger than `b`
+	        var t = a;
+	        a = b;
+	        b = t;
+	      } else if (r === 0 || b.cmpn(1) === 0) {
+	        break;
+	      }
+
+	      a.isub(b);
+	    } while (true);
+
+	    return b.iushln(shift);
+	  };
+
+	  // Invert number in the field F(num)
+	  BN.prototype.invm = function invm (num) {
+	    return this.egcd(num).a.umod(num);
+	  };
+
+	  BN.prototype.isEven = function isEven () {
+	    return (this.words[0] & 1) === 0;
+	  };
+
+	  BN.prototype.isOdd = function isOdd () {
+	    return (this.words[0] & 1) === 1;
+	  };
+
+	  // And first word and num
+	  BN.prototype.andln = function andln (num) {
+	    return this.words[0] & num;
+	  };
+
+	  // Increment at the bit position in-line
+	  BN.prototype.bincn = function bincn (bit) {
+	    assert(typeof bit === 'number');
+	    var r = bit % 26;
+	    var s = (bit - r) / 26;
+	    var q = 1 << r;
+
+	    // Fast case: bit is much higher than all existing words
+	    if (this.length <= s) {
+	      this._expand(s + 1);
+	      this.words[s] |= q;
+	      return this;
+	    }
+
+	    // Add bit and propagate, if needed
+	    var carry = q;
+	    for (var i = s; carry !== 0 && i < this.length; i++) {
+	      var w = this.words[i] | 0;
+	      w += carry;
+	      carry = w >>> 26;
+	      w &= 0x3ffffff;
+	      this.words[i] = w;
+	    }
+	    if (carry !== 0) {
+	      this.words[i] = carry;
+	      this.length++;
+	    }
+	    return this;
+	  };
+
+	  BN.prototype.isZero = function isZero () {
+	    return this.length === 1 && this.words[0] === 0;
+	  };
+
+	  BN.prototype.cmpn = function cmpn (num) {
+	    var negative = num < 0;
+
+	    if (this.negative !== 0 && !negative) return -1;
+	    if (this.negative === 0 && negative) return 1;
+
+	    this.strip();
+
+	    var res;
+	    if (this.length > 1) {
+	      res = 1;
+	    } else {
+	      if (negative) {
+	        num = -num;
+	      }
+
+	      assert(num <= 0x3ffffff, 'Number is too big');
+
+	      var w = this.words[0] | 0;
+	      res = w === num ? 0 : w < num ? -1 : 1;
+	    }
+	    if (this.negative !== 0) return -res | 0;
+	    return res;
+	  };
+
+	  // Compare two numbers and return:
+	  // 1 - if `this` > `num`
+	  // 0 - if `this` == `num`
+	  // -1 - if `this` < `num`
+	  BN.prototype.cmp = function cmp (num) {
+	    if (this.negative !== 0 && num.negative === 0) return -1;
+	    if (this.negative === 0 && num.negative !== 0) return 1;
+
+	    var res = this.ucmp(num);
+	    if (this.negative !== 0) return -res | 0;
+	    return res;
+	  };
+
+	  // Unsigned comparison
+	  BN.prototype.ucmp = function ucmp (num) {
+	    // At this point both numbers have the same sign
+	    if (this.length > num.length) return 1;
+	    if (this.length < num.length) return -1;
+
+	    var res = 0;
+	    for (var i = this.length - 1; i >= 0; i--) {
+	      var a = this.words[i] | 0;
+	      var b = num.words[i] | 0;
+
+	      if (a === b) continue;
+	      if (a < b) {
+	        res = -1;
+	      } else if (a > b) {
+	        res = 1;
+	      }
+	      break;
+	    }
+	    return res;
+	  };
+
+	  BN.prototype.gtn = function gtn (num) {
+	    return this.cmpn(num) === 1;
+	  };
+
+	  BN.prototype.gt = function gt (num) {
+	    return this.cmp(num) === 1;
+	  };
+
+	  BN.prototype.gten = function gten (num) {
+	    return this.cmpn(num) >= 0;
+	  };
+
+	  BN.prototype.gte = function gte (num) {
+	    return this.cmp(num) >= 0;
+	  };
+
+	  BN.prototype.ltn = function ltn (num) {
+	    return this.cmpn(num) === -1;
+	  };
+
+	  BN.prototype.lt = function lt (num) {
+	    return this.cmp(num) === -1;
+	  };
+
+	  BN.prototype.lten = function lten (num) {
+	    return this.cmpn(num) <= 0;
+	  };
+
+	  BN.prototype.lte = function lte (num) {
+	    return this.cmp(num) <= 0;
+	  };
+
+	  BN.prototype.eqn = function eqn (num) {
+	    return this.cmpn(num) === 0;
+	  };
+
+	  BN.prototype.eq = function eq (num) {
+	    return this.cmp(num) === 0;
+	  };
+
+	  //
+	  // A reduce context, could be using montgomery or something better, depending
+	  // on the `m` itself.
+	  //
+	  BN.red = function red (num) {
+	    return new Red(num);
+	  };
+
+	  BN.prototype.toRed = function toRed (ctx) {
+	    assert(!this.red, 'Already a number in reduction context');
+	    assert(this.negative === 0, 'red works only with positives');
+	    return ctx.convertTo(this)._forceRed(ctx);
+	  };
+
+	  BN.prototype.fromRed = function fromRed () {
+	    assert(this.red, 'fromRed works only with numbers in reduction context');
+	    return this.red.convertFrom(this);
+	  };
+
+	  BN.prototype._forceRed = function _forceRed (ctx) {
+	    this.red = ctx;
+	    return this;
+	  };
+
+	  BN.prototype.forceRed = function forceRed (ctx) {
+	    assert(!this.red, 'Already a number in reduction context');
+	    return this._forceRed(ctx);
+	  };
+
+	  BN.prototype.redAdd = function redAdd (num) {
+	    assert(this.red, 'redAdd works only with red numbers');
+	    return this.red.add(this, num);
+	  };
+
+	  BN.prototype.redIAdd = function redIAdd (num) {
+	    assert(this.red, 'redIAdd works only with red numbers');
+	    return this.red.iadd(this, num);
+	  };
+
+	  BN.prototype.redSub = function redSub (num) {
+	    assert(this.red, 'redSub works only with red numbers');
+	    return this.red.sub(this, num);
+	  };
+
+	  BN.prototype.redISub = function redISub (num) {
+	    assert(this.red, 'redISub works only with red numbers');
+	    return this.red.isub(this, num);
+	  };
+
+	  BN.prototype.redShl = function redShl (num) {
+	    assert(this.red, 'redShl works only with red numbers');
+	    return this.red.shl(this, num);
+	  };
+
+	  BN.prototype.redMul = function redMul (num) {
+	    assert(this.red, 'redMul works only with red numbers');
+	    this.red._verify2(this, num);
+	    return this.red.mul(this, num);
+	  };
+
+	  BN.prototype.redIMul = function redIMul (num) {
+	    assert(this.red, 'redMul works only with red numbers');
+	    this.red._verify2(this, num);
+	    return this.red.imul(this, num);
+	  };
+
+	  BN.prototype.redSqr = function redSqr () {
+	    assert(this.red, 'redSqr works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.sqr(this);
+	  };
+
+	  BN.prototype.redISqr = function redISqr () {
+	    assert(this.red, 'redISqr works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.isqr(this);
+	  };
+
+	  // Square root over p
+	  BN.prototype.redSqrt = function redSqrt () {
+	    assert(this.red, 'redSqrt works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.sqrt(this);
+	  };
+
+	  BN.prototype.redInvm = function redInvm () {
+	    assert(this.red, 'redInvm works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.invm(this);
+	  };
+
+	  // Return negative clone of `this` % `red modulo`
+	  BN.prototype.redNeg = function redNeg () {
+	    assert(this.red, 'redNeg works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.neg(this);
+	  };
+
+	  BN.prototype.redPow = function redPow (num) {
+	    assert(this.red && !num.red, 'redPow(normalNum)');
+	    this.red._verify1(this);
+	    return this.red.pow(this, num);
+	  };
+
+	  // Prime numbers with efficient reduction
+	  var primes = {
+	    k256: null,
+	    p224: null,
+	    p192: null,
+	    p25519: null
+	  };
+
+	  // Pseudo-Mersenne prime
+	  function MPrime (name, p) {
+	    // P = 2 ^ N - K
+	    this.name = name;
+	    this.p = new BN(p, 16);
+	    this.n = this.p.bitLength();
+	    this.k = new BN(1).iushln(this.n).isub(this.p);
+
+	    this.tmp = this._tmp();
+	  }
+
+	  MPrime.prototype._tmp = function _tmp () {
+	    var tmp = new BN(null);
+	    tmp.words = new Array(Math.ceil(this.n / 13));
+	    return tmp;
+	  };
+
+	  MPrime.prototype.ireduce = function ireduce (num) {
+	    // Assumes that `num` is less than `P^2`
+	    // num = HI * (2 ^ N - K) + HI * K + LO = HI * K + LO (mod P)
+	    var r = num;
+	    var rlen;
+
+	    do {
+	      this.split(r, this.tmp);
+	      r = this.imulK(r);
+	      r = r.iadd(this.tmp);
+	      rlen = r.bitLength();
+	    } while (rlen > this.n);
+
+	    var cmp = rlen < this.n ? -1 : r.ucmp(this.p);
+	    if (cmp === 0) {
+	      r.words[0] = 0;
+	      r.length = 1;
+	    } else if (cmp > 0) {
+	      r.isub(this.p);
+	    } else {
+	      if (r.strip !== undefined) {
+	        // r is BN v4 instance
+	        r.strip();
+	      } else {
+	        // r is BN v5 instance
+	        r._strip();
+	      }
+	    }
+
+	    return r;
+	  };
+
+	  MPrime.prototype.split = function split (input, out) {
+	    input.iushrn(this.n, 0, out);
+	  };
+
+	  MPrime.prototype.imulK = function imulK (num) {
+	    return num.imul(this.k);
+	  };
+
+	  function K256 () {
+	    MPrime.call(
+	      this,
+	      'k256',
+	      'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f');
+	  }
+	  inherits(K256, MPrime);
+
+	  K256.prototype.split = function split (input, output) {
+	    // 256 = 9 * 26 + 22
+	    var mask = 0x3fffff;
+
+	    var outLen = Math.min(input.length, 9);
+	    for (var i = 0; i < outLen; i++) {
+	      output.words[i] = input.words[i];
+	    }
+	    output.length = outLen;
+
+	    if (input.length <= 9) {
+	      input.words[0] = 0;
+	      input.length = 1;
+	      return;
+	    }
+
+	    // Shift by 9 limbs
+	    var prev = input.words[9];
+	    output.words[output.length++] = prev & mask;
+
+	    for (i = 10; i < input.length; i++) {
+	      var next = input.words[i] | 0;
+	      input.words[i - 10] = ((next & mask) << 4) | (prev >>> 22);
+	      prev = next;
+	    }
+	    prev >>>= 22;
+	    input.words[i - 10] = prev;
+	    if (prev === 0 && input.length > 10) {
+	      input.length -= 10;
+	    } else {
+	      input.length -= 9;
+	    }
+	  };
+
+	  K256.prototype.imulK = function imulK (num) {
+	    // K = 0x1000003d1 = [ 0x40, 0x3d1 ]
+	    num.words[num.length] = 0;
+	    num.words[num.length + 1] = 0;
+	    num.length += 2;
+
+	    // bounded at: 0x40 * 0x3ffffff + 0x3d0 = 0x100000390
+	    var lo = 0;
+	    for (var i = 0; i < num.length; i++) {
+	      var w = num.words[i] | 0;
+	      lo += w * 0x3d1;
+	      num.words[i] = lo & 0x3ffffff;
+	      lo = w * 0x40 + ((lo / 0x4000000) | 0);
+	    }
+
+	    // Fast length reduction
+	    if (num.words[num.length - 1] === 0) {
+	      num.length--;
+	      if (num.words[num.length - 1] === 0) {
+	        num.length--;
+	      }
+	    }
+	    return num;
+	  };
+
+	  function P224 () {
+	    MPrime.call(
+	      this,
+	      'p224',
+	      'ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001');
+	  }
+	  inherits(P224, MPrime);
+
+	  function P192 () {
+	    MPrime.call(
+	      this,
+	      'p192',
+	      'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff');
+	  }
+	  inherits(P192, MPrime);
+
+	  function P25519 () {
+	    // 2 ^ 255 - 19
+	    MPrime.call(
+	      this,
+	      '25519',
+	      '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed');
+	  }
+	  inherits(P25519, MPrime);
+
+	  P25519.prototype.imulK = function imulK (num) {
+	    // K = 0x13
+	    var carry = 0;
+	    for (var i = 0; i < num.length; i++) {
+	      var hi = (num.words[i] | 0) * 0x13 + carry;
+	      var lo = hi & 0x3ffffff;
+	      hi >>>= 26;
+
+	      num.words[i] = lo;
+	      carry = hi;
+	    }
+	    if (carry !== 0) {
+	      num.words[num.length++] = carry;
+	    }
+	    return num;
+	  };
+
+	  // Exported mostly for testing purposes, use plain name instead
+	  BN._prime = function prime (name) {
+	    // Cached version of prime
+	    if (primes[name]) return primes[name];
+
+	    var prime;
+	    if (name === 'k256') {
+	      prime = new K256();
+	    } else if (name === 'p224') {
+	      prime = new P224();
+	    } else if (name === 'p192') {
+	      prime = new P192();
+	    } else if (name === 'p25519') {
+	      prime = new P25519();
+	    } else {
+	      throw new Error('Unknown prime ' + name);
+	    }
+	    primes[name] = prime;
+
+	    return prime;
+	  };
+
+	  //
+	  // Base reduction engine
+	  //
+	  function Red (m) {
+	    if (typeof m === 'string') {
+	      var prime = BN._prime(m);
+	      this.m = prime.p;
+	      this.prime = prime;
+	    } else {
+	      assert(m.gtn(1), 'modulus must be greater than 1');
+	      this.m = m;
+	      this.prime = null;
+	    }
+	  }
+
+	  Red.prototype._verify1 = function _verify1 (a) {
+	    assert(a.negative === 0, 'red works only with positives');
+	    assert(a.red, 'red works only with red numbers');
+	  };
+
+	  Red.prototype._verify2 = function _verify2 (a, b) {
+	    assert((a.negative | b.negative) === 0, 'red works only with positives');
+	    assert(a.red && a.red === b.red,
+	      'red works only with red numbers');
+	  };
+
+	  Red.prototype.imod = function imod (a) {
+	    if (this.prime) return this.prime.ireduce(a)._forceRed(this);
+	    return a.umod(this.m)._forceRed(this);
+	  };
+
+	  Red.prototype.neg = function neg (a) {
+	    if (a.isZero()) {
+	      return a.clone();
+	    }
+
+	    return this.m.sub(a)._forceRed(this);
+	  };
+
+	  Red.prototype.add = function add (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.add(b);
+	    if (res.cmp(this.m) >= 0) {
+	      res.isub(this.m);
+	    }
+	    return res._forceRed(this);
+	  };
+
+	  Red.prototype.iadd = function iadd (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.iadd(b);
+	    if (res.cmp(this.m) >= 0) {
+	      res.isub(this.m);
+	    }
+	    return res;
+	  };
+
+	  Red.prototype.sub = function sub (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.sub(b);
+	    if (res.cmpn(0) < 0) {
+	      res.iadd(this.m);
+	    }
+	    return res._forceRed(this);
+	  };
+
+	  Red.prototype.isub = function isub (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.isub(b);
+	    if (res.cmpn(0) < 0) {
+	      res.iadd(this.m);
+	    }
+	    return res;
+	  };
+
+	  Red.prototype.shl = function shl (a, num) {
+	    this._verify1(a);
+	    return this.imod(a.ushln(num));
+	  };
+
+	  Red.prototype.imul = function imul (a, b) {
+	    this._verify2(a, b);
+	    return this.imod(a.imul(b));
+	  };
+
+	  Red.prototype.mul = function mul (a, b) {
+	    this._verify2(a, b);
+	    return this.imod(a.mul(b));
+	  };
+
+	  Red.prototype.isqr = function isqr (a) {
+	    return this.imul(a, a.clone());
+	  };
+
+	  Red.prototype.sqr = function sqr (a) {
+	    return this.mul(a, a);
+	  };
+
+	  Red.prototype.sqrt = function sqrt (a) {
+	    if (a.isZero()) return a.clone();
+
+	    var mod3 = this.m.andln(3);
+	    assert(mod3 % 2 === 1);
+
+	    // Fast case
+	    if (mod3 === 3) {
+	      var pow = this.m.add(new BN(1)).iushrn(2);
+	      return this.pow(a, pow);
+	    }
+
+	    // Tonelli-Shanks algorithm (Totally unoptimized and slow)
+	    //
+	    // Find Q and S, that Q * 2 ^ S = (P - 1)
+	    var q = this.m.subn(1);
+	    var s = 0;
+	    while (!q.isZero() && q.andln(1) === 0) {
+	      s++;
+	      q.iushrn(1);
+	    }
+	    assert(!q.isZero());
+
+	    var one = new BN(1).toRed(this);
+	    var nOne = one.redNeg();
+
+	    // Find quadratic non-residue
+	    // NOTE: Max is such because of generalized Riemann hypothesis.
+	    var lpow = this.m.subn(1).iushrn(1);
+	    var z = this.m.bitLength();
+	    z = new BN(2 * z * z).toRed(this);
+
+	    while (this.pow(z, lpow).cmp(nOne) !== 0) {
+	      z.redIAdd(nOne);
+	    }
+
+	    var c = this.pow(z, q);
+	    var r = this.pow(a, q.addn(1).iushrn(1));
+	    var t = this.pow(a, q);
+	    var m = s;
+	    while (t.cmp(one) !== 0) {
+	      var tmp = t;
+	      for (var i = 0; tmp.cmp(one) !== 0; i++) {
+	        tmp = tmp.redSqr();
+	      }
+	      assert(i < m);
+	      var b = this.pow(c, new BN(1).iushln(m - i - 1));
+
+	      r = r.redMul(b);
+	      c = b.redSqr();
+	      t = t.redMul(c);
+	      m = i;
+	    }
+
+	    return r;
+	  };
+
+	  Red.prototype.invm = function invm (a) {
+	    var inv = a._invmp(this.m);
+	    if (inv.negative !== 0) {
+	      inv.negative = 0;
+	      return this.imod(inv).redNeg();
+	    } else {
+	      return this.imod(inv);
+	    }
+	  };
+
+	  Red.prototype.pow = function pow (a, num) {
+	    if (num.isZero()) return new BN(1).toRed(this);
+	    if (num.cmpn(1) === 0) return a.clone();
+
+	    var windowSize = 4;
+	    var wnd = new Array(1 << windowSize);
+	    wnd[0] = new BN(1).toRed(this);
+	    wnd[1] = a;
+	    for (var i = 2; i < wnd.length; i++) {
+	      wnd[i] = this.mul(wnd[i - 1], a);
+	    }
+
+	    var res = wnd[0];
+	    var current = 0;
+	    var currentLen = 0;
+	    var start = num.bitLength() % 26;
+	    if (start === 0) {
+	      start = 26;
+	    }
+
+	    for (i = num.length - 1; i >= 0; i--) {
+	      var word = num.words[i];
+	      for (var j = start - 1; j >= 0; j--) {
+	        var bit = (word >> j) & 1;
+	        if (res !== wnd[0]) {
+	          res = this.sqr(res);
+	        }
+
+	        if (bit === 0 && current === 0) {
+	          currentLen = 0;
+	          continue;
+	        }
+
+	        current <<= 1;
+	        current |= bit;
+	        currentLen++;
+	        if (currentLen !== windowSize && (i !== 0 || j !== 0)) continue;
+
+	        res = this.mul(res, wnd[current]);
+	        currentLen = 0;
+	        current = 0;
+	      }
+	      start = 26;
+	    }
+
+	    return res;
+	  };
+
+	  Red.prototype.convertTo = function convertTo (num) {
+	    var r = num.umod(this.m);
+
+	    return r === num ? r.clone() : r;
+	  };
+
+	  Red.prototype.convertFrom = function convertFrom (num) {
+	    var res = num.clone();
+	    res.red = null;
+	    return res;
+	  };
+
+	  //
+	  // Montgomery method engine
+	  //
+
+	  BN.mont = function mont (num) {
+	    return new Mont(num);
+	  };
+
+	  function Mont (m) {
+	    Red.call(this, m);
+
+	    this.shift = this.m.bitLength();
+	    if (this.shift % 26 !== 0) {
+	      this.shift += 26 - (this.shift % 26);
+	    }
+
+	    this.r = new BN(1).iushln(this.shift);
+	    this.r2 = this.imod(this.r.sqr());
+	    this.rinv = this.r._invmp(this.m);
+
+	    this.minv = this.rinv.mul(this.r).isubn(1).div(this.m);
+	    this.minv = this.minv.umod(this.r);
+	    this.minv = this.r.sub(this.minv);
+	  }
+	  inherits(Mont, Red);
+
+	  Mont.prototype.convertTo = function convertTo (num) {
+	    return this.imod(num.ushln(this.shift));
+	  };
+
+	  Mont.prototype.convertFrom = function convertFrom (num) {
+	    var r = this.imod(num.mul(this.rinv));
+	    r.red = null;
+	    return r;
+	  };
+
+	  Mont.prototype.imul = function imul (a, b) {
+	    if (a.isZero() || b.isZero()) {
+	      a.words[0] = 0;
+	      a.length = 1;
+	      return a;
+	    }
+
+	    var t = a.imul(b);
+	    var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+	    var u = t.isub(c).iushrn(this.shift);
+	    var res = u;
+
+	    if (u.cmp(this.m) >= 0) {
+	      res = u.isub(this.m);
+	    } else if (u.cmpn(0) < 0) {
+	      res = u.iadd(this.m);
+	    }
+
+	    return res._forceRed(this);
+	  };
+
+	  Mont.prototype.mul = function mul (a, b) {
+	    if (a.isZero() || b.isZero()) return new BN(0)._forceRed(this);
+
+	    var t = a.mul(b);
+	    var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+	    var u = t.isub(c).iushrn(this.shift);
+	    var res = u;
+	    if (u.cmp(this.m) >= 0) {
+	      res = u.isub(this.m);
+	    } else if (u.cmpn(0) < 0) {
+	      res = u.iadd(this.m);
+	    }
+
+	    return res._forceRed(this);
+	  };
+
+	  Mont.prototype.invm = function invm (a) {
+	    // (AR)^-1 * R^2 = (A^-1 * R^-1) * R^2 = A^-1 * R
+	    var res = this.imod(a._invmp(this.m).mul(this.r2));
+	    return res._forceRed(this);
+	  };
+	})(module, commonjsGlobal);
+} (bn$1));
+
+var minimalisticAssert$1 = assert$m;
+
+function assert$m(val, msg) {
+  if (!val)
+    throw new Error(msg || 'Assertion failed');
+}
+
+assert$m.equal = function assertEqual(l, r, msg) {
+  if (l != r)
+    throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
+};
+
+var utils$v = {};
+
+(function (exports) {
+
+	var utils = exports;
+
+	function toArray(msg, enc) {
+	  if (Array.isArray(msg))
+	    return msg.slice();
+	  if (!msg)
+	    return [];
+	  var res = [];
+	  if (typeof msg !== 'string') {
+	    for (var i = 0; i < msg.length; i++)
+	      res[i] = msg[i] | 0;
+	    return res;
+	  }
+	  if (enc === 'hex') {
+	    msg = msg.replace(/[^a-z0-9]+/ig, '');
+	    if (msg.length % 2 !== 0)
+	      msg = '0' + msg;
+	    for (var i = 0; i < msg.length; i += 2)
+	      res.push(parseInt(msg[i] + msg[i + 1], 16));
+	  } else {
+	    for (var i = 0; i < msg.length; i++) {
+	      var c = msg.charCodeAt(i);
+	      var hi = c >> 8;
+	      var lo = c & 0xff;
+	      if (hi)
+	        res.push(hi, lo);
+	      else
+	        res.push(lo);
+	    }
+	  }
+	  return res;
+	}
+	utils.toArray = toArray;
+
+	function zero2(word) {
+	  if (word.length === 1)
+	    return '0' + word;
+	  else
+	    return word;
+	}
+	utils.zero2 = zero2;
+
+	function toHex(msg) {
+	  var res = '';
+	  for (var i = 0; i < msg.length; i++)
+	    res += zero2(msg[i].toString(16));
+	  return res;
+	}
+	utils.toHex = toHex;
+
+	utils.encode = function encode(arr, enc) {
+	  if (enc === 'hex')
+	    return toHex(arr);
+	  else
+	    return arr;
+	};
+} (utils$v));
+
+(function (exports) {
+
+	var utils = exports;
+	var BN = bn$1.exports;
+	var minAssert = minimalisticAssert$1;
+	var minUtils = utils$v;
+
+	utils.assert = minAssert;
+	utils.toArray = minUtils.toArray;
+	utils.zero2 = minUtils.zero2;
+	utils.toHex = minUtils.toHex;
+	utils.encode = minUtils.encode;
+
+	// Represent num in a w-NAF form
+	function getNAF(num, w, bits) {
+	  var naf = new Array(Math.max(num.bitLength(), bits) + 1);
+	  naf.fill(0);
+
+	  var ws = 1 << (w + 1);
+	  var k = num.clone();
+
+	  for (var i = 0; i < naf.length; i++) {
+	    var z;
+	    var mod = k.andln(ws - 1);
+	    if (k.isOdd()) {
+	      if (mod > (ws >> 1) - 1)
+	        z = (ws >> 1) - mod;
+	      else
+	        z = mod;
+	      k.isubn(z);
+	    } else {
+	      z = 0;
+	    }
+
+	    naf[i] = z;
+	    k.iushrn(1);
+	  }
+
+	  return naf;
+	}
+	utils.getNAF = getNAF;
+
+	// Represent k1, k2 in a Joint Sparse Form
+	function getJSF(k1, k2) {
+	  var jsf = [
+	    [],
+	    [],
+	  ];
+
+	  k1 = k1.clone();
+	  k2 = k2.clone();
+	  var d1 = 0;
+	  var d2 = 0;
+	  var m8;
+	  while (k1.cmpn(-d1) > 0 || k2.cmpn(-d2) > 0) {
+	    // First phase
+	    var m14 = (k1.andln(3) + d1) & 3;
+	    var m24 = (k2.andln(3) + d2) & 3;
+	    if (m14 === 3)
+	      m14 = -1;
+	    if (m24 === 3)
+	      m24 = -1;
+	    var u1;
+	    if ((m14 & 1) === 0) {
+	      u1 = 0;
+	    } else {
+	      m8 = (k1.andln(7) + d1) & 7;
+	      if ((m8 === 3 || m8 === 5) && m24 === 2)
+	        u1 = -m14;
+	      else
+	        u1 = m14;
+	    }
+	    jsf[0].push(u1);
+
+	    var u2;
+	    if ((m24 & 1) === 0) {
+	      u2 = 0;
+	    } else {
+	      m8 = (k2.andln(7) + d2) & 7;
+	      if ((m8 === 3 || m8 === 5) && m14 === 2)
+	        u2 = -m24;
+	      else
+	        u2 = m24;
+	    }
+	    jsf[1].push(u2);
+
+	    // Second phase
+	    if (2 * d1 === u1 + 1)
+	      d1 = 1 - d1;
+	    if (2 * d2 === u2 + 1)
+	      d2 = 1 - d2;
+	    k1.iushrn(1);
+	    k2.iushrn(1);
+	  }
+
+	  return jsf;
+	}
+	utils.getJSF = getJSF;
+
+	function cachedProperty(obj, name, computer) {
+	  var key = '_' + name;
+	  obj.prototype[name] = function cachedProperty() {
+	    return this[key] !== undefined ? this[key] :
+	      this[key] = computer.call(this);
+	  };
+	}
+	utils.cachedProperty = cachedProperty;
+
+	function parseBytes(bytes) {
+	  return typeof bytes === 'string' ? utils.toArray(bytes, 'hex') :
+	    bytes;
+	}
+	utils.parseBytes = parseBytes;
+
+	function intFromLE(bytes) {
+	  return new BN(bytes, 'hex', 'le');
+	}
+	utils.intFromLE = intFromLE;
+} (utils$w));
+
+var brorand = {exports: {}};
+
+var r$2;
+
+brorand.exports = function rand(len) {
+  if (!r$2)
+    r$2 = new Rand(null);
+
+  return r$2.generate(len);
+};
+
+function Rand(rand) {
+  this.rand = rand;
+}
+brorand.exports.Rand = Rand;
+
+Rand.prototype.generate = function generate(len) {
+  return this._rand(len);
+};
+
+// Emulate crypto API using randy
+Rand.prototype._rand = function _rand(n) {
+  if (this.rand.getBytes)
+    return this.rand.getBytes(n);
+
+  var res = new Uint8Array(n);
+  for (var i = 0; i < res.length; i++)
+    res[i] = this.rand.getByte();
+  return res;
+};
+
+if (typeof self === 'object') {
+  if (self.crypto && self.crypto.getRandomValues) {
+    // Modern browsers
+    Rand.prototype._rand = function _rand(n) {
+      var arr = new Uint8Array(n);
+      self.crypto.getRandomValues(arr);
+      return arr;
+    };
+  } else if (self.msCrypto && self.msCrypto.getRandomValues) {
+    // IE
+    Rand.prototype._rand = function _rand(n) {
+      var arr = new Uint8Array(n);
+      self.msCrypto.getRandomValues(arr);
+      return arr;
+    };
+
+  // Safari's WebWorkers do not have `crypto`
+  } else if (typeof window === 'object') {
+    // Old junk
+    Rand.prototype._rand = function() {
+      throw new Error('Not implemented yet');
+    };
+  }
+} else {
+  // Node.js or Web worker with no crypto support
+  try {
+    var crypto$1 = require$$0$7;
+    if (typeof crypto$1.randomBytes !== 'function')
+      throw new Error('Not supported');
+
+    Rand.prototype._rand = function _rand(n) {
+      return crypto$1.randomBytes(n);
+    };
+  } catch (e) {
+  }
+}
+
+var curve = {};
+
+var BN$8 = bn$1.exports;
+var utils$u = utils$w;
+var getNAF = utils$u.getNAF;
+var getJSF = utils$u.getJSF;
+var assert$l = utils$u.assert;
+
+function BaseCurve(type, conf) {
+  this.type = type;
+  this.p = new BN$8(conf.p, 16);
+
+  // Use Montgomery, when there is no fast reduction for the prime
+  this.red = conf.prime ? BN$8.red(conf.prime) : BN$8.mont(this.p);
+
+  // Useful for many curves
+  this.zero = new BN$8(0).toRed(this.red);
+  this.one = new BN$8(1).toRed(this.red);
+  this.two = new BN$8(2).toRed(this.red);
+
+  // Curve configuration, optional
+  this.n = conf.n && new BN$8(conf.n, 16);
+  this.g = conf.g && this.pointFromJSON(conf.g, conf.gRed);
+
+  // Temporary arrays
+  this._wnafT1 = new Array(4);
+  this._wnafT2 = new Array(4);
+  this._wnafT3 = new Array(4);
+  this._wnafT4 = new Array(4);
+
+  this._bitLength = this.n ? this.n.bitLength() : 0;
+
+  // Generalized Greg Maxwell's trick
+  var adjustCount = this.n && this.p.div(this.n);
+  if (!adjustCount || adjustCount.cmpn(100) > 0) {
+    this.redN = null;
+  } else {
+    this._maxwellTrick = true;
+    this.redN = this.n.toRed(this.red);
+  }
+}
+var base = BaseCurve;
+
+BaseCurve.prototype.point = function point() {
+  throw new Error('Not implemented');
+};
+
+BaseCurve.prototype.validate = function validate() {
+  throw new Error('Not implemented');
+};
+
+BaseCurve.prototype._fixedNafMul = function _fixedNafMul(p, k) {
+  assert$l(p.precomputed);
+  var doubles = p._getDoubles();
+
+  var naf = getNAF(k, 1, this._bitLength);
+  var I = (1 << (doubles.step + 1)) - (doubles.step % 2 === 0 ? 2 : 1);
+  I /= 3;
+
+  // Translate into more windowed form
+  var repr = [];
+  var j;
+  var nafW;
+  for (j = 0; j < naf.length; j += doubles.step) {
+    nafW = 0;
+    for (var l = j + doubles.step - 1; l >= j; l--)
+      nafW = (nafW << 1) + naf[l];
+    repr.push(nafW);
+  }
+
+  var a = this.jpoint(null, null, null);
+  var b = this.jpoint(null, null, null);
+  for (var i = I; i > 0; i--) {
+    for (j = 0; j < repr.length; j++) {
+      nafW = repr[j];
+      if (nafW === i)
+        b = b.mixedAdd(doubles.points[j]);
+      else if (nafW === -i)
+        b = b.mixedAdd(doubles.points[j].neg());
+    }
+    a = a.add(b);
+  }
+  return a.toP();
+};
+
+BaseCurve.prototype._wnafMul = function _wnafMul(p, k) {
+  var w = 4;
+
+  // Precompute window
+  var nafPoints = p._getNAFPoints(w);
+  w = nafPoints.wnd;
+  var wnd = nafPoints.points;
+
+  // Get NAF form
+  var naf = getNAF(k, w, this._bitLength);
+
+  // Add `this`*(N+1) for every w-NAF index
+  var acc = this.jpoint(null, null, null);
+  for (var i = naf.length - 1; i >= 0; i--) {
+    // Count zeroes
+    for (var l = 0; i >= 0 && naf[i] === 0; i--)
+      l++;
+    if (i >= 0)
+      l++;
+    acc = acc.dblp(l);
+
+    if (i < 0)
+      break;
+    var z = naf[i];
+    assert$l(z !== 0);
+    if (p.type === 'affine') {
+      // J +- P
+      if (z > 0)
+        acc = acc.mixedAdd(wnd[(z - 1) >> 1]);
+      else
+        acc = acc.mixedAdd(wnd[(-z - 1) >> 1].neg());
+    } else {
+      // J +- J
+      if (z > 0)
+        acc = acc.add(wnd[(z - 1) >> 1]);
+      else
+        acc = acc.add(wnd[(-z - 1) >> 1].neg());
+    }
+  }
+  return p.type === 'affine' ? acc.toP() : acc;
+};
+
+BaseCurve.prototype._wnafMulAdd = function _wnafMulAdd(defW,
+  points,
+  coeffs,
+  len,
+  jacobianResult) {
+  var wndWidth = this._wnafT1;
+  var wnd = this._wnafT2;
+  var naf = this._wnafT3;
+
+  // Fill all arrays
+  var max = 0;
+  var i;
+  var j;
+  var p;
+  for (i = 0; i < len; i++) {
+    p = points[i];
+    var nafPoints = p._getNAFPoints(defW);
+    wndWidth[i] = nafPoints.wnd;
+    wnd[i] = nafPoints.points;
+  }
+
+  // Comb small window NAFs
+  for (i = len - 1; i >= 1; i -= 2) {
+    var a = i - 1;
+    var b = i;
+    if (wndWidth[a] !== 1 || wndWidth[b] !== 1) {
+      naf[a] = getNAF(coeffs[a], wndWidth[a], this._bitLength);
+      naf[b] = getNAF(coeffs[b], wndWidth[b], this._bitLength);
+      max = Math.max(naf[a].length, max);
+      max = Math.max(naf[b].length, max);
+      continue;
+    }
+
+    var comb = [
+      points[a], /* 1 */
+      null, /* 3 */
+      null, /* 5 */
+      points[b], /* 7 */
+    ];
+
+    // Try to avoid Projective points, if possible
+    if (points[a].y.cmp(points[b].y) === 0) {
+      comb[1] = points[a].add(points[b]);
+      comb[2] = points[a].toJ().mixedAdd(points[b].neg());
+    } else if (points[a].y.cmp(points[b].y.redNeg()) === 0) {
+      comb[1] = points[a].toJ().mixedAdd(points[b]);
+      comb[2] = points[a].add(points[b].neg());
+    } else {
+      comb[1] = points[a].toJ().mixedAdd(points[b]);
+      comb[2] = points[a].toJ().mixedAdd(points[b].neg());
+    }
+
+    var index = [
+      -3, /* -1 -1 */
+      -1, /* -1 0 */
+      -5, /* -1 1 */
+      -7, /* 0 -1 */
+      0, /* 0 0 */
+      7, /* 0 1 */
+      5, /* 1 -1 */
+      1, /* 1 0 */
+      3,  /* 1 1 */
+    ];
+
+    var jsf = getJSF(coeffs[a], coeffs[b]);
+    max = Math.max(jsf[0].length, max);
+    naf[a] = new Array(max);
+    naf[b] = new Array(max);
+    for (j = 0; j < max; j++) {
+      var ja = jsf[0][j] | 0;
+      var jb = jsf[1][j] | 0;
+
+      naf[a][j] = index[(ja + 1) * 3 + (jb + 1)];
+      naf[b][j] = 0;
+      wnd[a] = comb;
+    }
+  }
+
+  var acc = this.jpoint(null, null, null);
+  var tmp = this._wnafT4;
+  for (i = max; i >= 0; i--) {
+    var k = 0;
+
+    while (i >= 0) {
+      var zero = true;
+      for (j = 0; j < len; j++) {
+        tmp[j] = naf[j][i] | 0;
+        if (tmp[j] !== 0)
+          zero = false;
+      }
+      if (!zero)
+        break;
+      k++;
+      i--;
+    }
+    if (i >= 0)
+      k++;
+    acc = acc.dblp(k);
+    if (i < 0)
+      break;
+
+    for (j = 0; j < len; j++) {
+      var z = tmp[j];
+      if (z === 0)
+        continue;
+      else if (z > 0)
+        p = wnd[j][(z - 1) >> 1];
+      else if (z < 0)
+        p = wnd[j][(-z - 1) >> 1].neg();
+
+      if (p.type === 'affine')
+        acc = acc.mixedAdd(p);
+      else
+        acc = acc.add(p);
+    }
+  }
+  // Zeroify references
+  for (i = 0; i < len; i++)
+    wnd[i] = null;
+
+  if (jacobianResult)
+    return acc;
+  else
+    return acc.toP();
+};
+
+function BasePoint(curve, type) {
+  this.curve = curve;
+  this.type = type;
+  this.precomputed = null;
+}
+BaseCurve.BasePoint = BasePoint;
+
+BasePoint.prototype.eq = function eq(/*other*/) {
+  throw new Error('Not implemented');
+};
+
+BasePoint.prototype.validate = function validate() {
+  return this.curve.validate(this);
+};
+
+BaseCurve.prototype.decodePoint = function decodePoint(bytes, enc) {
+  bytes = utils$u.toArray(bytes, enc);
+
+  var len = this.p.byteLength();
+
+  // uncompressed, hybrid-odd, hybrid-even
+  if ((bytes[0] === 0x04 || bytes[0] === 0x06 || bytes[0] === 0x07) &&
+      bytes.length - 1 === 2 * len) {
+    if (bytes[0] === 0x06)
+      assert$l(bytes[bytes.length - 1] % 2 === 0);
+    else if (bytes[0] === 0x07)
+      assert$l(bytes[bytes.length - 1] % 2 === 1);
+
+    var res =  this.point(bytes.slice(1, 1 + len),
+      bytes.slice(1 + len, 1 + 2 * len));
+
+    return res;
+  } else if ((bytes[0] === 0x02 || bytes[0] === 0x03) &&
+              bytes.length - 1 === len) {
+    return this.pointFromX(bytes.slice(1, 1 + len), bytes[0] === 0x03);
+  }
+  throw new Error('Unknown point format');
+};
+
+BasePoint.prototype.encodeCompressed = function encodeCompressed(enc) {
+  return this.encode(enc, true);
+};
+
+BasePoint.prototype._encode = function _encode(compact) {
+  var len = this.curve.p.byteLength();
+  var x = this.getX().toArray('be', len);
+
+  if (compact)
+    return [ this.getY().isEven() ? 0x02 : 0x03 ].concat(x);
+
+  return [ 0x04 ].concat(x, this.getY().toArray('be', len));
+};
+
+BasePoint.prototype.encode = function encode(enc, compact) {
+  return utils$u.encode(this._encode(compact), enc);
+};
+
+BasePoint.prototype.precompute = function precompute(power) {
+  if (this.precomputed)
+    return this;
+
+  var precomputed = {
+    doubles: null,
+    naf: null,
+    beta: null,
+  };
+  precomputed.naf = this._getNAFPoints(8);
+  precomputed.doubles = this._getDoubles(4, power);
+  precomputed.beta = this._getBeta();
+  this.precomputed = precomputed;
+
+  return this;
+};
+
+BasePoint.prototype._hasDoubles = function _hasDoubles(k) {
+  if (!this.precomputed)
+    return false;
+
+  var doubles = this.precomputed.doubles;
+  if (!doubles)
+    return false;
+
+  return doubles.points.length >= Math.ceil((k.bitLength() + 1) / doubles.step);
+};
+
+BasePoint.prototype._getDoubles = function _getDoubles(step, power) {
+  if (this.precomputed && this.precomputed.doubles)
+    return this.precomputed.doubles;
+
+  var doubles = [ this ];
+  var acc = this;
+  for (var i = 0; i < power; i += step) {
+    for (var j = 0; j < step; j++)
+      acc = acc.dbl();
+    doubles.push(acc);
+  }
+  return {
+    step: step,
+    points: doubles,
+  };
+};
+
+BasePoint.prototype._getNAFPoints = function _getNAFPoints(wnd) {
+  if (this.precomputed && this.precomputed.naf)
+    return this.precomputed.naf;
+
+  var res = [ this ];
+  var max = (1 << wnd) - 1;
+  var dbl = max === 1 ? null : this.dbl();
+  for (var i = 1; i < max; i++)
+    res[i] = res[i - 1].add(dbl);
+  return {
+    wnd: wnd,
+    points: res,
+  };
+};
+
+BasePoint.prototype._getBeta = function _getBeta() {
+  return null;
+};
+
+BasePoint.prototype.dblp = function dblp(k) {
+  var r = this;
+  for (var i = 0; i < k; i++)
+    r = r.dbl();
+  return r;
+};
+
+var inherits$5;
+if (typeof Object.create === 'function'){
+  inherits$5 = function inherits(ctor, superCtor) {
+    // implementation from standard node.js 'util' module
+    ctor.super_ = superCtor;
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  inherits$5 = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor;
+    var TempCtor = function () {};
+    TempCtor.prototype = superCtor.prototype;
+    ctor.prototype = new TempCtor();
+    ctor.prototype.constructor = ctor;
+  };
+}
+var inherits$6 = inherits$5;
+
+var _polyfillNode_inherits = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	'default': inherits$6
+});
+
+var require$$1$1 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_inherits);
+
+var utils$t = utils$w;
+var BN$7 = bn$1.exports;
+var inherits$4 = require$$1$1;
+var Base$2 = base;
+
+var assert$k = utils$t.assert;
+
+function ShortCurve(conf) {
+  Base$2.call(this, 'short', conf);
+
+  this.a = new BN$7(conf.a, 16).toRed(this.red);
+  this.b = new BN$7(conf.b, 16).toRed(this.red);
+  this.tinv = this.two.redInvm();
+
+  this.zeroA = this.a.fromRed().cmpn(0) === 0;
+  this.threeA = this.a.fromRed().sub(this.p).cmpn(-3) === 0;
+
+  // If the curve is endomorphic, precalculate beta and lambda
+  this.endo = this._getEndomorphism(conf);
+  this._endoWnafT1 = new Array(4);
+  this._endoWnafT2 = new Array(4);
+}
+inherits$4(ShortCurve, Base$2);
+var short = ShortCurve;
+
+ShortCurve.prototype._getEndomorphism = function _getEndomorphism(conf) {
+  // No efficient endomorphism
+  if (!this.zeroA || !this.g || !this.n || this.p.modn(3) !== 1)
+    return;
+
+  // Compute beta and lambda, that lambda * P = (beta * Px; Py)
+  var beta;
+  var lambda;
+  if (conf.beta) {
+    beta = new BN$7(conf.beta, 16).toRed(this.red);
+  } else {
+    var betas = this._getEndoRoots(this.p);
+    // Choose the smallest beta
+    beta = betas[0].cmp(betas[1]) < 0 ? betas[0] : betas[1];
+    beta = beta.toRed(this.red);
+  }
+  if (conf.lambda) {
+    lambda = new BN$7(conf.lambda, 16);
+  } else {
+    // Choose the lambda that is matching selected beta
+    var lambdas = this._getEndoRoots(this.n);
+    if (this.g.mul(lambdas[0]).x.cmp(this.g.x.redMul(beta)) === 0) {
+      lambda = lambdas[0];
+    } else {
+      lambda = lambdas[1];
+      assert$k(this.g.mul(lambda).x.cmp(this.g.x.redMul(beta)) === 0);
+    }
+  }
+
+  // Get basis vectors, used for balanced length-two representation
+  var basis;
+  if (conf.basis) {
+    basis = conf.basis.map(function(vec) {
+      return {
+        a: new BN$7(vec.a, 16),
+        b: new BN$7(vec.b, 16),
+      };
+    });
+  } else {
+    basis = this._getEndoBasis(lambda);
+  }
+
+  return {
+    beta: beta,
+    lambda: lambda,
+    basis: basis,
+  };
+};
+
+ShortCurve.prototype._getEndoRoots = function _getEndoRoots(num) {
+  // Find roots of for x^2 + x + 1 in F
+  // Root = (-1 +- Sqrt(-3)) / 2
+  //
+  var red = num === this.p ? this.red : BN$7.mont(num);
+  var tinv = new BN$7(2).toRed(red).redInvm();
+  var ntinv = tinv.redNeg();
+
+  var s = new BN$7(3).toRed(red).redNeg().redSqrt().redMul(tinv);
+
+  var l1 = ntinv.redAdd(s).fromRed();
+  var l2 = ntinv.redSub(s).fromRed();
+  return [ l1, l2 ];
+};
+
+ShortCurve.prototype._getEndoBasis = function _getEndoBasis(lambda) {
+  // aprxSqrt >= sqrt(this.n)
+  var aprxSqrt = this.n.ushrn(Math.floor(this.n.bitLength() / 2));
+
+  // 3.74
+  // Run EGCD, until r(L + 1) < aprxSqrt
+  var u = lambda;
+  var v = this.n.clone();
+  var x1 = new BN$7(1);
+  var y1 = new BN$7(0);
+  var x2 = new BN$7(0);
+  var y2 = new BN$7(1);
+
+  // NOTE: all vectors are roots of: a + b * lambda = 0 (mod n)
+  var a0;
+  var b0;
+  // First vector
+  var a1;
+  var b1;
+  // Second vector
+  var a2;
+  var b2;
+
+  var prevR;
+  var i = 0;
+  var r;
+  var x;
+  while (u.cmpn(0) !== 0) {
+    var q = v.div(u);
+    r = v.sub(q.mul(u));
+    x = x2.sub(q.mul(x1));
+    var y = y2.sub(q.mul(y1));
+
+    if (!a1 && r.cmp(aprxSqrt) < 0) {
+      a0 = prevR.neg();
+      b0 = x1;
+      a1 = r.neg();
+      b1 = x;
+    } else if (a1 && ++i === 2) {
+      break;
+    }
+    prevR = r;
+
+    v = u;
+    u = r;
+    x2 = x1;
+    x1 = x;
+    y2 = y1;
+    y1 = y;
+  }
+  a2 = r.neg();
+  b2 = x;
+
+  var len1 = a1.sqr().add(b1.sqr());
+  var len2 = a2.sqr().add(b2.sqr());
+  if (len2.cmp(len1) >= 0) {
+    a2 = a0;
+    b2 = b0;
+  }
+
+  // Normalize signs
+  if (a1.negative) {
+    a1 = a1.neg();
+    b1 = b1.neg();
+  }
+  if (a2.negative) {
+    a2 = a2.neg();
+    b2 = b2.neg();
+  }
+
+  return [
+    { a: a1, b: b1 },
+    { a: a2, b: b2 },
+  ];
+};
+
+ShortCurve.prototype._endoSplit = function _endoSplit(k) {
+  var basis = this.endo.basis;
+  var v1 = basis[0];
+  var v2 = basis[1];
+
+  var c1 = v2.b.mul(k).divRound(this.n);
+  var c2 = v1.b.neg().mul(k).divRound(this.n);
+
+  var p1 = c1.mul(v1.a);
+  var p2 = c2.mul(v2.a);
+  var q1 = c1.mul(v1.b);
+  var q2 = c2.mul(v2.b);
+
+  // Calculate answer
+  var k1 = k.sub(p1).sub(p2);
+  var k2 = q1.add(q2).neg();
+  return { k1: k1, k2: k2 };
+};
+
+ShortCurve.prototype.pointFromX = function pointFromX(x, odd) {
+  x = new BN$7(x, 16);
+  if (!x.red)
+    x = x.toRed(this.red);
+
+  var y2 = x.redSqr().redMul(x).redIAdd(x.redMul(this.a)).redIAdd(this.b);
+  var y = y2.redSqrt();
+  if (y.redSqr().redSub(y2).cmp(this.zero) !== 0)
+    throw new Error('invalid point');
+
+  // XXX Is there any way to tell if the number is odd without converting it
+  // to non-red form?
+  var isOdd = y.fromRed().isOdd();
+  if (odd && !isOdd || !odd && isOdd)
+    y = y.redNeg();
+
+  return this.point(x, y);
+};
+
+ShortCurve.prototype.validate = function validate(point) {
+  if (point.inf)
+    return true;
+
+  var x = point.x;
+  var y = point.y;
+
+  var ax = this.a.redMul(x);
+  var rhs = x.redSqr().redMul(x).redIAdd(ax).redIAdd(this.b);
+  return y.redSqr().redISub(rhs).cmpn(0) === 0;
+};
+
+ShortCurve.prototype._endoWnafMulAdd =
+    function _endoWnafMulAdd(points, coeffs, jacobianResult) {
+      var npoints = this._endoWnafT1;
+      var ncoeffs = this._endoWnafT2;
+      for (var i = 0; i < points.length; i++) {
+        var split = this._endoSplit(coeffs[i]);
+        var p = points[i];
+        var beta = p._getBeta();
+
+        if (split.k1.negative) {
+          split.k1.ineg();
+          p = p.neg(true);
+        }
+        if (split.k2.negative) {
+          split.k2.ineg();
+          beta = beta.neg(true);
+        }
+
+        npoints[i * 2] = p;
+        npoints[i * 2 + 1] = beta;
+        ncoeffs[i * 2] = split.k1;
+        ncoeffs[i * 2 + 1] = split.k2;
+      }
+      var res = this._wnafMulAdd(1, npoints, ncoeffs, i * 2, jacobianResult);
+
+      // Clean-up references to points and coefficients
+      for (var j = 0; j < i * 2; j++) {
+        npoints[j] = null;
+        ncoeffs[j] = null;
+      }
+      return res;
+    };
+
+function Point$2(curve, x, y, isRed) {
+  Base$2.BasePoint.call(this, curve, 'affine');
+  if (x === null && y === null) {
+    this.x = null;
+    this.y = null;
+    this.inf = true;
+  } else {
+    this.x = new BN$7(x, 16);
+    this.y = new BN$7(y, 16);
+    // Force redgomery representation when loading from JSON
+    if (isRed) {
+      this.x.forceRed(this.curve.red);
+      this.y.forceRed(this.curve.red);
+    }
+    if (!this.x.red)
+      this.x = this.x.toRed(this.curve.red);
+    if (!this.y.red)
+      this.y = this.y.toRed(this.curve.red);
+    this.inf = false;
+  }
+}
+inherits$4(Point$2, Base$2.BasePoint);
+
+ShortCurve.prototype.point = function point(x, y, isRed) {
+  return new Point$2(this, x, y, isRed);
+};
+
+ShortCurve.prototype.pointFromJSON = function pointFromJSON(obj, red) {
+  return Point$2.fromJSON(this, obj, red);
+};
+
+Point$2.prototype._getBeta = function _getBeta() {
+  if (!this.curve.endo)
+    return;
+
+  var pre = this.precomputed;
+  if (pre && pre.beta)
+    return pre.beta;
+
+  var beta = this.curve.point(this.x.redMul(this.curve.endo.beta), this.y);
+  if (pre) {
+    var curve = this.curve;
+    var endoMul = function(p) {
+      return curve.point(p.x.redMul(curve.endo.beta), p.y);
+    };
+    pre.beta = beta;
+    beta.precomputed = {
+      beta: null,
+      naf: pre.naf && {
+        wnd: pre.naf.wnd,
+        points: pre.naf.points.map(endoMul),
+      },
+      doubles: pre.doubles && {
+        step: pre.doubles.step,
+        points: pre.doubles.points.map(endoMul),
+      },
+    };
+  }
+  return beta;
+};
+
+Point$2.prototype.toJSON = function toJSON() {
+  if (!this.precomputed)
+    return [ this.x, this.y ];
+
+  return [ this.x, this.y, this.precomputed && {
+    doubles: this.precomputed.doubles && {
+      step: this.precomputed.doubles.step,
+      points: this.precomputed.doubles.points.slice(1),
+    },
+    naf: this.precomputed.naf && {
+      wnd: this.precomputed.naf.wnd,
+      points: this.precomputed.naf.points.slice(1),
+    },
+  } ];
+};
+
+Point$2.fromJSON = function fromJSON(curve, obj, red) {
+  if (typeof obj === 'string')
+    obj = JSON.parse(obj);
+  var res = curve.point(obj[0], obj[1], red);
+  if (!obj[2])
+    return res;
+
+  function obj2point(obj) {
+    return curve.point(obj[0], obj[1], red);
+  }
+
+  var pre = obj[2];
+  res.precomputed = {
+    beta: null,
+    doubles: pre.doubles && {
+      step: pre.doubles.step,
+      points: [ res ].concat(pre.doubles.points.map(obj2point)),
+    },
+    naf: pre.naf && {
+      wnd: pre.naf.wnd,
+      points: [ res ].concat(pre.naf.points.map(obj2point)),
+    },
+  };
+  return res;
+};
+
+Point$2.prototype.inspect = function inspect() {
+  if (this.isInfinity())
+    return '<EC Point Infinity>';
+  return '<EC Point x: ' + this.x.fromRed().toString(16, 2) +
+      ' y: ' + this.y.fromRed().toString(16, 2) + '>';
+};
+
+Point$2.prototype.isInfinity = function isInfinity() {
+  return this.inf;
+};
+
+Point$2.prototype.add = function add(p) {
+  // O + P = P
+  if (this.inf)
+    return p;
+
+  // P + O = P
+  if (p.inf)
+    return this;
+
+  // P + P = 2P
+  if (this.eq(p))
+    return this.dbl();
+
+  // P + (-P) = O
+  if (this.neg().eq(p))
+    return this.curve.point(null, null);
+
+  // P + Q = O
+  if (this.x.cmp(p.x) === 0)
+    return this.curve.point(null, null);
+
+  var c = this.y.redSub(p.y);
+  if (c.cmpn(0) !== 0)
+    c = c.redMul(this.x.redSub(p.x).redInvm());
+  var nx = c.redSqr().redISub(this.x).redISub(p.x);
+  var ny = c.redMul(this.x.redSub(nx)).redISub(this.y);
+  return this.curve.point(nx, ny);
+};
+
+Point$2.prototype.dbl = function dbl() {
+  if (this.inf)
+    return this;
+
+  // 2P = O
+  var ys1 = this.y.redAdd(this.y);
+  if (ys1.cmpn(0) === 0)
+    return this.curve.point(null, null);
+
+  var a = this.curve.a;
+
+  var x2 = this.x.redSqr();
+  var dyinv = ys1.redInvm();
+  var c = x2.redAdd(x2).redIAdd(x2).redIAdd(a).redMul(dyinv);
+
+  var nx = c.redSqr().redISub(this.x.redAdd(this.x));
+  var ny = c.redMul(this.x.redSub(nx)).redISub(this.y);
+  return this.curve.point(nx, ny);
+};
+
+Point$2.prototype.getX = function getX() {
+  return this.x.fromRed();
+};
+
+Point$2.prototype.getY = function getY() {
+  return this.y.fromRed();
+};
+
+Point$2.prototype.mul = function mul(k) {
+  k = new BN$7(k, 16);
+  if (this.isInfinity())
+    return this;
+  else if (this._hasDoubles(k))
+    return this.curve._fixedNafMul(this, k);
+  else if (this.curve.endo)
+    return this.curve._endoWnafMulAdd([ this ], [ k ]);
+  else
+    return this.curve._wnafMul(this, k);
+};
+
+Point$2.prototype.mulAdd = function mulAdd(k1, p2, k2) {
+  var points = [ this, p2 ];
+  var coeffs = [ k1, k2 ];
+  if (this.curve.endo)
+    return this.curve._endoWnafMulAdd(points, coeffs);
+  else
+    return this.curve._wnafMulAdd(1, points, coeffs, 2);
+};
+
+Point$2.prototype.jmulAdd = function jmulAdd(k1, p2, k2) {
+  var points = [ this, p2 ];
+  var coeffs = [ k1, k2 ];
+  if (this.curve.endo)
+    return this.curve._endoWnafMulAdd(points, coeffs, true);
+  else
+    return this.curve._wnafMulAdd(1, points, coeffs, 2, true);
+};
+
+Point$2.prototype.eq = function eq(p) {
+  return this === p ||
+         this.inf === p.inf &&
+             (this.inf || this.x.cmp(p.x) === 0 && this.y.cmp(p.y) === 0);
+};
+
+Point$2.prototype.neg = function neg(_precompute) {
+  if (this.inf)
+    return this;
+
+  var res = this.curve.point(this.x, this.y.redNeg());
+  if (_precompute && this.precomputed) {
+    var pre = this.precomputed;
+    var negate = function(p) {
+      return p.neg();
+    };
+    res.precomputed = {
+      naf: pre.naf && {
+        wnd: pre.naf.wnd,
+        points: pre.naf.points.map(negate),
+      },
+      doubles: pre.doubles && {
+        step: pre.doubles.step,
+        points: pre.doubles.points.map(negate),
+      },
+    };
+  }
+  return res;
+};
+
+Point$2.prototype.toJ = function toJ() {
+  if (this.inf)
+    return this.curve.jpoint(null, null, null);
+
+  var res = this.curve.jpoint(this.x, this.y, this.curve.one);
+  return res;
+};
+
+function JPoint(curve, x, y, z) {
+  Base$2.BasePoint.call(this, curve, 'jacobian');
+  if (x === null && y === null && z === null) {
+    this.x = this.curve.one;
+    this.y = this.curve.one;
+    this.z = new BN$7(0);
+  } else {
+    this.x = new BN$7(x, 16);
+    this.y = new BN$7(y, 16);
+    this.z = new BN$7(z, 16);
+  }
+  if (!this.x.red)
+    this.x = this.x.toRed(this.curve.red);
+  if (!this.y.red)
+    this.y = this.y.toRed(this.curve.red);
+  if (!this.z.red)
+    this.z = this.z.toRed(this.curve.red);
+
+  this.zOne = this.z === this.curve.one;
+}
+inherits$4(JPoint, Base$2.BasePoint);
+
+ShortCurve.prototype.jpoint = function jpoint(x, y, z) {
+  return new JPoint(this, x, y, z);
+};
+
+JPoint.prototype.toP = function toP() {
+  if (this.isInfinity())
+    return this.curve.point(null, null);
+
+  var zinv = this.z.redInvm();
+  var zinv2 = zinv.redSqr();
+  var ax = this.x.redMul(zinv2);
+  var ay = this.y.redMul(zinv2).redMul(zinv);
+
+  return this.curve.point(ax, ay);
+};
+
+JPoint.prototype.neg = function neg() {
+  return this.curve.jpoint(this.x, this.y.redNeg(), this.z);
+};
+
+JPoint.prototype.add = function add(p) {
+  // O + P = P
+  if (this.isInfinity())
+    return p;
+
+  // P + O = P
+  if (p.isInfinity())
+    return this;
+
+  // 12M + 4S + 7A
+  var pz2 = p.z.redSqr();
+  var z2 = this.z.redSqr();
+  var u1 = this.x.redMul(pz2);
+  var u2 = p.x.redMul(z2);
+  var s1 = this.y.redMul(pz2.redMul(p.z));
+  var s2 = p.y.redMul(z2.redMul(this.z));
+
+  var h = u1.redSub(u2);
+  var r = s1.redSub(s2);
+  if (h.cmpn(0) === 0) {
+    if (r.cmpn(0) !== 0)
+      return this.curve.jpoint(null, null, null);
+    else
+      return this.dbl();
+  }
+
+  var h2 = h.redSqr();
+  var h3 = h2.redMul(h);
+  var v = u1.redMul(h2);
+
+  var nx = r.redSqr().redIAdd(h3).redISub(v).redISub(v);
+  var ny = r.redMul(v.redISub(nx)).redISub(s1.redMul(h3));
+  var nz = this.z.redMul(p.z).redMul(h);
+
+  return this.curve.jpoint(nx, ny, nz);
+};
+
+JPoint.prototype.mixedAdd = function mixedAdd(p) {
+  // O + P = P
+  if (this.isInfinity())
+    return p.toJ();
+
+  // P + O = P
+  if (p.isInfinity())
+    return this;
+
+  // 8M + 3S + 7A
+  var z2 = this.z.redSqr();
+  var u1 = this.x;
+  var u2 = p.x.redMul(z2);
+  var s1 = this.y;
+  var s2 = p.y.redMul(z2).redMul(this.z);
+
+  var h = u1.redSub(u2);
+  var r = s1.redSub(s2);
+  if (h.cmpn(0) === 0) {
+    if (r.cmpn(0) !== 0)
+      return this.curve.jpoint(null, null, null);
+    else
+      return this.dbl();
+  }
+
+  var h2 = h.redSqr();
+  var h3 = h2.redMul(h);
+  var v = u1.redMul(h2);
+
+  var nx = r.redSqr().redIAdd(h3).redISub(v).redISub(v);
+  var ny = r.redMul(v.redISub(nx)).redISub(s1.redMul(h3));
+  var nz = this.z.redMul(h);
+
+  return this.curve.jpoint(nx, ny, nz);
+};
+
+JPoint.prototype.dblp = function dblp(pow) {
+  if (pow === 0)
+    return this;
+  if (this.isInfinity())
+    return this;
+  if (!pow)
+    return this.dbl();
+
+  var i;
+  if (this.curve.zeroA || this.curve.threeA) {
+    var r = this;
+    for (i = 0; i < pow; i++)
+      r = r.dbl();
+    return r;
+  }
+
+  // 1M + 2S + 1A + N * (4S + 5M + 8A)
+  // N = 1 => 6M + 6S + 9A
+  var a = this.curve.a;
+  var tinv = this.curve.tinv;
+
+  var jx = this.x;
+  var jy = this.y;
+  var jz = this.z;
+  var jz4 = jz.redSqr().redSqr();
+
+  // Reuse results
+  var jyd = jy.redAdd(jy);
+  for (i = 0; i < pow; i++) {
+    var jx2 = jx.redSqr();
+    var jyd2 = jyd.redSqr();
+    var jyd4 = jyd2.redSqr();
+    var c = jx2.redAdd(jx2).redIAdd(jx2).redIAdd(a.redMul(jz4));
+
+    var t1 = jx.redMul(jyd2);
+    var nx = c.redSqr().redISub(t1.redAdd(t1));
+    var t2 = t1.redISub(nx);
+    var dny = c.redMul(t2);
+    dny = dny.redIAdd(dny).redISub(jyd4);
+    var nz = jyd.redMul(jz);
+    if (i + 1 < pow)
+      jz4 = jz4.redMul(jyd4);
+
+    jx = nx;
+    jz = nz;
+    jyd = dny;
+  }
+
+  return this.curve.jpoint(jx, jyd.redMul(tinv), jz);
+};
+
+JPoint.prototype.dbl = function dbl() {
+  if (this.isInfinity())
+    return this;
+
+  if (this.curve.zeroA)
+    return this._zeroDbl();
+  else if (this.curve.threeA)
+    return this._threeDbl();
+  else
+    return this._dbl();
+};
+
+JPoint.prototype._zeroDbl = function _zeroDbl() {
+  var nx;
+  var ny;
+  var nz;
+  // Z = 1
+  if (this.zOne) {
+    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html
+    //     #doubling-mdbl-2007-bl
+    // 1M + 5S + 14A
+
+    // XX = X1^2
+    var xx = this.x.redSqr();
+    // YY = Y1^2
+    var yy = this.y.redSqr();
+    // YYYY = YY^2
+    var yyyy = yy.redSqr();
+    // S = 2 * ((X1 + YY)^2 - XX - YYYY)
+    var s = this.x.redAdd(yy).redSqr().redISub(xx).redISub(yyyy);
+    s = s.redIAdd(s);
+    // M = 3 * XX + a; a = 0
+    var m = xx.redAdd(xx).redIAdd(xx);
+    // T = M ^ 2 - 2*S
+    var t = m.redSqr().redISub(s).redISub(s);
+
+    // 8 * YYYY
+    var yyyy8 = yyyy.redIAdd(yyyy);
+    yyyy8 = yyyy8.redIAdd(yyyy8);
+    yyyy8 = yyyy8.redIAdd(yyyy8);
+
+    // X3 = T
+    nx = t;
+    // Y3 = M * (S - T) - 8 * YYYY
+    ny = m.redMul(s.redISub(t)).redISub(yyyy8);
+    // Z3 = 2*Y1
+    nz = this.y.redAdd(this.y);
+  } else {
+    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html
+    //     #doubling-dbl-2009-l
+    // 2M + 5S + 13A
+
+    // A = X1^2
+    var a = this.x.redSqr();
+    // B = Y1^2
+    var b = this.y.redSqr();
+    // C = B^2
+    var c = b.redSqr();
+    // D = 2 * ((X1 + B)^2 - A - C)
+    var d = this.x.redAdd(b).redSqr().redISub(a).redISub(c);
+    d = d.redIAdd(d);
+    // E = 3 * A
+    var e = a.redAdd(a).redIAdd(a);
+    // F = E^2
+    var f = e.redSqr();
+
+    // 8 * C
+    var c8 = c.redIAdd(c);
+    c8 = c8.redIAdd(c8);
+    c8 = c8.redIAdd(c8);
+
+    // X3 = F - 2 * D
+    nx = f.redISub(d).redISub(d);
+    // Y3 = E * (D - X3) - 8 * C
+    ny = e.redMul(d.redISub(nx)).redISub(c8);
+    // Z3 = 2 * Y1 * Z1
+    nz = this.y.redMul(this.z);
+    nz = nz.redIAdd(nz);
+  }
+
+  return this.curve.jpoint(nx, ny, nz);
+};
+
+JPoint.prototype._threeDbl = function _threeDbl() {
+  var nx;
+  var ny;
+  var nz;
+  // Z = 1
+  if (this.zOne) {
+    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html
+    //     #doubling-mdbl-2007-bl
+    // 1M + 5S + 15A
+
+    // XX = X1^2
+    var xx = this.x.redSqr();
+    // YY = Y1^2
+    var yy = this.y.redSqr();
+    // YYYY = YY^2
+    var yyyy = yy.redSqr();
+    // S = 2 * ((X1 + YY)^2 - XX - YYYY)
+    var s = this.x.redAdd(yy).redSqr().redISub(xx).redISub(yyyy);
+    s = s.redIAdd(s);
+    // M = 3 * XX + a
+    var m = xx.redAdd(xx).redIAdd(xx).redIAdd(this.curve.a);
+    // T = M^2 - 2 * S
+    var t = m.redSqr().redISub(s).redISub(s);
+    // X3 = T
+    nx = t;
+    // Y3 = M * (S - T) - 8 * YYYY
+    var yyyy8 = yyyy.redIAdd(yyyy);
+    yyyy8 = yyyy8.redIAdd(yyyy8);
+    yyyy8 = yyyy8.redIAdd(yyyy8);
+    ny = m.redMul(s.redISub(t)).redISub(yyyy8);
+    // Z3 = 2 * Y1
+    nz = this.y.redAdd(this.y);
+  } else {
+    // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-3.html#doubling-dbl-2001-b
+    // 3M + 5S
+
+    // delta = Z1^2
+    var delta = this.z.redSqr();
+    // gamma = Y1^2
+    var gamma = this.y.redSqr();
+    // beta = X1 * gamma
+    var beta = this.x.redMul(gamma);
+    // alpha = 3 * (X1 - delta) * (X1 + delta)
+    var alpha = this.x.redSub(delta).redMul(this.x.redAdd(delta));
+    alpha = alpha.redAdd(alpha).redIAdd(alpha);
+    // X3 = alpha^2 - 8 * beta
+    var beta4 = beta.redIAdd(beta);
+    beta4 = beta4.redIAdd(beta4);
+    var beta8 = beta4.redAdd(beta4);
+    nx = alpha.redSqr().redISub(beta8);
+    // Z3 = (Y1 + Z1)^2 - gamma - delta
+    nz = this.y.redAdd(this.z).redSqr().redISub(gamma).redISub(delta);
+    // Y3 = alpha * (4 * beta - X3) - 8 * gamma^2
+    var ggamma8 = gamma.redSqr();
+    ggamma8 = ggamma8.redIAdd(ggamma8);
+    ggamma8 = ggamma8.redIAdd(ggamma8);
+    ggamma8 = ggamma8.redIAdd(ggamma8);
+    ny = alpha.redMul(beta4.redISub(nx)).redISub(ggamma8);
+  }
+
+  return this.curve.jpoint(nx, ny, nz);
+};
+
+JPoint.prototype._dbl = function _dbl() {
+  var a = this.curve.a;
+
+  // 4M + 6S + 10A
+  var jx = this.x;
+  var jy = this.y;
+  var jz = this.z;
+  var jz4 = jz.redSqr().redSqr();
+
+  var jx2 = jx.redSqr();
+  var jy2 = jy.redSqr();
+
+  var c = jx2.redAdd(jx2).redIAdd(jx2).redIAdd(a.redMul(jz4));
+
+  var jxd4 = jx.redAdd(jx);
+  jxd4 = jxd4.redIAdd(jxd4);
+  var t1 = jxd4.redMul(jy2);
+  var nx = c.redSqr().redISub(t1.redAdd(t1));
+  var t2 = t1.redISub(nx);
+
+  var jyd8 = jy2.redSqr();
+  jyd8 = jyd8.redIAdd(jyd8);
+  jyd8 = jyd8.redIAdd(jyd8);
+  jyd8 = jyd8.redIAdd(jyd8);
+  var ny = c.redMul(t2).redISub(jyd8);
+  var nz = jy.redAdd(jy).redMul(jz);
+
+  return this.curve.jpoint(nx, ny, nz);
+};
+
+JPoint.prototype.trpl = function trpl() {
+  if (!this.curve.zeroA)
+    return this.dbl().add(this);
+
+  // hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#tripling-tpl-2007-bl
+  // 5M + 10S + ...
+
+  // XX = X1^2
+  var xx = this.x.redSqr();
+  // YY = Y1^2
+  var yy = this.y.redSqr();
+  // ZZ = Z1^2
+  var zz = this.z.redSqr();
+  // YYYY = YY^2
+  var yyyy = yy.redSqr();
+  // M = 3 * XX + a * ZZ2; a = 0
+  var m = xx.redAdd(xx).redIAdd(xx);
+  // MM = M^2
+  var mm = m.redSqr();
+  // E = 6 * ((X1 + YY)^2 - XX - YYYY) - MM
+  var e = this.x.redAdd(yy).redSqr().redISub(xx).redISub(yyyy);
+  e = e.redIAdd(e);
+  e = e.redAdd(e).redIAdd(e);
+  e = e.redISub(mm);
+  // EE = E^2
+  var ee = e.redSqr();
+  // T = 16*YYYY
+  var t = yyyy.redIAdd(yyyy);
+  t = t.redIAdd(t);
+  t = t.redIAdd(t);
+  t = t.redIAdd(t);
+  // U = (M + E)^2 - MM - EE - T
+  var u = m.redIAdd(e).redSqr().redISub(mm).redISub(ee).redISub(t);
+  // X3 = 4 * (X1 * EE - 4 * YY * U)
+  var yyu4 = yy.redMul(u);
+  yyu4 = yyu4.redIAdd(yyu4);
+  yyu4 = yyu4.redIAdd(yyu4);
+  var nx = this.x.redMul(ee).redISub(yyu4);
+  nx = nx.redIAdd(nx);
+  nx = nx.redIAdd(nx);
+  // Y3 = 8 * Y1 * (U * (T - U) - E * EE)
+  var ny = this.y.redMul(u.redMul(t.redISub(u)).redISub(e.redMul(ee)));
+  ny = ny.redIAdd(ny);
+  ny = ny.redIAdd(ny);
+  ny = ny.redIAdd(ny);
+  // Z3 = (Z1 + E)^2 - ZZ - EE
+  var nz = this.z.redAdd(e).redSqr().redISub(zz).redISub(ee);
+
+  return this.curve.jpoint(nx, ny, nz);
+};
+
+JPoint.prototype.mul = function mul(k, kbase) {
+  k = new BN$7(k, kbase);
+
+  return this.curve._wnafMul(this, k);
+};
+
+JPoint.prototype.eq = function eq(p) {
+  if (p.type === 'affine')
+    return this.eq(p.toJ());
+
+  if (this === p)
+    return true;
+
+  // x1 * z2^2 == x2 * z1^2
+  var z2 = this.z.redSqr();
+  var pz2 = p.z.redSqr();
+  if (this.x.redMul(pz2).redISub(p.x.redMul(z2)).cmpn(0) !== 0)
+    return false;
+
+  // y1 * z2^3 == y2 * z1^3
+  var z3 = z2.redMul(this.z);
+  var pz3 = pz2.redMul(p.z);
+  return this.y.redMul(pz3).redISub(p.y.redMul(z3)).cmpn(0) === 0;
+};
+
+JPoint.prototype.eqXToP = function eqXToP(x) {
+  var zs = this.z.redSqr();
+  var rx = x.toRed(this.curve.red).redMul(zs);
+  if (this.x.cmp(rx) === 0)
+    return true;
+
+  var xc = x.clone();
+  var t = this.curve.redN.redMul(zs);
+  for (;;) {
+    xc.iadd(this.curve.n);
+    if (xc.cmp(this.curve.p) >= 0)
+      return false;
+
+    rx.redIAdd(t);
+    if (this.x.cmp(rx) === 0)
+      return true;
+  }
+};
+
+JPoint.prototype.inspect = function inspect() {
+  if (this.isInfinity())
+    return '<EC JPoint Infinity>';
+  return '<EC JPoint x: ' + this.x.toString(16, 2) +
+      ' y: ' + this.y.toString(16, 2) +
+      ' z: ' + this.z.toString(16, 2) + '>';
+};
+
+JPoint.prototype.isInfinity = function isInfinity() {
+  // XXX This code assumes that zero is always zero in red
+  return this.z.cmpn(0) === 0;
+};
+
+var BN$6 = bn$1.exports;
+var inherits$3 = require$$1$1;
+var Base$1 = base;
+
+var utils$s = utils$w;
+
+function MontCurve(conf) {
+  Base$1.call(this, 'mont', conf);
+
+  this.a = new BN$6(conf.a, 16).toRed(this.red);
+  this.b = new BN$6(conf.b, 16).toRed(this.red);
+  this.i4 = new BN$6(4).toRed(this.red).redInvm();
+  this.two = new BN$6(2).toRed(this.red);
+  this.a24 = this.i4.redMul(this.a.redAdd(this.two));
+}
+inherits$3(MontCurve, Base$1);
+var mont = MontCurve;
+
+MontCurve.prototype.validate = function validate(point) {
+  var x = point.normalize().x;
+  var x2 = x.redSqr();
+  var rhs = x2.redMul(x).redAdd(x2.redMul(this.a)).redAdd(x);
+  var y = rhs.redSqrt();
+
+  return y.redSqr().cmp(rhs) === 0;
+};
+
+function Point$1(curve, x, z) {
+  Base$1.BasePoint.call(this, curve, 'projective');
+  if (x === null && z === null) {
+    this.x = this.curve.one;
+    this.z = this.curve.zero;
+  } else {
+    this.x = new BN$6(x, 16);
+    this.z = new BN$6(z, 16);
+    if (!this.x.red)
+      this.x = this.x.toRed(this.curve.red);
+    if (!this.z.red)
+      this.z = this.z.toRed(this.curve.red);
+  }
+}
+inherits$3(Point$1, Base$1.BasePoint);
+
+MontCurve.prototype.decodePoint = function decodePoint(bytes, enc) {
+  return this.point(utils$s.toArray(bytes, enc), 1);
+};
+
+MontCurve.prototype.point = function point(x, z) {
+  return new Point$1(this, x, z);
+};
+
+MontCurve.prototype.pointFromJSON = function pointFromJSON(obj) {
+  return Point$1.fromJSON(this, obj);
+};
+
+Point$1.prototype.precompute = function precompute() {
+  // No-op
+};
+
+Point$1.prototype._encode = function _encode() {
+  return this.getX().toArray('be', this.curve.p.byteLength());
+};
+
+Point$1.fromJSON = function fromJSON(curve, obj) {
+  return new Point$1(curve, obj[0], obj[1] || curve.one);
+};
+
+Point$1.prototype.inspect = function inspect() {
+  if (this.isInfinity())
+    return '<EC Point Infinity>';
+  return '<EC Point x: ' + this.x.fromRed().toString(16, 2) +
+      ' z: ' + this.z.fromRed().toString(16, 2) + '>';
+};
+
+Point$1.prototype.isInfinity = function isInfinity() {
+  // XXX This code assumes that zero is always zero in red
+  return this.z.cmpn(0) === 0;
+};
+
+Point$1.prototype.dbl = function dbl() {
+  // http://hyperelliptic.org/EFD/g1p/auto-montgom-xz.html#doubling-dbl-1987-m-3
+  // 2M + 2S + 4A
+
+  // A = X1 + Z1
+  var a = this.x.redAdd(this.z);
+  // AA = A^2
+  var aa = a.redSqr();
+  // B = X1 - Z1
+  var b = this.x.redSub(this.z);
+  // BB = B^2
+  var bb = b.redSqr();
+  // C = AA - BB
+  var c = aa.redSub(bb);
+  // X3 = AA * BB
+  var nx = aa.redMul(bb);
+  // Z3 = C * (BB + A24 * C)
+  var nz = c.redMul(bb.redAdd(this.curve.a24.redMul(c)));
+  return this.curve.point(nx, nz);
+};
+
+Point$1.prototype.add = function add() {
+  throw new Error('Not supported on Montgomery curve');
+};
+
+Point$1.prototype.diffAdd = function diffAdd(p, diff) {
+  // http://hyperelliptic.org/EFD/g1p/auto-montgom-xz.html#diffadd-dadd-1987-m-3
+  // 4M + 2S + 6A
+
+  // A = X2 + Z2
+  var a = this.x.redAdd(this.z);
+  // B = X2 - Z2
+  var b = this.x.redSub(this.z);
+  // C = X3 + Z3
+  var c = p.x.redAdd(p.z);
+  // D = X3 - Z3
+  var d = p.x.redSub(p.z);
+  // DA = D * A
+  var da = d.redMul(a);
+  // CB = C * B
+  var cb = c.redMul(b);
+  // X5 = Z1 * (DA + CB)^2
+  var nx = diff.z.redMul(da.redAdd(cb).redSqr());
+  // Z5 = X1 * (DA - CB)^2
+  var nz = diff.x.redMul(da.redISub(cb).redSqr());
+  return this.curve.point(nx, nz);
+};
+
+Point$1.prototype.mul = function mul(k) {
+  var t = k.clone();
+  var a = this; // (N / 2) * Q + Q
+  var b = this.curve.point(null, null); // (N / 2) * Q
+  var c = this; // Q
+
+  for (var bits = []; t.cmpn(0) !== 0; t.iushrn(1))
+    bits.push(t.andln(1));
+
+  for (var i = bits.length - 1; i >= 0; i--) {
+    if (bits[i] === 0) {
+      // N * Q + Q = ((N / 2) * Q + Q)) + (N / 2) * Q
+      a = a.diffAdd(b, c);
+      // N * Q = 2 * ((N / 2) * Q + Q))
+      b = b.dbl();
+    } else {
+      // N * Q = ((N / 2) * Q + Q) + ((N / 2) * Q)
+      b = a.diffAdd(b, c);
+      // N * Q + Q = 2 * ((N / 2) * Q + Q)
+      a = a.dbl();
+    }
+  }
+  return b;
+};
+
+Point$1.prototype.mulAdd = function mulAdd() {
+  throw new Error('Not supported on Montgomery curve');
+};
+
+Point$1.prototype.jumlAdd = function jumlAdd() {
+  throw new Error('Not supported on Montgomery curve');
+};
+
+Point$1.prototype.eq = function eq(other) {
+  return this.getX().cmp(other.getX()) === 0;
+};
+
+Point$1.prototype.normalize = function normalize() {
+  this.x = this.x.redMul(this.z.redInvm());
+  this.z = this.curve.one;
+  return this;
+};
+
+Point$1.prototype.getX = function getX() {
+  // Normalize coordinates
+  this.normalize();
+
+  return this.x.fromRed();
+};
+
+var utils$r = utils$w;
+var BN$5 = bn$1.exports;
+var inherits$2 = require$$1$1;
+var Base = base;
+
+var assert$j = utils$r.assert;
+
+function EdwardsCurve(conf) {
+  // NOTE: Important as we are creating point in Base.call()
+  this.twisted = (conf.a | 0) !== 1;
+  this.mOneA = this.twisted && (conf.a | 0) === -1;
+  this.extended = this.mOneA;
+
+  Base.call(this, 'edwards', conf);
+
+  this.a = new BN$5(conf.a, 16).umod(this.red.m);
+  this.a = this.a.toRed(this.red);
+  this.c = new BN$5(conf.c, 16).toRed(this.red);
+  this.c2 = this.c.redSqr();
+  this.d = new BN$5(conf.d, 16).toRed(this.red);
+  this.dd = this.d.redAdd(this.d);
+
+  assert$j(!this.twisted || this.c.fromRed().cmpn(1) === 0);
+  this.oneC = (conf.c | 0) === 1;
+}
+inherits$2(EdwardsCurve, Base);
+var edwards = EdwardsCurve;
+
+EdwardsCurve.prototype._mulA = function _mulA(num) {
+  if (this.mOneA)
+    return num.redNeg();
+  else
+    return this.a.redMul(num);
+};
+
+EdwardsCurve.prototype._mulC = function _mulC(num) {
+  if (this.oneC)
+    return num;
+  else
+    return this.c.redMul(num);
+};
+
+// Just for compatibility with Short curve
+EdwardsCurve.prototype.jpoint = function jpoint(x, y, z, t) {
+  return this.point(x, y, z, t);
+};
+
+EdwardsCurve.prototype.pointFromX = function pointFromX(x, odd) {
+  x = new BN$5(x, 16);
+  if (!x.red)
+    x = x.toRed(this.red);
+
+  var x2 = x.redSqr();
+  var rhs = this.c2.redSub(this.a.redMul(x2));
+  var lhs = this.one.redSub(this.c2.redMul(this.d).redMul(x2));
+
+  var y2 = rhs.redMul(lhs.redInvm());
+  var y = y2.redSqrt();
+  if (y.redSqr().redSub(y2).cmp(this.zero) !== 0)
+    throw new Error('invalid point');
+
+  var isOdd = y.fromRed().isOdd();
+  if (odd && !isOdd || !odd && isOdd)
+    y = y.redNeg();
+
+  return this.point(x, y);
+};
+
+EdwardsCurve.prototype.pointFromY = function pointFromY(y, odd) {
+  y = new BN$5(y, 16);
+  if (!y.red)
+    y = y.toRed(this.red);
+
+  // x^2 = (y^2 - c^2) / (c^2 d y^2 - a)
+  var y2 = y.redSqr();
+  var lhs = y2.redSub(this.c2);
+  var rhs = y2.redMul(this.d).redMul(this.c2).redSub(this.a);
+  var x2 = lhs.redMul(rhs.redInvm());
+
+  if (x2.cmp(this.zero) === 0) {
+    if (odd)
+      throw new Error('invalid point');
+    else
+      return this.point(this.zero, y);
+  }
+
+  var x = x2.redSqrt();
+  if (x.redSqr().redSub(x2).cmp(this.zero) !== 0)
+    throw new Error('invalid point');
+
+  if (x.fromRed().isOdd() !== odd)
+    x = x.redNeg();
+
+  return this.point(x, y);
+};
+
+EdwardsCurve.prototype.validate = function validate(point) {
+  if (point.isInfinity())
+    return true;
+
+  // Curve: A * X^2 + Y^2 = C^2 * (1 + D * X^2 * Y^2)
+  point.normalize();
+
+  var x2 = point.x.redSqr();
+  var y2 = point.y.redSqr();
+  var lhs = x2.redMul(this.a).redAdd(y2);
+  var rhs = this.c2.redMul(this.one.redAdd(this.d.redMul(x2).redMul(y2)));
+
+  return lhs.cmp(rhs) === 0;
+};
+
+function Point(curve, x, y, z, t) {
+  Base.BasePoint.call(this, curve, 'projective');
+  if (x === null && y === null && z === null) {
+    this.x = this.curve.zero;
+    this.y = this.curve.one;
+    this.z = this.curve.one;
+    this.t = this.curve.zero;
+    this.zOne = true;
+  } else {
+    this.x = new BN$5(x, 16);
+    this.y = new BN$5(y, 16);
+    this.z = z ? new BN$5(z, 16) : this.curve.one;
+    this.t = t && new BN$5(t, 16);
+    if (!this.x.red)
+      this.x = this.x.toRed(this.curve.red);
+    if (!this.y.red)
+      this.y = this.y.toRed(this.curve.red);
+    if (!this.z.red)
+      this.z = this.z.toRed(this.curve.red);
+    if (this.t && !this.t.red)
+      this.t = this.t.toRed(this.curve.red);
+    this.zOne = this.z === this.curve.one;
+
+    // Use extended coordinates
+    if (this.curve.extended && !this.t) {
+      this.t = this.x.redMul(this.y);
+      if (!this.zOne)
+        this.t = this.t.redMul(this.z.redInvm());
+    }
+  }
+}
+inherits$2(Point, Base.BasePoint);
+
+EdwardsCurve.prototype.pointFromJSON = function pointFromJSON(obj) {
+  return Point.fromJSON(this, obj);
+};
+
+EdwardsCurve.prototype.point = function point(x, y, z, t) {
+  return new Point(this, x, y, z, t);
+};
+
+Point.fromJSON = function fromJSON(curve, obj) {
+  return new Point(curve, obj[0], obj[1], obj[2]);
+};
+
+Point.prototype.inspect = function inspect() {
+  if (this.isInfinity())
+    return '<EC Point Infinity>';
+  return '<EC Point x: ' + this.x.fromRed().toString(16, 2) +
+      ' y: ' + this.y.fromRed().toString(16, 2) +
+      ' z: ' + this.z.fromRed().toString(16, 2) + '>';
+};
+
+Point.prototype.isInfinity = function isInfinity() {
+  // XXX This code assumes that zero is always zero in red
+  return this.x.cmpn(0) === 0 &&
+    (this.y.cmp(this.z) === 0 ||
+    (this.zOne && this.y.cmp(this.curve.c) === 0));
+};
+
+Point.prototype._extDbl = function _extDbl() {
+  // hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
+  //     #doubling-dbl-2008-hwcd
+  // 4M + 4S
+
+  // A = X1^2
+  var a = this.x.redSqr();
+  // B = Y1^2
+  var b = this.y.redSqr();
+  // C = 2 * Z1^2
+  var c = this.z.redSqr();
+  c = c.redIAdd(c);
+  // D = a * A
+  var d = this.curve._mulA(a);
+  // E = (X1 + Y1)^2 - A - B
+  var e = this.x.redAdd(this.y).redSqr().redISub(a).redISub(b);
+  // G = D + B
+  var g = d.redAdd(b);
+  // F = G - C
+  var f = g.redSub(c);
+  // H = D - B
+  var h = d.redSub(b);
+  // X3 = E * F
+  var nx = e.redMul(f);
+  // Y3 = G * H
+  var ny = g.redMul(h);
+  // T3 = E * H
+  var nt = e.redMul(h);
+  // Z3 = F * G
+  var nz = f.redMul(g);
+  return this.curve.point(nx, ny, nz, nt);
+};
+
+Point.prototype._projDbl = function _projDbl() {
+  // hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
+  //     #doubling-dbl-2008-bbjlp
+  //     #doubling-dbl-2007-bl
+  // and others
+  // Generally 3M + 4S or 2M + 4S
+
+  // B = (X1 + Y1)^2
+  var b = this.x.redAdd(this.y).redSqr();
+  // C = X1^2
+  var c = this.x.redSqr();
+  // D = Y1^2
+  var d = this.y.redSqr();
+
+  var nx;
+  var ny;
+  var nz;
+  var e;
+  var h;
+  var j;
+  if (this.curve.twisted) {
+    // E = a * C
+    e = this.curve._mulA(c);
+    // F = E + D
+    var f = e.redAdd(d);
+    if (this.zOne) {
+      // X3 = (B - C - D) * (F - 2)
+      nx = b.redSub(c).redSub(d).redMul(f.redSub(this.curve.two));
+      // Y3 = F * (E - D)
+      ny = f.redMul(e.redSub(d));
+      // Z3 = F^2 - 2 * F
+      nz = f.redSqr().redSub(f).redSub(f);
+    } else {
+      // H = Z1^2
+      h = this.z.redSqr();
+      // J = F - 2 * H
+      j = f.redSub(h).redISub(h);
+      // X3 = (B-C-D)*J
+      nx = b.redSub(c).redISub(d).redMul(j);
+      // Y3 = F * (E - D)
+      ny = f.redMul(e.redSub(d));
+      // Z3 = F * J
+      nz = f.redMul(j);
+    }
+  } else {
+    // E = C + D
+    e = c.redAdd(d);
+    // H = (c * Z1)^2
+    h = this.curve._mulC(this.z).redSqr();
+    // J = E - 2 * H
+    j = e.redSub(h).redSub(h);
+    // X3 = c * (B - E) * J
+    nx = this.curve._mulC(b.redISub(e)).redMul(j);
+    // Y3 = c * E * (C - D)
+    ny = this.curve._mulC(e).redMul(c.redISub(d));
+    // Z3 = E * J
+    nz = e.redMul(j);
+  }
+  return this.curve.point(nx, ny, nz);
+};
+
+Point.prototype.dbl = function dbl() {
+  if (this.isInfinity())
+    return this;
+
+  // Double in extended coordinates
+  if (this.curve.extended)
+    return this._extDbl();
+  else
+    return this._projDbl();
+};
+
+Point.prototype._extAdd = function _extAdd(p) {
+  // hyperelliptic.org/EFD/g1p/auto-twisted-extended-1.html
+  //     #addition-add-2008-hwcd-3
+  // 8M
+
+  // A = (Y1 - X1) * (Y2 - X2)
+  var a = this.y.redSub(this.x).redMul(p.y.redSub(p.x));
+  // B = (Y1 + X1) * (Y2 + X2)
+  var b = this.y.redAdd(this.x).redMul(p.y.redAdd(p.x));
+  // C = T1 * k * T2
+  var c = this.t.redMul(this.curve.dd).redMul(p.t);
+  // D = Z1 * 2 * Z2
+  var d = this.z.redMul(p.z.redAdd(p.z));
+  // E = B - A
+  var e = b.redSub(a);
+  // F = D - C
+  var f = d.redSub(c);
+  // G = D + C
+  var g = d.redAdd(c);
+  // H = B + A
+  var h = b.redAdd(a);
+  // X3 = E * F
+  var nx = e.redMul(f);
+  // Y3 = G * H
+  var ny = g.redMul(h);
+  // T3 = E * H
+  var nt = e.redMul(h);
+  // Z3 = F * G
+  var nz = f.redMul(g);
+  return this.curve.point(nx, ny, nz, nt);
+};
+
+Point.prototype._projAdd = function _projAdd(p) {
+  // hyperelliptic.org/EFD/g1p/auto-twisted-projective.html
+  //     #addition-add-2008-bbjlp
+  //     #addition-add-2007-bl
+  // 10M + 1S
+
+  // A = Z1 * Z2
+  var a = this.z.redMul(p.z);
+  // B = A^2
+  var b = a.redSqr();
+  // C = X1 * X2
+  var c = this.x.redMul(p.x);
+  // D = Y1 * Y2
+  var d = this.y.redMul(p.y);
+  // E = d * C * D
+  var e = this.curve.d.redMul(c).redMul(d);
+  // F = B - E
+  var f = b.redSub(e);
+  // G = B + E
+  var g = b.redAdd(e);
+  // X3 = A * F * ((X1 + Y1) * (X2 + Y2) - C - D)
+  var tmp = this.x.redAdd(this.y).redMul(p.x.redAdd(p.y)).redISub(c).redISub(d);
+  var nx = a.redMul(f).redMul(tmp);
+  var ny;
+  var nz;
+  if (this.curve.twisted) {
+    // Y3 = A * G * (D - a * C)
+    ny = a.redMul(g).redMul(d.redSub(this.curve._mulA(c)));
+    // Z3 = F * G
+    nz = f.redMul(g);
+  } else {
+    // Y3 = A * G * (D - C)
+    ny = a.redMul(g).redMul(d.redSub(c));
+    // Z3 = c * F * G
+    nz = this.curve._mulC(f).redMul(g);
+  }
+  return this.curve.point(nx, ny, nz);
+};
+
+Point.prototype.add = function add(p) {
+  if (this.isInfinity())
+    return p;
+  if (p.isInfinity())
+    return this;
+
+  if (this.curve.extended)
+    return this._extAdd(p);
+  else
+    return this._projAdd(p);
+};
+
+Point.prototype.mul = function mul(k) {
+  if (this._hasDoubles(k))
+    return this.curve._fixedNafMul(this, k);
+  else
+    return this.curve._wnafMul(this, k);
+};
+
+Point.prototype.mulAdd = function mulAdd(k1, p, k2) {
+  return this.curve._wnafMulAdd(1, [ this, p ], [ k1, k2 ], 2, false);
+};
+
+Point.prototype.jmulAdd = function jmulAdd(k1, p, k2) {
+  return this.curve._wnafMulAdd(1, [ this, p ], [ k1, k2 ], 2, true);
+};
+
+Point.prototype.normalize = function normalize() {
+  if (this.zOne)
+    return this;
+
+  // Normalize coordinates
+  var zi = this.z.redInvm();
+  this.x = this.x.redMul(zi);
+  this.y = this.y.redMul(zi);
+  if (this.t)
+    this.t = this.t.redMul(zi);
+  this.z = this.curve.one;
+  this.zOne = true;
+  return this;
+};
+
+Point.prototype.neg = function neg() {
+  return this.curve.point(this.x.redNeg(),
+    this.y,
+    this.z,
+    this.t && this.t.redNeg());
+};
+
+Point.prototype.getX = function getX() {
+  this.normalize();
+  return this.x.fromRed();
+};
+
+Point.prototype.getY = function getY() {
+  this.normalize();
+  return this.y.fromRed();
+};
+
+Point.prototype.eq = function eq(other) {
+  return this === other ||
+         this.getX().cmp(other.getX()) === 0 &&
+         this.getY().cmp(other.getY()) === 0;
+};
+
+Point.prototype.eqXToP = function eqXToP(x) {
+  var rx = x.toRed(this.curve.red).redMul(this.z);
+  if (this.x.cmp(rx) === 0)
+    return true;
+
+  var xc = x.clone();
+  var t = this.curve.redN.redMul(this.z);
+  for (;;) {
+    xc.iadd(this.curve.n);
+    if (xc.cmp(this.curve.p) >= 0)
+      return false;
+
+    rx.redIAdd(t);
+    if (this.x.cmp(rx) === 0)
+      return true;
+  }
+};
+
+// Compatibility with BaseCurve
+Point.prototype.toP = Point.prototype.normalize;
+Point.prototype.mixedAdd = Point.prototype.add;
+
+(function (exports) {
+
+	var curve = exports;
+
+	curve.base = base;
+	curve.short = short;
+	curve.mont = mont;
+	curve.edwards = edwards;
+} (curve));
+
+var curves$2 = {};
+
+var hash$4 = {};
+
+var utils$q = {};
+
+var assert$i = minimalisticAssert$1;
+var inherits$1 = require$$1$1;
+
+utils$q.inherits = inherits$1;
+
+function isSurrogatePair$1(msg, i) {
+  if ((msg.charCodeAt(i) & 0xFC00) !== 0xD800) {
+    return false;
+  }
+  if (i < 0 || i + 1 >= msg.length) {
+    return false;
+  }
+  return (msg.charCodeAt(i + 1) & 0xFC00) === 0xDC00;
+}
+
+function toArray$1(msg, enc) {
+  if (Array.isArray(msg))
+    return msg.slice();
+  if (!msg)
+    return [];
+  var res = [];
+  if (typeof msg === 'string') {
+    if (!enc) {
+      // Inspired by stringToUtf8ByteArray() in closure-library by Google
+      // https://github.com/google/closure-library/blob/8598d87242af59aac233270742c8984e2b2bdbe0/closure/goog/crypt/crypt.js#L117-L143
+      // Apache License 2.0
+      // https://github.com/google/closure-library/blob/master/LICENSE
+      var p = 0;
+      for (var i = 0; i < msg.length; i++) {
+        var c = msg.charCodeAt(i);
+        if (c < 128) {
+          res[p++] = c;
+        } else if (c < 2048) {
+          res[p++] = (c >> 6) | 192;
+          res[p++] = (c & 63) | 128;
+        } else if (isSurrogatePair$1(msg, i)) {
+          c = 0x10000 + ((c & 0x03FF) << 10) + (msg.charCodeAt(++i) & 0x03FF);
+          res[p++] = (c >> 18) | 240;
+          res[p++] = ((c >> 12) & 63) | 128;
+          res[p++] = ((c >> 6) & 63) | 128;
+          res[p++] = (c & 63) | 128;
+        } else {
+          res[p++] = (c >> 12) | 224;
+          res[p++] = ((c >> 6) & 63) | 128;
+          res[p++] = (c & 63) | 128;
+        }
+      }
+    } else if (enc === 'hex') {
+      msg = msg.replace(/[^a-z0-9]+/ig, '');
+      if (msg.length % 2 !== 0)
+        msg = '0' + msg;
+      for (i = 0; i < msg.length; i += 2)
+        res.push(parseInt(msg[i] + msg[i + 1], 16));
+    }
+  } else {
+    for (i = 0; i < msg.length; i++)
+      res[i] = msg[i] | 0;
+  }
+  return res;
+}
+utils$q.toArray = toArray$1;
+
+function toHex$1(msg) {
+  var res = '';
+  for (var i = 0; i < msg.length; i++)
+    res += zero2$1(msg[i].toString(16));
+  return res;
+}
+utils$q.toHex = toHex$1;
+
+function htonl$1(w) {
+  var res = (w >>> 24) |
+            ((w >>> 8) & 0xff00) |
+            ((w << 8) & 0xff0000) |
+            ((w & 0xff) << 24);
+  return res >>> 0;
+}
+utils$q.htonl = htonl$1;
+
+function toHex32$1(msg, endian) {
+  var res = '';
+  for (var i = 0; i < msg.length; i++) {
+    var w = msg[i];
+    if (endian === 'little')
+      w = htonl$1(w);
+    res += zero8$1(w.toString(16));
+  }
+  return res;
+}
+utils$q.toHex32 = toHex32$1;
+
+function zero2$1(word) {
+  if (word.length === 1)
+    return '0' + word;
+  else
+    return word;
+}
+utils$q.zero2 = zero2$1;
+
+function zero8$1(word) {
+  if (word.length === 7)
+    return '0' + word;
+  else if (word.length === 6)
+    return '00' + word;
+  else if (word.length === 5)
+    return '000' + word;
+  else if (word.length === 4)
+    return '0000' + word;
+  else if (word.length === 3)
+    return '00000' + word;
+  else if (word.length === 2)
+    return '000000' + word;
+  else if (word.length === 1)
+    return '0000000' + word;
+  else
+    return word;
+}
+utils$q.zero8 = zero8$1;
+
+function join32$1(msg, start, end, endian) {
+  var len = end - start;
+  assert$i(len % 4 === 0);
+  var res = new Array(len / 4);
+  for (var i = 0, k = start; i < res.length; i++, k += 4) {
+    var w;
+    if (endian === 'big')
+      w = (msg[k] << 24) | (msg[k + 1] << 16) | (msg[k + 2] << 8) | msg[k + 3];
+    else
+      w = (msg[k + 3] << 24) | (msg[k + 2] << 16) | (msg[k + 1] << 8) | msg[k];
+    res[i] = w >>> 0;
+  }
+  return res;
+}
+utils$q.join32 = join32$1;
+
+function split32$1(msg, endian) {
+  var res = new Array(msg.length * 4);
+  for (var i = 0, k = 0; i < msg.length; i++, k += 4) {
+    var m = msg[i];
+    if (endian === 'big') {
+      res[k] = m >>> 24;
+      res[k + 1] = (m >>> 16) & 0xff;
+      res[k + 2] = (m >>> 8) & 0xff;
+      res[k + 3] = m & 0xff;
+    } else {
+      res[k + 3] = m >>> 24;
+      res[k + 2] = (m >>> 16) & 0xff;
+      res[k + 1] = (m >>> 8) & 0xff;
+      res[k] = m & 0xff;
+    }
+  }
+  return res;
+}
+utils$q.split32 = split32$1;
+
+function rotr32$3(w, b) {
+  return (w >>> b) | (w << (32 - b));
+}
+utils$q.rotr32 = rotr32$3;
+
+function rotl32$5(w, b) {
+  return (w << b) | (w >>> (32 - b));
+}
+utils$q.rotl32 = rotl32$5;
+
+function sum32$7(a, b) {
+  return (a + b) >>> 0;
+}
+utils$q.sum32 = sum32$7;
+
+function sum32_3$3(a, b, c) {
+  return (a + b + c) >>> 0;
+}
+utils$q.sum32_3 = sum32_3$3;
+
+function sum32_4$5(a, b, c, d) {
+  return (a + b + c + d) >>> 0;
+}
+utils$q.sum32_4 = sum32_4$5;
+
+function sum32_5$5(a, b, c, d, e) {
+  return (a + b + c + d + e) >>> 0;
+}
+utils$q.sum32_5 = sum32_5$5;
+
+function sum64$3(buf, pos, ah, al) {
+  var bh = buf[pos];
+  var bl = buf[pos + 1];
+
+  var lo = (al + bl) >>> 0;
+  var hi = (lo < al ? 1 : 0) + ah + bh;
+  buf[pos] = hi >>> 0;
+  buf[pos + 1] = lo;
+}
+utils$q.sum64 = sum64$3;
+
+function sum64_hi$3(ah, al, bh, bl) {
+  var lo = (al + bl) >>> 0;
+  var hi = (lo < al ? 1 : 0) + ah + bh;
+  return hi >>> 0;
+}
+utils$q.sum64_hi = sum64_hi$3;
+
+function sum64_lo$3(ah, al, bh, bl) {
+  var lo = al + bl;
+  return lo >>> 0;
+}
+utils$q.sum64_lo = sum64_lo$3;
+
+function sum64_4_hi$3(ah, al, bh, bl, ch, cl, dh, dl) {
+  var carry = 0;
+  var lo = al;
+  lo = (lo + bl) >>> 0;
+  carry += lo < al ? 1 : 0;
+  lo = (lo + cl) >>> 0;
+  carry += lo < cl ? 1 : 0;
+  lo = (lo + dl) >>> 0;
+  carry += lo < dl ? 1 : 0;
+
+  var hi = ah + bh + ch + dh + carry;
+  return hi >>> 0;
+}
+utils$q.sum64_4_hi = sum64_4_hi$3;
+
+function sum64_4_lo$3(ah, al, bh, bl, ch, cl, dh, dl) {
+  var lo = al + bl + cl + dl;
+  return lo >>> 0;
+}
+utils$q.sum64_4_lo = sum64_4_lo$3;
+
+function sum64_5_hi$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+  var carry = 0;
+  var lo = al;
+  lo = (lo + bl) >>> 0;
+  carry += lo < al ? 1 : 0;
+  lo = (lo + cl) >>> 0;
+  carry += lo < cl ? 1 : 0;
+  lo = (lo + dl) >>> 0;
+  carry += lo < dl ? 1 : 0;
+  lo = (lo + el) >>> 0;
+  carry += lo < el ? 1 : 0;
+
+  var hi = ah + bh + ch + dh + eh + carry;
+  return hi >>> 0;
+}
+utils$q.sum64_5_hi = sum64_5_hi$3;
+
+function sum64_5_lo$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+  var lo = al + bl + cl + dl + el;
+
+  return lo >>> 0;
+}
+utils$q.sum64_5_lo = sum64_5_lo$3;
+
+function rotr64_hi$3(ah, al, num) {
+  var r = (al << (32 - num)) | (ah >>> num);
+  return r >>> 0;
+}
+utils$q.rotr64_hi = rotr64_hi$3;
+
+function rotr64_lo$3(ah, al, num) {
+  var r = (ah << (32 - num)) | (al >>> num);
+  return r >>> 0;
+}
+utils$q.rotr64_lo = rotr64_lo$3;
+
+function shr64_hi$3(ah, al, num) {
+  return ah >>> num;
+}
+utils$q.shr64_hi = shr64_hi$3;
+
+function shr64_lo$3(ah, al, num) {
+  var r = (ah << (32 - num)) | (al >>> num);
+  return r >>> 0;
+}
+utils$q.shr64_lo = shr64_lo$3;
+
+var common$b = {};
+
+var utils$p = utils$q;
+var assert$h = minimalisticAssert$1;
+
+function BlockHash$9() {
+  this.pending = null;
+  this.pendingTotal = 0;
+  this.blockSize = this.constructor.blockSize;
+  this.outSize = this.constructor.outSize;
+  this.hmacStrength = this.constructor.hmacStrength;
+  this.padLength = this.constructor.padLength / 8;
+  this.endian = 'big';
+
+  this._delta8 = this.blockSize / 8;
+  this._delta32 = this.blockSize / 32;
+}
+common$b.BlockHash = BlockHash$9;
+
+BlockHash$9.prototype.update = function update(msg, enc) {
+  // Convert message to array, pad it, and join into 32bit blocks
+  msg = utils$p.toArray(msg, enc);
+  if (!this.pending)
+    this.pending = msg;
+  else
+    this.pending = this.pending.concat(msg);
+  this.pendingTotal += msg.length;
+
+  // Enough data, try updating
+  if (this.pending.length >= this._delta8) {
+    msg = this.pending;
+
+    // Process pending data in blocks
+    var r = msg.length % this._delta8;
+    this.pending = msg.slice(msg.length - r, msg.length);
+    if (this.pending.length === 0)
+      this.pending = null;
+
+    msg = utils$p.join32(msg, 0, msg.length - r, this.endian);
+    for (var i = 0; i < msg.length; i += this._delta32)
+      this._update(msg, i, i + this._delta32);
+  }
+
+  return this;
+};
+
+BlockHash$9.prototype.digest = function digest(enc) {
+  this.update(this._pad());
+  assert$h(this.pending === null);
+
+  return this._digest(enc);
+};
+
+BlockHash$9.prototype._pad = function pad() {
+  var len = this.pendingTotal;
+  var bytes = this._delta8;
+  var k = bytes - ((len + this.padLength) % bytes);
+  var res = new Array(k + this.padLength);
+  res[0] = 0x80;
+  for (var i = 1; i < k; i++)
+    res[i] = 0;
+
+  // Append length
+  len <<= 3;
+  if (this.endian === 'big') {
+    for (var t = 8; t < this.padLength; t++)
+      res[i++] = 0;
+
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = (len >>> 24) & 0xff;
+    res[i++] = (len >>> 16) & 0xff;
+    res[i++] = (len >>> 8) & 0xff;
+    res[i++] = len & 0xff;
+  } else {
+    res[i++] = len & 0xff;
+    res[i++] = (len >>> 8) & 0xff;
+    res[i++] = (len >>> 16) & 0xff;
+    res[i++] = (len >>> 24) & 0xff;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+
+    for (t = 8; t < this.padLength; t++)
+      res[i++] = 0;
+  }
+
+  return res;
+};
+
+var sha$1 = {};
+
+var common$a = {};
+
+var utils$o = utils$q;
+var rotr32$2 = utils$o.rotr32;
+
+function ft_1$3(s, x, y, z) {
+  if (s === 0)
+    return ch32$3(x, y, z);
+  if (s === 1 || s === 3)
+    return p32$1(x, y, z);
+  if (s === 2)
+    return maj32$3(x, y, z);
+}
+common$a.ft_1 = ft_1$3;
+
+function ch32$3(x, y, z) {
+  return (x & y) ^ ((~x) & z);
+}
+common$a.ch32 = ch32$3;
+
+function maj32$3(x, y, z) {
+  return (x & y) ^ (x & z) ^ (y & z);
+}
+common$a.maj32 = maj32$3;
+
+function p32$1(x, y, z) {
+  return x ^ y ^ z;
+}
+common$a.p32 = p32$1;
+
+function s0_256$3(x) {
+  return rotr32$2(x, 2) ^ rotr32$2(x, 13) ^ rotr32$2(x, 22);
+}
+common$a.s0_256 = s0_256$3;
+
+function s1_256$3(x) {
+  return rotr32$2(x, 6) ^ rotr32$2(x, 11) ^ rotr32$2(x, 25);
+}
+common$a.s1_256 = s1_256$3;
+
+function g0_256$3(x) {
+  return rotr32$2(x, 7) ^ rotr32$2(x, 18) ^ (x >>> 3);
+}
+common$a.g0_256 = g0_256$3;
+
+function g1_256$3(x) {
+  return rotr32$2(x, 17) ^ rotr32$2(x, 19) ^ (x >>> 10);
+}
+common$a.g1_256 = g1_256$3;
+
+var utils$n = utils$q;
+var common$9 = common$b;
+var shaCommon$3 = common$a;
+
+var rotl32$4 = utils$n.rotl32;
+var sum32$6 = utils$n.sum32;
+var sum32_5$4 = utils$n.sum32_5;
+var ft_1$2 = shaCommon$3.ft_1;
+var BlockHash$8 = common$9.BlockHash;
+
+var sha1_K$1 = [
+  0x5A827999, 0x6ED9EBA1,
+  0x8F1BBCDC, 0xCA62C1D6
+];
+
+function SHA1$1() {
+  if (!(this instanceof SHA1$1))
+    return new SHA1$1();
+
+  BlockHash$8.call(this);
+  this.h = [
+    0x67452301, 0xefcdab89, 0x98badcfe,
+    0x10325476, 0xc3d2e1f0 ];
+  this.W = new Array(80);
+}
+
+utils$n.inherits(SHA1$1, BlockHash$8);
+var _1$1 = SHA1$1;
+
+SHA1$1.blockSize = 512;
+SHA1$1.outSize = 160;
+SHA1$1.hmacStrength = 80;
+SHA1$1.padLength = 64;
+
+SHA1$1.prototype._update = function _update(msg, start) {
+  var W = this.W;
+
+  for (var i = 0; i < 16; i++)
+    W[i] = msg[start + i];
+
+  for(; i < W.length; i++)
+    W[i] = rotl32$4(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+
+  var a = this.h[0];
+  var b = this.h[1];
+  var c = this.h[2];
+  var d = this.h[3];
+  var e = this.h[4];
+
+  for (i = 0; i < W.length; i++) {
+    var s = ~~(i / 20);
+    var t = sum32_5$4(rotl32$4(a, 5), ft_1$2(s, b, c, d), e, W[i], sha1_K$1[s]);
+    e = d;
+    d = c;
+    c = rotl32$4(b, 30);
+    b = a;
+    a = t;
+  }
+
+  this.h[0] = sum32$6(this.h[0], a);
+  this.h[1] = sum32$6(this.h[1], b);
+  this.h[2] = sum32$6(this.h[2], c);
+  this.h[3] = sum32$6(this.h[3], d);
+  this.h[4] = sum32$6(this.h[4], e);
+};
+
+SHA1$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$n.toHex32(this.h, 'big');
+  else
+    return utils$n.split32(this.h, 'big');
+};
+
+var utils$m = utils$q;
+var common$8 = common$b;
+var shaCommon$2 = common$a;
+var assert$g = minimalisticAssert$1;
+
+var sum32$5 = utils$m.sum32;
+var sum32_4$4 = utils$m.sum32_4;
+var sum32_5$3 = utils$m.sum32_5;
+var ch32$2 = shaCommon$2.ch32;
+var maj32$2 = shaCommon$2.maj32;
+var s0_256$2 = shaCommon$2.s0_256;
+var s1_256$2 = shaCommon$2.s1_256;
+var g0_256$2 = shaCommon$2.g0_256;
+var g1_256$2 = shaCommon$2.g1_256;
+
+var BlockHash$7 = common$8.BlockHash;
+
+var sha256_K$1 = [
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+  0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+  0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+  0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+  0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+  0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+  0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+  0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+];
+
+function SHA256$3() {
+  if (!(this instanceof SHA256$3))
+    return new SHA256$3();
+
+  BlockHash$7.call(this);
+  this.h = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+  ];
+  this.k = sha256_K$1;
+  this.W = new Array(64);
+}
+utils$m.inherits(SHA256$3, BlockHash$7);
+var _256$1 = SHA256$3;
+
+SHA256$3.blockSize = 512;
+SHA256$3.outSize = 256;
+SHA256$3.hmacStrength = 192;
+SHA256$3.padLength = 64;
+
+SHA256$3.prototype._update = function _update(msg, start) {
+  var W = this.W;
+
+  for (var i = 0; i < 16; i++)
+    W[i] = msg[start + i];
+  for (; i < W.length; i++)
+    W[i] = sum32_4$4(g1_256$2(W[i - 2]), W[i - 7], g0_256$2(W[i - 15]), W[i - 16]);
+
+  var a = this.h[0];
+  var b = this.h[1];
+  var c = this.h[2];
+  var d = this.h[3];
+  var e = this.h[4];
+  var f = this.h[5];
+  var g = this.h[6];
+  var h = this.h[7];
+
+  assert$g(this.k.length === W.length);
+  for (i = 0; i < W.length; i++) {
+    var T1 = sum32_5$3(h, s1_256$2(e), ch32$2(e, f, g), this.k[i], W[i]);
+    var T2 = sum32$5(s0_256$2(a), maj32$2(a, b, c));
+    h = g;
+    g = f;
+    f = e;
+    e = sum32$5(d, T1);
+    d = c;
+    c = b;
+    b = a;
+    a = sum32$5(T1, T2);
+  }
+
+  this.h[0] = sum32$5(this.h[0], a);
+  this.h[1] = sum32$5(this.h[1], b);
+  this.h[2] = sum32$5(this.h[2], c);
+  this.h[3] = sum32$5(this.h[3], d);
+  this.h[4] = sum32$5(this.h[4], e);
+  this.h[5] = sum32$5(this.h[5], f);
+  this.h[6] = sum32$5(this.h[6], g);
+  this.h[7] = sum32$5(this.h[7], h);
+};
+
+SHA256$3.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$m.toHex32(this.h, 'big');
+  else
+    return utils$m.split32(this.h, 'big');
+};
+
+var utils$l = utils$q;
+var SHA256$2 = _256$1;
+
+function SHA224$1() {
+  if (!(this instanceof SHA224$1))
+    return new SHA224$1();
+
+  SHA256$2.call(this);
+  this.h = [
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
+    0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 ];
+}
+utils$l.inherits(SHA224$1, SHA256$2);
+var _224$1 = SHA224$1;
+
+SHA224$1.blockSize = 512;
+SHA224$1.outSize = 224;
+SHA224$1.hmacStrength = 192;
+SHA224$1.padLength = 64;
+
+SHA224$1.prototype._digest = function digest(enc) {
+  // Just truncate output
+  if (enc === 'hex')
+    return utils$l.toHex32(this.h.slice(0, 7), 'big');
+  else
+    return utils$l.split32(this.h.slice(0, 7), 'big');
+};
+
+var utils$k = utils$q;
+var common$7 = common$b;
+var assert$f = minimalisticAssert$1;
+
+var rotr64_hi$2 = utils$k.rotr64_hi;
+var rotr64_lo$2 = utils$k.rotr64_lo;
+var shr64_hi$2 = utils$k.shr64_hi;
+var shr64_lo$2 = utils$k.shr64_lo;
+var sum64$2 = utils$k.sum64;
+var sum64_hi$2 = utils$k.sum64_hi;
+var sum64_lo$2 = utils$k.sum64_lo;
+var sum64_4_hi$2 = utils$k.sum64_4_hi;
+var sum64_4_lo$2 = utils$k.sum64_4_lo;
+var sum64_5_hi$2 = utils$k.sum64_5_hi;
+var sum64_5_lo$2 = utils$k.sum64_5_lo;
+
+var BlockHash$6 = common$7.BlockHash;
+
+var sha512_K$1 = [
+  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
+  0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+  0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
+  0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+  0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
+  0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+  0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
+  0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+  0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
+  0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+  0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
+  0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+  0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
+  0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+  0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
+  0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+  0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
+  0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+  0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
+  0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+  0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
+  0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+  0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
+  0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+  0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
+  0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+  0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
+  0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+  0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
+  0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+  0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
+  0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+  0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
+  0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+  0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
+  0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+  0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
+  0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+  0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
+  0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+];
+
+function SHA512$3() {
+  if (!(this instanceof SHA512$3))
+    return new SHA512$3();
+
+  BlockHash$6.call(this);
+  this.h = [
+    0x6a09e667, 0xf3bcc908,
+    0xbb67ae85, 0x84caa73b,
+    0x3c6ef372, 0xfe94f82b,
+    0xa54ff53a, 0x5f1d36f1,
+    0x510e527f, 0xade682d1,
+    0x9b05688c, 0x2b3e6c1f,
+    0x1f83d9ab, 0xfb41bd6b,
+    0x5be0cd19, 0x137e2179 ];
+  this.k = sha512_K$1;
+  this.W = new Array(160);
+}
+utils$k.inherits(SHA512$3, BlockHash$6);
+var _512$1 = SHA512$3;
+
+SHA512$3.blockSize = 1024;
+SHA512$3.outSize = 512;
+SHA512$3.hmacStrength = 192;
+SHA512$3.padLength = 128;
+
+SHA512$3.prototype._prepareBlock = function _prepareBlock(msg, start) {
+  var W = this.W;
+
+  // 32 x 32bit words
+  for (var i = 0; i < 32; i++)
+    W[i] = msg[start + i];
+  for (; i < W.length; i += 2) {
+    var c0_hi = g1_512_hi$1(W[i - 4], W[i - 3]);  // i - 2
+    var c0_lo = g1_512_lo$1(W[i - 4], W[i - 3]);
+    var c1_hi = W[i - 14];  // i - 7
+    var c1_lo = W[i - 13];
+    var c2_hi = g0_512_hi$1(W[i - 30], W[i - 29]);  // i - 15
+    var c2_lo = g0_512_lo$1(W[i - 30], W[i - 29]);
+    var c3_hi = W[i - 32];  // i - 16
+    var c3_lo = W[i - 31];
+
+    W[i] = sum64_4_hi$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo);
+    W[i + 1] = sum64_4_lo$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo);
+  }
+};
+
+SHA512$3.prototype._update = function _update(msg, start) {
+  this._prepareBlock(msg, start);
+
+  var W = this.W;
+
+  var ah = this.h[0];
+  var al = this.h[1];
+  var bh = this.h[2];
+  var bl = this.h[3];
+  var ch = this.h[4];
+  var cl = this.h[5];
+  var dh = this.h[6];
+  var dl = this.h[7];
+  var eh = this.h[8];
+  var el = this.h[9];
+  var fh = this.h[10];
+  var fl = this.h[11];
+  var gh = this.h[12];
+  var gl = this.h[13];
+  var hh = this.h[14];
+  var hl = this.h[15];
+
+  assert$f(this.k.length === W.length);
+  for (var i = 0; i < W.length; i += 2) {
+    var c0_hi = hh;
+    var c0_lo = hl;
+    var c1_hi = s1_512_hi$1(eh, el);
+    var c1_lo = s1_512_lo$1(eh, el);
+    var c2_hi = ch64_hi$1(eh, el, fh, fl, gh);
+    var c2_lo = ch64_lo$1(eh, el, fh, fl, gh, gl);
+    var c3_hi = this.k[i];
+    var c3_lo = this.k[i + 1];
+    var c4_hi = W[i];
+    var c4_lo = W[i + 1];
+
+    var T1_hi = sum64_5_hi$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo,
+      c4_hi, c4_lo);
+    var T1_lo = sum64_5_lo$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo,
+      c4_hi, c4_lo);
+
+    c0_hi = s0_512_hi$1(ah, al);
+    c0_lo = s0_512_lo$1(ah, al);
+    c1_hi = maj64_hi$1(ah, al, bh, bl, ch);
+    c1_lo = maj64_lo$1(ah, al, bh, bl, ch, cl);
+
+    var T2_hi = sum64_hi$2(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_lo = sum64_lo$2(c0_hi, c0_lo, c1_hi, c1_lo);
+
+    hh = gh;
+    hl = gl;
+
+    gh = fh;
+    gl = fl;
+
+    fh = eh;
+    fl = el;
+
+    eh = sum64_hi$2(dh, dl, T1_hi, T1_lo);
+    el = sum64_lo$2(dl, dl, T1_hi, T1_lo);
+
+    dh = ch;
+    dl = cl;
+
+    ch = bh;
+    cl = bl;
+
+    bh = ah;
+    bl = al;
+
+    ah = sum64_hi$2(T1_hi, T1_lo, T2_hi, T2_lo);
+    al = sum64_lo$2(T1_hi, T1_lo, T2_hi, T2_lo);
+  }
+
+  sum64$2(this.h, 0, ah, al);
+  sum64$2(this.h, 2, bh, bl);
+  sum64$2(this.h, 4, ch, cl);
+  sum64$2(this.h, 6, dh, dl);
+  sum64$2(this.h, 8, eh, el);
+  sum64$2(this.h, 10, fh, fl);
+  sum64$2(this.h, 12, gh, gl);
+  sum64$2(this.h, 14, hh, hl);
+};
+
+SHA512$3.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$k.toHex32(this.h, 'big');
+  else
+    return utils$k.split32(this.h, 'big');
+};
+
+function ch64_hi$1(xh, xl, yh, yl, zh) {
+  var r = (xh & yh) ^ ((~xh) & zh);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function ch64_lo$1(xh, xl, yh, yl, zh, zl) {
+  var r = (xl & yl) ^ ((~xl) & zl);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function maj64_hi$1(xh, xl, yh, yl, zh) {
+  var r = (xh & yh) ^ (xh & zh) ^ (yh & zh);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function maj64_lo$1(xh, xl, yh, yl, zh, zl) {
+  var r = (xl & yl) ^ (xl & zl) ^ (yl & zl);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s0_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 28);
+  var c1_hi = rotr64_hi$2(xl, xh, 2);  // 34
+  var c2_hi = rotr64_hi$2(xl, xh, 7);  // 39
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s0_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 28);
+  var c1_lo = rotr64_lo$2(xl, xh, 2);  // 34
+  var c2_lo = rotr64_lo$2(xl, xh, 7);  // 39
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s1_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 14);
+  var c1_hi = rotr64_hi$2(xh, xl, 18);
+  var c2_hi = rotr64_hi$2(xl, xh, 9);  // 41
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s1_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 14);
+  var c1_lo = rotr64_lo$2(xh, xl, 18);
+  var c2_lo = rotr64_lo$2(xl, xh, 9);  // 41
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g0_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 1);
+  var c1_hi = rotr64_hi$2(xh, xl, 8);
+  var c2_hi = shr64_hi$2(xh, xl, 7);
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g0_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 1);
+  var c1_lo = rotr64_lo$2(xh, xl, 8);
+  var c2_lo = shr64_lo$2(xh, xl, 7);
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g1_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 19);
+  var c1_hi = rotr64_hi$2(xl, xh, 29);  // 61
+  var c2_hi = shr64_hi$2(xh, xl, 6);
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g1_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 19);
+  var c1_lo = rotr64_lo$2(xl, xh, 29);  // 61
+  var c2_lo = shr64_lo$2(xh, xl, 6);
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+var utils$j = utils$q;
+
+var SHA512$2 = _512$1;
+
+function SHA384$1() {
+  if (!(this instanceof SHA384$1))
+    return new SHA384$1();
+
+  SHA512$2.call(this);
+  this.h = [
+    0xcbbb9d5d, 0xc1059ed8,
+    0x629a292a, 0x367cd507,
+    0x9159015a, 0x3070dd17,
+    0x152fecd8, 0xf70e5939,
+    0x67332667, 0xffc00b31,
+    0x8eb44a87, 0x68581511,
+    0xdb0c2e0d, 0x64f98fa7,
+    0x47b5481d, 0xbefa4fa4 ];
+}
+utils$j.inherits(SHA384$1, SHA512$2);
+var _384$1 = SHA384$1;
+
+SHA384$1.blockSize = 1024;
+SHA384$1.outSize = 384;
+SHA384$1.hmacStrength = 192;
+SHA384$1.padLength = 128;
+
+SHA384$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$j.toHex32(this.h.slice(0, 12), 'big');
+  else
+    return utils$j.split32(this.h.slice(0, 12), 'big');
+};
+
+sha$1.sha1 = _1$1;
+sha$1.sha224 = _224$1;
+sha$1.sha256 = _256$1;
+sha$1.sha384 = _384$1;
+sha$1.sha512 = _512$1;
+
+var ripemd$1 = {};
+
+var utils$i = utils$q;
+var common$6 = common$b;
+
+var rotl32$3 = utils$i.rotl32;
+var sum32$4 = utils$i.sum32;
+var sum32_3$2 = utils$i.sum32_3;
+var sum32_4$3 = utils$i.sum32_4;
+var BlockHash$5 = common$6.BlockHash;
+
+function RIPEMD160$1() {
+  if (!(this instanceof RIPEMD160$1))
+    return new RIPEMD160$1();
+
+  BlockHash$5.call(this);
+
+  this.h = [ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 ];
+  this.endian = 'little';
+}
+utils$i.inherits(RIPEMD160$1, BlockHash$5);
+ripemd$1.ripemd160 = RIPEMD160$1;
+
+RIPEMD160$1.blockSize = 512;
+RIPEMD160$1.outSize = 160;
+RIPEMD160$1.hmacStrength = 192;
+RIPEMD160$1.padLength = 64;
+
+RIPEMD160$1.prototype._update = function update(msg, start) {
+  var A = this.h[0];
+  var B = this.h[1];
+  var C = this.h[2];
+  var D = this.h[3];
+  var E = this.h[4];
+  var Ah = A;
+  var Bh = B;
+  var Ch = C;
+  var Dh = D;
+  var Eh = E;
+  for (var j = 0; j < 80; j++) {
+    var T = sum32$4(
+      rotl32$3(
+        sum32_4$3(A, f$1(j, B, C, D), msg[r$1[j] + start], K$1(j)),
+        s$1[j]),
+      E);
+    A = E;
+    E = D;
+    D = rotl32$3(C, 10);
+    C = B;
+    B = T;
+    T = sum32$4(
+      rotl32$3(
+        sum32_4$3(Ah, f$1(79 - j, Bh, Ch, Dh), msg[rh$1[j] + start], Kh$1(j)),
+        sh$1[j]),
+      Eh);
+    Ah = Eh;
+    Eh = Dh;
+    Dh = rotl32$3(Ch, 10);
+    Ch = Bh;
+    Bh = T;
+  }
+  T = sum32_3$2(this.h[1], C, Dh);
+  this.h[1] = sum32_3$2(this.h[2], D, Eh);
+  this.h[2] = sum32_3$2(this.h[3], E, Ah);
+  this.h[3] = sum32_3$2(this.h[4], A, Bh);
+  this.h[4] = sum32_3$2(this.h[0], B, Ch);
+  this.h[0] = T;
+};
+
+RIPEMD160$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$i.toHex32(this.h, 'little');
+  else
+    return utils$i.split32(this.h, 'little');
+};
+
+function f$1(j, x, y, z) {
+  if (j <= 15)
+    return x ^ y ^ z;
+  else if (j <= 31)
+    return (x & y) | ((~x) & z);
+  else if (j <= 47)
+    return (x | (~y)) ^ z;
+  else if (j <= 63)
+    return (x & z) | (y & (~z));
+  else
+    return x ^ (y | (~z));
+}
+
+function K$1(j) {
+  if (j <= 15)
+    return 0x00000000;
+  else if (j <= 31)
+    return 0x5a827999;
+  else if (j <= 47)
+    return 0x6ed9eba1;
+  else if (j <= 63)
+    return 0x8f1bbcdc;
+  else
+    return 0xa953fd4e;
+}
+
+function Kh$1(j) {
+  if (j <= 15)
+    return 0x50a28be6;
+  else if (j <= 31)
+    return 0x5c4dd124;
+  else if (j <= 47)
+    return 0x6d703ef3;
+  else if (j <= 63)
+    return 0x7a6d76e9;
+  else
+    return 0x00000000;
+}
+
+var r$1 = [
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
+  3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
+  1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2,
+  4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13
+];
+
+var rh$1 = [
+  5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
+  6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
+  15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
+  8, 6, 4, 1, 3, 11, 15, 0, 5, 12, 2, 13, 9, 7, 10, 14,
+  12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11
+];
+
+var s$1 = [
+  11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
+  7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
+  11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
+  11, 12, 14, 15, 14, 15, 9, 8, 9, 14, 5, 6, 8, 6, 5, 12,
+  9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6
+];
+
+var sh$1 = [
+  8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
+  9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
+  9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
+  15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
+  8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
+];
+
+var utils$h = utils$q;
+var assert$e = minimalisticAssert$1;
+
+function Hmac$1(hash, key, enc) {
+  if (!(this instanceof Hmac$1))
+    return new Hmac$1(hash, key, enc);
+  this.Hash = hash;
+  this.blockSize = hash.blockSize / 8;
+  this.outSize = hash.outSize / 8;
+  this.inner = null;
+  this.outer = null;
+
+  this._init(utils$h.toArray(key, enc));
+}
+var hmac$1 = Hmac$1;
+
+Hmac$1.prototype._init = function init(key) {
+  // Shorten key, if needed
+  if (key.length > this.blockSize)
+    key = new this.Hash().update(key).digest();
+  assert$e(key.length <= this.blockSize);
+
+  // Add padding to key
+  for (var i = key.length; i < this.blockSize; i++)
+    key.push(0);
+
+  for (i = 0; i < key.length; i++)
+    key[i] ^= 0x36;
+  this.inner = new this.Hash().update(key);
+
+  // 0x36 ^ 0x5c = 0x6a
+  for (i = 0; i < key.length; i++)
+    key[i] ^= 0x6a;
+  this.outer = new this.Hash().update(key);
+};
+
+Hmac$1.prototype.update = function update(msg, enc) {
+  this.inner.update(msg, enc);
+  return this;
+};
+
+Hmac$1.prototype.digest = function digest(enc) {
+  this.outer.update(this.inner.digest());
+  return this.outer.digest(enc);
+};
+
+(function (exports) {
+	var hash = exports;
+
+	hash.utils = utils$q;
+	hash.common = common$b;
+	hash.sha = sha$1;
+	hash.ripemd = ripemd$1;
+	hash.hmac = hmac$1;
+
+	// Proxy hash functions to the main object
+	hash.sha1 = hash.sha.sha1;
+	hash.sha256 = hash.sha.sha256;
+	hash.sha224 = hash.sha.sha224;
+	hash.sha384 = hash.sha.sha384;
+	hash.sha512 = hash.sha.sha512;
+	hash.ripemd160 = hash.ripemd.ripemd160;
+} (hash$4));
+
+var secp256k1$1;
+var hasRequiredSecp256k1;
+
+function requireSecp256k1 () {
+	if (hasRequiredSecp256k1) return secp256k1$1;
+	hasRequiredSecp256k1 = 1;
+	secp256k1$1 = {
+	  doubles: {
+	    step: 4,
+	    points: [
+	      [
+	        'e60fce93b59e9ec53011aabc21c23e97b2a31369b87a5ae9c44ee89e2a6dec0a',
+	        'f7e3507399e595929db99f34f57937101296891e44d23f0be1f32cce69616821',
+	      ],
+	      [
+	        '8282263212c609d9ea2a6e3e172de238d8c39cabd5ac1ca10646e23fd5f51508',
+	        '11f8a8098557dfe45e8256e830b60ace62d613ac2f7b17bed31b6eaff6e26caf',
+	      ],
+	      [
+	        '175e159f728b865a72f99cc6c6fc846de0b93833fd2222ed73fce5b551e5b739',
+	        'd3506e0d9e3c79eba4ef97a51ff71f5eacb5955add24345c6efa6ffee9fed695',
+	      ],
+	      [
+	        '363d90d447b00c9c99ceac05b6262ee053441c7e55552ffe526bad8f83ff4640',
+	        '4e273adfc732221953b445397f3363145b9a89008199ecb62003c7f3bee9de9',
+	      ],
+	      [
+	        '8b4b5f165df3c2be8c6244b5b745638843e4a781a15bcd1b69f79a55dffdf80c',
+	        '4aad0a6f68d308b4b3fbd7813ab0da04f9e336546162ee56b3eff0c65fd4fd36',
+	      ],
+	      [
+	        '723cbaa6e5db996d6bf771c00bd548c7b700dbffa6c0e77bcb6115925232fcda',
+	        '96e867b5595cc498a921137488824d6e2660a0653779494801dc069d9eb39f5f',
+	      ],
+	      [
+	        'eebfa4d493bebf98ba5feec812c2d3b50947961237a919839a533eca0e7dd7fa',
+	        '5d9a8ca3970ef0f269ee7edaf178089d9ae4cdc3a711f712ddfd4fdae1de8999',
+	      ],
+	      [
+	        '100f44da696e71672791d0a09b7bde459f1215a29b3c03bfefd7835b39a48db0',
+	        'cdd9e13192a00b772ec8f3300c090666b7ff4a18ff5195ac0fbd5cd62bc65a09',
+	      ],
+	      [
+	        'e1031be262c7ed1b1dc9227a4a04c017a77f8d4464f3b3852c8acde6e534fd2d',
+	        '9d7061928940405e6bb6a4176597535af292dd419e1ced79a44f18f29456a00d',
+	      ],
+	      [
+	        'feea6cae46d55b530ac2839f143bd7ec5cf8b266a41d6af52d5e688d9094696d',
+	        'e57c6b6c97dce1bab06e4e12bf3ecd5c981c8957cc41442d3155debf18090088',
+	      ],
+	      [
+	        'da67a91d91049cdcb367be4be6ffca3cfeed657d808583de33fa978bc1ec6cb1',
+	        '9bacaa35481642bc41f463f7ec9780e5dec7adc508f740a17e9ea8e27a68be1d',
+	      ],
+	      [
+	        '53904faa0b334cdda6e000935ef22151ec08d0f7bb11069f57545ccc1a37b7c0',
+	        '5bc087d0bc80106d88c9eccac20d3c1c13999981e14434699dcb096b022771c8',
+	      ],
+	      [
+	        '8e7bcd0bd35983a7719cca7764ca906779b53a043a9b8bcaeff959f43ad86047',
+	        '10b7770b2a3da4b3940310420ca9514579e88e2e47fd68b3ea10047e8460372a',
+	      ],
+	      [
+	        '385eed34c1cdff21e6d0818689b81bde71a7f4f18397e6690a841e1599c43862',
+	        '283bebc3e8ea23f56701de19e9ebf4576b304eec2086dc8cc0458fe5542e5453',
+	      ],
+	      [
+	        '6f9d9b803ecf191637c73a4413dfa180fddf84a5947fbc9c606ed86c3fac3a7',
+	        '7c80c68e603059ba69b8e2a30e45c4d47ea4dd2f5c281002d86890603a842160',
+	      ],
+	      [
+	        '3322d401243c4e2582a2147c104d6ecbf774d163db0f5e5313b7e0e742d0e6bd',
+	        '56e70797e9664ef5bfb019bc4ddaf9b72805f63ea2873af624f3a2e96c28b2a0',
+	      ],
+	      [
+	        '85672c7d2de0b7da2bd1770d89665868741b3f9af7643397721d74d28134ab83',
+	        '7c481b9b5b43b2eb6374049bfa62c2e5e77f17fcc5298f44c8e3094f790313a6',
+	      ],
+	      [
+	        '948bf809b1988a46b06c9f1919413b10f9226c60f668832ffd959af60c82a0a',
+	        '53a562856dcb6646dc6b74c5d1c3418c6d4dff08c97cd2bed4cb7f88d8c8e589',
+	      ],
+	      [
+	        '6260ce7f461801c34f067ce0f02873a8f1b0e44dfc69752accecd819f38fd8e8',
+	        'bc2da82b6fa5b571a7f09049776a1ef7ecd292238051c198c1a84e95b2b4ae17',
+	      ],
+	      [
+	        'e5037de0afc1d8d43d8348414bbf4103043ec8f575bfdc432953cc8d2037fa2d',
+	        '4571534baa94d3b5f9f98d09fb990bddbd5f5b03ec481f10e0e5dc841d755bda',
+	      ],
+	      [
+	        'e06372b0f4a207adf5ea905e8f1771b4e7e8dbd1c6a6c5b725866a0ae4fce725',
+	        '7a908974bce18cfe12a27bb2ad5a488cd7484a7787104870b27034f94eee31dd',
+	      ],
+	      [
+	        '213c7a715cd5d45358d0bbf9dc0ce02204b10bdde2a3f58540ad6908d0559754',
+	        '4b6dad0b5ae462507013ad06245ba190bb4850f5f36a7eeddff2c27534b458f2',
+	      ],
+	      [
+	        '4e7c272a7af4b34e8dbb9352a5419a87e2838c70adc62cddf0cc3a3b08fbd53c',
+	        '17749c766c9d0b18e16fd09f6def681b530b9614bff7dd33e0b3941817dcaae6',
+	      ],
+	      [
+	        'fea74e3dbe778b1b10f238ad61686aa5c76e3db2be43057632427e2840fb27b6',
+	        '6e0568db9b0b13297cf674deccb6af93126b596b973f7b77701d3db7f23cb96f',
+	      ],
+	      [
+	        '76e64113f677cf0e10a2570d599968d31544e179b760432952c02a4417bdde39',
+	        'c90ddf8dee4e95cf577066d70681f0d35e2a33d2b56d2032b4b1752d1901ac01',
+	      ],
+	      [
+	        'c738c56b03b2abe1e8281baa743f8f9a8f7cc643df26cbee3ab150242bcbb891',
+	        '893fb578951ad2537f718f2eacbfbbbb82314eef7880cfe917e735d9699a84c3',
+	      ],
+	      [
+	        'd895626548b65b81e264c7637c972877d1d72e5f3a925014372e9f6588f6c14b',
+	        'febfaa38f2bc7eae728ec60818c340eb03428d632bb067e179363ed75d7d991f',
+	      ],
+	      [
+	        'b8da94032a957518eb0f6433571e8761ceffc73693e84edd49150a564f676e03',
+	        '2804dfa44805a1e4d7c99cc9762808b092cc584d95ff3b511488e4e74efdf6e7',
+	      ],
+	      [
+	        'e80fea14441fb33a7d8adab9475d7fab2019effb5156a792f1a11778e3c0df5d',
+	        'eed1de7f638e00771e89768ca3ca94472d155e80af322ea9fcb4291b6ac9ec78',
+	      ],
+	      [
+	        'a301697bdfcd704313ba48e51d567543f2a182031efd6915ddc07bbcc4e16070',
+	        '7370f91cfb67e4f5081809fa25d40f9b1735dbf7c0a11a130c0d1a041e177ea1',
+	      ],
+	      [
+	        '90ad85b389d6b936463f9d0512678de208cc330b11307fffab7ac63e3fb04ed4',
+	        'e507a3620a38261affdcbd9427222b839aefabe1582894d991d4d48cb6ef150',
+	      ],
+	      [
+	        '8f68b9d2f63b5f339239c1ad981f162ee88c5678723ea3351b7b444c9ec4c0da',
+	        '662a9f2dba063986de1d90c2b6be215dbbea2cfe95510bfdf23cbf79501fff82',
+	      ],
+	      [
+	        'e4f3fb0176af85d65ff99ff9198c36091f48e86503681e3e6686fd5053231e11',
+	        '1e63633ad0ef4f1c1661a6d0ea02b7286cc7e74ec951d1c9822c38576feb73bc',
+	      ],
+	      [
+	        '8c00fa9b18ebf331eb961537a45a4266c7034f2f0d4e1d0716fb6eae20eae29e',
+	        'efa47267fea521a1a9dc343a3736c974c2fadafa81e36c54e7d2a4c66702414b',
+	      ],
+	      [
+	        'e7a26ce69dd4829f3e10cec0a9e98ed3143d084f308b92c0997fddfc60cb3e41',
+	        '2a758e300fa7984b471b006a1aafbb18d0a6b2c0420e83e20e8a9421cf2cfd51',
+	      ],
+	      [
+	        'b6459e0ee3662ec8d23540c223bcbdc571cbcb967d79424f3cf29eb3de6b80ef',
+	        '67c876d06f3e06de1dadf16e5661db3c4b3ae6d48e35b2ff30bf0b61a71ba45',
+	      ],
+	      [
+	        'd68a80c8280bb840793234aa118f06231d6f1fc67e73c5a5deda0f5b496943e8',
+	        'db8ba9fff4b586d00c4b1f9177b0e28b5b0e7b8f7845295a294c84266b133120',
+	      ],
+	      [
+	        '324aed7df65c804252dc0270907a30b09612aeb973449cea4095980fc28d3d5d',
+	        '648a365774b61f2ff130c0c35aec1f4f19213b0c7e332843967224af96ab7c84',
+	      ],
+	      [
+	        '4df9c14919cde61f6d51dfdbe5fee5dceec4143ba8d1ca888e8bd373fd054c96',
+	        '35ec51092d8728050974c23a1d85d4b5d506cdc288490192ebac06cad10d5d',
+	      ],
+	      [
+	        '9c3919a84a474870faed8a9c1cc66021523489054d7f0308cbfc99c8ac1f98cd',
+	        'ddb84f0f4a4ddd57584f044bf260e641905326f76c64c8e6be7e5e03d4fc599d',
+	      ],
+	      [
+	        '6057170b1dd12fdf8de05f281d8e06bb91e1493a8b91d4cc5a21382120a959e5',
+	        '9a1af0b26a6a4807add9a2daf71df262465152bc3ee24c65e899be932385a2a8',
+	      ],
+	      [
+	        'a576df8e23a08411421439a4518da31880cef0fba7d4df12b1a6973eecb94266',
+	        '40a6bf20e76640b2c92b97afe58cd82c432e10a7f514d9f3ee8be11ae1b28ec8',
+	      ],
+	      [
+	        '7778a78c28dec3e30a05fe9629de8c38bb30d1f5cf9a3a208f763889be58ad71',
+	        '34626d9ab5a5b22ff7098e12f2ff580087b38411ff24ac563b513fc1fd9f43ac',
+	      ],
+	      [
+	        '928955ee637a84463729fd30e7afd2ed5f96274e5ad7e5cb09eda9c06d903ac',
+	        'c25621003d3f42a827b78a13093a95eeac3d26efa8a8d83fc5180e935bcd091f',
+	      ],
+	      [
+	        '85d0fef3ec6db109399064f3a0e3b2855645b4a907ad354527aae75163d82751',
+	        '1f03648413a38c0be29d496e582cf5663e8751e96877331582c237a24eb1f962',
+	      ],
+	      [
+	        'ff2b0dce97eece97c1c9b6041798b85dfdfb6d8882da20308f5404824526087e',
+	        '493d13fef524ba188af4c4dc54d07936c7b7ed6fb90e2ceb2c951e01f0c29907',
+	      ],
+	      [
+	        '827fbbe4b1e880ea9ed2b2e6301b212b57f1ee148cd6dd28780e5e2cf856e241',
+	        'c60f9c923c727b0b71bef2c67d1d12687ff7a63186903166d605b68baec293ec',
+	      ],
+	      [
+	        'eaa649f21f51bdbae7be4ae34ce6e5217a58fdce7f47f9aa7f3b58fa2120e2b3',
+	        'be3279ed5bbbb03ac69a80f89879aa5a01a6b965f13f7e59d47a5305ba5ad93d',
+	      ],
+	      [
+	        'e4a42d43c5cf169d9391df6decf42ee541b6d8f0c9a137401e23632dda34d24f',
+	        '4d9f92e716d1c73526fc99ccfb8ad34ce886eedfa8d8e4f13a7f7131deba9414',
+	      ],
+	      [
+	        '1ec80fef360cbdd954160fadab352b6b92b53576a88fea4947173b9d4300bf19',
+	        'aeefe93756b5340d2f3a4958a7abbf5e0146e77f6295a07b671cdc1cc107cefd',
+	      ],
+	      [
+	        '146a778c04670c2f91b00af4680dfa8bce3490717d58ba889ddb5928366642be',
+	        'b318e0ec3354028add669827f9d4b2870aaa971d2f7e5ed1d0b297483d83efd0',
+	      ],
+	      [
+	        'fa50c0f61d22e5f07e3acebb1aa07b128d0012209a28b9776d76a8793180eef9',
+	        '6b84c6922397eba9b72cd2872281a68a5e683293a57a213b38cd8d7d3f4f2811',
+	      ],
+	      [
+	        'da1d61d0ca721a11b1a5bf6b7d88e8421a288ab5d5bba5220e53d32b5f067ec2',
+	        '8157f55a7c99306c79c0766161c91e2966a73899d279b48a655fba0f1ad836f1',
+	      ],
+	      [
+	        'a8e282ff0c9706907215ff98e8fd416615311de0446f1e062a73b0610d064e13',
+	        '7f97355b8db81c09abfb7f3c5b2515888b679a3e50dd6bd6cef7c73111f4cc0c',
+	      ],
+	      [
+	        '174a53b9c9a285872d39e56e6913cab15d59b1fa512508c022f382de8319497c',
+	        'ccc9dc37abfc9c1657b4155f2c47f9e6646b3a1d8cb9854383da13ac079afa73',
+	      ],
+	      [
+	        '959396981943785c3d3e57edf5018cdbe039e730e4918b3d884fdff09475b7ba',
+	        '2e7e552888c331dd8ba0386a4b9cd6849c653f64c8709385e9b8abf87524f2fd',
+	      ],
+	      [
+	        'd2a63a50ae401e56d645a1153b109a8fcca0a43d561fba2dbb51340c9d82b151',
+	        'e82d86fb6443fcb7565aee58b2948220a70f750af484ca52d4142174dcf89405',
+	      ],
+	      [
+	        '64587e2335471eb890ee7896d7cfdc866bacbdbd3839317b3436f9b45617e073',
+	        'd99fcdd5bf6902e2ae96dd6447c299a185b90a39133aeab358299e5e9faf6589',
+	      ],
+	      [
+	        '8481bde0e4e4d885b3a546d3e549de042f0aa6cea250e7fd358d6c86dd45e458',
+	        '38ee7b8cba5404dd84a25bf39cecb2ca900a79c42b262e556d64b1b59779057e',
+	      ],
+	      [
+	        '13464a57a78102aa62b6979ae817f4637ffcfed3c4b1ce30bcd6303f6caf666b',
+	        '69be159004614580ef7e433453ccb0ca48f300a81d0942e13f495a907f6ecc27',
+	      ],
+	      [
+	        'bc4a9df5b713fe2e9aef430bcc1dc97a0cd9ccede2f28588cada3a0d2d83f366',
+	        'd3a81ca6e785c06383937adf4b798caa6e8a9fbfa547b16d758d666581f33c1',
+	      ],
+	      [
+	        '8c28a97bf8298bc0d23d8c749452a32e694b65e30a9472a3954ab30fe5324caa',
+	        '40a30463a3305193378fedf31f7cc0eb7ae784f0451cb9459e71dc73cbef9482',
+	      ],
+	      [
+	        '8ea9666139527a8c1dd94ce4f071fd23c8b350c5a4bb33748c4ba111faccae0',
+	        '620efabbc8ee2782e24e7c0cfb95c5d735b783be9cf0f8e955af34a30e62b945',
+	      ],
+	      [
+	        'dd3625faef5ba06074669716bbd3788d89bdde815959968092f76cc4eb9a9787',
+	        '7a188fa3520e30d461da2501045731ca941461982883395937f68d00c644a573',
+	      ],
+	      [
+	        'f710d79d9eb962297e4f6232b40e8f7feb2bc63814614d692c12de752408221e',
+	        'ea98e67232d3b3295d3b535532115ccac8612c721851617526ae47a9c77bfc82',
+	      ],
+	    ],
+	  },
+	  naf: {
+	    wnd: 7,
+	    points: [
+	      [
+	        'f9308a019258c31049344f85f89d5229b531c845836f99b08601f113bce036f9',
+	        '388f7b0f632de8140fe337e62a37f3566500a99934c2231b6cb9fd7584b8e672',
+	      ],
+	      [
+	        '2f8bde4d1a07209355b4a7250a5c5128e88b84bddc619ab7cba8d569b240efe4',
+	        'd8ac222636e5e3d6d4dba9dda6c9c426f788271bab0d6840dca87d3aa6ac62d6',
+	      ],
+	      [
+	        '5cbdf0646e5db4eaa398f365f2ea7a0e3d419b7e0330e39ce92bddedcac4f9bc',
+	        '6aebca40ba255960a3178d6d861a54dba813d0b813fde7b5a5082628087264da',
+	      ],
+	      [
+	        'acd484e2f0c7f65309ad178a9f559abde09796974c57e714c35f110dfc27ccbe',
+	        'cc338921b0a7d9fd64380971763b61e9add888a4375f8e0f05cc262ac64f9c37',
+	      ],
+	      [
+	        '774ae7f858a9411e5ef4246b70c65aac5649980be5c17891bbec17895da008cb',
+	        'd984a032eb6b5e190243dd56d7b7b365372db1e2dff9d6a8301d74c9c953c61b',
+	      ],
+	      [
+	        'f28773c2d975288bc7d1d205c3748651b075fbc6610e58cddeeddf8f19405aa8',
+	        'ab0902e8d880a89758212eb65cdaf473a1a06da521fa91f29b5cb52db03ed81',
+	      ],
+	      [
+	        'd7924d4f7d43ea965a465ae3095ff41131e5946f3c85f79e44adbcf8e27e080e',
+	        '581e2872a86c72a683842ec228cc6defea40af2bd896d3a5c504dc9ff6a26b58',
+	      ],
+	      [
+	        'defdea4cdb677750a420fee807eacf21eb9898ae79b9768766e4faa04a2d4a34',
+	        '4211ab0694635168e997b0ead2a93daeced1f4a04a95c0f6cfb199f69e56eb77',
+	      ],
+	      [
+	        '2b4ea0a797a443d293ef5cff444f4979f06acfebd7e86d277475656138385b6c',
+	        '85e89bc037945d93b343083b5a1c86131a01f60c50269763b570c854e5c09b7a',
+	      ],
+	      [
+	        '352bbf4a4cdd12564f93fa332ce333301d9ad40271f8107181340aef25be59d5',
+	        '321eb4075348f534d59c18259dda3e1f4a1b3b2e71b1039c67bd3d8bcf81998c',
+	      ],
+	      [
+	        '2fa2104d6b38d11b0230010559879124e42ab8dfeff5ff29dc9cdadd4ecacc3f',
+	        '2de1068295dd865b64569335bd5dd80181d70ecfc882648423ba76b532b7d67',
+	      ],
+	      [
+	        '9248279b09b4d68dab21a9b066edda83263c3d84e09572e269ca0cd7f5453714',
+	        '73016f7bf234aade5d1aa71bdea2b1ff3fc0de2a887912ffe54a32ce97cb3402',
+	      ],
+	      [
+	        'daed4f2be3a8bf278e70132fb0beb7522f570e144bf615c07e996d443dee8729',
+	        'a69dce4a7d6c98e8d4a1aca87ef8d7003f83c230f3afa726ab40e52290be1c55',
+	      ],
+	      [
+	        'c44d12c7065d812e8acf28d7cbb19f9011ecd9e9fdf281b0e6a3b5e87d22e7db',
+	        '2119a460ce326cdc76c45926c982fdac0e106e861edf61c5a039063f0e0e6482',
+	      ],
+	      [
+	        '6a245bf6dc698504c89a20cfded60853152b695336c28063b61c65cbd269e6b4',
+	        'e022cf42c2bd4a708b3f5126f16a24ad8b33ba48d0423b6efd5e6348100d8a82',
+	      ],
+	      [
+	        '1697ffa6fd9de627c077e3d2fe541084ce13300b0bec1146f95ae57f0d0bd6a5',
+	        'b9c398f186806f5d27561506e4557433a2cf15009e498ae7adee9d63d01b2396',
+	      ],
+	      [
+	        '605bdb019981718b986d0f07e834cb0d9deb8360ffb7f61df982345ef27a7479',
+	        '2972d2de4f8d20681a78d93ec96fe23c26bfae84fb14db43b01e1e9056b8c49',
+	      ],
+	      [
+	        '62d14dab4150bf497402fdc45a215e10dcb01c354959b10cfe31c7e9d87ff33d',
+	        '80fc06bd8cc5b01098088a1950eed0db01aa132967ab472235f5642483b25eaf',
+	      ],
+	      [
+	        '80c60ad0040f27dade5b4b06c408e56b2c50e9f56b9b8b425e555c2f86308b6f',
+	        '1c38303f1cc5c30f26e66bad7fe72f70a65eed4cbe7024eb1aa01f56430bd57a',
+	      ],
+	      [
+	        '7a9375ad6167ad54aa74c6348cc54d344cc5dc9487d847049d5eabb0fa03c8fb',
+	        'd0e3fa9eca8726909559e0d79269046bdc59ea10c70ce2b02d499ec224dc7f7',
+	      ],
+	      [
+	        'd528ecd9b696b54c907a9ed045447a79bb408ec39b68df504bb51f459bc3ffc9',
+	        'eecf41253136e5f99966f21881fd656ebc4345405c520dbc063465b521409933',
+	      ],
+	      [
+	        '49370a4b5f43412ea25f514e8ecdad05266115e4a7ecb1387231808f8b45963',
+	        '758f3f41afd6ed428b3081b0512fd62a54c3f3afbb5b6764b653052a12949c9a',
+	      ],
+	      [
+	        '77f230936ee88cbbd73df930d64702ef881d811e0e1498e2f1c13eb1fc345d74',
+	        '958ef42a7886b6400a08266e9ba1b37896c95330d97077cbbe8eb3c7671c60d6',
+	      ],
+	      [
+	        'f2dac991cc4ce4b9ea44887e5c7c0bce58c80074ab9d4dbaeb28531b7739f530',
+	        'e0dedc9b3b2f8dad4da1f32dec2531df9eb5fbeb0598e4fd1a117dba703a3c37',
+	      ],
+	      [
+	        '463b3d9f662621fb1b4be8fbbe2520125a216cdfc9dae3debcba4850c690d45b',
+	        '5ed430d78c296c3543114306dd8622d7c622e27c970a1de31cb377b01af7307e',
+	      ],
+	      [
+	        'f16f804244e46e2a09232d4aff3b59976b98fac14328a2d1a32496b49998f247',
+	        'cedabd9b82203f7e13d206fcdf4e33d92a6c53c26e5cce26d6579962c4e31df6',
+	      ],
+	      [
+	        'caf754272dc84563b0352b7a14311af55d245315ace27c65369e15f7151d41d1',
+	        'cb474660ef35f5f2a41b643fa5e460575f4fa9b7962232a5c32f908318a04476',
+	      ],
+	      [
+	        '2600ca4b282cb986f85d0f1709979d8b44a09c07cb86d7c124497bc86f082120',
+	        '4119b88753c15bd6a693b03fcddbb45d5ac6be74ab5f0ef44b0be9475a7e4b40',
+	      ],
+	      [
+	        '7635ca72d7e8432c338ec53cd12220bc01c48685e24f7dc8c602a7746998e435',
+	        '91b649609489d613d1d5e590f78e6d74ecfc061d57048bad9e76f302c5b9c61',
+	      ],
+	      [
+	        '754e3239f325570cdbbf4a87deee8a66b7f2b33479d468fbc1a50743bf56cc18',
+	        '673fb86e5bda30fb3cd0ed304ea49a023ee33d0197a695d0c5d98093c536683',
+	      ],
+	      [
+	        'e3e6bd1071a1e96aff57859c82d570f0330800661d1c952f9fe2694691d9b9e8',
+	        '59c9e0bba394e76f40c0aa58379a3cb6a5a2283993e90c4167002af4920e37f5',
+	      ],
+	      [
+	        '186b483d056a033826ae73d88f732985c4ccb1f32ba35f4b4cc47fdcf04aa6eb',
+	        '3b952d32c67cf77e2e17446e204180ab21fb8090895138b4a4a797f86e80888b',
+	      ],
+	      [
+	        'df9d70a6b9876ce544c98561f4be4f725442e6d2b737d9c91a8321724ce0963f',
+	        '55eb2dafd84d6ccd5f862b785dc39d4ab157222720ef9da217b8c45cf2ba2417',
+	      ],
+	      [
+	        '5edd5cc23c51e87a497ca815d5dce0f8ab52554f849ed8995de64c5f34ce7143',
+	        'efae9c8dbc14130661e8cec030c89ad0c13c66c0d17a2905cdc706ab7399a868',
+	      ],
+	      [
+	        '290798c2b6476830da12fe02287e9e777aa3fba1c355b17a722d362f84614fba',
+	        'e38da76dcd440621988d00bcf79af25d5b29c094db2a23146d003afd41943e7a',
+	      ],
+	      [
+	        'af3c423a95d9f5b3054754efa150ac39cd29552fe360257362dfdecef4053b45',
+	        'f98a3fd831eb2b749a93b0e6f35cfb40c8cd5aa667a15581bc2feded498fd9c6',
+	      ],
+	      [
+	        '766dbb24d134e745cccaa28c99bf274906bb66b26dcf98df8d2fed50d884249a',
+	        '744b1152eacbe5e38dcc887980da38b897584a65fa06cedd2c924f97cbac5996',
+	      ],
+	      [
+	        '59dbf46f8c94759ba21277c33784f41645f7b44f6c596a58ce92e666191abe3e',
+	        'c534ad44175fbc300f4ea6ce648309a042ce739a7919798cd85e216c4a307f6e',
+	      ],
+	      [
+	        'f13ada95103c4537305e691e74e9a4a8dd647e711a95e73cb62dc6018cfd87b8',
+	        'e13817b44ee14de663bf4bc808341f326949e21a6a75c2570778419bdaf5733d',
+	      ],
+	      [
+	        '7754b4fa0e8aced06d4167a2c59cca4cda1869c06ebadfb6488550015a88522c',
+	        '30e93e864e669d82224b967c3020b8fa8d1e4e350b6cbcc537a48b57841163a2',
+	      ],
+	      [
+	        '948dcadf5990e048aa3874d46abef9d701858f95de8041d2a6828c99e2262519',
+	        'e491a42537f6e597d5d28a3224b1bc25df9154efbd2ef1d2cbba2cae5347d57e',
+	      ],
+	      [
+	        '7962414450c76c1689c7b48f8202ec37fb224cf5ac0bfa1570328a8a3d7c77ab',
+	        '100b610ec4ffb4760d5c1fc133ef6f6b12507a051f04ac5760afa5b29db83437',
+	      ],
+	      [
+	        '3514087834964b54b15b160644d915485a16977225b8847bb0dd085137ec47ca',
+	        'ef0afbb2056205448e1652c48e8127fc6039e77c15c2378b7e7d15a0de293311',
+	      ],
+	      [
+	        'd3cc30ad6b483e4bc79ce2c9dd8bc54993e947eb8df787b442943d3f7b527eaf',
+	        '8b378a22d827278d89c5e9be8f9508ae3c2ad46290358630afb34db04eede0a4',
+	      ],
+	      [
+	        '1624d84780732860ce1c78fcbfefe08b2b29823db913f6493975ba0ff4847610',
+	        '68651cf9b6da903e0914448c6cd9d4ca896878f5282be4c8cc06e2a404078575',
+	      ],
+	      [
+	        '733ce80da955a8a26902c95633e62a985192474b5af207da6df7b4fd5fc61cd4',
+	        'f5435a2bd2badf7d485a4d8b8db9fcce3e1ef8e0201e4578c54673bc1dc5ea1d',
+	      ],
+	      [
+	        '15d9441254945064cf1a1c33bbd3b49f8966c5092171e699ef258dfab81c045c',
+	        'd56eb30b69463e7234f5137b73b84177434800bacebfc685fc37bbe9efe4070d',
+	      ],
+	      [
+	        'a1d0fcf2ec9de675b612136e5ce70d271c21417c9d2b8aaaac138599d0717940',
+	        'edd77f50bcb5a3cab2e90737309667f2641462a54070f3d519212d39c197a629',
+	      ],
+	      [
+	        'e22fbe15c0af8ccc5780c0735f84dbe9a790badee8245c06c7ca37331cb36980',
+	        'a855babad5cd60c88b430a69f53a1a7a38289154964799be43d06d77d31da06',
+	      ],
+	      [
+	        '311091dd9860e8e20ee13473c1155f5f69635e394704eaa74009452246cfa9b3',
+	        '66db656f87d1f04fffd1f04788c06830871ec5a64feee685bd80f0b1286d8374',
+	      ],
+	      [
+	        '34c1fd04d301be89b31c0442d3e6ac24883928b45a9340781867d4232ec2dbdf',
+	        '9414685e97b1b5954bd46f730174136d57f1ceeb487443dc5321857ba73abee',
+	      ],
+	      [
+	        'f219ea5d6b54701c1c14de5b557eb42a8d13f3abbcd08affcc2a5e6b049b8d63',
+	        '4cb95957e83d40b0f73af4544cccf6b1f4b08d3c07b27fb8d8c2962a400766d1',
+	      ],
+	      [
+	        'd7b8740f74a8fbaab1f683db8f45de26543a5490bca627087236912469a0b448',
+	        'fa77968128d9c92ee1010f337ad4717eff15db5ed3c049b3411e0315eaa4593b',
+	      ],
+	      [
+	        '32d31c222f8f6f0ef86f7c98d3a3335ead5bcd32abdd94289fe4d3091aa824bf',
+	        '5f3032f5892156e39ccd3d7915b9e1da2e6dac9e6f26e961118d14b8462e1661',
+	      ],
+	      [
+	        '7461f371914ab32671045a155d9831ea8793d77cd59592c4340f86cbc18347b5',
+	        '8ec0ba238b96bec0cbdddcae0aa442542eee1ff50c986ea6b39847b3cc092ff6',
+	      ],
+	      [
+	        'ee079adb1df1860074356a25aa38206a6d716b2c3e67453d287698bad7b2b2d6',
+	        '8dc2412aafe3be5c4c5f37e0ecc5f9f6a446989af04c4e25ebaac479ec1c8c1e',
+	      ],
+	      [
+	        '16ec93e447ec83f0467b18302ee620f7e65de331874c9dc72bfd8616ba9da6b5',
+	        '5e4631150e62fb40d0e8c2a7ca5804a39d58186a50e497139626778e25b0674d',
+	      ],
+	      [
+	        'eaa5f980c245f6f038978290afa70b6bd8855897f98b6aa485b96065d537bd99',
+	        'f65f5d3e292c2e0819a528391c994624d784869d7e6ea67fb18041024edc07dc',
+	      ],
+	      [
+	        '78c9407544ac132692ee1910a02439958ae04877151342ea96c4b6b35a49f51',
+	        'f3e0319169eb9b85d5404795539a5e68fa1fbd583c064d2462b675f194a3ddb4',
+	      ],
+	      [
+	        '494f4be219a1a77016dcd838431aea0001cdc8ae7a6fc688726578d9702857a5',
+	        '42242a969283a5f339ba7f075e36ba2af925ce30d767ed6e55f4b031880d562c',
+	      ],
+	      [
+	        'a598a8030da6d86c6bc7f2f5144ea549d28211ea58faa70ebf4c1e665c1fe9b5',
+	        '204b5d6f84822c307e4b4a7140737aec23fc63b65b35f86a10026dbd2d864e6b',
+	      ],
+	      [
+	        'c41916365abb2b5d09192f5f2dbeafec208f020f12570a184dbadc3e58595997',
+	        '4f14351d0087efa49d245b328984989d5caf9450f34bfc0ed16e96b58fa9913',
+	      ],
+	      [
+	        '841d6063a586fa475a724604da03bc5b92a2e0d2e0a36acfe4c73a5514742881',
+	        '73867f59c0659e81904f9a1c7543698e62562d6744c169ce7a36de01a8d6154',
+	      ],
+	      [
+	        '5e95bb399a6971d376026947f89bde2f282b33810928be4ded112ac4d70e20d5',
+	        '39f23f366809085beebfc71181313775a99c9aed7d8ba38b161384c746012865',
+	      ],
+	      [
+	        '36e4641a53948fd476c39f8a99fd974e5ec07564b5315d8bf99471bca0ef2f66',
+	        'd2424b1b1abe4eb8164227b085c9aa9456ea13493fd563e06fd51cf5694c78fc',
+	      ],
+	      [
+	        '336581ea7bfbbb290c191a2f507a41cf5643842170e914faeab27c2c579f726',
+	        'ead12168595fe1be99252129b6e56b3391f7ab1410cd1e0ef3dcdcabd2fda224',
+	      ],
+	      [
+	        '8ab89816dadfd6b6a1f2634fcf00ec8403781025ed6890c4849742706bd43ede',
+	        '6fdcef09f2f6d0a044e654aef624136f503d459c3e89845858a47a9129cdd24e',
+	      ],
+	      [
+	        '1e33f1a746c9c5778133344d9299fcaa20b0938e8acff2544bb40284b8c5fb94',
+	        '60660257dd11b3aa9c8ed618d24edff2306d320f1d03010e33a7d2057f3b3b6',
+	      ],
+	      [
+	        '85b7c1dcb3cec1b7ee7f30ded79dd20a0ed1f4cc18cbcfcfa410361fd8f08f31',
+	        '3d98a9cdd026dd43f39048f25a8847f4fcafad1895d7a633c6fed3c35e999511',
+	      ],
+	      [
+	        '29df9fbd8d9e46509275f4b125d6d45d7fbe9a3b878a7af872a2800661ac5f51',
+	        'b4c4fe99c775a606e2d8862179139ffda61dc861c019e55cd2876eb2a27d84b',
+	      ],
+	      [
+	        'a0b1cae06b0a847a3fea6e671aaf8adfdfe58ca2f768105c8082b2e449fce252',
+	        'ae434102edde0958ec4b19d917a6a28e6b72da1834aff0e650f049503a296cf2',
+	      ],
+	      [
+	        '4e8ceafb9b3e9a136dc7ff67e840295b499dfb3b2133e4ba113f2e4c0e121e5',
+	        'cf2174118c8b6d7a4b48f6d534ce5c79422c086a63460502b827ce62a326683c',
+	      ],
+	      [
+	        'd24a44e047e19b6f5afb81c7ca2f69080a5076689a010919f42725c2b789a33b',
+	        '6fb8d5591b466f8fc63db50f1c0f1c69013f996887b8244d2cdec417afea8fa3',
+	      ],
+	      [
+	        'ea01606a7a6c9cdd249fdfcfacb99584001edd28abbab77b5104e98e8e3b35d4',
+	        '322af4908c7312b0cfbfe369f7a7b3cdb7d4494bc2823700cfd652188a3ea98d',
+	      ],
+	      [
+	        'af8addbf2b661c8a6c6328655eb96651252007d8c5ea31be4ad196de8ce2131f',
+	        '6749e67c029b85f52a034eafd096836b2520818680e26ac8f3dfbcdb71749700',
+	      ],
+	      [
+	        'e3ae1974566ca06cc516d47e0fb165a674a3dabcfca15e722f0e3450f45889',
+	        '2aeabe7e4531510116217f07bf4d07300de97e4874f81f533420a72eeb0bd6a4',
+	      ],
+	      [
+	        '591ee355313d99721cf6993ffed1e3e301993ff3ed258802075ea8ced397e246',
+	        'b0ea558a113c30bea60fc4775460c7901ff0b053d25ca2bdeee98f1a4be5d196',
+	      ],
+	      [
+	        '11396d55fda54c49f19aa97318d8da61fa8584e47b084945077cf03255b52984',
+	        '998c74a8cd45ac01289d5833a7beb4744ff536b01b257be4c5767bea93ea57a4',
+	      ],
+	      [
+	        '3c5d2a1ba39c5a1790000738c9e0c40b8dcdfd5468754b6405540157e017aa7a',
+	        'b2284279995a34e2f9d4de7396fc18b80f9b8b9fdd270f6661f79ca4c81bd257',
+	      ],
+	      [
+	        'cc8704b8a60a0defa3a99a7299f2e9c3fbc395afb04ac078425ef8a1793cc030',
+	        'bdd46039feed17881d1e0862db347f8cf395b74fc4bcdc4e940b74e3ac1f1b13',
+	      ],
+	      [
+	        'c533e4f7ea8555aacd9777ac5cad29b97dd4defccc53ee7ea204119b2889b197',
+	        '6f0a256bc5efdf429a2fb6242f1a43a2d9b925bb4a4b3a26bb8e0f45eb596096',
+	      ],
+	      [
+	        'c14f8f2ccb27d6f109f6d08d03cc96a69ba8c34eec07bbcf566d48e33da6593',
+	        'c359d6923bb398f7fd4473e16fe1c28475b740dd098075e6c0e8649113dc3a38',
+	      ],
+	      [
+	        'a6cbc3046bc6a450bac24789fa17115a4c9739ed75f8f21ce441f72e0b90e6ef',
+	        '21ae7f4680e889bb130619e2c0f95a360ceb573c70603139862afd617fa9b9f',
+	      ],
+	      [
+	        '347d6d9a02c48927ebfb86c1359b1caf130a3c0267d11ce6344b39f99d43cc38',
+	        '60ea7f61a353524d1c987f6ecec92f086d565ab687870cb12689ff1e31c74448',
+	      ],
+	      [
+	        'da6545d2181db8d983f7dcb375ef5866d47c67b1bf31c8cf855ef7437b72656a',
+	        '49b96715ab6878a79e78f07ce5680c5d6673051b4935bd897fea824b77dc208a',
+	      ],
+	      [
+	        'c40747cc9d012cb1a13b8148309c6de7ec25d6945d657146b9d5994b8feb1111',
+	        '5ca560753be2a12fc6de6caf2cb489565db936156b9514e1bb5e83037e0fa2d4',
+	      ],
+	      [
+	        '4e42c8ec82c99798ccf3a610be870e78338c7f713348bd34c8203ef4037f3502',
+	        '7571d74ee5e0fb92a7a8b33a07783341a5492144cc54bcc40a94473693606437',
+	      ],
+	      [
+	        '3775ab7089bc6af823aba2e1af70b236d251cadb0c86743287522a1b3b0dedea',
+	        'be52d107bcfa09d8bcb9736a828cfa7fac8db17bf7a76a2c42ad961409018cf7',
+	      ],
+	      [
+	        'cee31cbf7e34ec379d94fb814d3d775ad954595d1314ba8846959e3e82f74e26',
+	        '8fd64a14c06b589c26b947ae2bcf6bfa0149ef0be14ed4d80f448a01c43b1c6d',
+	      ],
+	      [
+	        'b4f9eaea09b6917619f6ea6a4eb5464efddb58fd45b1ebefcdc1a01d08b47986',
+	        '39e5c9925b5a54b07433a4f18c61726f8bb131c012ca542eb24a8ac07200682a',
+	      ],
+	      [
+	        'd4263dfc3d2df923a0179a48966d30ce84e2515afc3dccc1b77907792ebcc60e',
+	        '62dfaf07a0f78feb30e30d6295853ce189e127760ad6cf7fae164e122a208d54',
+	      ],
+	      [
+	        '48457524820fa65a4f8d35eb6930857c0032acc0a4a2de422233eeda897612c4',
+	        '25a748ab367979d98733c38a1fa1c2e7dc6cc07db2d60a9ae7a76aaa49bd0f77',
+	      ],
+	      [
+	        'dfeeef1881101f2cb11644f3a2afdfc2045e19919152923f367a1767c11cceda',
+	        'ecfb7056cf1de042f9420bab396793c0c390bde74b4bbdff16a83ae09a9a7517',
+	      ],
+	      [
+	        '6d7ef6b17543f8373c573f44e1f389835d89bcbc6062ced36c82df83b8fae859',
+	        'cd450ec335438986dfefa10c57fea9bcc521a0959b2d80bbf74b190dca712d10',
+	      ],
+	      [
+	        'e75605d59102a5a2684500d3b991f2e3f3c88b93225547035af25af66e04541f',
+	        'f5c54754a8f71ee540b9b48728473e314f729ac5308b06938360990e2bfad125',
+	      ],
+	      [
+	        'eb98660f4c4dfaa06a2be453d5020bc99a0c2e60abe388457dd43fefb1ed620c',
+	        '6cb9a8876d9cb8520609af3add26cd20a0a7cd8a9411131ce85f44100099223e',
+	      ],
+	      [
+	        '13e87b027d8514d35939f2e6892b19922154596941888336dc3563e3b8dba942',
+	        'fef5a3c68059a6dec5d624114bf1e91aac2b9da568d6abeb2570d55646b8adf1',
+	      ],
+	      [
+	        'ee163026e9fd6fe017c38f06a5be6fc125424b371ce2708e7bf4491691e5764a',
+	        '1acb250f255dd61c43d94ccc670d0f58f49ae3fa15b96623e5430da0ad6c62b2',
+	      ],
+	      [
+	        'b268f5ef9ad51e4d78de3a750c2dc89b1e626d43505867999932e5db33af3d80',
+	        '5f310d4b3c99b9ebb19f77d41c1dee018cf0d34fd4191614003e945a1216e423',
+	      ],
+	      [
+	        'ff07f3118a9df035e9fad85eb6c7bfe42b02f01ca99ceea3bf7ffdba93c4750d',
+	        '438136d603e858a3a5c440c38eccbaddc1d2942114e2eddd4740d098ced1f0d8',
+	      ],
+	      [
+	        '8d8b9855c7c052a34146fd20ffb658bea4b9f69e0d825ebec16e8c3ce2b526a1',
+	        'cdb559eedc2d79f926baf44fb84ea4d44bcf50fee51d7ceb30e2e7f463036758',
+	      ],
+	      [
+	        '52db0b5384dfbf05bfa9d472d7ae26dfe4b851ceca91b1eba54263180da32b63',
+	        'c3b997d050ee5d423ebaf66a6db9f57b3180c902875679de924b69d84a7b375',
+	      ],
+	      [
+	        'e62f9490d3d51da6395efd24e80919cc7d0f29c3f3fa48c6fff543becbd43352',
+	        '6d89ad7ba4876b0b22c2ca280c682862f342c8591f1daf5170e07bfd9ccafa7d',
+	      ],
+	      [
+	        '7f30ea2476b399b4957509c88f77d0191afa2ff5cb7b14fd6d8e7d65aaab1193',
+	        'ca5ef7d4b231c94c3b15389a5f6311e9daff7bb67b103e9880ef4bff637acaec',
+	      ],
+	      [
+	        '5098ff1e1d9f14fb46a210fada6c903fef0fb7b4a1dd1d9ac60a0361800b7a00',
+	        '9731141d81fc8f8084d37c6e7542006b3ee1b40d60dfe5362a5b132fd17ddc0',
+	      ],
+	      [
+	        '32b78c7de9ee512a72895be6b9cbefa6e2f3c4ccce445c96b9f2c81e2778ad58',
+	        'ee1849f513df71e32efc3896ee28260c73bb80547ae2275ba497237794c8753c',
+	      ],
+	      [
+	        'e2cb74fddc8e9fbcd076eef2a7c72b0ce37d50f08269dfc074b581550547a4f7',
+	        'd3aa2ed71c9dd2247a62df062736eb0baddea9e36122d2be8641abcb005cc4a4',
+	      ],
+	      [
+	        '8438447566d4d7bedadc299496ab357426009a35f235cb141be0d99cd10ae3a8',
+	        'c4e1020916980a4da5d01ac5e6ad330734ef0d7906631c4f2390426b2edd791f',
+	      ],
+	      [
+	        '4162d488b89402039b584c6fc6c308870587d9c46f660b878ab65c82c711d67e',
+	        '67163e903236289f776f22c25fb8a3afc1732f2b84b4e95dbda47ae5a0852649',
+	      ],
+	      [
+	        '3fad3fa84caf0f34f0f89bfd2dcf54fc175d767aec3e50684f3ba4a4bf5f683d',
+	        'cd1bc7cb6cc407bb2f0ca647c718a730cf71872e7d0d2a53fa20efcdfe61826',
+	      ],
+	      [
+	        '674f2600a3007a00568c1a7ce05d0816c1fb84bf1370798f1c69532faeb1a86b',
+	        '299d21f9413f33b3edf43b257004580b70db57da0b182259e09eecc69e0d38a5',
+	      ],
+	      [
+	        'd32f4da54ade74abb81b815ad1fb3b263d82d6c692714bcff87d29bd5ee9f08f',
+	        'f9429e738b8e53b968e99016c059707782e14f4535359d582fc416910b3eea87',
+	      ],
+	      [
+	        '30e4e670435385556e593657135845d36fbb6931f72b08cb1ed954f1e3ce3ff6',
+	        '462f9bce619898638499350113bbc9b10a878d35da70740dc695a559eb88db7b',
+	      ],
+	      [
+	        'be2062003c51cc3004682904330e4dee7f3dcd10b01e580bf1971b04d4cad297',
+	        '62188bc49d61e5428573d48a74e1c655b1c61090905682a0d5558ed72dccb9bc',
+	      ],
+	      [
+	        '93144423ace3451ed29e0fb9ac2af211cb6e84a601df5993c419859fff5df04a',
+	        '7c10dfb164c3425f5c71a3f9d7992038f1065224f72bb9d1d902a6d13037b47c',
+	      ],
+	      [
+	        'b015f8044f5fcbdcf21ca26d6c34fb8197829205c7b7d2a7cb66418c157b112c',
+	        'ab8c1e086d04e813744a655b2df8d5f83b3cdc6faa3088c1d3aea1454e3a1d5f',
+	      ],
+	      [
+	        'd5e9e1da649d97d89e4868117a465a3a4f8a18de57a140d36b3f2af341a21b52',
+	        '4cb04437f391ed73111a13cc1d4dd0db1693465c2240480d8955e8592f27447a',
+	      ],
+	      [
+	        'd3ae41047dd7ca065dbf8ed77b992439983005cd72e16d6f996a5316d36966bb',
+	        'bd1aeb21ad22ebb22a10f0303417c6d964f8cdd7df0aca614b10dc14d125ac46',
+	      ],
+	      [
+	        '463e2763d885f958fc66cdd22800f0a487197d0a82e377b49f80af87c897b065',
+	        'bfefacdb0e5d0fd7df3a311a94de062b26b80c61fbc97508b79992671ef7ca7f',
+	      ],
+	      [
+	        '7985fdfd127c0567c6f53ec1bb63ec3158e597c40bfe747c83cddfc910641917',
+	        '603c12daf3d9862ef2b25fe1de289aed24ed291e0ec6708703a5bd567f32ed03',
+	      ],
+	      [
+	        '74a1ad6b5f76e39db2dd249410eac7f99e74c59cb83d2d0ed5ff1543da7703e9',
+	        'cc6157ef18c9c63cd6193d83631bbea0093e0968942e8c33d5737fd790e0db08',
+	      ],
+	      [
+	        '30682a50703375f602d416664ba19b7fc9bab42c72747463a71d0896b22f6da3',
+	        '553e04f6b018b4fa6c8f39e7f311d3176290d0e0f19ca73f17714d9977a22ff8',
+	      ],
+	      [
+	        '9e2158f0d7c0d5f26c3791efefa79597654e7a2b2464f52b1ee6c1347769ef57',
+	        '712fcdd1b9053f09003a3481fa7762e9ffd7c8ef35a38509e2fbf2629008373',
+	      ],
+	      [
+	        '176e26989a43c9cfeba4029c202538c28172e566e3c4fce7322857f3be327d66',
+	        'ed8cc9d04b29eb877d270b4878dc43c19aefd31f4eee09ee7b47834c1fa4b1c3',
+	      ],
+	      [
+	        '75d46efea3771e6e68abb89a13ad747ecf1892393dfc4f1b7004788c50374da8',
+	        '9852390a99507679fd0b86fd2b39a868d7efc22151346e1a3ca4726586a6bed8',
+	      ],
+	      [
+	        '809a20c67d64900ffb698c4c825f6d5f2310fb0451c869345b7319f645605721',
+	        '9e994980d9917e22b76b061927fa04143d096ccc54963e6a5ebfa5f3f8e286c1',
+	      ],
+	      [
+	        '1b38903a43f7f114ed4500b4eac7083fdefece1cf29c63528d563446f972c180',
+	        '4036edc931a60ae889353f77fd53de4a2708b26b6f5da72ad3394119daf408f9',
+	      ],
+	    ],
+	  },
+	};
+	return secp256k1$1;
+}
+
+(function (exports) {
+
+	var curves = exports;
+
+	var hash = hash$4;
+	var curve$1 = curve;
+	var utils = utils$w;
+
+	var assert = utils.assert;
+
+	function PresetCurve(options) {
+	  if (options.type === 'short')
+	    this.curve = new curve$1.short(options);
+	  else if (options.type === 'edwards')
+	    this.curve = new curve$1.edwards(options);
+	  else
+	    this.curve = new curve$1.mont(options);
+	  this.g = this.curve.g;
+	  this.n = this.curve.n;
+	  this.hash = options.hash;
+
+	  assert(this.g.validate(), 'Invalid curve');
+	  assert(this.g.mul(this.n).isInfinity(), 'Invalid curve, G*N != O');
+	}
+	curves.PresetCurve = PresetCurve;
+
+	function defineCurve(name, options) {
+	  Object.defineProperty(curves, name, {
+	    configurable: true,
+	    enumerable: true,
+	    get: function() {
+	      var curve = new PresetCurve(options);
+	      Object.defineProperty(curves, name, {
+	        configurable: true,
+	        enumerable: true,
+	        value: curve,
+	      });
+	      return curve;
+	    },
+	  });
+	}
+
+	defineCurve('p192', {
+	  type: 'short',
+	  prime: 'p192',
+	  p: 'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff',
+	  a: 'ffffffff ffffffff ffffffff fffffffe ffffffff fffffffc',
+	  b: '64210519 e59c80e7 0fa7e9ab 72243049 feb8deec c146b9b1',
+	  n: 'ffffffff ffffffff ffffffff 99def836 146bc9b1 b4d22831',
+	  hash: hash.sha256,
+	  gRed: false,
+	  g: [
+	    '188da80e b03090f6 7cbf20eb 43a18800 f4ff0afd 82ff1012',
+	    '07192b95 ffc8da78 631011ed 6b24cdd5 73f977a1 1e794811',
+	  ],
+	});
+
+	defineCurve('p224', {
+	  type: 'short',
+	  prime: 'p224',
+	  p: 'ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001',
+	  a: 'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff fffffffe',
+	  b: 'b4050a85 0c04b3ab f5413256 5044b0b7 d7bfd8ba 270b3943 2355ffb4',
+	  n: 'ffffffff ffffffff ffffffff ffff16a2 e0b8f03e 13dd2945 5c5c2a3d',
+	  hash: hash.sha256,
+	  gRed: false,
+	  g: [
+	    'b70e0cbd 6bb4bf7f 321390b9 4a03c1d3 56c21122 343280d6 115c1d21',
+	    'bd376388 b5f723fb 4c22dfe6 cd4375a0 5a074764 44d58199 85007e34',
+	  ],
+	});
+
+	defineCurve('p256', {
+	  type: 'short',
+	  prime: null,
+	  p: 'ffffffff 00000001 00000000 00000000 00000000 ffffffff ffffffff ffffffff',
+	  a: 'ffffffff 00000001 00000000 00000000 00000000 ffffffff ffffffff fffffffc',
+	  b: '5ac635d8 aa3a93e7 b3ebbd55 769886bc 651d06b0 cc53b0f6 3bce3c3e 27d2604b',
+	  n: 'ffffffff 00000000 ffffffff ffffffff bce6faad a7179e84 f3b9cac2 fc632551',
+	  hash: hash.sha256,
+	  gRed: false,
+	  g: [
+	    '6b17d1f2 e12c4247 f8bce6e5 63a440f2 77037d81 2deb33a0 f4a13945 d898c296',
+	    '4fe342e2 fe1a7f9b 8ee7eb4a 7c0f9e16 2bce3357 6b315ece cbb64068 37bf51f5',
+	  ],
+	});
+
+	defineCurve('p384', {
+	  type: 'short',
+	  prime: null,
+	  p: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'fffffffe ffffffff 00000000 00000000 ffffffff',
+	  a: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'fffffffe ffffffff 00000000 00000000 fffffffc',
+	  b: 'b3312fa7 e23ee7e4 988e056b e3f82d19 181d9c6e fe814112 0314088f ' +
+	     '5013875a c656398d 8a2ed19d 2a85c8ed d3ec2aef',
+	  n: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff c7634d81 ' +
+	     'f4372ddf 581a0db2 48b0a77a ecec196a ccc52973',
+	  hash: hash.sha384,
+	  gRed: false,
+	  g: [
+	    'aa87ca22 be8b0537 8eb1c71e f320ad74 6e1d3b62 8ba79b98 59f741e0 82542a38 ' +
+	    '5502f25d bf55296c 3a545e38 72760ab7',
+	    '3617de4a 96262c6f 5d9e98bf 9292dc29 f8f41dbd 289a147c e9da3113 b5f0b8c0 ' +
+	    '0a60b1ce 1d7e819d 7a431d7c 90ea0e5f',
+	  ],
+	});
+
+	defineCurve('p521', {
+	  type: 'short',
+	  prime: null,
+	  p: '000001ff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'ffffffff ffffffff ffffffff ffffffff ffffffff',
+	  a: '000001ff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'ffffffff ffffffff ffffffff ffffffff fffffffc',
+	  b: '00000051 953eb961 8e1c9a1f 929a21a0 b68540ee a2da725b ' +
+	     '99b315f3 b8b48991 8ef109e1 56193951 ec7e937b 1652c0bd ' +
+	     '3bb1bf07 3573df88 3d2c34f1 ef451fd4 6b503f00',
+	  n: '000001ff ffffffff ffffffff ffffffff ffffffff ffffffff ' +
+	     'ffffffff ffffffff fffffffa 51868783 bf2f966b 7fcc0148 ' +
+	     'f709a5d0 3bb5c9b8 899c47ae bb6fb71e 91386409',
+	  hash: hash.sha512,
+	  gRed: false,
+	  g: [
+	    '000000c6 858e06b7 0404e9cd 9e3ecb66 2395b442 9c648139 ' +
+	    '053fb521 f828af60 6b4d3dba a14b5e77 efe75928 fe1dc127 ' +
+	    'a2ffa8de 3348b3c1 856a429b f97e7e31 c2e5bd66',
+	    '00000118 39296a78 9a3bc004 5c8a5fb4 2c7d1bd9 98f54449 ' +
+	    '579b4468 17afbd17 273e662c 97ee7299 5ef42640 c550b901 ' +
+	    '3fad0761 353c7086 a272c240 88be9476 9fd16650',
+	  ],
+	});
+
+	defineCurve('curve25519', {
+	  type: 'mont',
+	  prime: 'p25519',
+	  p: '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed',
+	  a: '76d06',
+	  b: '1',
+	  n: '1000000000000000 0000000000000000 14def9dea2f79cd6 5812631a5cf5d3ed',
+	  hash: hash.sha256,
+	  gRed: false,
+	  g: [
+	    '9',
+	  ],
+	});
+
+	defineCurve('ed25519', {
+	  type: 'edwards',
+	  prime: 'p25519',
+	  p: '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed',
+	  a: '-1',
+	  c: '1',
+	  // -121665 * (121666^(-1)) (mod P)
+	  d: '52036cee2b6ffe73 8cc740797779e898 00700a4d4141d8ab 75eb4dca135978a3',
+	  n: '1000000000000000 0000000000000000 14def9dea2f79cd6 5812631a5cf5d3ed',
+	  hash: hash.sha256,
+	  gRed: false,
+	  g: [
+	    '216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a',
+
+	    // 4/5
+	    '6666666666666666666666666666666666666666666666666666666666666658',
+	  ],
+	});
+
+	var pre;
+	try {
+	  pre = requireSecp256k1();
+	} catch (e) {
+	  pre = undefined;
+	}
+
+	defineCurve('secp256k1', {
+	  type: 'short',
+	  prime: 'k256',
+	  p: 'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f',
+	  a: '0',
+	  b: '7',
+	  n: 'ffffffff ffffffff ffffffff fffffffe baaedce6 af48a03b bfd25e8c d0364141',
+	  h: '1',
+	  hash: hash.sha256,
+
+	  // Precomputed endomorphism
+	  beta: '7ae96a2b657c07106e64479eac3434e99cf0497512f58995c1396c28719501ee',
+	  lambda: '5363ad4cc05c30e0a5261c028812645a122e22ea20816678df02967c1b23bd72',
+	  basis: [
+	    {
+	      a: '3086d221a7d46bcde86c90e49284eb15',
+	      b: '-e4437ed6010e88286f547fa90abfe4c3',
+	    },
+	    {
+	      a: '114ca50f7a8e2f3f657c1108d9d44cfd8',
+	      b: '3086d221a7d46bcde86c90e49284eb15',
+	    },
+	  ],
+
+	  gRed: false,
+	  g: [
+	    '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798',
+	    '483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8',
+	    pre,
+	  ],
+	});
+} (curves$2));
+
+var hash$3 = hash$4;
+var utils$g = utils$v;
+var assert$d = minimalisticAssert$1;
+
+function HmacDRBG$1(options) {
+  if (!(this instanceof HmacDRBG$1))
+    return new HmacDRBG$1(options);
+  this.hash = options.hash;
+  this.predResist = !!options.predResist;
+
+  this.outLen = this.hash.outSize;
+  this.minEntropy = options.minEntropy || this.hash.hmacStrength;
+
+  this._reseed = null;
+  this.reseedInterval = null;
+  this.K = null;
+  this.V = null;
+
+  var entropy = utils$g.toArray(options.entropy, options.entropyEnc || 'hex');
+  var nonce = utils$g.toArray(options.nonce, options.nonceEnc || 'hex');
+  var pers = utils$g.toArray(options.pers, options.persEnc || 'hex');
+  assert$d(entropy.length >= (this.minEntropy / 8),
+         'Not enough entropy. Minimum is: ' + this.minEntropy + ' bits');
+  this._init(entropy, nonce, pers);
+}
+var hmacDrbg = HmacDRBG$1;
+
+HmacDRBG$1.prototype._init = function init(entropy, nonce, pers) {
+  var seed = entropy.concat(nonce).concat(pers);
+
+  this.K = new Array(this.outLen / 8);
+  this.V = new Array(this.outLen / 8);
+  for (var i = 0; i < this.V.length; i++) {
+    this.K[i] = 0x00;
+    this.V[i] = 0x01;
+  }
+
+  this._update(seed);
+  this._reseed = 1;
+  this.reseedInterval = 0x1000000000000;  // 2^48
+};
+
+HmacDRBG$1.prototype._hmac = function hmac() {
+  return new hash$3.hmac(this.hash, this.K);
+};
+
+HmacDRBG$1.prototype._update = function update(seed) {
+  var kmac = this._hmac()
+                 .update(this.V)
+                 .update([ 0x00 ]);
+  if (seed)
+    kmac = kmac.update(seed);
+  this.K = kmac.digest();
+  this.V = this._hmac().update(this.V).digest();
+  if (!seed)
+    return;
+
+  this.K = this._hmac()
+               .update(this.V)
+               .update([ 0x01 ])
+               .update(seed)
+               .digest();
+  this.V = this._hmac().update(this.V).digest();
+};
+
+HmacDRBG$1.prototype.reseed = function reseed(entropy, entropyEnc, add, addEnc) {
+  // Optional entropy enc
+  if (typeof entropyEnc !== 'string') {
+    addEnc = add;
+    add = entropyEnc;
+    entropyEnc = null;
+  }
+
+  entropy = utils$g.toArray(entropy, entropyEnc);
+  add = utils$g.toArray(add, addEnc);
+
+  assert$d(entropy.length >= (this.minEntropy / 8),
+         'Not enough entropy. Minimum is: ' + this.minEntropy + ' bits');
+
+  this._update(entropy.concat(add || []));
+  this._reseed = 1;
+};
+
+HmacDRBG$1.prototype.generate = function generate(len, enc, add, addEnc) {
+  if (this._reseed > this.reseedInterval)
+    throw new Error('Reseed is required');
+
+  // Optional encoding
+  if (typeof enc !== 'string') {
+    addEnc = add;
+    add = enc;
+    enc = null;
+  }
+
+  // Optional additional data
+  if (add) {
+    add = utils$g.toArray(add, addEnc || 'hex');
+    this._update(add);
+  }
+
+  var temp = [];
+  while (temp.length < len) {
+    this.V = this._hmac().update(this.V).digest();
+    temp = temp.concat(this.V);
+  }
+
+  var res = temp.slice(0, len);
+  this._update(add);
+  this._reseed++;
+  return utils$g.encode(res, enc);
+};
+
+var BN$4 = bn$1.exports;
+var utils$f = utils$w;
+var assert$c = utils$f.assert;
+
+function KeyPair$3(ec, options) {
+  this.ec = ec;
+  this.priv = null;
+  this.pub = null;
+
+  // KeyPair(ec, { priv: ..., pub: ... })
+  if (options.priv)
+    this._importPrivate(options.priv, options.privEnc);
+  if (options.pub)
+    this._importPublic(options.pub, options.pubEnc);
+}
+var key$1 = KeyPair$3;
+
+KeyPair$3.fromPublic = function fromPublic(ec, pub, enc) {
+  if (pub instanceof KeyPair$3)
+    return pub;
+
+  return new KeyPair$3(ec, {
+    pub: pub,
+    pubEnc: enc,
+  });
+};
+
+KeyPair$3.fromPrivate = function fromPrivate(ec, priv, enc) {
+  if (priv instanceof KeyPair$3)
+    return priv;
+
+  return new KeyPair$3(ec, {
+    priv: priv,
+    privEnc: enc,
+  });
+};
+
+KeyPair$3.prototype.validate = function validate() {
+  var pub = this.getPublic();
+
+  if (pub.isInfinity())
+    return { result: false, reason: 'Invalid public key' };
+  if (!pub.validate())
+    return { result: false, reason: 'Public key is not a point' };
+  if (!pub.mul(this.ec.curve.n).isInfinity())
+    return { result: false, reason: 'Public key * N != O' };
+
+  return { result: true, reason: null };
+};
+
+KeyPair$3.prototype.getPublic = function getPublic(compact, enc) {
+  // compact is optional argument
+  if (typeof compact === 'string') {
+    enc = compact;
+    compact = null;
+  }
+
+  if (!this.pub)
+    this.pub = this.ec.g.mul(this.priv);
+
+  if (!enc)
+    return this.pub;
+
+  return this.pub.encode(enc, compact);
+};
+
+KeyPair$3.prototype.getPrivate = function getPrivate(enc) {
+  if (enc === 'hex')
+    return this.priv.toString(16, 2);
+  else
+    return this.priv;
+};
+
+KeyPair$3.prototype._importPrivate = function _importPrivate(key, enc) {
+  this.priv = new BN$4(key, enc || 16);
+
+  // Ensure that the priv won't be bigger than n, otherwise we may fail
+  // in fixed multiplication method
+  this.priv = this.priv.umod(this.ec.curve.n);
+};
+
+KeyPair$3.prototype._importPublic = function _importPublic(key, enc) {
+  if (key.x || key.y) {
+    // Montgomery points only have an `x` coordinate.
+    // Weierstrass/Edwards points on the other hand have both `x` and
+    // `y` coordinates.
+    if (this.ec.curve.type === 'mont') {
+      assert$c(key.x, 'Need x coordinate');
+    } else if (this.ec.curve.type === 'short' ||
+               this.ec.curve.type === 'edwards') {
+      assert$c(key.x && key.y, 'Need both x and y coordinate');
+    }
+    this.pub = this.ec.curve.point(key.x, key.y);
+    return;
+  }
+  this.pub = this.ec.curve.decodePoint(key, enc);
+};
+
+// ECDH
+KeyPair$3.prototype.derive = function derive(pub) {
+  if(!pub.validate()) {
+    assert$c(pub.validate(), 'public point not validated');
+  }
+  return pub.mul(this.priv).getX();
+};
+
+// ECDSA
+KeyPair$3.prototype.sign = function sign(msg, enc, options) {
+  return this.ec.sign(msg, this, enc, options);
+};
+
+KeyPair$3.prototype.verify = function verify(msg, signature) {
+  return this.ec.verify(msg, signature, this);
+};
+
+KeyPair$3.prototype.inspect = function inspect() {
+  return '<Key priv: ' + (this.priv && this.priv.toString(16, 2)) +
+         ' pub: ' + (this.pub && this.pub.inspect()) + ' >';
+};
+
+var BN$3 = bn$1.exports;
+
+var utils$e = utils$w;
+var assert$b = utils$e.assert;
+
+function Signature$3(options, enc) {
+  if (options instanceof Signature$3)
+    return options;
+
+  if (this._importDER(options, enc))
+    return;
+
+  assert$b(options.r && options.s, 'Signature without r or s');
+  this.r = new BN$3(options.r, 16);
+  this.s = new BN$3(options.s, 16);
+  if (options.recoveryParam === undefined)
+    this.recoveryParam = null;
+  else
+    this.recoveryParam = options.recoveryParam;
+}
+var signature$1 = Signature$3;
+
+function Position() {
+  this.place = 0;
+}
+
+function getLength(buf, p) {
+  var initial = buf[p.place++];
+  if (!(initial & 0x80)) {
+    return initial;
+  }
+  var octetLen = initial & 0xf;
+
+  // Indefinite length or overflow
+  if (octetLen === 0 || octetLen > 4) {
+    return false;
+  }
+
+  var val = 0;
+  for (var i = 0, off = p.place; i < octetLen; i++, off++) {
+    val <<= 8;
+    val |= buf[off];
+    val >>>= 0;
+  }
+
+  // Leading zeroes
+  if (val <= 0x7f) {
+    return false;
+  }
+
+  p.place = off;
+  return val;
+}
+
+function rmPadding(buf) {
+  var i = 0;
+  var len = buf.length - 1;
+  while (!buf[i] && !(buf[i + 1] & 0x80) && i < len) {
+    i++;
+  }
+  if (i === 0) {
+    return buf;
+  }
+  return buf.slice(i);
+}
+
+Signature$3.prototype._importDER = function _importDER(data, enc) {
+  data = utils$e.toArray(data, enc);
+  var p = new Position();
+  if (data[p.place++] !== 0x30) {
+    return false;
+  }
+  var len = getLength(data, p);
+  if (len === false) {
+    return false;
+  }
+  if ((len + p.place) !== data.length) {
+    return false;
+  }
+  if (data[p.place++] !== 0x02) {
+    return false;
+  }
+  var rlen = getLength(data, p);
+  if (rlen === false) {
+    return false;
+  }
+  var r = data.slice(p.place, rlen + p.place);
+  p.place += rlen;
+  if (data[p.place++] !== 0x02) {
+    return false;
+  }
+  var slen = getLength(data, p);
+  if (slen === false) {
+    return false;
+  }
+  if (data.length !== slen + p.place) {
+    return false;
+  }
+  var s = data.slice(p.place, slen + p.place);
+  if (r[0] === 0) {
+    if (r[1] & 0x80) {
+      r = r.slice(1);
+    } else {
+      // Leading zeroes
+      return false;
+    }
+  }
+  if (s[0] === 0) {
+    if (s[1] & 0x80) {
+      s = s.slice(1);
+    } else {
+      // Leading zeroes
+      return false;
+    }
+  }
+
+  this.r = new BN$3(r);
+  this.s = new BN$3(s);
+  this.recoveryParam = null;
+
+  return true;
+};
+
+function constructLength(arr, len) {
+  if (len < 0x80) {
+    arr.push(len);
+    return;
+  }
+  var octets = 1 + (Math.log(len) / Math.LN2 >>> 3);
+  arr.push(octets | 0x80);
+  while (--octets) {
+    arr.push((len >>> (octets << 3)) & 0xff);
+  }
+  arr.push(len);
+}
+
+Signature$3.prototype.toDER = function toDER(enc) {
+  var r = this.r.toArray();
+  var s = this.s.toArray();
+
+  // Pad values
+  if (r[0] & 0x80)
+    r = [ 0 ].concat(r);
+  // Pad values
+  if (s[0] & 0x80)
+    s = [ 0 ].concat(s);
+
+  r = rmPadding(r);
+  s = rmPadding(s);
+
+  while (!s[0] && !(s[1] & 0x80)) {
+    s = s.slice(1);
+  }
+  var arr = [ 0x02 ];
+  constructLength(arr, r.length);
+  arr = arr.concat(r);
+  arr.push(0x02);
+  constructLength(arr, s.length);
+  var backHalf = arr.concat(s);
+  var res = [ 0x30 ];
+  constructLength(res, backHalf.length);
+  res = res.concat(backHalf);
+  return utils$e.encode(res, enc);
+};
+
+var BN$2 = bn$1.exports;
+var HmacDRBG = hmacDrbg;
+var utils$d = utils$w;
+var curves$1 = curves$2;
+var rand = brorand.exports;
+var assert$a = utils$d.assert;
+
+var KeyPair$2 = key$1;
+var Signature$2 = signature$1;
+
+function EC$1(options) {
+  if (!(this instanceof EC$1))
+    return new EC$1(options);
+
+  // Shortcut `elliptic.ec(curve-name)`
+  if (typeof options === 'string') {
+    assert$a(Object.prototype.hasOwnProperty.call(curves$1, options),
+      'Unknown curve ' + options);
+
+    options = curves$1[options];
+  }
+
+  // Shortcut for `elliptic.ec(elliptic.curves.curveName)`
+  if (options instanceof curves$1.PresetCurve)
+    options = { curve: options };
+
+  this.curve = options.curve.curve;
+  this.n = this.curve.n;
+  this.nh = this.n.ushrn(1);
+  this.g = this.curve.g;
+
+  // Point on curve
+  this.g = options.curve.g;
+  this.g.precompute(options.curve.n.bitLength() + 1);
+
+  // Hash for function for DRBG
+  this.hash = options.hash || options.curve.hash;
+}
+var ec$1 = EC$1;
+
+EC$1.prototype.keyPair = function keyPair(options) {
+  return new KeyPair$2(this, options);
+};
+
+EC$1.prototype.keyFromPrivate = function keyFromPrivate(priv, enc) {
+  return KeyPair$2.fromPrivate(this, priv, enc);
+};
+
+EC$1.prototype.keyFromPublic = function keyFromPublic(pub, enc) {
+  return KeyPair$2.fromPublic(this, pub, enc);
+};
+
+EC$1.prototype.genKeyPair = function genKeyPair(options) {
+  if (!options)
+    options = {};
+
+  // Instantiate Hmac_DRBG
+  var drbg = new HmacDRBG({
+    hash: this.hash,
+    pers: options.pers,
+    persEnc: options.persEnc || 'utf8',
+    entropy: options.entropy || rand(this.hash.hmacStrength),
+    entropyEnc: options.entropy && options.entropyEnc || 'utf8',
+    nonce: this.n.toArray(),
+  });
+
+  var bytes = this.n.byteLength();
+  var ns2 = this.n.sub(new BN$2(2));
+  for (;;) {
+    var priv = new BN$2(drbg.generate(bytes));
+    if (priv.cmp(ns2) > 0)
+      continue;
+
+    priv.iaddn(1);
+    return this.keyFromPrivate(priv);
+  }
+};
+
+EC$1.prototype._truncateToN = function _truncateToN(msg, truncOnly) {
+  var delta = msg.byteLength() * 8 - this.n.bitLength();
+  if (delta > 0)
+    msg = msg.ushrn(delta);
+  if (!truncOnly && msg.cmp(this.n) >= 0)
+    return msg.sub(this.n);
+  else
+    return msg;
+};
+
+EC$1.prototype.sign = function sign(msg, key, enc, options) {
+  if (typeof enc === 'object') {
+    options = enc;
+    enc = null;
+  }
+  if (!options)
+    options = {};
+
+  key = this.keyFromPrivate(key, enc);
+  msg = this._truncateToN(new BN$2(msg, 16));
+
+  // Zero-extend key to provide enough entropy
+  var bytes = this.n.byteLength();
+  var bkey = key.getPrivate().toArray('be', bytes);
+
+  // Zero-extend nonce to have the same byte size as N
+  var nonce = msg.toArray('be', bytes);
+
+  // Instantiate Hmac_DRBG
+  var drbg = new HmacDRBG({
+    hash: this.hash,
+    entropy: bkey,
+    nonce: nonce,
+    pers: options.pers,
+    persEnc: options.persEnc || 'utf8',
+  });
+
+  // Number of bytes to generate
+  var ns1 = this.n.sub(new BN$2(1));
+
+  for (var iter = 0; ; iter++) {
+    var k = options.k ?
+      options.k(iter) :
+      new BN$2(drbg.generate(this.n.byteLength()));
+    k = this._truncateToN(k, true);
+    if (k.cmpn(1) <= 0 || k.cmp(ns1) >= 0)
+      continue;
+
+    var kp = this.g.mul(k);
+    if (kp.isInfinity())
+      continue;
+
+    var kpX = kp.getX();
+    var r = kpX.umod(this.n);
+    if (r.cmpn(0) === 0)
+      continue;
+
+    var s = k.invm(this.n).mul(r.mul(key.getPrivate()).iadd(msg));
+    s = s.umod(this.n);
+    if (s.cmpn(0) === 0)
+      continue;
+
+    var recoveryParam = (kp.getY().isOdd() ? 1 : 0) |
+                        (kpX.cmp(r) !== 0 ? 2 : 0);
+
+    // Use complement of `s`, if it is > `n / 2`
+    if (options.canonical && s.cmp(this.nh) > 0) {
+      s = this.n.sub(s);
+      recoveryParam ^= 1;
+    }
+
+    return new Signature$2({ r: r, s: s, recoveryParam: recoveryParam });
+  }
+};
+
+EC$1.prototype.verify = function verify(msg, signature, key, enc) {
+  msg = this._truncateToN(new BN$2(msg, 16));
+  key = this.keyFromPublic(key, enc);
+  signature = new Signature$2(signature, 'hex');
+
+  // Perform primitive values validation
+  var r = signature.r;
+  var s = signature.s;
+  if (r.cmpn(1) < 0 || r.cmp(this.n) >= 0)
+    return false;
+  if (s.cmpn(1) < 0 || s.cmp(this.n) >= 0)
+    return false;
+
+  // Validate signature
+  var sinv = s.invm(this.n);
+  var u1 = sinv.mul(msg).umod(this.n);
+  var u2 = sinv.mul(r).umod(this.n);
+  var p;
+
+  if (!this.curve._maxwellTrick) {
+    p = this.g.mulAdd(u1, key.getPublic(), u2);
+    if (p.isInfinity())
+      return false;
+
+    return p.getX().umod(this.n).cmp(r) === 0;
+  }
+
+  // NOTE: Greg Maxwell's trick, inspired by:
+  // https://git.io/vad3K
+
+  p = this.g.jmulAdd(u1, key.getPublic(), u2);
+  if (p.isInfinity())
+    return false;
+
+  // Compare `p.x` of Jacobian point with `r`,
+  // this will do `p.x == r * p.z^2` instead of multiplying `p.x` by the
+  // inverse of `p.z^2`
+  return p.eqXToP(r);
+};
+
+EC$1.prototype.recoverPubKey = function(msg, signature, j, enc) {
+  assert$a((3 & j) === j, 'The recovery param is more than two bits');
+  signature = new Signature$2(signature, enc);
+
+  var n = this.n;
+  var e = new BN$2(msg);
+  var r = signature.r;
+  var s = signature.s;
+
+  // A set LSB signifies that the y-coordinate is odd
+  var isYOdd = j & 1;
+  var isSecondKey = j >> 1;
+  if (r.cmp(this.curve.p.umod(this.curve.n)) >= 0 && isSecondKey)
+    throw new Error('Unable to find sencond key candinate');
+
+  // 1.1. Let x = r + jn.
+  if (isSecondKey)
+    r = this.curve.pointFromX(r.add(this.curve.n), isYOdd);
+  else
+    r = this.curve.pointFromX(r, isYOdd);
+
+  var rInv = signature.r.invm(n);
+  var s1 = n.sub(e).mul(rInv).umod(n);
+  var s2 = s.mul(rInv).umod(n);
+
+  // 1.6.1 Compute Q = r^-1 (sR -  eG)
+  //               Q = r^-1 (sR + -eG)
+  return this.g.mulAdd(s1, r, s2);
+};
+
+EC$1.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
+  signature = new Signature$2(signature, enc);
+  if (signature.recoveryParam !== null)
+    return signature.recoveryParam;
+
+  for (var i = 0; i < 4; i++) {
+    var Qprime;
+    try {
+      Qprime = this.recoverPubKey(e, signature, i);
+    } catch (e) {
+      continue;
+    }
+
+    if (Qprime.eq(Q))
+      return i;
+  }
+  throw new Error('Unable to find valid recovery factor');
+};
+
+var utils$c = utils$w;
+var assert$9 = utils$c.assert;
+var parseBytes$2 = utils$c.parseBytes;
+var cachedProperty$1 = utils$c.cachedProperty;
+
+/**
+* @param {EDDSA} eddsa - instance
+* @param {Object} params - public/private key parameters
+*
+* @param {Array<Byte>} [params.secret] - secret seed bytes
+* @param {Point} [params.pub] - public key point (aka `A` in eddsa terms)
+* @param {Array<Byte>} [params.pub] - public key point encoded as bytes
+*
+*/
+function KeyPair$1(eddsa, params) {
+  this.eddsa = eddsa;
+  this._secret = parseBytes$2(params.secret);
+  if (eddsa.isPoint(params.pub))
+    this._pub = params.pub;
+  else
+    this._pubBytes = parseBytes$2(params.pub);
+}
+
+KeyPair$1.fromPublic = function fromPublic(eddsa, pub) {
+  if (pub instanceof KeyPair$1)
+    return pub;
+  return new KeyPair$1(eddsa, { pub: pub });
+};
+
+KeyPair$1.fromSecret = function fromSecret(eddsa, secret) {
+  if (secret instanceof KeyPair$1)
+    return secret;
+  return new KeyPair$1(eddsa, { secret: secret });
+};
+
+KeyPair$1.prototype.secret = function secret() {
+  return this._secret;
+};
+
+cachedProperty$1(KeyPair$1, 'pubBytes', function pubBytes() {
+  return this.eddsa.encodePoint(this.pub());
+});
+
+cachedProperty$1(KeyPair$1, 'pub', function pub() {
+  if (this._pubBytes)
+    return this.eddsa.decodePoint(this._pubBytes);
+  return this.eddsa.g.mul(this.priv());
+});
+
+cachedProperty$1(KeyPair$1, 'privBytes', function privBytes() {
+  var eddsa = this.eddsa;
+  var hash = this.hash();
+  var lastIx = eddsa.encodingLength - 1;
+
+  var a = hash.slice(0, eddsa.encodingLength);
+  a[0] &= 248;
+  a[lastIx] &= 127;
+  a[lastIx] |= 64;
+
+  return a;
+});
+
+cachedProperty$1(KeyPair$1, 'priv', function priv() {
+  return this.eddsa.decodeInt(this.privBytes());
+});
+
+cachedProperty$1(KeyPair$1, 'hash', function hash() {
+  return this.eddsa.hash().update(this.secret()).digest();
+});
+
+cachedProperty$1(KeyPair$1, 'messagePrefix', function messagePrefix() {
+  return this.hash().slice(this.eddsa.encodingLength);
+});
+
+KeyPair$1.prototype.sign = function sign(message) {
+  assert$9(this._secret, 'KeyPair can only verify');
+  return this.eddsa.sign(message, this);
+};
+
+KeyPair$1.prototype.verify = function verify(message, sig) {
+  return this.eddsa.verify(message, sig, this);
+};
+
+KeyPair$1.prototype.getSecret = function getSecret(enc) {
+  assert$9(this._secret, 'KeyPair is public only');
+  return utils$c.encode(this.secret(), enc);
+};
+
+KeyPair$1.prototype.getPublic = function getPublic(enc) {
+  return utils$c.encode(this.pubBytes(), enc);
+};
+
+var key = KeyPair$1;
+
+var BN$1 = bn$1.exports;
+var utils$b = utils$w;
+var assert$8 = utils$b.assert;
+var cachedProperty = utils$b.cachedProperty;
+var parseBytes$1 = utils$b.parseBytes;
+
+/**
+* @param {EDDSA} eddsa - eddsa instance
+* @param {Array<Bytes>|Object} sig -
+* @param {Array<Bytes>|Point} [sig.R] - R point as Point or bytes
+* @param {Array<Bytes>|bn} [sig.S] - S scalar as bn or bytes
+* @param {Array<Bytes>} [sig.Rencoded] - R point encoded
+* @param {Array<Bytes>} [sig.Sencoded] - S scalar encoded
+*/
+function Signature$1(eddsa, sig) {
+  this.eddsa = eddsa;
+
+  if (typeof sig !== 'object')
+    sig = parseBytes$1(sig);
+
+  if (Array.isArray(sig)) {
+    sig = {
+      R: sig.slice(0, eddsa.encodingLength),
+      S: sig.slice(eddsa.encodingLength),
+    };
+  }
+
+  assert$8(sig.R && sig.S, 'Signature without R or S');
+
+  if (eddsa.isPoint(sig.R))
+    this._R = sig.R;
+  if (sig.S instanceof BN$1)
+    this._S = sig.S;
+
+  this._Rencoded = Array.isArray(sig.R) ? sig.R : sig.Rencoded;
+  this._Sencoded = Array.isArray(sig.S) ? sig.S : sig.Sencoded;
+}
+
+cachedProperty(Signature$1, 'S', function S() {
+  return this.eddsa.decodeInt(this.Sencoded());
+});
+
+cachedProperty(Signature$1, 'R', function R() {
+  return this.eddsa.decodePoint(this.Rencoded());
+});
+
+cachedProperty(Signature$1, 'Rencoded', function Rencoded() {
+  return this.eddsa.encodePoint(this.R());
+});
+
+cachedProperty(Signature$1, 'Sencoded', function Sencoded() {
+  return this.eddsa.encodeInt(this.S());
+});
+
+Signature$1.prototype.toBytes = function toBytes() {
+  return this.Rencoded().concat(this.Sencoded());
+};
+
+Signature$1.prototype.toHex = function toHex() {
+  return utils$b.encode(this.toBytes(), 'hex').toUpperCase();
+};
+
+var signature = Signature$1;
+
+var hash$2 = hash$4;
+var curves = curves$2;
+var utils$a = utils$w;
+var assert$7 = utils$a.assert;
+var parseBytes = utils$a.parseBytes;
+var KeyPair = key;
+var Signature = signature;
+
+function EDDSA(curve) {
+  assert$7(curve === 'ed25519', 'only tested with ed25519 so far');
+
+  if (!(this instanceof EDDSA))
+    return new EDDSA(curve);
+
+  curve = curves[curve].curve;
+  this.curve = curve;
+  this.g = curve.g;
+  this.g.precompute(curve.n.bitLength() + 1);
+
+  this.pointClass = curve.point().constructor;
+  this.encodingLength = Math.ceil(curve.n.bitLength() / 8);
+  this.hash = hash$2.sha512;
+}
+
+var eddsa = EDDSA;
+
+/**
+* @param {Array|String} message - message bytes
+* @param {Array|String|KeyPair} secret - secret bytes or a keypair
+* @returns {Signature} - signature
+*/
+EDDSA.prototype.sign = function sign(message, secret) {
+  message = parseBytes(message);
+  var key = this.keyFromSecret(secret);
+  var r = this.hashInt(key.messagePrefix(), message);
+  var R = this.g.mul(r);
+  var Rencoded = this.encodePoint(R);
+  var s_ = this.hashInt(Rencoded, key.pubBytes(), message)
+    .mul(key.priv());
+  var S = r.add(s_).umod(this.curve.n);
+  return this.makeSignature({ R: R, S: S, Rencoded: Rencoded });
+};
+
+/**
+* @param {Array} message - message bytes
+* @param {Array|String|Signature} sig - sig bytes
+* @param {Array|String|Point|KeyPair} pub - public key
+* @returns {Boolean} - true if public key matches sig of message
+*/
+EDDSA.prototype.verify = function verify(message, sig, pub) {
+  message = parseBytes(message);
+  sig = this.makeSignature(sig);
+  var key = this.keyFromPublic(pub);
+  var h = this.hashInt(sig.Rencoded(), key.pubBytes(), message);
+  var SG = this.g.mul(sig.S());
+  var RplusAh = sig.R().add(key.pub().mul(h));
+  return RplusAh.eq(SG);
+};
+
+EDDSA.prototype.hashInt = function hashInt() {
+  var hash = this.hash();
+  for (var i = 0; i < arguments.length; i++)
+    hash.update(arguments[i]);
+  return utils$a.intFromLE(hash.digest()).umod(this.curve.n);
+};
+
+EDDSA.prototype.keyFromPublic = function keyFromPublic(pub) {
+  return KeyPair.fromPublic(this, pub);
+};
+
+EDDSA.prototype.keyFromSecret = function keyFromSecret(secret) {
+  return KeyPair.fromSecret(this, secret);
+};
+
+EDDSA.prototype.makeSignature = function makeSignature(sig) {
+  if (sig instanceof Signature)
+    return sig;
+  return new Signature(this, sig);
+};
+
+/**
+* * https://tools.ietf.org/html/draft-josefsson-eddsa-ed25519-03#section-5.2
+*
+* EDDSA defines methods for encoding and decoding points and integers. These are
+* helper convenience methods, that pass along to utility functions implied
+* parameters.
+*
+*/
+EDDSA.prototype.encodePoint = function encodePoint(point) {
+  var enc = point.getY().toArray('le', this.encodingLength);
+  enc[this.encodingLength - 1] |= point.getX().isOdd() ? 0x80 : 0;
+  return enc;
+};
+
+EDDSA.prototype.decodePoint = function decodePoint(bytes) {
+  bytes = utils$a.parseBytes(bytes);
+
+  var lastIx = bytes.length - 1;
+  var normed = bytes.slice(0, lastIx).concat(bytes[lastIx] & ~0x80);
+  var xIsOdd = (bytes[lastIx] & 0x80) !== 0;
+
+  var y = utils$a.intFromLE(normed);
+  return this.curve.pointFromY(y, xIsOdd);
+};
+
+EDDSA.prototype.encodeInt = function encodeInt(num) {
+  return num.toArray('le', this.encodingLength);
+};
+
+EDDSA.prototype.decodeInt = function decodeInt(bytes) {
+  return utils$a.intFromLE(bytes);
+};
+
+EDDSA.prototype.isPoint = function isPoint(val) {
+  return val instanceof this.pointClass;
+};
+
+(function (exports) {
+
+	var elliptic = exports;
+
+	elliptic.version = require$$0.version;
+	elliptic.utils = utils$w;
+	elliptic.rand = brorand.exports;
+	elliptic.curve = curve;
+	elliptic.curves = curves$2;
+
+	// Protocols
+	elliptic.ec = ec$1;
+	elliptic.eddsa = eddsa;
+} (elliptic$2));
+
+const EC = elliptic$2.ec;
+
+const ec = new EC('secp256k1');
+const ecparams = ec.curve;
+
+// Hack, we can not use bn.js@5, while elliptic uses bn.js@4
+// See https://github.com/indutny/elliptic/issues/191#issuecomment-569888758
+const BN = ecparams.n.constructor;
+
+function loadCompressedPublicKey (first, xbuf) {
+  let x = new BN(xbuf);
+
+  // overflow
+  if (x.cmp(ecparams.p) >= 0) return null
+  x = x.toRed(ecparams.red);
+
+  // compute corresponding Y
+  let y = x.redSqr().redIMul(x).redIAdd(ecparams.b).redSqrt();
+  if ((first === 0x03) !== y.isOdd()) y = y.redNeg();
+
+  return ec.keyPair({ pub: { x: x, y: y } })
+}
+
+function loadUncompressedPublicKey (first, xbuf, ybuf) {
+  let x = new BN(xbuf);
+  let y = new BN(ybuf);
+
+  // overflow
+  if (x.cmp(ecparams.p) >= 0 || y.cmp(ecparams.p) >= 0) return null
+
+  x = x.toRed(ecparams.red);
+  y = y.toRed(ecparams.red);
+
+  // is odd flag
+  if ((first === 0x06 || first === 0x07) && y.isOdd() !== (first === 0x07)) return null
+
+  // x*x*x + b = y*y
+  const x3 = x.redSqr().redIMul(x);
+  if (!y.redSqr().redISub(x3.redIAdd(ecparams.b)).isZero()) return null
+
+  return ec.keyPair({ pub: { x: x, y: y } })
+}
+
+function loadPublicKey (pubkey) {
+  // length should be validated in interface
+  const first = pubkey[0];
+  switch (first) {
+    case 0x02:
+    case 0x03:
+      if (pubkey.length !== 33) return null
+      return loadCompressedPublicKey(first, pubkey.subarray(1, 33))
+    case 0x04:
+    case 0x06:
+    case 0x07:
+      if (pubkey.length !== 65) return null
+      return loadUncompressedPublicKey(first, pubkey.subarray(1, 33), pubkey.subarray(33, 65))
+    default:
+      return null
+  }
+}
+
+function savePublicKey (output, point) {
+  const pubkey = point.encode(null, output.length === 33);
+  // Loop should be faster because we do not need create extra Uint8Array
+  // output.set(new Uint8Array(pubkey))
+  for (let i = 0; i < output.length; ++i) output[i] = pubkey[i];
+}
+
+var elliptic$1 = {
+  contextRandomize () {
+    return 0
+  },
+
+  privateKeyVerify (seckey) {
+    const bn = new BN(seckey);
+    return bn.cmp(ecparams.n) < 0 && !bn.isZero() ? 0 : 1
+  },
+
+  privateKeyNegate (seckey) {
+    const bn = new BN(seckey);
+    const negate = ecparams.n.sub(bn).umod(ecparams.n).toArrayLike(Uint8Array, 'be', 32);
+    seckey.set(negate);
+    return 0
+  },
+
+  privateKeyTweakAdd (seckey, tweak) {
+    const bn = new BN(tweak);
+    if (bn.cmp(ecparams.n) >= 0) return 1
+
+    bn.iadd(new BN(seckey));
+    if (bn.cmp(ecparams.n) >= 0) bn.isub(ecparams.n);
+    if (bn.isZero()) return 1
+
+    const tweaked = bn.toArrayLike(Uint8Array, 'be', 32);
+    seckey.set(tweaked);
+
+    return 0
+  },
+
+  privateKeyTweakMul (seckey, tweak) {
+    let bn = new BN(tweak);
+    if (bn.cmp(ecparams.n) >= 0 || bn.isZero()) return 1
+
+    bn.imul(new BN(seckey));
+    if (bn.cmp(ecparams.n) >= 0) bn = bn.umod(ecparams.n);
+
+    const tweaked = bn.toArrayLike(Uint8Array, 'be', 32);
+    seckey.set(tweaked);
+
+    return 0
+  },
+
+  publicKeyVerify (pubkey) {
+    const pair = loadPublicKey(pubkey);
+    return pair === null ? 1 : 0
+  },
+
+  publicKeyCreate (output, seckey) {
+    const bn = new BN(seckey);
+    if (bn.cmp(ecparams.n) >= 0 || bn.isZero()) return 1
+
+    const point = ec.keyFromPrivate(seckey).getPublic();
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  publicKeyConvert (output, pubkey) {
+    const pair = loadPublicKey(pubkey);
+    if (pair === null) return 1
+
+    const point = pair.getPublic();
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  publicKeyNegate (output, pubkey) {
+    const pair = loadPublicKey(pubkey);
+    if (pair === null) return 1
+
+    const point = pair.getPublic();
+    point.y = point.y.redNeg();
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  publicKeyCombine (output, pubkeys) {
+    const pairs = new Array(pubkeys.length);
+    for (let i = 0; i < pubkeys.length; ++i) {
+      pairs[i] = loadPublicKey(pubkeys[i]);
+      if (pairs[i] === null) return 1
+    }
+
+    let point = pairs[0].getPublic();
+    for (let i = 1; i < pairs.length; ++i) point = point.add(pairs[i].pub);
+    if (point.isInfinity()) return 2
+
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  publicKeyTweakAdd (output, pubkey, tweak) {
+    const pair = loadPublicKey(pubkey);
+    if (pair === null) return 1
+
+    tweak = new BN(tweak);
+    if (tweak.cmp(ecparams.n) >= 0) return 2
+
+    const point = pair.getPublic().add(ecparams.g.mul(tweak));
+    if (point.isInfinity()) return 2
+
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  publicKeyTweakMul (output, pubkey, tweak) {
+    const pair = loadPublicKey(pubkey);
+    if (pair === null) return 1
+
+    tweak = new BN(tweak);
+    if (tweak.cmp(ecparams.n) >= 0 || tweak.isZero()) return 2
+
+    const point = pair.getPublic().mul(tweak);
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  signatureNormalize (sig) {
+    const r = new BN(sig.subarray(0, 32));
+    const s = new BN(sig.subarray(32, 64));
+    if (r.cmp(ecparams.n) >= 0 || s.cmp(ecparams.n) >= 0) return 1
+
+    if (s.cmp(ec.nh) === 1) {
+      sig.set(ecparams.n.sub(s).toArrayLike(Uint8Array, 'be', 32), 32);
+    }
+
+    return 0
+  },
+
+  // Copied 1-to-1 from https://github.com/bitcoinjs/bip66/blob/master/index.js
+  // Adapted for Uint8Array instead Buffer
+  signatureExport (obj, sig) {
+    const sigR = sig.subarray(0, 32);
+    const sigS = sig.subarray(32, 64);
+    if (new BN(sigR).cmp(ecparams.n) >= 0) return 1
+    if (new BN(sigS).cmp(ecparams.n) >= 0) return 1
+
+    const { output } = obj;
+
+    // Prepare R
+    let r = output.subarray(4, 4 + 33);
+    r[0] = 0x00;
+    r.set(sigR, 1);
+
+    let lenR = 33;
+    let posR = 0;
+    for (; lenR > 1 && r[posR] === 0x00 && !(r[posR + 1] & 0x80); --lenR, ++posR);
+
+    r = r.subarray(posR);
+    if (r[0] & 0x80) return 1
+    if (lenR > 1 && (r[0] === 0x00) && !(r[1] & 0x80)) return 1
+
+    // Prepare S
+    let s = output.subarray(6 + 33, 6 + 33 + 33);
+    s[0] = 0x00;
+    s.set(sigS, 1);
+
+    let lenS = 33;
+    let posS = 0;
+    for (; lenS > 1 && s[posS] === 0x00 && !(s[posS + 1] & 0x80); --lenS, ++posS);
+
+    s = s.subarray(posS);
+    if (s[0] & 0x80) return 1
+    if (lenS > 1 && (s[0] === 0x00) && !(s[1] & 0x80)) return 1
+
+    // Set output length for return
+    obj.outputlen = 6 + lenR + lenS;
+
+    // Output in specified format
+    // 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S]
+    output[0] = 0x30;
+    output[1] = obj.outputlen - 2;
+    output[2] = 0x02;
+    output[3] = r.length;
+    output.set(r, 4);
+    output[4 + lenR] = 0x02;
+    output[5 + lenR] = s.length;
+    output.set(s, 6 + lenR);
+
+    return 0
+  },
+
+  // Copied 1-to-1 from https://github.com/bitcoinjs/bip66/blob/master/index.js
+  // Adapted for Uint8Array instead Buffer
+  signatureImport (output, sig) {
+    if (sig.length < 8) return 1
+    if (sig.length > 72) return 1
+    if (sig[0] !== 0x30) return 1
+    if (sig[1] !== sig.length - 2) return 1
+    if (sig[2] !== 0x02) return 1
+
+    const lenR = sig[3];
+    if (lenR === 0) return 1
+    if (5 + lenR >= sig.length) return 1
+    if (sig[4 + lenR] !== 0x02) return 1
+
+    const lenS = sig[5 + lenR];
+    if (lenS === 0) return 1
+    if ((6 + lenR + lenS) !== sig.length) return 1
+
+    if (sig[4] & 0x80) return 1
+    if (lenR > 1 && (sig[4] === 0x00) && !(sig[5] & 0x80)) return 1
+
+    if (sig[lenR + 6] & 0x80) return 1
+    if (lenS > 1 && (sig[lenR + 6] === 0x00) && !(sig[lenR + 7] & 0x80)) return 1
+
+    let sigR = sig.subarray(4, 4 + lenR);
+    if (sigR.length === 33 && sigR[0] === 0x00) sigR = sigR.subarray(1);
+    if (sigR.length > 32) return 1
+
+    let sigS = sig.subarray(6 + lenR);
+    if (sigS.length === 33 && sigS[0] === 0x00) sigS = sigS.slice(1);
+    if (sigS.length > 32) throw new Error('S length is too long')
+
+    let r = new BN(sigR);
+    if (r.cmp(ecparams.n) >= 0) r = new BN(0);
+
+    let s = new BN(sig.subarray(6 + lenR));
+    if (s.cmp(ecparams.n) >= 0) s = new BN(0);
+
+    output.set(r.toArrayLike(Uint8Array, 'be', 32), 0);
+    output.set(s.toArrayLike(Uint8Array, 'be', 32), 32);
+
+    return 0
+  },
+
+  ecdsaSign (obj, message, seckey, data, noncefn) {
+    if (noncefn) {
+      const _noncefn = noncefn;
+      noncefn = (counter) => {
+        const nonce = _noncefn(message, seckey, null, data, counter);
+
+        const isValid = nonce instanceof Uint8Array && nonce.length === 32;
+        if (!isValid) throw new Error('This is the way')
+
+        return new BN(nonce)
+      };
+    }
+
+    const d = new BN(seckey);
+    if (d.cmp(ecparams.n) >= 0 || d.isZero()) return 1
+
+    let sig;
+    try {
+      sig = ec.sign(message, seckey, { canonical: true, k: noncefn, pers: data });
+    } catch (err) {
+      return 1
+    }
+
+    obj.signature.set(sig.r.toArrayLike(Uint8Array, 'be', 32), 0);
+    obj.signature.set(sig.s.toArrayLike(Uint8Array, 'be', 32), 32);
+    obj.recid = sig.recoveryParam;
+
+    return 0
+  },
+
+  ecdsaVerify (sig, msg32, pubkey) {
+    const sigObj = { r: sig.subarray(0, 32), s: sig.subarray(32, 64) };
+
+    const sigr = new BN(sigObj.r);
+    const sigs = new BN(sigObj.s);
+    if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) return 1
+    if (sigs.cmp(ec.nh) === 1 || sigr.isZero() || sigs.isZero()) return 3
+
+    const pair = loadPublicKey(pubkey);
+    if (pair === null) return 2
+
+    const point = pair.getPublic();
+    const isValid = ec.verify(msg32, sigObj, point);
+    return isValid ? 0 : 3
+  },
+
+  ecdsaRecover (output, sig, recid, msg32) {
+    const sigObj = { r: sig.slice(0, 32), s: sig.slice(32, 64) };
+
+    const sigr = new BN(sigObj.r);
+    const sigs = new BN(sigObj.s);
+    if (sigr.cmp(ecparams.n) >= 0 || sigs.cmp(ecparams.n) >= 0) return 1
+
+    if (sigr.isZero() || sigs.isZero()) return 2
+
+    // Can throw `throw new Error('Unable to find sencond key candinate');`
+    let point;
+    try {
+      point = ec.recoverPubKey(msg32, sigObj, recid);
+    } catch (err) {
+      return 2
+    }
+
+    savePublicKey(output, point);
+
+    return 0
+  },
+
+  ecdh (output, pubkey, seckey, data, hashfn, xbuf, ybuf) {
+    const pair = loadPublicKey(pubkey);
+    if (pair === null) return 1
+
+    const scalar = new BN(seckey);
+    if (scalar.cmp(ecparams.n) >= 0 || scalar.isZero()) return 2
+
+    const point = pair.getPublic().mul(scalar);
+
+    if (hashfn === undefined) {
+      const data = point.encode(null, true);
+      const sha256 = ec.hash().update(data).digest();
+      for (let i = 0; i < 32; ++i) output[i] = sha256[i];
+    } else {
+      if (!xbuf) xbuf = new Uint8Array(32);
+      const x = point.getX().toArray('be', 32);
+      for (let i = 0; i < 32; ++i) xbuf[i] = x[i];
+
+      if (!ybuf) ybuf = new Uint8Array(32);
+      const y = point.getY().toArray('be', 32);
+      for (let i = 0; i < 32; ++i) ybuf[i] = y[i];
+
+      const hash = hashfn(xbuf, ybuf, data);
+
+      const isValid = hash instanceof Uint8Array && hash.length === output.length;
+      if (!isValid) return 2
+
+      output.set(hash);
+    }
+
+    return 0
+  }
+};
+
+var elliptic = lib$1(elliptic$1);
+
+var secp256k1 = elliptic;
+
+var sha3$1 = {exports: {}};
+
+(function (module) {
+	/*jslint bitwise: true */
+	(function () {
+
+	  var INPUT_ERROR = 'input is invalid type';
+	  var FINALIZE_ERROR = 'finalize already called';
+	  var WINDOW = typeof window === 'object';
+	  var root = WINDOW ? window : {};
+	  if (root.JS_SHA3_NO_WINDOW) {
+	    WINDOW = false;
+	  }
+	  var WEB_WORKER = !WINDOW && typeof self === 'object';
+	  var NODE_JS = !root.JS_SHA3_NO_NODE_JS && typeof browser$1$1 === 'object' && browser$1$1.versions && browser$1$1.versions.node;
+	  if (NODE_JS) {
+	    root = commonjsGlobal;
+	  } else if (WEB_WORKER) {
+	    root = self;
+	  }
+	  var COMMON_JS = !root.JS_SHA3_NO_COMMON_JS && 'object' === 'object' && module.exports;
+	  var ARRAY_BUFFER = !root.JS_SHA3_NO_ARRAY_BUFFER && typeof ArrayBuffer !== 'undefined';
+	  var HEX_CHARS = '0123456789abcdef'.split('');
+	  var SHAKE_PADDING = [31, 7936, 2031616, 520093696];
+	  var CSHAKE_PADDING = [4, 1024, 262144, 67108864];
+	  var KECCAK_PADDING = [1, 256, 65536, 16777216];
+	  var PADDING = [6, 1536, 393216, 100663296];
+	  var SHIFT = [0, 8, 16, 24];
+	  var RC = [1, 0, 32898, 0, 32906, 2147483648, 2147516416, 2147483648, 32907, 0, 2147483649,
+	    0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0,
+	    2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771,
+	    2147483648, 32770, 2147483648, 128, 2147483648, 32778, 0, 2147483658, 2147483648,
+	    2147516545, 2147483648, 32896, 2147483648, 2147483649, 0, 2147516424, 2147483648];
+	  var BITS = [224, 256, 384, 512];
+	  var SHAKE_BITS = [128, 256];
+	  var OUTPUT_TYPES = ['hex', 'buffer', 'arrayBuffer', 'array', 'digest'];
+	  var CSHAKE_BYTEPAD = {
+	    '128': 168,
+	    '256': 136
+	  };
+
+	  if (root.JS_SHA3_NO_NODE_JS || !Array.isArray) {
+	    Array.isArray = function (obj) {
+	      return Object.prototype.toString.call(obj) === '[object Array]';
+	    };
+	  }
+
+	  if (ARRAY_BUFFER && (root.JS_SHA3_NO_ARRAY_BUFFER_IS_VIEW || !ArrayBuffer.isView)) {
+	    ArrayBuffer.isView = function (obj) {
+	      return typeof obj === 'object' && obj.buffer && obj.buffer.constructor === ArrayBuffer;
+	    };
+	  }
+
+	  var createOutputMethod = function (bits, padding, outputType) {
+	    return function (message) {
+	      return new Keccak(bits, padding, bits).update(message)[outputType]();
+	    };
+	  };
+
+	  var createShakeOutputMethod = function (bits, padding, outputType) {
+	    return function (message, outputBits) {
+	      return new Keccak(bits, padding, outputBits).update(message)[outputType]();
+	    };
+	  };
+
+	  var createCshakeOutputMethod = function (bits, padding, outputType) {
+	    return function (message, outputBits, n, s) {
+	      return methods['cshake' + bits].update(message, outputBits, n, s)[outputType]();
+	    };
+	  };
+
+	  var createKmacOutputMethod = function (bits, padding, outputType) {
+	    return function (key, message, outputBits, s) {
+	      return methods['kmac' + bits].update(key, message, outputBits, s)[outputType]();
+	    };
+	  };
+
+	  var createOutputMethods = function (method, createMethod, bits, padding) {
+	    for (var i = 0; i < OUTPUT_TYPES.length; ++i) {
+	      var type = OUTPUT_TYPES[i];
+	      method[type] = createMethod(bits, padding, type);
+	    }
+	    return method;
+	  };
+
+	  var createMethod = function (bits, padding) {
+	    var method = createOutputMethod(bits, padding, 'hex');
+	    method.create = function () {
+	      return new Keccak(bits, padding, bits);
+	    };
+	    method.update = function (message) {
+	      return method.create().update(message);
+	    };
+	    return createOutputMethods(method, createOutputMethod, bits, padding);
+	  };
+
+	  var createShakeMethod = function (bits, padding) {
+	    var method = createShakeOutputMethod(bits, padding, 'hex');
+	    method.create = function (outputBits) {
+	      return new Keccak(bits, padding, outputBits);
+	    };
+	    method.update = function (message, outputBits) {
+	      return method.create(outputBits).update(message);
+	    };
+	    return createOutputMethods(method, createShakeOutputMethod, bits, padding);
+	  };
+
+	  var createCshakeMethod = function (bits, padding) {
+	    var w = CSHAKE_BYTEPAD[bits];
+	    var method = createCshakeOutputMethod(bits, padding, 'hex');
+	    method.create = function (outputBits, n, s) {
+	      if (!n && !s) {
+	        return methods['shake' + bits].create(outputBits);
+	      } else {
+	        return new Keccak(bits, padding, outputBits).bytepad([n, s], w);
+	      }
+	    };
+	    method.update = function (message, outputBits, n, s) {
+	      return method.create(outputBits, n, s).update(message);
+	    };
+	    return createOutputMethods(method, createCshakeOutputMethod, bits, padding);
+	  };
+
+	  var createKmacMethod = function (bits, padding) {
+	    var w = CSHAKE_BYTEPAD[bits];
+	    var method = createKmacOutputMethod(bits, padding, 'hex');
+	    method.create = function (key, outputBits, s) {
+	      return new Kmac(bits, padding, outputBits).bytepad(['KMAC', s], w).bytepad([key], w);
+	    };
+	    method.update = function (key, message, outputBits, s) {
+	      return method.create(key, outputBits, s).update(message);
+	    };
+	    return createOutputMethods(method, createKmacOutputMethod, bits, padding);
+	  };
+
+	  var algorithms = [
+	    { name: 'keccak', padding: KECCAK_PADDING, bits: BITS, createMethod: createMethod },
+	    { name: 'sha3', padding: PADDING, bits: BITS, createMethod: createMethod },
+	    { name: 'shake', padding: SHAKE_PADDING, bits: SHAKE_BITS, createMethod: createShakeMethod },
+	    { name: 'cshake', padding: CSHAKE_PADDING, bits: SHAKE_BITS, createMethod: createCshakeMethod },
+	    { name: 'kmac', padding: CSHAKE_PADDING, bits: SHAKE_BITS, createMethod: createKmacMethod }
+	  ];
+
+	  var methods = {}, methodNames = [];
+
+	  for (var i = 0; i < algorithms.length; ++i) {
+	    var algorithm = algorithms[i];
+	    var bits = algorithm.bits;
+	    for (var j = 0; j < bits.length; ++j) {
+	      var methodName = algorithm.name + '_' + bits[j];
+	      methodNames.push(methodName);
+	      methods[methodName] = algorithm.createMethod(bits[j], algorithm.padding);
+	      if (algorithm.name !== 'sha3') {
+	        var newMethodName = algorithm.name + bits[j];
+	        methodNames.push(newMethodName);
+	        methods[newMethodName] = methods[methodName];
+	      }
+	    }
+	  }
+
+	  function Keccak(bits, padding, outputBits) {
+	    this.blocks = [];
+	    this.s = [];
+	    this.padding = padding;
+	    this.outputBits = outputBits;
+	    this.reset = true;
+	    this.finalized = false;
+	    this.block = 0;
+	    this.start = 0;
+	    this.blockCount = (1600 - (bits << 1)) >> 5;
+	    this.byteCount = this.blockCount << 2;
+	    this.outputBlocks = outputBits >> 5;
+	    this.extraBytes = (outputBits & 31) >> 3;
+
+	    for (var i = 0; i < 50; ++i) {
+	      this.s[i] = 0;
+	    }
+	  }
+
+	  Keccak.prototype.update = function (message) {
+	    if (this.finalized) {
+	      throw new Error(FINALIZE_ERROR);
+	    }
+	    var notString, type = typeof message;
+	    if (type !== 'string') {
+	      if (type === 'object') {
+	        if (message === null) {
+	          throw new Error(INPUT_ERROR);
+	        } else if (ARRAY_BUFFER && message.constructor === ArrayBuffer) {
+	          message = new Uint8Array(message);
+	        } else if (!Array.isArray(message)) {
+	          if (!ARRAY_BUFFER || !ArrayBuffer.isView(message)) {
+	            throw new Error(INPUT_ERROR);
+	          }
+	        }
+	      } else {
+	        throw new Error(INPUT_ERROR);
+	      }
+	      notString = true;
+	    }
+	    var blocks = this.blocks, byteCount = this.byteCount, length = message.length,
+	      blockCount = this.blockCount, index = 0, s = this.s, i, code;
+
+	    while (index < length) {
+	      if (this.reset) {
+	        this.reset = false;
+	        blocks[0] = this.block;
+	        for (i = 1; i < blockCount + 1; ++i) {
+	          blocks[i] = 0;
+	        }
+	      }
+	      if (notString) {
+	        for (i = this.start; index < length && i < byteCount; ++index) {
+	          blocks[i >> 2] |= message[index] << SHIFT[i++ & 3];
+	        }
+	      } else {
+	        for (i = this.start; index < length && i < byteCount; ++index) {
+	          code = message.charCodeAt(index);
+	          if (code < 0x80) {
+	            blocks[i >> 2] |= code << SHIFT[i++ & 3];
+	          } else if (code < 0x800) {
+	            blocks[i >> 2] |= (0xc0 | (code >> 6)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+	          } else if (code < 0xd800 || code >= 0xe000) {
+	            blocks[i >> 2] |= (0xe0 | (code >> 12)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+	          } else {
+	            code = 0x10000 + (((code & 0x3ff) << 10) | (message.charCodeAt(++index) & 0x3ff));
+	            blocks[i >> 2] |= (0xf0 | (code >> 18)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | ((code >> 12) & 0x3f)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | ((code >> 6) & 0x3f)) << SHIFT[i++ & 3];
+	            blocks[i >> 2] |= (0x80 | (code & 0x3f)) << SHIFT[i++ & 3];
+	          }
+	        }
+	      }
+	      this.lastByteIndex = i;
+	      if (i >= byteCount) {
+	        this.start = i - byteCount;
+	        this.block = blocks[blockCount];
+	        for (i = 0; i < blockCount; ++i) {
+	          s[i] ^= blocks[i];
+	        }
+	        f(s);
+	        this.reset = true;
+	      } else {
+	        this.start = i;
+	      }
+	    }
+	    return this;
+	  };
+
+	  Keccak.prototype.encode = function (x, right) {
+	    var o = x & 255, n = 1;
+	    var bytes = [o];
+	    x = x >> 8;
+	    o = x & 255;
+	    while (o > 0) {
+	      bytes.unshift(o);
+	      x = x >> 8;
+	      o = x & 255;
+	      ++n;
+	    }
+	    if (right) {
+	      bytes.push(n);
+	    } else {
+	      bytes.unshift(n);
+	    }
+	    this.update(bytes);
+	    return bytes.length;
+	  };
+
+	  Keccak.prototype.encodeString = function (str) {
+	    var notString, type = typeof str;
+	    if (type !== 'string') {
+	      if (type === 'object') {
+	        if (str === null) {
+	          throw new Error(INPUT_ERROR);
+	        } else if (ARRAY_BUFFER && str.constructor === ArrayBuffer) {
+	          str = new Uint8Array(str);
+	        } else if (!Array.isArray(str)) {
+	          if (!ARRAY_BUFFER || !ArrayBuffer.isView(str)) {
+	            throw new Error(INPUT_ERROR);
+	          }
+	        }
+	      } else {
+	        throw new Error(INPUT_ERROR);
+	      }
+	      notString = true;
+	    }
+	    var bytes = 0, length = str.length;
+	    if (notString) {
+	      bytes = length;
+	    } else {
+	      for (var i = 0; i < str.length; ++i) {
+	        var code = str.charCodeAt(i);
+	        if (code < 0x80) {
+	          bytes += 1;
+	        } else if (code < 0x800) {
+	          bytes += 2;
+	        } else if (code < 0xd800 || code >= 0xe000) {
+	          bytes += 3;
+	        } else {
+	          code = 0x10000 + (((code & 0x3ff) << 10) | (str.charCodeAt(++i) & 0x3ff));
+	          bytes += 4;
+	        }
+	      }
+	    }
+	    bytes += this.encode(bytes * 8);
+	    this.update(str);
+	    return bytes;
+	  };
+
+	  Keccak.prototype.bytepad = function (strs, w) {
+	    var bytes = this.encode(w);
+	    for (var i = 0; i < strs.length; ++i) {
+	      bytes += this.encodeString(strs[i]);
+	    }
+	    var paddingBytes = w - bytes % w;
+	    var zeros = [];
+	    zeros.length = paddingBytes;
+	    this.update(zeros);
+	    return this;
+	  };
+
+	  Keccak.prototype.finalize = function () {
+	    if (this.finalized) {
+	      return;
+	    }
+	    this.finalized = true;
+	    var blocks = this.blocks, i = this.lastByteIndex, blockCount = this.blockCount, s = this.s;
+	    blocks[i >> 2] |= this.padding[i & 3];
+	    if (this.lastByteIndex === this.byteCount) {
+	      blocks[0] = blocks[blockCount];
+	      for (i = 1; i < blockCount + 1; ++i) {
+	        blocks[i] = 0;
+	      }
+	    }
+	    blocks[blockCount - 1] |= 0x80000000;
+	    for (i = 0; i < blockCount; ++i) {
+	      s[i] ^= blocks[i];
+	    }
+	    f(s);
+	  };
+
+	  Keccak.prototype.toString = Keccak.prototype.hex = function () {
+	    this.finalize();
+
+	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
+	      extraBytes = this.extraBytes, i = 0, j = 0;
+	    var hex = '', block;
+	    while (j < outputBlocks) {
+	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
+	        block = s[i];
+	        hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F] +
+	          HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F] +
+	          HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F] +
+	          HEX_CHARS[(block >> 28) & 0x0F] + HEX_CHARS[(block >> 24) & 0x0F];
+	      }
+	      if (j % blockCount === 0) {
+	        f(s);
+	        i = 0;
+	      }
+	    }
+	    if (extraBytes) {
+	      block = s[i];
+	      hex += HEX_CHARS[(block >> 4) & 0x0F] + HEX_CHARS[block & 0x0F];
+	      if (extraBytes > 1) {
+	        hex += HEX_CHARS[(block >> 12) & 0x0F] + HEX_CHARS[(block >> 8) & 0x0F];
+	      }
+	      if (extraBytes > 2) {
+	        hex += HEX_CHARS[(block >> 20) & 0x0F] + HEX_CHARS[(block >> 16) & 0x0F];
+	      }
+	    }
+	    return hex;
+	  };
+
+	  Keccak.prototype.arrayBuffer = function () {
+	    this.finalize();
+
+	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
+	      extraBytes = this.extraBytes, i = 0, j = 0;
+	    var bytes = this.outputBits >> 3;
+	    var buffer;
+	    if (extraBytes) {
+	      buffer = new ArrayBuffer((outputBlocks + 1) << 2);
+	    } else {
+	      buffer = new ArrayBuffer(bytes);
+	    }
+	    var array = new Uint32Array(buffer);
+	    while (j < outputBlocks) {
+	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
+	        array[j] = s[i];
+	      }
+	      if (j % blockCount === 0) {
+	        f(s);
+	      }
+	    }
+	    if (extraBytes) {
+	      array[i] = s[i];
+	      buffer = buffer.slice(0, bytes);
+	    }
+	    return buffer;
+	  };
+
+	  Keccak.prototype.buffer = Keccak.prototype.arrayBuffer;
+
+	  Keccak.prototype.digest = Keccak.prototype.array = function () {
+	    this.finalize();
+
+	    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
+	      extraBytes = this.extraBytes, i = 0, j = 0;
+	    var array = [], offset, block;
+	    while (j < outputBlocks) {
+	      for (i = 0; i < blockCount && j < outputBlocks; ++i, ++j) {
+	        offset = j << 2;
+	        block = s[i];
+	        array[offset] = block & 0xFF;
+	        array[offset + 1] = (block >> 8) & 0xFF;
+	        array[offset + 2] = (block >> 16) & 0xFF;
+	        array[offset + 3] = (block >> 24) & 0xFF;
+	      }
+	      if (j % blockCount === 0) {
+	        f(s);
+	      }
+	    }
+	    if (extraBytes) {
+	      offset = j << 2;
+	      block = s[i];
+	      array[offset] = block & 0xFF;
+	      if (extraBytes > 1) {
+	        array[offset + 1] = (block >> 8) & 0xFF;
+	      }
+	      if (extraBytes > 2) {
+	        array[offset + 2] = (block >> 16) & 0xFF;
+	      }
+	    }
+	    return array;
+	  };
+
+	  function Kmac(bits, padding, outputBits) {
+	    Keccak.call(this, bits, padding, outputBits);
+	  }
+
+	  Kmac.prototype = new Keccak();
+
+	  Kmac.prototype.finalize = function () {
+	    this.encode(this.outputBits, true);
+	    return Keccak.prototype.finalize.call(this);
+	  };
+
+	  var f = function (s) {
+	    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9,
+	      b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17,
+	      b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33,
+	      b34, b35, b36, b37, b38, b39, b40, b41, b42, b43, b44, b45, b46, b47, b48, b49;
+	    for (n = 0; n < 48; n += 2) {
+	      c0 = s[0] ^ s[10] ^ s[20] ^ s[30] ^ s[40];
+	      c1 = s[1] ^ s[11] ^ s[21] ^ s[31] ^ s[41];
+	      c2 = s[2] ^ s[12] ^ s[22] ^ s[32] ^ s[42];
+	      c3 = s[3] ^ s[13] ^ s[23] ^ s[33] ^ s[43];
+	      c4 = s[4] ^ s[14] ^ s[24] ^ s[34] ^ s[44];
+	      c5 = s[5] ^ s[15] ^ s[25] ^ s[35] ^ s[45];
+	      c6 = s[6] ^ s[16] ^ s[26] ^ s[36] ^ s[46];
+	      c7 = s[7] ^ s[17] ^ s[27] ^ s[37] ^ s[47];
+	      c8 = s[8] ^ s[18] ^ s[28] ^ s[38] ^ s[48];
+	      c9 = s[9] ^ s[19] ^ s[29] ^ s[39] ^ s[49];
+
+	      h = c8 ^ ((c2 << 1) | (c3 >>> 31));
+	      l = c9 ^ ((c3 << 1) | (c2 >>> 31));
+	      s[0] ^= h;
+	      s[1] ^= l;
+	      s[10] ^= h;
+	      s[11] ^= l;
+	      s[20] ^= h;
+	      s[21] ^= l;
+	      s[30] ^= h;
+	      s[31] ^= l;
+	      s[40] ^= h;
+	      s[41] ^= l;
+	      h = c0 ^ ((c4 << 1) | (c5 >>> 31));
+	      l = c1 ^ ((c5 << 1) | (c4 >>> 31));
+	      s[2] ^= h;
+	      s[3] ^= l;
+	      s[12] ^= h;
+	      s[13] ^= l;
+	      s[22] ^= h;
+	      s[23] ^= l;
+	      s[32] ^= h;
+	      s[33] ^= l;
+	      s[42] ^= h;
+	      s[43] ^= l;
+	      h = c2 ^ ((c6 << 1) | (c7 >>> 31));
+	      l = c3 ^ ((c7 << 1) | (c6 >>> 31));
+	      s[4] ^= h;
+	      s[5] ^= l;
+	      s[14] ^= h;
+	      s[15] ^= l;
+	      s[24] ^= h;
+	      s[25] ^= l;
+	      s[34] ^= h;
+	      s[35] ^= l;
+	      s[44] ^= h;
+	      s[45] ^= l;
+	      h = c4 ^ ((c8 << 1) | (c9 >>> 31));
+	      l = c5 ^ ((c9 << 1) | (c8 >>> 31));
+	      s[6] ^= h;
+	      s[7] ^= l;
+	      s[16] ^= h;
+	      s[17] ^= l;
+	      s[26] ^= h;
+	      s[27] ^= l;
+	      s[36] ^= h;
+	      s[37] ^= l;
+	      s[46] ^= h;
+	      s[47] ^= l;
+	      h = c6 ^ ((c0 << 1) | (c1 >>> 31));
+	      l = c7 ^ ((c1 << 1) | (c0 >>> 31));
+	      s[8] ^= h;
+	      s[9] ^= l;
+	      s[18] ^= h;
+	      s[19] ^= l;
+	      s[28] ^= h;
+	      s[29] ^= l;
+	      s[38] ^= h;
+	      s[39] ^= l;
+	      s[48] ^= h;
+	      s[49] ^= l;
+
+	      b0 = s[0];
+	      b1 = s[1];
+	      b32 = (s[11] << 4) | (s[10] >>> 28);
+	      b33 = (s[10] << 4) | (s[11] >>> 28);
+	      b14 = (s[20] << 3) | (s[21] >>> 29);
+	      b15 = (s[21] << 3) | (s[20] >>> 29);
+	      b46 = (s[31] << 9) | (s[30] >>> 23);
+	      b47 = (s[30] << 9) | (s[31] >>> 23);
+	      b28 = (s[40] << 18) | (s[41] >>> 14);
+	      b29 = (s[41] << 18) | (s[40] >>> 14);
+	      b20 = (s[2] << 1) | (s[3] >>> 31);
+	      b21 = (s[3] << 1) | (s[2] >>> 31);
+	      b2 = (s[13] << 12) | (s[12] >>> 20);
+	      b3 = (s[12] << 12) | (s[13] >>> 20);
+	      b34 = (s[22] << 10) | (s[23] >>> 22);
+	      b35 = (s[23] << 10) | (s[22] >>> 22);
+	      b16 = (s[33] << 13) | (s[32] >>> 19);
+	      b17 = (s[32] << 13) | (s[33] >>> 19);
+	      b48 = (s[42] << 2) | (s[43] >>> 30);
+	      b49 = (s[43] << 2) | (s[42] >>> 30);
+	      b40 = (s[5] << 30) | (s[4] >>> 2);
+	      b41 = (s[4] << 30) | (s[5] >>> 2);
+	      b22 = (s[14] << 6) | (s[15] >>> 26);
+	      b23 = (s[15] << 6) | (s[14] >>> 26);
+	      b4 = (s[25] << 11) | (s[24] >>> 21);
+	      b5 = (s[24] << 11) | (s[25] >>> 21);
+	      b36 = (s[34] << 15) | (s[35] >>> 17);
+	      b37 = (s[35] << 15) | (s[34] >>> 17);
+	      b18 = (s[45] << 29) | (s[44] >>> 3);
+	      b19 = (s[44] << 29) | (s[45] >>> 3);
+	      b10 = (s[6] << 28) | (s[7] >>> 4);
+	      b11 = (s[7] << 28) | (s[6] >>> 4);
+	      b42 = (s[17] << 23) | (s[16] >>> 9);
+	      b43 = (s[16] << 23) | (s[17] >>> 9);
+	      b24 = (s[26] << 25) | (s[27] >>> 7);
+	      b25 = (s[27] << 25) | (s[26] >>> 7);
+	      b6 = (s[36] << 21) | (s[37] >>> 11);
+	      b7 = (s[37] << 21) | (s[36] >>> 11);
+	      b38 = (s[47] << 24) | (s[46] >>> 8);
+	      b39 = (s[46] << 24) | (s[47] >>> 8);
+	      b30 = (s[8] << 27) | (s[9] >>> 5);
+	      b31 = (s[9] << 27) | (s[8] >>> 5);
+	      b12 = (s[18] << 20) | (s[19] >>> 12);
+	      b13 = (s[19] << 20) | (s[18] >>> 12);
+	      b44 = (s[29] << 7) | (s[28] >>> 25);
+	      b45 = (s[28] << 7) | (s[29] >>> 25);
+	      b26 = (s[38] << 8) | (s[39] >>> 24);
+	      b27 = (s[39] << 8) | (s[38] >>> 24);
+	      b8 = (s[48] << 14) | (s[49] >>> 18);
+	      b9 = (s[49] << 14) | (s[48] >>> 18);
+
+	      s[0] = b0 ^ (~b2 & b4);
+	      s[1] = b1 ^ (~b3 & b5);
+	      s[10] = b10 ^ (~b12 & b14);
+	      s[11] = b11 ^ (~b13 & b15);
+	      s[20] = b20 ^ (~b22 & b24);
+	      s[21] = b21 ^ (~b23 & b25);
+	      s[30] = b30 ^ (~b32 & b34);
+	      s[31] = b31 ^ (~b33 & b35);
+	      s[40] = b40 ^ (~b42 & b44);
+	      s[41] = b41 ^ (~b43 & b45);
+	      s[2] = b2 ^ (~b4 & b6);
+	      s[3] = b3 ^ (~b5 & b7);
+	      s[12] = b12 ^ (~b14 & b16);
+	      s[13] = b13 ^ (~b15 & b17);
+	      s[22] = b22 ^ (~b24 & b26);
+	      s[23] = b23 ^ (~b25 & b27);
+	      s[32] = b32 ^ (~b34 & b36);
+	      s[33] = b33 ^ (~b35 & b37);
+	      s[42] = b42 ^ (~b44 & b46);
+	      s[43] = b43 ^ (~b45 & b47);
+	      s[4] = b4 ^ (~b6 & b8);
+	      s[5] = b5 ^ (~b7 & b9);
+	      s[14] = b14 ^ (~b16 & b18);
+	      s[15] = b15 ^ (~b17 & b19);
+	      s[24] = b24 ^ (~b26 & b28);
+	      s[25] = b25 ^ (~b27 & b29);
+	      s[34] = b34 ^ (~b36 & b38);
+	      s[35] = b35 ^ (~b37 & b39);
+	      s[44] = b44 ^ (~b46 & b48);
+	      s[45] = b45 ^ (~b47 & b49);
+	      s[6] = b6 ^ (~b8 & b0);
+	      s[7] = b7 ^ (~b9 & b1);
+	      s[16] = b16 ^ (~b18 & b10);
+	      s[17] = b17 ^ (~b19 & b11);
+	      s[26] = b26 ^ (~b28 & b20);
+	      s[27] = b27 ^ (~b29 & b21);
+	      s[36] = b36 ^ (~b38 & b30);
+	      s[37] = b37 ^ (~b39 & b31);
+	      s[46] = b46 ^ (~b48 & b40);
+	      s[47] = b47 ^ (~b49 & b41);
+	      s[8] = b8 ^ (~b0 & b2);
+	      s[9] = b9 ^ (~b1 & b3);
+	      s[18] = b18 ^ (~b10 & b12);
+	      s[19] = b19 ^ (~b11 & b13);
+	      s[28] = b28 ^ (~b20 & b22);
+	      s[29] = b29 ^ (~b21 & b23);
+	      s[38] = b38 ^ (~b30 & b32);
+	      s[39] = b39 ^ (~b31 & b33);
+	      s[48] = b48 ^ (~b40 & b42);
+	      s[49] = b49 ^ (~b41 & b43);
+
+	      s[0] ^= RC[n];
+	      s[1] ^= RC[n + 1];
+	    }
+	  };
+
+	  if (COMMON_JS) {
+	    module.exports = methods;
+	  } else {
+	    for (i = 0; i < methodNames.length; ++i) {
+	      root[methodNames[i]] = methods[methodNames[i]];
+	    }
+	  }
+	})();
+} (sha3$1));
+
+var sha3 = sha3$1.exports;
 
 const toBuffer = arr => {
   if (Buffer.isBuffer(arr)) {
@@ -34193,6 +44480,23 @@ class Struct {
   }
 
 } // Class representing a Rust-compatible enum, since enums are only strings or
+// numbers in pure JS
+
+class Enum extends Struct {
+  constructor(properties) {
+    super(properties);
+    this.enum = '';
+
+    if (Object.keys(properties).length !== 1) {
+      throw new Error('Enum can only take single value');
+    }
+
+    Object.keys(properties).map(key => {
+      this.enum = key;
+    });
+  }
+
+}
 const SOLANA_SCHEMA = new Map();
 
 /**
@@ -34234,9 +44538,9 @@ class PublicKey extends Struct {
           throw new Error(`Invalid public key input`);
         }
 
-        this._bn = new BN(decoded);
+        this._bn = new BN$9(decoded);
       } else {
-        this._bn = new BN(value);
+        this._bn = new BN$9(value);
       }
 
       if (this._bn.byteLength() > 32) {
@@ -34331,7 +44635,7 @@ class PublicKey extends Struct {
     });
     buffer = Buffer.concat([buffer, programId.toBuffer(), Buffer.from('ProgramDerivedAddress')]);
     let hash = sha256(new Uint8Array(buffer)).slice(2);
-    let publicKeyBytes = new BN(hash, 16).toArray(undefined, 32);
+    let publicKeyBytes = new BN$9(hash, 16).toArray(undefined, 32);
 
     if (is_on_curve(publicKeyBytes)) {
       throw new Error(`Invalid seeds, address must fall off the curve`);
@@ -34456,7 +44760,52 @@ function neq25519(a, b) {
   return naclLowLevel.crypto_verify_32(c, 0, d, 0);
 }
 
-new PublicKey('BPFLoader1111111111111111111111111111111111');
+/**
+ * An account key pair (public and secret keys).
+ *
+ * @deprecated since v1.10.0, please use {@link Keypair} instead.
+ */
+
+class Account {
+  /** @internal */
+
+  /**
+   * Create a new Account object
+   *
+   * If the secretKey parameter is not provided a new key pair is randomly
+   * created for the account
+   *
+   * @param secretKey Secret key for the account
+   */
+  constructor(secretKey) {
+    this._keypair = void 0;
+
+    if (secretKey) {
+      this._keypair = nacl.sign.keyPair.fromSecretKey(toBuffer(secretKey));
+    } else {
+      this._keypair = nacl.sign.keyPair();
+    }
+  }
+  /**
+   * The public key for this account
+   */
+
+
+  get publicKey() {
+    return new PublicKey(this._keypair.publicKey);
+  }
+  /**
+   * The **unencrypted** secret key for this account
+   */
+
+
+  get secretKey() {
+    return toBuffer(this._keypair.secretKey);
+  }
+
+}
+
+const BPF_LOADER_DEPRECATED_PROGRAM_ID = new PublicKey('BPFLoader1111111111111111111111111111111111');
 
 /**
  * Maximum over-the-wire size of a Transaction
@@ -34528,6 +44877,17 @@ const lockup = (property = 'lockup') => {
 const voteInit = (property = 'voteInit') => {
   return struct([publicKey('nodePubkey'), publicKey('authorizedVoter'), publicKey('authorizedWithdrawer'), u8('commission')], property);
 };
+function getAlloc(type, fields) {
+  let alloc = 0;
+  type.layout.fields.forEach(item => {
+    if (item.span >= 0) {
+      alloc += item.span;
+    } else if (typeof item.alloc === 'function') {
+      alloc += item.alloc(fields[item.property]);
+    }
+  });
+  return alloc;
+}
 
 function decodeLength(bytes) {
   let len = 0;
@@ -35442,19 +45802,85 @@ class Transaction {
 
 }
 
-new PublicKey('SysvarC1ock11111111111111111111111111111111');
-new PublicKey('SysvarEpochSchedu1e111111111111111111111111');
-new PublicKey('Sysvar1nstructions1111111111111111111111111');
-new PublicKey('SysvarRecentB1ockHashes11111111111111111111');
-new PublicKey('SysvarRent111111111111111111111111111111111');
-new PublicKey('SysvarRewards111111111111111111111111111111');
-new PublicKey('SysvarS1otHashes111111111111111111111111111');
-new PublicKey('SysvarS1otHistory11111111111111111111111111');
-new PublicKey('SysvarStakeHistory1111111111111111111111111');
+const SYSVAR_CLOCK_PUBKEY = new PublicKey('SysvarC1ock11111111111111111111111111111111');
+const SYSVAR_EPOCH_SCHEDULE_PUBKEY = new PublicKey('SysvarEpochSchedu1e111111111111111111111111');
+const SYSVAR_INSTRUCTIONS_PUBKEY = new PublicKey('Sysvar1nstructions1111111111111111111111111');
+const SYSVAR_RECENT_BLOCKHASHES_PUBKEY = new PublicKey('SysvarRecentB1ockHashes11111111111111111111');
+const SYSVAR_RENT_PUBKEY = new PublicKey('SysvarRent111111111111111111111111111111111');
+const SYSVAR_REWARDS_PUBKEY = new PublicKey('SysvarRewards111111111111111111111111111111');
+const SYSVAR_SLOT_HASHES_PUBKEY = new PublicKey('SysvarS1otHashes111111111111111111111111111');
+const SYSVAR_SLOT_HISTORY_PUBKEY = new PublicKey('SysvarS1otHistory11111111111111111111111111');
+const SYSVAR_STAKE_HISTORY_PUBKEY = new PublicKey('SysvarStakeHistory1111111111111111111111111');
+
+/**
+ * Sign, send and confirm a transaction.
+ *
+ * If `commitment` option is not specified, defaults to 'max' commitment.
+ *
+ * @param {Connection} connection
+ * @param {Transaction} transaction
+ * @param {Array<Signer>} signers
+ * @param {ConfirmOptions} [options]
+ * @returns {Promise<TransactionSignature>}
+ */
+async function sendAndConfirmTransaction(connection, transaction, signers, options) {
+  const sendOptions = options && {
+    skipPreflight: options.skipPreflight,
+    preflightCommitment: options.preflightCommitment || options.commitment,
+    maxRetries: options.maxRetries,
+    minContextSlot: options.minContextSlot
+  };
+  const signature = await connection.sendTransaction(transaction, signers, sendOptions);
+  const status = transaction.recentBlockhash != null && transaction.lastValidBlockHeight != null ? (await connection.confirmTransaction({
+    signature: signature,
+    blockhash: transaction.recentBlockhash,
+    lastValidBlockHeight: transaction.lastValidBlockHeight
+  }, options && options.commitment)).value : (await connection.confirmTransaction(signature, options && options.commitment)).value;
+
+  if (status.err) {
+    throw new Error(`Transaction ${signature} failed (${JSON.stringify(status)})`);
+  }
+
+  return signature;
+}
 
 // zzz
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Populate a buffer of instruction data using an InstructionType
+ * @internal
+ */
+function encodeData(type, fields) {
+  const allocLength = type.layout.span >= 0 ? type.layout.span : getAlloc(type, fields);
+  const data = Buffer.alloc(allocLength);
+  const layoutFields = Object.assign({
+    instruction: type.index
+  }, fields);
+  type.layout.encode(layoutFields, data);
+  return data;
+}
+/**
+ * Decode instruction data buffer using an InstructionType
+ * @internal
+ */
+
+function decodeData(type, buffer) {
+  let data;
+
+  try {
+    data = type.layout.decode(buffer);
+  } catch (err) {
+    throw new Error('invalid instruction; ' + err);
+  }
+
+  if (data.instruction !== type.index) {
+    throw new Error(`invalid instruction; instruction index mismatch ${data.instruction} != ${type.index}`);
+  }
+
+  return data;
 }
 
 /**
@@ -35475,7 +45901,7 @@ const FeeCalculatorLayout = nu64('lamportsPerSignature');
  */
 
 const NonceAccountLayout = struct([u32('version'), u32('state'), publicKey('authorizedPubkey'), publicKey('nonce'), struct([FeeCalculatorLayout], 'feeCalculator')]);
-NonceAccountLayout.span;
+const NONCE_ACCOUNT_LENGTH = NonceAccountLayout.span;
 
 /**
  * NonceAccount class
@@ -35542,6 +45968,289 @@ const bigInt = length => property => {
 };
 
 const u64 = bigInt(8);
+
+/**
+ * Create account system transaction params
+ */
+
+/**
+ * System Instruction class
+ */
+class SystemInstruction {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Decode a system instruction and retrieve the instruction type.
+   */
+
+
+  static decodeInstructionType(instruction) {
+    this.checkProgramId(instruction.programId);
+    const instructionTypeLayout = u32('instruction');
+    const typeIndex = instructionTypeLayout.decode(instruction.data);
+    let type;
+
+    for (const [ixType, layout] of Object.entries(SYSTEM_INSTRUCTION_LAYOUTS)) {
+      if (layout.index == typeIndex) {
+        type = ixType;
+        break;
+      }
+    }
+
+    if (!type) {
+      throw new Error('Instruction type incorrect; not a SystemInstruction');
+    }
+
+    return type;
+  }
+  /**
+   * Decode a create account system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeCreateAccount(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 2);
+    const {
+      lamports,
+      space,
+      programId
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Create, instruction.data);
+    return {
+      fromPubkey: instruction.keys[0].pubkey,
+      newAccountPubkey: instruction.keys[1].pubkey,
+      lamports,
+      space,
+      programId: new PublicKey(programId)
+    };
+  }
+  /**
+   * Decode a transfer system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeTransfer(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 2);
+    const {
+      lamports
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Transfer, instruction.data);
+    return {
+      fromPubkey: instruction.keys[0].pubkey,
+      toPubkey: instruction.keys[1].pubkey,
+      lamports
+    };
+  }
+  /**
+   * Decode a transfer with seed system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeTransferWithSeed(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    const {
+      lamports,
+      seed,
+      programId
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.TransferWithSeed, instruction.data);
+    return {
+      fromPubkey: instruction.keys[0].pubkey,
+      basePubkey: instruction.keys[1].pubkey,
+      toPubkey: instruction.keys[2].pubkey,
+      lamports,
+      seed,
+      programId: new PublicKey(programId)
+    };
+  }
+  /**
+   * Decode an allocate system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAllocate(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 1);
+    const {
+      space
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Allocate, instruction.data);
+    return {
+      accountPubkey: instruction.keys[0].pubkey,
+      space
+    };
+  }
+  /**
+   * Decode an allocate with seed system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAllocateWithSeed(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 1);
+    const {
+      base,
+      seed,
+      space,
+      programId
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AllocateWithSeed, instruction.data);
+    return {
+      accountPubkey: instruction.keys[0].pubkey,
+      basePubkey: new PublicKey(base),
+      seed,
+      space,
+      programId: new PublicKey(programId)
+    };
+  }
+  /**
+   * Decode an assign system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAssign(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 1);
+    const {
+      programId
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Assign, instruction.data);
+    return {
+      accountPubkey: instruction.keys[0].pubkey,
+      programId: new PublicKey(programId)
+    };
+  }
+  /**
+   * Decode an assign with seed system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAssignWithSeed(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 1);
+    const {
+      base,
+      seed,
+      programId
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AssignWithSeed, instruction.data);
+    return {
+      accountPubkey: instruction.keys[0].pubkey,
+      basePubkey: new PublicKey(base),
+      seed,
+      programId: new PublicKey(programId)
+    };
+  }
+  /**
+   * Decode a create account with seed system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeCreateWithSeed(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 2);
+    const {
+      base,
+      seed,
+      lamports,
+      space,
+      programId
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.CreateWithSeed, instruction.data);
+    return {
+      fromPubkey: instruction.keys[0].pubkey,
+      newAccountPubkey: instruction.keys[1].pubkey,
+      basePubkey: new PublicKey(base),
+      seed,
+      lamports,
+      space,
+      programId: new PublicKey(programId)
+    };
+  }
+  /**
+   * Decode a nonce initialize system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeNonceInitialize(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    const {
+      authorized
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.InitializeNonceAccount, instruction.data);
+    return {
+      noncePubkey: instruction.keys[0].pubkey,
+      authorizedPubkey: new PublicKey(authorized)
+    };
+  }
+  /**
+   * Decode a nonce advance system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeNonceAdvance(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AdvanceNonceAccount, instruction.data);
+    return {
+      noncePubkey: instruction.keys[0].pubkey,
+      authorizedPubkey: instruction.keys[2].pubkey
+    };
+  }
+  /**
+   * Decode a nonce withdraw system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeNonceWithdraw(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 5);
+    const {
+      lamports
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.WithdrawNonceAccount, instruction.data);
+    return {
+      noncePubkey: instruction.keys[0].pubkey,
+      toPubkey: instruction.keys[1].pubkey,
+      authorizedPubkey: instruction.keys[4].pubkey,
+      lamports
+    };
+  }
+  /**
+   * Decode a nonce authorize system instruction and retrieve the instruction params.
+   */
+
+
+  static decodeNonceAuthorize(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 2);
+    const {
+      authorized
+    } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AuthorizeNonceAccount, instruction.data);
+    return {
+      noncePubkey: instruction.keys[0].pubkey,
+      authorizedPubkey: instruction.keys[1].pubkey,
+      newAuthorizedPubkey: new PublicKey(authorized)
+    };
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkProgramId(programId) {
+    if (!programId.equals(SystemProgram.programId)) {
+      throw new Error('invalid instruction; programId is not SystemProgram');
+    }
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkKeyLength(keys, expectedLength) {
+    if (keys.length < expectedLength) {
+      throw new Error(`invalid instruction; found ${keys.length} keys, expected at least ${expectedLength}`);
+    }
+  }
+
+}
 /**
  * An enumeration of valid SystemInstructionType's
  */
@@ -35550,7 +46259,7 @@ const u64 = bigInt(8);
  * An enumeration of valid system InstructionType's
  * @internal
  */
-Object.freeze({
+const SYSTEM_INSTRUCTION_LAYOUTS = Object.freeze({
   Create: {
     index: 0,
     layout: struct([u32('instruction'), ns64('lamports'), ns64('space'), publicKey('programId')])
@@ -35604,9 +46313,684 @@ Object.freeze({
     layout: struct([u32('instruction')])
   }
 });
-new PublicKey('11111111111111111111111111111111');
+/**
+ * Factory class for transactions to interact with the System program
+ */
 
-new PublicKey('BPFLoader2111111111111111111111111111111111');
+class SystemProgram {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Public key that identifies the System program
+   */
+
+
+  /**
+   * Generate a transaction instruction that creates a new account
+   */
+  static createAccount(params) {
+    const type = SYSTEM_INSTRUCTION_LAYOUTS.Create;
+    const data = encodeData(type, {
+      lamports: params.lamports,
+      space: params.space,
+      programId: toBuffer(params.programId.toBuffer())
+    });
+    return new TransactionInstruction({
+      keys: [{
+        pubkey: params.fromPubkey,
+        isSigner: true,
+        isWritable: true
+      }, {
+        pubkey: params.newAccountPubkey,
+        isSigner: true,
+        isWritable: true
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction instruction that transfers lamports from one account to another
+   */
+
+
+  static transfer(params) {
+    let data;
+    let keys;
+
+    if ('basePubkey' in params) {
+      const type = SYSTEM_INSTRUCTION_LAYOUTS.TransferWithSeed;
+      data = encodeData(type, {
+        lamports: BigInt(params.lamports),
+        seed: params.seed,
+        programId: toBuffer(params.programId.toBuffer())
+      });
+      keys = [{
+        pubkey: params.fromPubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: params.basePubkey,
+        isSigner: true,
+        isWritable: false
+      }, {
+        pubkey: params.toPubkey,
+        isSigner: false,
+        isWritable: true
+      }];
+    } else {
+      const type = SYSTEM_INSTRUCTION_LAYOUTS.Transfer;
+      data = encodeData(type, {
+        lamports: BigInt(params.lamports)
+      });
+      keys = [{
+        pubkey: params.fromPubkey,
+        isSigner: true,
+        isWritable: true
+      }, {
+        pubkey: params.toPubkey,
+        isSigner: false,
+        isWritable: true
+      }];
+    }
+
+    return new TransactionInstruction({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction instruction that assigns an account to a program
+   */
+
+
+  static assign(params) {
+    let data;
+    let keys;
+
+    if ('basePubkey' in params) {
+      const type = SYSTEM_INSTRUCTION_LAYOUTS.AssignWithSeed;
+      data = encodeData(type, {
+        base: toBuffer(params.basePubkey.toBuffer()),
+        seed: params.seed,
+        programId: toBuffer(params.programId.toBuffer())
+      });
+      keys = [{
+        pubkey: params.accountPubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: params.basePubkey,
+        isSigner: true,
+        isWritable: false
+      }];
+    } else {
+      const type = SYSTEM_INSTRUCTION_LAYOUTS.Assign;
+      data = encodeData(type, {
+        programId: toBuffer(params.programId.toBuffer())
+      });
+      keys = [{
+        pubkey: params.accountPubkey,
+        isSigner: true,
+        isWritable: true
+      }];
+    }
+
+    return new TransactionInstruction({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction instruction that creates a new account at
+   *   an address generated with `from`, a seed, and programId
+   */
+
+
+  static createAccountWithSeed(params) {
+    const type = SYSTEM_INSTRUCTION_LAYOUTS.CreateWithSeed;
+    const data = encodeData(type, {
+      base: toBuffer(params.basePubkey.toBuffer()),
+      seed: params.seed,
+      lamports: params.lamports,
+      space: params.space,
+      programId: toBuffer(params.programId.toBuffer())
+    });
+    let keys = [{
+      pubkey: params.fromPubkey,
+      isSigner: true,
+      isWritable: true
+    }, {
+      pubkey: params.newAccountPubkey,
+      isSigner: false,
+      isWritable: true
+    }];
+
+    if (params.basePubkey != params.fromPubkey) {
+      keys.push({
+        pubkey: params.basePubkey,
+        isSigner: true,
+        isWritable: false
+      });
+    }
+
+    return new TransactionInstruction({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction that creates a new Nonce account
+   */
+
+
+  static createNonceAccount(params) {
+    const transaction = new Transaction();
+
+    if ('basePubkey' in params && 'seed' in params) {
+      transaction.add(SystemProgram.createAccountWithSeed({
+        fromPubkey: params.fromPubkey,
+        newAccountPubkey: params.noncePubkey,
+        basePubkey: params.basePubkey,
+        seed: params.seed,
+        lamports: params.lamports,
+        space: NONCE_ACCOUNT_LENGTH,
+        programId: this.programId
+      }));
+    } else {
+      transaction.add(SystemProgram.createAccount({
+        fromPubkey: params.fromPubkey,
+        newAccountPubkey: params.noncePubkey,
+        lamports: params.lamports,
+        space: NONCE_ACCOUNT_LENGTH,
+        programId: this.programId
+      }));
+    }
+
+    const initParams = {
+      noncePubkey: params.noncePubkey,
+      authorizedPubkey: params.authorizedPubkey
+    };
+    transaction.add(this.nonceInitialize(initParams));
+    return transaction;
+  }
+  /**
+   * Generate an instruction to initialize a Nonce account
+   */
+
+
+  static nonceInitialize(params) {
+    const type = SYSTEM_INSTRUCTION_LAYOUTS.InitializeNonceAccount;
+    const data = encodeData(type, {
+      authorized: toBuffer(params.authorizedPubkey.toBuffer())
+    });
+    const instructionData = {
+      keys: [{
+        pubkey: params.noncePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: SYSVAR_RENT_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    };
+    return new TransactionInstruction(instructionData);
+  }
+  /**
+   * Generate an instruction to advance the nonce in a Nonce account
+   */
+
+
+  static nonceAdvance(params) {
+    const type = SYSTEM_INSTRUCTION_LAYOUTS.AdvanceNonceAccount;
+    const data = encodeData(type);
+    const instructionData = {
+      keys: [{
+        pubkey: params.noncePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: params.authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    };
+    return new TransactionInstruction(instructionData);
+  }
+  /**
+   * Generate a transaction instruction that withdraws lamports from a Nonce account
+   */
+
+
+  static nonceWithdraw(params) {
+    const type = SYSTEM_INSTRUCTION_LAYOUTS.WithdrawNonceAccount;
+    const data = encodeData(type, {
+      lamports: params.lamports
+    });
+    return new TransactionInstruction({
+      keys: [{
+        pubkey: params.noncePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: params.toPubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: SYSVAR_RENT_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: params.authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction instruction that authorizes a new PublicKey as the authority
+   * on a Nonce account.
+   */
+
+
+  static nonceAuthorize(params) {
+    const type = SYSTEM_INSTRUCTION_LAYOUTS.AuthorizeNonceAccount;
+    const data = encodeData(type, {
+      authorized: toBuffer(params.newAuthorizedPubkey.toBuffer())
+    });
+    return new TransactionInstruction({
+      keys: [{
+        pubkey: params.noncePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: params.authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction instruction that allocates space in an account without funding
+   */
+
+
+  static allocate(params) {
+    let data;
+    let keys;
+
+    if ('basePubkey' in params) {
+      const type = SYSTEM_INSTRUCTION_LAYOUTS.AllocateWithSeed;
+      data = encodeData(type, {
+        base: toBuffer(params.basePubkey.toBuffer()),
+        seed: params.seed,
+        space: params.space,
+        programId: toBuffer(params.programId.toBuffer())
+      });
+      keys = [{
+        pubkey: params.accountPubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: params.basePubkey,
+        isSigner: true,
+        isWritable: false
+      }];
+    } else {
+      const type = SYSTEM_INSTRUCTION_LAYOUTS.Allocate;
+      data = encodeData(type, {
+        space: params.space
+      });
+      keys = [{
+        pubkey: params.accountPubkey,
+        isSigner: true,
+        isWritable: true
+      }];
+    }
+
+    return new TransactionInstruction({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+
+}
+SystemProgram.programId = new PublicKey('11111111111111111111111111111111');
+
+// rest of the Transaction fields
+//
+// TODO: replace 300 with a proper constant for the size of the other
+// Transaction fields
+
+const CHUNK_SIZE = PACKET_DATA_SIZE - 300;
+/**
+ * Program loader interface
+ */
+
+class Loader {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Amount of program data placed in each load Transaction
+   */
+
+
+  /**
+   * Minimum number of signatures required to load a program not including
+   * retries
+   *
+   * Can be used to calculate transaction fees
+   */
+  static getMinNumSignatures(dataLength) {
+    return 2 * ( // Every transaction requires two signatures (payer + program)
+    Math.ceil(dataLength / Loader.chunkSize) + 1 + // Add one for Create transaction
+    1) // Add one for Finalize transaction
+    ;
+  }
+  /**
+   * Loads a generic program
+   *
+   * @param connection The connection to use
+   * @param payer System account that pays to load the program
+   * @param program Account to load the program into
+   * @param programId Public key that identifies the loader
+   * @param data Program octets
+   * @return true if program was loaded successfully, false if program was already loaded
+   */
+
+
+  static async load(connection, payer, program, programId, data) {
+    {
+      const balanceNeeded = await connection.getMinimumBalanceForRentExemption(data.length); // Fetch program account info to check if it has already been created
+
+      const programInfo = await connection.getAccountInfo(program.publicKey, 'confirmed');
+      let transaction = null;
+
+      if (programInfo !== null) {
+        if (programInfo.executable) {
+          console.error('Program load failed, account is already executable');
+          return false;
+        }
+
+        if (programInfo.data.length !== data.length) {
+          transaction = transaction || new Transaction();
+          transaction.add(SystemProgram.allocate({
+            accountPubkey: program.publicKey,
+            space: data.length
+          }));
+        }
+
+        if (!programInfo.owner.equals(programId)) {
+          transaction = transaction || new Transaction();
+          transaction.add(SystemProgram.assign({
+            accountPubkey: program.publicKey,
+            programId
+          }));
+        }
+
+        if (programInfo.lamports < balanceNeeded) {
+          transaction = transaction || new Transaction();
+          transaction.add(SystemProgram.transfer({
+            fromPubkey: payer.publicKey,
+            toPubkey: program.publicKey,
+            lamports: balanceNeeded - programInfo.lamports
+          }));
+        }
+      } else {
+        transaction = new Transaction().add(SystemProgram.createAccount({
+          fromPubkey: payer.publicKey,
+          newAccountPubkey: program.publicKey,
+          lamports: balanceNeeded > 0 ? balanceNeeded : 1,
+          space: data.length,
+          programId
+        }));
+      } // If the account is already created correctly, skip this step
+      // and proceed directly to loading instructions
+
+
+      if (transaction !== null) {
+        await sendAndConfirmTransaction(connection, transaction, [payer, program], {
+          commitment: 'confirmed'
+        });
+      }
+    }
+    const dataLayout = struct([u32('instruction'), u32('offset'), u32('bytesLength'), u32('bytesLengthPadding'), seq(u8('byte'), offset(u32(), -8), 'bytes')]);
+    const chunkSize = Loader.chunkSize;
+    let offset$1 = 0;
+    let array = data;
+    let transactions = [];
+
+    while (array.length > 0) {
+      const bytes = array.slice(0, chunkSize);
+      const data = Buffer.alloc(chunkSize + 16);
+      dataLayout.encode({
+        instruction: 0,
+        // Load instruction
+        offset: offset$1,
+        bytes: bytes,
+        bytesLength: 0,
+        bytesLengthPadding: 0
+      }, data);
+      const transaction = new Transaction().add({
+        keys: [{
+          pubkey: program.publicKey,
+          isSigner: true,
+          isWritable: true
+        }],
+        programId,
+        data
+      });
+      transactions.push(sendAndConfirmTransaction(connection, transaction, [payer, program], {
+        commitment: 'confirmed'
+      })); // Delay between sends in an attempt to reduce rate limit errors
+
+      if (connection._rpcEndpoint.includes('solana.com')) {
+        const REQUESTS_PER_SECOND = 4;
+        await sleep(1000 / REQUESTS_PER_SECOND);
+      }
+
+      offset$1 += chunkSize;
+      array = array.slice(chunkSize);
+    }
+
+    await Promise.all(transactions); // Finalize the account loaded with program data for execution
+
+    {
+      const dataLayout = struct([u32('instruction')]);
+      const data = Buffer.alloc(dataLayout.span);
+      dataLayout.encode({
+        instruction: 1 // Finalize instruction
+
+      }, data);
+      const transaction = new Transaction().add({
+        keys: [{
+          pubkey: program.publicKey,
+          isSigner: true,
+          isWritable: true
+        }, {
+          pubkey: SYSVAR_RENT_PUBKEY,
+          isSigner: false,
+          isWritable: false
+        }],
+        programId,
+        data
+      });
+      await sendAndConfirmTransaction(connection, transaction, [payer, program], {
+        commitment: 'confirmed'
+      });
+    } // success
+
+    return true;
+  }
+
+}
+Loader.chunkSize = CHUNK_SIZE;
+
+const BPF_LOADER_PROGRAM_ID = new PublicKey('BPFLoader2111111111111111111111111111111111');
+/**
+ * Factory class for transactions to interact with a program loader
+ */
+
+class BpfLoader {
+  /**
+   * Minimum number of signatures required to load a program not including
+   * retries
+   *
+   * Can be used to calculate transaction fees
+   */
+  static getMinNumSignatures(dataLength) {
+    return Loader.getMinNumSignatures(dataLength);
+  }
+  /**
+   * Load a BPF program
+   *
+   * @param connection The connection to use
+   * @param payer Account that will pay program loading fees
+   * @param program Account to load the program into
+   * @param elf The entire ELF containing the BPF program
+   * @param loaderProgramId The program id of the BPF loader to use
+   * @return true if program was loaded successfully, false if program was already loaded
+   */
+
+
+  static load(connection, payer, program, elf, loaderProgramId) {
+    return Loader.load(connection, payer, program, loaderProgramId, elf);
+  }
+
+}
+
+/**
+ * Compute Budget Instruction class
+ */
+
+class ComputeBudgetInstruction {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Decode a compute budget instruction and retrieve the instruction type.
+   */
+
+
+  static decodeInstructionType(instruction) {
+    this.checkProgramId(instruction.programId);
+    const instructionTypeLayout = u8('instruction');
+    const typeIndex = instructionTypeLayout.decode(instruction.data);
+    let type;
+
+    for (const [ixType, layout] of Object.entries(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS)) {
+      if (layout.index == typeIndex) {
+        type = ixType;
+        break;
+      }
+    }
+
+    if (!type) {
+      throw new Error('Instruction type incorrect; not a ComputeBudgetInstruction');
+    }
+
+    return type;
+  }
+  /**
+   * Decode request units compute budget instruction and retrieve the instruction params.
+   */
+
+
+  static decodeRequestUnits(instruction) {
+    this.checkProgramId(instruction.programId);
+    const {
+      units,
+      additionalFee
+    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestUnits, instruction.data);
+    return {
+      units,
+      additionalFee
+    };
+  }
+  /**
+   * Decode request heap frame compute budget instruction and retrieve the instruction params.
+   */
+
+
+  static decodeRequestHeapFrame(instruction) {
+    this.checkProgramId(instruction.programId);
+    const {
+      bytes
+    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestHeapFrame, instruction.data);
+    return {
+      bytes
+    };
+  }
+  /**
+   * Decode set compute unit limit compute budget instruction and retrieve the instruction params.
+   */
+
+
+  static decodeSetComputeUnitLimit(instruction) {
+    this.checkProgramId(instruction.programId);
+    const {
+      units
+    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitLimit, instruction.data);
+    return {
+      units
+    };
+  }
+  /**
+   * Decode set compute unit price compute budget instruction and retrieve the instruction params.
+   */
+
+
+  static decodeSetComputeUnitPrice(instruction) {
+    this.checkProgramId(instruction.programId);
+    const {
+      microLamports
+    } = decodeData(COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitPrice, instruction.data);
+    return {
+      microLamports
+    };
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkProgramId(programId) {
+    if (!programId.equals(ComputeBudgetProgram.programId)) {
+      throw new Error('invalid instruction; programId is not ComputeBudgetProgram');
+    }
+  }
+
+}
 /**
  * An enumeration of valid ComputeBudgetInstructionType's
  */
@@ -35615,7 +46999,7 @@ new PublicKey('BPFLoader2111111111111111111111111111111111');
  * An enumeration of valid ComputeBudget InstructionType's
  * @internal
  */
-Object.freeze({
+const COMPUTE_BUDGET_INSTRUCTION_LAYOUTS = Object.freeze({
   RequestUnits: {
     index: 0,
     layout: struct([u8('instruction'), u32('units'), u32('additionalFee')])
@@ -35633,7 +47017,64 @@ Object.freeze({
     layout: struct([u8('instruction'), u64('microLamports')])
   }
 });
-new PublicKey('ComputeBudget111111111111111111111111111111');
+/**
+ * Factory class for transaction instructions to interact with the Compute Budget program
+ */
+
+class ComputeBudgetProgram {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Public key that identifies the Compute Budget program
+   */
+
+
+  static requestUnits(params) {
+    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestUnits;
+    const data = encodeData(type, params);
+    return new TransactionInstruction({
+      keys: [],
+      programId: this.programId,
+      data
+    });
+  }
+
+  static requestHeapFrame(params) {
+    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.RequestHeapFrame;
+    const data = encodeData(type, params);
+    return new TransactionInstruction({
+      keys: [],
+      programId: this.programId,
+      data
+    });
+  }
+
+  static setComputeUnitLimit(params) {
+    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitLimit;
+    const data = encodeData(type, params);
+    return new TransactionInstruction({
+      keys: [],
+      programId: this.programId,
+      data
+    });
+  }
+
+  static setComputeUnitPrice(params) {
+    const type = COMPUTE_BUDGET_INSTRUCTION_LAYOUTS.SetComputeUnitPrice;
+    const data = encodeData(type, {
+      microLamports: BigInt(params.microLamports)
+    });
+    return new TransactionInstruction({
+      keys: [],
+      programId: this.programId,
+      data
+    });
+  }
+
+}
+ComputeBudgetProgram.programId = new PublicKey('ComputeBudget111111111111111111111111111111');
 
 var objToString = Object.prototype.toString;
 var objKeys = Object.keys || function(obj) {
@@ -35815,6 +47256,26 @@ class SendTransactionError extends Error {
   }
 
 } // Keep in sync with client/src/rpc_custom_errors.rs
+// Typescript `enums` thwart tree-shaking. See https://bargsten.org/jsts/enums/
+
+const SolanaJSONRPCErrorCode = {
+  JSON_RPC_SERVER_ERROR_BLOCK_CLEANED_UP: -32001,
+  JSON_RPC_SERVER_ERROR_SEND_TRANSACTION_PREFLIGHT_FAILURE: -32002,
+  JSON_RPC_SERVER_ERROR_TRANSACTION_SIGNATURE_VERIFICATION_FAILURE: -32003,
+  JSON_RPC_SERVER_ERROR_BLOCK_NOT_AVAILABLE: -32004,
+  JSON_RPC_SERVER_ERROR_NODE_UNHEALTHY: -32005,
+  JSON_RPC_SERVER_ERROR_TRANSACTION_PRECOMPILE_VERIFICATION_FAILURE: -32006,
+  JSON_RPC_SERVER_ERROR_SLOT_SKIPPED: -32007,
+  JSON_RPC_SERVER_ERROR_NO_SNAPSHOT: -32008,
+  JSON_RPC_SERVER_ERROR_LONG_TERM_STORAGE_SLOT_SKIPPED: -32009,
+  JSON_RPC_SERVER_ERROR_KEY_EXCLUDED_FROM_SECONDARY_INDEX: -32010,
+  JSON_RPC_SERVER_ERROR_TRANSACTION_HISTORY_NOT_AVAILABLE: -32011,
+  JSON_RPC_SCAN_ERROR: -32012,
+  JSON_RPC_SERVER_ERROR_TRANSACTION_SIGNATURE_LEN_MISMATCH: -32013,
+  JSON_RPC_SERVER_ERROR_BLOCK_STATUS_NOT_AVAILABLE_YET: -32014,
+  JSON_RPC_SERVER_ERROR_UNSUPPORTED_TRANSACTION_VERSION: -32015,
+  JSON_RPC_SERVER_ERROR_MIN_CONTEXT_SLOT_NOT_REACHED: -32016
+};
 class SolanaJSONRPCError extends Error {
   constructor({
     code,
@@ -39504,19 +50965,215 @@ class Connection {
   }
 
 }
+
+/**
+ * Keypair signer interface
+ */
+
+/**
+ * An account keypair used for signing transactions.
+ */
+class Keypair {
+  /**
+   * Create a new keypair instance.
+   * Generate random keypair if no {@link Ed25519Keypair} is provided.
+   *
+   * @param keypair ed25519 keypair
+   */
+  constructor(keypair) {
+    this._keypair = void 0;
+
+    if (keypair) {
+      this._keypair = keypair;
+    } else {
+      this._keypair = nacl.sign.keyPair();
+    }
+  }
+  /**
+   * Generate a new random keypair
+   */
+
+
+  static generate() {
+    return new Keypair(nacl.sign.keyPair());
+  }
+  /**
+   * Create a keypair from a raw secret key byte array.
+   *
+   * This method should only be used to recreate a keypair from a previously
+   * generated secret key. Generating keypairs from a random seed should be done
+   * with the {@link Keypair.fromSeed} method.
+   *
+   * @throws error if the provided secret key is invalid and validation is not skipped.
+   *
+   * @param secretKey secret key byte array
+   * @param options: skip secret key validation
+   */
+
+
+  static fromSecretKey(secretKey, options) {
+    const keypair = nacl.sign.keyPair.fromSecretKey(secretKey);
+
+    if (!options || !options.skipValidation) {
+      const encoder = new TextEncoder();
+      const signData = encoder.encode('@solana/web3.js-validation-v1');
+      const signature = nacl.sign.detached(signData, keypair.secretKey);
+
+      if (!nacl.sign.detached.verify(signData, signature, keypair.publicKey)) {
+        throw new Error('provided secretKey is invalid');
+      }
+    }
+
+    return new Keypair(keypair);
+  }
+  /**
+   * Generate a keypair from a 32 byte seed.
+   *
+   * @param seed seed byte array
+   */
+
+
+  static fromSeed(seed) {
+    return new Keypair(nacl.sign.keyPair.fromSeed(seed));
+  }
+  /**
+   * The public key for this keypair
+   */
+
+
+  get publicKey() {
+    return new PublicKey(this._keypair.publicKey);
+  }
+  /**
+   * The raw secret key for this keypair
+   */
+
+
+  get secretKey() {
+    return this._keypair.secretKey;
+  }
+
+}
+
+const PRIVATE_KEY_BYTES$1 = 64;
+const PUBLIC_KEY_BYTES$1 = 32;
+const SIGNATURE_BYTES = 64;
 /**
  * Params for creating an ed25519 instruction using a public key
  */
 
-struct([u8('numSignatures'), u8('padding'), u16('signatureOffset'), u16('signatureInstructionIndex'), u16('publicKeyOffset'), u16('publicKeyInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u16('messageInstructionIndex')]);
-new PublicKey('Ed25519SigVerify111111111111111111111111111');
+const ED25519_INSTRUCTION_LAYOUT = struct([u8('numSignatures'), u8('padding'), u16('signatureOffset'), u16('signatureInstructionIndex'), u16('publicKeyOffset'), u16('publicKeyInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u16('messageInstructionIndex')]);
+class Ed25519Program {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Public key that identifies the ed25519 program
+   */
+
+
+  /**
+   * Create an ed25519 instruction with a public key and signature. The
+   * public key must be a buffer that is 32 bytes long, and the signature
+   * must be a buffer of 64 bytes.
+   */
+  static createInstructionWithPublicKey(params) {
+    const {
+      publicKey,
+      message,
+      signature,
+      instructionIndex
+    } = params;
+    assert(publicKey.length === PUBLIC_KEY_BYTES$1, `Public Key must be ${PUBLIC_KEY_BYTES$1} bytes but received ${publicKey.length} bytes`);
+    assert(signature.length === SIGNATURE_BYTES, `Signature must be ${SIGNATURE_BYTES} bytes but received ${signature.length} bytes`);
+    const publicKeyOffset = ED25519_INSTRUCTION_LAYOUT.span;
+    const signatureOffset = publicKeyOffset + publicKey.length;
+    const messageDataOffset = signatureOffset + signature.length;
+    const numSignatures = 1;
+    const instructionData = Buffer.alloc(messageDataOffset + message.length);
+    const index = instructionIndex == null ? 0xffff // An index of `u16::MAX` makes it default to the current instruction.
+    : instructionIndex;
+    ED25519_INSTRUCTION_LAYOUT.encode({
+      numSignatures,
+      padding: 0,
+      signatureOffset,
+      signatureInstructionIndex: index,
+      publicKeyOffset,
+      publicKeyInstructionIndex: index,
+      messageDataOffset,
+      messageDataSize: message.length,
+      messageInstructionIndex: index
+    }, instructionData);
+    instructionData.fill(publicKey, publicKeyOffset);
+    instructionData.fill(signature, signatureOffset);
+    instructionData.fill(message, messageDataOffset);
+    return new TransactionInstruction({
+      keys: [],
+      programId: Ed25519Program.programId,
+      data: instructionData
+    });
+  }
+  /**
+   * Create an ed25519 instruction with a private key. The private key
+   * must be a buffer that is 64 bytes long.
+   */
+
+
+  static createInstructionWithPrivateKey(params) {
+    const {
+      privateKey,
+      message,
+      instructionIndex
+    } = params;
+    assert(privateKey.length === PRIVATE_KEY_BYTES$1, `Private key must be ${PRIVATE_KEY_BYTES$1} bytes but received ${privateKey.length} bytes`);
+
+    try {
+      const keypair = Keypair.fromSecretKey(privateKey);
+      const publicKey = keypair.publicKey.toBytes();
+      const signature = nacl.sign.detached(message, keypair.secretKey);
+      return this.createInstructionWithPublicKey({
+        publicKey,
+        message,
+        signature,
+        instructionIndex
+      });
+    } catch (error) {
+      throw new Error(`Error creating instruction; ${error}`);
+    }
+  }
+
+}
+Ed25519Program.programId = new PublicKey('Ed25519SigVerify111111111111111111111111111');
 
 /**
  * Address of the stake config account which configures the rate
  * of stake warmup and cooldown as well as the slashing penalty.
  */
 
-new PublicKey('StakeConfig11111111111111111111111111111111');
+const STAKE_CONFIG_ID = new PublicKey('StakeConfig11111111111111111111111111111111');
+/**
+ * Stake account authority info
+ */
+
+class Authorized {
+  /** stake authority */
+
+  /** withdraw authority */
+
+  /**
+   * Create a new Authorized object
+   * @param staker the stake authority
+   * @param withdrawer the withdraw authority
+   */
+  constructor(staker, withdrawer) {
+    this.staker = void 0;
+    this.withdrawer = void 0;
+    this.staker = staker;
+    this.withdrawer = withdrawer;
+  }
+
+}
 
 /**
  * Stake account lockup info
@@ -39546,6 +51203,223 @@ class Lockup {
 
 }
 Lockup.default = new Lockup(0, 0, PublicKey.default);
+
+/**
+ * Stake Instruction class
+ */
+class StakeInstruction {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Decode a stake instruction and retrieve the instruction type.
+   */
+
+
+  static decodeInstructionType(instruction) {
+    this.checkProgramId(instruction.programId);
+    const instructionTypeLayout = u32('instruction');
+    const typeIndex = instructionTypeLayout.decode(instruction.data);
+    let type;
+
+    for (const [ixType, layout] of Object.entries(STAKE_INSTRUCTION_LAYOUTS)) {
+      if (layout.index == typeIndex) {
+        type = ixType;
+        break;
+      }
+    }
+
+    if (!type) {
+      throw new Error('Instruction type incorrect; not a StakeInstruction');
+    }
+
+    return type;
+  }
+  /**
+   * Decode a initialize stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeInitialize(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 2);
+    const {
+      authorized,
+      lockup
+    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Initialize, instruction.data);
+    return {
+      stakePubkey: instruction.keys[0].pubkey,
+      authorized: new Authorized(new PublicKey(authorized.staker), new PublicKey(authorized.withdrawer)),
+      lockup: new Lockup(lockup.unixTimestamp, lockup.epoch, new PublicKey(lockup.custodian))
+    };
+  }
+  /**
+   * Decode a delegate stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeDelegate(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 6);
+    decodeData(STAKE_INSTRUCTION_LAYOUTS.Delegate, instruction.data);
+    return {
+      stakePubkey: instruction.keys[0].pubkey,
+      votePubkey: instruction.keys[1].pubkey,
+      authorizedPubkey: instruction.keys[5].pubkey
+    };
+  }
+  /**
+   * Decode an authorize stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAuthorize(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    const {
+      newAuthorized,
+      stakeAuthorizationType
+    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Authorize, instruction.data);
+    const o = {
+      stakePubkey: instruction.keys[0].pubkey,
+      authorizedPubkey: instruction.keys[2].pubkey,
+      newAuthorizedPubkey: new PublicKey(newAuthorized),
+      stakeAuthorizationType: {
+        index: stakeAuthorizationType
+      }
+    };
+
+    if (instruction.keys.length > 3) {
+      o.custodianPubkey = instruction.keys[3].pubkey;
+    }
+
+    return o;
+  }
+  /**
+   * Decode an authorize-with-seed stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAuthorizeWithSeed(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 2);
+    const {
+      newAuthorized,
+      stakeAuthorizationType,
+      authoritySeed,
+      authorityOwner
+    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.AuthorizeWithSeed, instruction.data);
+    const o = {
+      stakePubkey: instruction.keys[0].pubkey,
+      authorityBase: instruction.keys[1].pubkey,
+      authoritySeed: authoritySeed,
+      authorityOwner: new PublicKey(authorityOwner),
+      newAuthorizedPubkey: new PublicKey(newAuthorized),
+      stakeAuthorizationType: {
+        index: stakeAuthorizationType
+      }
+    };
+
+    if (instruction.keys.length > 3) {
+      o.custodianPubkey = instruction.keys[3].pubkey;
+    }
+
+    return o;
+  }
+  /**
+   * Decode a split stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeSplit(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    const {
+      lamports
+    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Split, instruction.data);
+    return {
+      stakePubkey: instruction.keys[0].pubkey,
+      splitStakePubkey: instruction.keys[1].pubkey,
+      authorizedPubkey: instruction.keys[2].pubkey,
+      lamports
+    };
+  }
+  /**
+   * Decode a merge stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeMerge(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    decodeData(STAKE_INSTRUCTION_LAYOUTS.Merge, instruction.data);
+    return {
+      stakePubkey: instruction.keys[0].pubkey,
+      sourceStakePubKey: instruction.keys[1].pubkey,
+      authorizedPubkey: instruction.keys[4].pubkey
+    };
+  }
+  /**
+   * Decode a withdraw stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeWithdraw(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 5);
+    const {
+      lamports
+    } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Withdraw, instruction.data);
+    const o = {
+      stakePubkey: instruction.keys[0].pubkey,
+      toPubkey: instruction.keys[1].pubkey,
+      authorizedPubkey: instruction.keys[4].pubkey,
+      lamports
+    };
+
+    if (instruction.keys.length > 5) {
+      o.custodianPubkey = instruction.keys[5].pubkey;
+    }
+
+    return o;
+  }
+  /**
+   * Decode a deactivate stake instruction and retrieve the instruction params.
+   */
+
+
+  static decodeDeactivate(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    decodeData(STAKE_INSTRUCTION_LAYOUTS.Deactivate, instruction.data);
+    return {
+      stakePubkey: instruction.keys[0].pubkey,
+      authorizedPubkey: instruction.keys[2].pubkey
+    };
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkProgramId(programId) {
+    if (!programId.equals(StakeProgram.programId)) {
+      throw new Error('invalid instruction; programId is not StakeProgram');
+    }
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkKeyLength(keys, expectedLength) {
+    if (keys.length < expectedLength) {
+      throw new Error(`invalid instruction; found ${keys.length} keys, expected at least ${expectedLength}`);
+    }
+  }
+
+}
 /**
  * An enumeration of valid StakeInstructionType's
  */
@@ -39554,7 +51428,7 @@ Lockup.default = new Lockup(0, 0, PublicKey.default);
  * An enumeration of valid stake InstructionType's
  * @internal
  */
-Object.freeze({
+const STAKE_INSTRUCTION_LAYOUTS = Object.freeze({
   Initialize: {
     index: 0,
     layout: struct([u32('instruction'), authorized(), lockup()])
@@ -39595,7 +51469,7 @@ Object.freeze({
 /**
  * An enumeration of valid StakeAuthorizationLayout's
  */
-Object.freeze({
+const StakeAuthorizationLayout = Object.freeze({
   Staker: {
     index: 0
   },
@@ -39603,42 +51477,928 @@ Object.freeze({
     index: 1
   }
 });
-new PublicKey('Stake11111111111111111111111111111111111111');
+/**
+ * Factory class for transactions to interact with the Stake program
+ */
+
+class StakeProgram {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Public key that identifies the Stake program
+   */
+
+
+  /**
+   * Generate an Initialize instruction to add to a Stake Create transaction
+   */
+  static initialize(params) {
+    const {
+      stakePubkey,
+      authorized,
+      lockup: maybeLockup
+    } = params;
+    const lockup = maybeLockup || Lockup.default;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Initialize;
+    const data = encodeData(type, {
+      authorized: {
+        staker: toBuffer(authorized.staker.toBuffer()),
+        withdrawer: toBuffer(authorized.withdrawer.toBuffer())
+      },
+      lockup: {
+        unixTimestamp: lockup.unixTimestamp,
+        epoch: lockup.epoch,
+        custodian: toBuffer(lockup.custodian.toBuffer())
+      }
+    });
+    const instructionData = {
+      keys: [{
+        pubkey: stakePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_RENT_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    };
+    return new TransactionInstruction(instructionData);
+  }
+  /**
+   * Generate a Transaction that creates a new Stake account at
+   *   an address generated with `from`, a seed, and the Stake programId
+   */
+
+
+  static createAccountWithSeed(params) {
+    const transaction = new Transaction();
+    transaction.add(SystemProgram.createAccountWithSeed({
+      fromPubkey: params.fromPubkey,
+      newAccountPubkey: params.stakePubkey,
+      basePubkey: params.basePubkey,
+      seed: params.seed,
+      lamports: params.lamports,
+      space: this.space,
+      programId: this.programId
+    }));
+    const {
+      stakePubkey,
+      authorized,
+      lockup
+    } = params;
+    return transaction.add(this.initialize({
+      stakePubkey,
+      authorized,
+      lockup
+    }));
+  }
+  /**
+   * Generate a Transaction that creates a new Stake account
+   */
+
+
+  static createAccount(params) {
+    const transaction = new Transaction();
+    transaction.add(SystemProgram.createAccount({
+      fromPubkey: params.fromPubkey,
+      newAccountPubkey: params.stakePubkey,
+      lamports: params.lamports,
+      space: this.space,
+      programId: this.programId
+    }));
+    const {
+      stakePubkey,
+      authorized,
+      lockup
+    } = params;
+    return transaction.add(this.initialize({
+      stakePubkey,
+      authorized,
+      lockup
+    }));
+  }
+  /**
+   * Generate a Transaction that delegates Stake tokens to a validator
+   * Vote PublicKey. This transaction can also be used to redelegate Stake
+   * to a new validator Vote PublicKey.
+   */
+
+
+  static delegate(params) {
+    const {
+      stakePubkey,
+      authorizedPubkey,
+      votePubkey
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Delegate;
+    const data = encodeData(type);
+    return new Transaction().add({
+      keys: [{
+        pubkey: stakePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: votePubkey,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: SYSVAR_CLOCK_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: SYSVAR_STAKE_HISTORY_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: STAKE_CONFIG_ID,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a Transaction that authorizes a new PublicKey as Staker
+   * or Withdrawer on the Stake account.
+   */
+
+
+  static authorize(params) {
+    const {
+      stakePubkey,
+      authorizedPubkey,
+      newAuthorizedPubkey,
+      stakeAuthorizationType,
+      custodianPubkey
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Authorize;
+    const data = encodeData(type, {
+      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
+      stakeAuthorizationType: stakeAuthorizationType.index
+    });
+    const keys = [{
+      pubkey: stakePubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: SYSVAR_CLOCK_PUBKEY,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: authorizedPubkey,
+      isSigner: true,
+      isWritable: false
+    }];
+
+    if (custodianPubkey) {
+      keys.push({
+        pubkey: custodianPubkey,
+        isSigner: false,
+        isWritable: false
+      });
+    }
+
+    return new Transaction().add({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a Transaction that authorizes a new PublicKey as Staker
+   * or Withdrawer on the Stake account.
+   */
+
+
+  static authorizeWithSeed(params) {
+    const {
+      stakePubkey,
+      authorityBase,
+      authoritySeed,
+      authorityOwner,
+      newAuthorizedPubkey,
+      stakeAuthorizationType,
+      custodianPubkey
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.AuthorizeWithSeed;
+    const data = encodeData(type, {
+      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
+      stakeAuthorizationType: stakeAuthorizationType.index,
+      authoritySeed: authoritySeed,
+      authorityOwner: toBuffer(authorityOwner.toBuffer())
+    });
+    const keys = [{
+      pubkey: stakePubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: authorityBase,
+      isSigner: true,
+      isWritable: false
+    }, {
+      pubkey: SYSVAR_CLOCK_PUBKEY,
+      isSigner: false,
+      isWritable: false
+    }];
+
+    if (custodianPubkey) {
+      keys.push({
+        pubkey: custodianPubkey,
+        isSigner: false,
+        isWritable: false
+      });
+    }
+
+    return new Transaction().add({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * @internal
+   */
+
+
+  static splitInstruction(params) {
+    const {
+      stakePubkey,
+      authorizedPubkey,
+      splitStakePubkey,
+      lamports
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Split;
+    const data = encodeData(type, {
+      lamports
+    });
+    return new TransactionInstruction({
+      keys: [{
+        pubkey: stakePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: splitStakePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a Transaction that splits Stake tokens into another stake account
+   */
+
+
+  static split(params) {
+    const transaction = new Transaction();
+    transaction.add(SystemProgram.createAccount({
+      fromPubkey: params.authorizedPubkey,
+      newAccountPubkey: params.splitStakePubkey,
+      lamports: 0,
+      space: this.space,
+      programId: this.programId
+    }));
+    return transaction.add(this.splitInstruction(params));
+  }
+  /**
+   * Generate a Transaction that splits Stake tokens into another account
+   * derived from a base public key and seed
+   */
+
+
+  static splitWithSeed(params) {
+    const {
+      stakePubkey,
+      authorizedPubkey,
+      splitStakePubkey,
+      basePubkey,
+      seed,
+      lamports
+    } = params;
+    const transaction = new Transaction();
+    transaction.add(SystemProgram.allocate({
+      accountPubkey: splitStakePubkey,
+      basePubkey,
+      seed,
+      space: this.space,
+      programId: this.programId
+    }));
+    return transaction.add(this.splitInstruction({
+      stakePubkey,
+      authorizedPubkey,
+      splitStakePubkey,
+      lamports
+    }));
+  }
+  /**
+   * Generate a Transaction that merges Stake accounts.
+   */
+
+
+  static merge(params) {
+    const {
+      stakePubkey,
+      sourceStakePubKey,
+      authorizedPubkey
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Merge;
+    const data = encodeData(type);
+    return new Transaction().add({
+      keys: [{
+        pubkey: stakePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: sourceStakePubKey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_CLOCK_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: SYSVAR_STAKE_HISTORY_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a Transaction that withdraws deactivated Stake tokens.
+   */
+
+
+  static withdraw(params) {
+    const {
+      stakePubkey,
+      authorizedPubkey,
+      toPubkey,
+      lamports,
+      custodianPubkey
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Withdraw;
+    const data = encodeData(type, {
+      lamports
+    });
+    const keys = [{
+      pubkey: stakePubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: toPubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: SYSVAR_CLOCK_PUBKEY,
+      isSigner: false,
+      isWritable: false
+    }, {
+      pubkey: SYSVAR_STAKE_HISTORY_PUBKEY,
+      isSigner: false,
+      isWritable: false
+    }, {
+      pubkey: authorizedPubkey,
+      isSigner: true,
+      isWritable: false
+    }];
+
+    if (custodianPubkey) {
+      keys.push({
+        pubkey: custodianPubkey,
+        isSigner: false,
+        isWritable: false
+      });
+    }
+
+    return new Transaction().add({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a Transaction that deactivates Stake tokens.
+   */
+
+
+  static deactivate(params) {
+    const {
+      stakePubkey,
+      authorizedPubkey
+    } = params;
+    const type = STAKE_INSTRUCTION_LAYOUTS.Deactivate;
+    const data = encodeData(type);
+    return new Transaction().add({
+      keys: [{
+        pubkey: stakePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_CLOCK_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: authorizedPubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    });
+  }
+
+}
+StakeProgram.programId = new PublicKey('Stake11111111111111111111111111111111111111');
+StakeProgram.space = 200;
+
+const {
+  publicKeyCreate,
+  ecdsaSign
+} = secp256k1;
+const PRIVATE_KEY_BYTES = 32;
+const ETHEREUM_ADDRESS_BYTES = 20;
+const PUBLIC_KEY_BYTES = 64;
+const SIGNATURE_OFFSETS_SERIALIZED_SIZE = 11;
 /**
  * Params for creating an secp256k1 instruction using a public key
  */
 
-struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
-new PublicKey('KeccakSecp256k11111111111111111111111111111');
+const SECP256K1_INSTRUCTION_LAYOUT = struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
+class Secp256k1Program {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Public key that identifies the secp256k1 program
+   */
 
-new PublicKey('Va1idator1nfo111111111111111111111111111111');
+
+  /**
+   * Construct an Ethereum address from a secp256k1 public key buffer.
+   * @param {Buffer} publicKey a 64 byte secp256k1 public key buffer
+   */
+  static publicKeyToEthAddress(publicKey) {
+    assert(publicKey.length === PUBLIC_KEY_BYTES, `Public key must be ${PUBLIC_KEY_BYTES} bytes but received ${publicKey.length} bytes`);
+
+    try {
+      return Buffer.from(sha3.keccak_256.update(toBuffer(publicKey)).digest()).slice(-ETHEREUM_ADDRESS_BYTES);
+    } catch (error) {
+      throw new Error(`Error constructing Ethereum address: ${error}`);
+    }
+  }
+  /**
+   * Create an secp256k1 instruction with a public key. The public key
+   * must be a buffer that is 64 bytes long.
+   */
+
+
+  static createInstructionWithPublicKey(params) {
+    const {
+      publicKey,
+      message,
+      signature,
+      recoveryId,
+      instructionIndex
+    } = params;
+    return Secp256k1Program.createInstructionWithEthAddress({
+      ethAddress: Secp256k1Program.publicKeyToEthAddress(publicKey),
+      message,
+      signature,
+      recoveryId,
+      instructionIndex
+    });
+  }
+  /**
+   * Create an secp256k1 instruction with an Ethereum address. The address
+   * must be a hex string or a buffer that is 20 bytes long.
+   */
+
+
+  static createInstructionWithEthAddress(params) {
+    const {
+      ethAddress: rawAddress,
+      message,
+      signature,
+      recoveryId,
+      instructionIndex = 0
+    } = params;
+    let ethAddress;
+
+    if (typeof rawAddress === 'string') {
+      if (rawAddress.startsWith('0x')) {
+        ethAddress = Buffer.from(rawAddress.substr(2), 'hex');
+      } else {
+        ethAddress = Buffer.from(rawAddress, 'hex');
+      }
+    } else {
+      ethAddress = rawAddress;
+    }
+
+    assert(ethAddress.length === ETHEREUM_ADDRESS_BYTES, `Address must be ${ETHEREUM_ADDRESS_BYTES} bytes but received ${ethAddress.length} bytes`);
+    const dataStart = 1 + SIGNATURE_OFFSETS_SERIALIZED_SIZE;
+    const ethAddressOffset = dataStart;
+    const signatureOffset = dataStart + ethAddress.length;
+    const messageDataOffset = signatureOffset + signature.length + 1;
+    const numSignatures = 1;
+    const instructionData = Buffer.alloc(SECP256K1_INSTRUCTION_LAYOUT.span + message.length);
+    SECP256K1_INSTRUCTION_LAYOUT.encode({
+      numSignatures,
+      signatureOffset,
+      signatureInstructionIndex: instructionIndex,
+      ethAddressOffset,
+      ethAddressInstructionIndex: instructionIndex,
+      messageDataOffset,
+      messageDataSize: message.length,
+      messageInstructionIndex: instructionIndex,
+      signature: toBuffer(signature),
+      ethAddress: toBuffer(ethAddress),
+      recoveryId
+    }, instructionData);
+    instructionData.fill(toBuffer(message), SECP256K1_INSTRUCTION_LAYOUT.span);
+    return new TransactionInstruction({
+      keys: [],
+      programId: Secp256k1Program.programId,
+      data: instructionData
+    });
+  }
+  /**
+   * Create an secp256k1 instruction with a private key. The private key
+   * must be a buffer that is 32 bytes long.
+   */
+
+
+  static createInstructionWithPrivateKey(params) {
+    const {
+      privateKey: pkey,
+      message,
+      instructionIndex
+    } = params;
+    assert(pkey.length === PRIVATE_KEY_BYTES, `Private key must be ${PRIVATE_KEY_BYTES} bytes but received ${pkey.length} bytes`);
+
+    try {
+      const privateKey = toBuffer(pkey);
+      const publicKey = publicKeyCreate(privateKey, false).slice(1); // throw away leading byte
+
+      const messageHash = Buffer.from(sha3.keccak_256.update(toBuffer(message)).digest());
+      const {
+        signature,
+        recid: recoveryId
+      } = ecdsaSign(messageHash, privateKey);
+      return this.createInstructionWithPublicKey({
+        publicKey,
+        message,
+        signature,
+        recoveryId,
+        instructionIndex
+      });
+    } catch (error) {
+      throw new Error(`Error creating instruction; ${error}`);
+    }
+  }
+
+}
+Secp256k1Program.programId = new PublicKey('KeccakSecp256k11111111111111111111111111111');
+
+const VALIDATOR_INFO_KEY = new PublicKey('Va1idator1nfo111111111111111111111111111111');
 /**
  * @internal
  */
 
-type$1({
+const InfoString = type$1({
   name: string(),
   website: optional(string()),
   details: optional(string()),
   keybaseUsername: optional(string())
 });
+/**
+ * ValidatorInfo class
+ */
 
-new PublicKey('Vote111111111111111111111111111111111111111');
+class ValidatorInfo {
+  /**
+   * validator public key
+   */
+
+  /**
+   * validator information
+   */
+
+  /**
+   * Construct a valid ValidatorInfo
+   *
+   * @param key validator public key
+   * @param info validator information
+   */
+  constructor(key, info) {
+    this.key = void 0;
+    this.info = void 0;
+    this.key = key;
+    this.info = info;
+  }
+  /**
+   * Deserialize ValidatorInfo from the config account data. Exactly two config
+   * keys are required in the data.
+   *
+   * @param buffer config account data
+   * @return null if info was not found
+   */
+
+
+  static fromConfigData(buffer) {
+    const PUBKEY_LENGTH = 32;
+    let byteArray = [...buffer];
+    const configKeyCount = decodeLength(byteArray);
+    if (configKeyCount !== 2) return null;
+    const configKeys = [];
+
+    for (let i = 0; i < 2; i++) {
+      const publicKey = new PublicKey(byteArray.slice(0, PUBKEY_LENGTH));
+      byteArray = byteArray.slice(PUBKEY_LENGTH);
+      const isSigner = byteArray.slice(0, 1)[0] === 1;
+      byteArray = byteArray.slice(1);
+      configKeys.push({
+        publicKey,
+        isSigner
+      });
+    }
+
+    if (configKeys[0].publicKey.equals(VALIDATOR_INFO_KEY)) {
+      if (configKeys[1].isSigner) {
+        const rawInfo = rustString().decode(Buffer.from(byteArray));
+        const info = JSON.parse(rawInfo);
+        assert$p(info, InfoString);
+        return new ValidatorInfo(configKeys[1].publicKey, info);
+      }
+    }
+
+    return null;
+  }
+
+}
+
+const VOTE_PROGRAM_ID = new PublicKey('Vote111111111111111111111111111111111111111');
 
 /**
  * See https://github.com/solana-labs/solana/blob/8a12ed029cfa38d4a45400916c2463fb82bbec8c/programs/vote_api/src/vote_state.rs#L68-L88
  *
  * @internal
  */
-struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
+const VoteAccountLayout = struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
 seq(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
 seq(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
 seq(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
+
+/**
+ * VoteAccount class
+ */
+class VoteAccount {
+  /**
+   * @internal
+   */
+  constructor(args) {
+    this.nodePubkey = void 0;
+    this.authorizedWithdrawer = void 0;
+    this.commission = void 0;
+    this.rootSlot = void 0;
+    this.votes = void 0;
+    this.authorizedVoters = void 0;
+    this.priorVoters = void 0;
+    this.epochCredits = void 0;
+    this.lastTimestamp = void 0;
+    this.nodePubkey = args.nodePubkey;
+    this.authorizedWithdrawer = args.authorizedWithdrawer;
+    this.commission = args.commission;
+    this.rootSlot = args.rootSlot;
+    this.votes = args.votes;
+    this.authorizedVoters = args.authorizedVoters;
+    this.priorVoters = args.priorVoters;
+    this.epochCredits = args.epochCredits;
+    this.lastTimestamp = args.lastTimestamp;
+  }
+  /**
+   * Deserialize VoteAccount from the account data.
+   *
+   * @param buffer account data
+   * @return VoteAccount
+   */
+
+
+  static fromAccountData(buffer) {
+    const versionOffset = 4;
+    const va = VoteAccountLayout.decode(toBuffer(buffer), versionOffset);
+    let rootSlot = va.rootSlot;
+
+    if (!va.rootSlotValid) {
+      rootSlot = null;
+    }
+
+    return new VoteAccount({
+      nodePubkey: new PublicKey(va.nodePubkey),
+      authorizedWithdrawer: new PublicKey(va.authorizedWithdrawer),
+      commission: va.commission,
+      votes: va.votes,
+      rootSlot,
+      authorizedVoters: va.authorizedVoters.map(parseAuthorizedVoter),
+      priorVoters: getPriorVoters(va.priorVoters),
+      epochCredits: va.epochCredits,
+      lastTimestamp: va.lastTimestamp
+    });
+  }
+
+}
+
+function parseAuthorizedVoter({
+  authorizedVoter,
+  epoch
+}) {
+  return {
+    epoch,
+    authorizedVoter: new PublicKey(authorizedVoter)
+  };
+}
+
+function parsePriorVoters({
+  authorizedPubkey,
+  epochOfLastAuthorizedSwitch,
+  targetEpoch
+}) {
+  return {
+    authorizedPubkey: new PublicKey(authorizedPubkey),
+    epochOfLastAuthorizedSwitch,
+    targetEpoch
+  };
+}
+
+function getPriorVoters({
+  buf,
+  idx,
+  isEmpty
+}) {
+  if (isEmpty) {
+    return [];
+  }
+
+  return [...buf.slice(idx + 1).map(parsePriorVoters), ...buf.slice(0, idx).map(parsePriorVoters)];
+}
+
+/**
+ * Vote account info
+ */
+
+class VoteInit {
+  /** [0, 100] */
+  constructor(nodePubkey, authorizedVoter, authorizedWithdrawer, commission) {
+    this.nodePubkey = void 0;
+    this.authorizedVoter = void 0;
+    this.authorizedWithdrawer = void 0;
+    this.commission = void 0;
+    this.nodePubkey = nodePubkey;
+    this.authorizedVoter = authorizedVoter;
+    this.authorizedWithdrawer = authorizedWithdrawer;
+    this.commission = commission;
+  }
+
+}
+/**
+ * Create vote account transaction params
+ */
+
+/**
+ * Vote Instruction class
+ */
+class VoteInstruction {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Decode a vote instruction and retrieve the instruction type.
+   */
+
+
+  static decodeInstructionType(instruction) {
+    this.checkProgramId(instruction.programId);
+    const instructionTypeLayout = u32('instruction');
+    const typeIndex = instructionTypeLayout.decode(instruction.data);
+    let type;
+
+    for (const [ixType, layout] of Object.entries(VOTE_INSTRUCTION_LAYOUTS)) {
+      if (layout.index == typeIndex) {
+        type = ixType;
+        break;
+      }
+    }
+
+    if (!type) {
+      throw new Error('Instruction type incorrect; not a VoteInstruction');
+    }
+
+    return type;
+  }
+  /**
+   * Decode an initialize vote instruction and retrieve the instruction params.
+   */
+
+
+  static decodeInitializeAccount(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 4);
+    const {
+      voteInit
+    } = decodeData(VOTE_INSTRUCTION_LAYOUTS.InitializeAccount, instruction.data);
+    return {
+      votePubkey: instruction.keys[0].pubkey,
+      nodePubkey: instruction.keys[3].pubkey,
+      voteInit: new VoteInit(new PublicKey(voteInit.nodePubkey), new PublicKey(voteInit.authorizedVoter), new PublicKey(voteInit.authorizedWithdrawer), voteInit.commission)
+    };
+  }
+  /**
+   * Decode an authorize instruction and retrieve the instruction params.
+   */
+
+
+  static decodeAuthorize(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    const {
+      newAuthorized,
+      voteAuthorizationType
+    } = decodeData(VOTE_INSTRUCTION_LAYOUTS.Authorize, instruction.data);
+    return {
+      votePubkey: instruction.keys[0].pubkey,
+      authorizedPubkey: instruction.keys[2].pubkey,
+      newAuthorizedPubkey: new PublicKey(newAuthorized),
+      voteAuthorizationType: {
+        index: voteAuthorizationType
+      }
+    };
+  }
+  /**
+   * Decode a withdraw instruction and retrieve the instruction params.
+   */
+
+
+  static decodeWithdraw(instruction) {
+    this.checkProgramId(instruction.programId);
+    this.checkKeyLength(instruction.keys, 3);
+    const {
+      lamports
+    } = decodeData(VOTE_INSTRUCTION_LAYOUTS.Withdraw, instruction.data);
+    return {
+      votePubkey: instruction.keys[0].pubkey,
+      authorizedWithdrawerPubkey: instruction.keys[2].pubkey,
+      lamports,
+      toPubkey: instruction.keys[1].pubkey
+    };
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkProgramId(programId) {
+    if (!programId.equals(VoteProgram.programId)) {
+      throw new Error('invalid instruction; programId is not VoteProgram');
+    }
+  }
+  /**
+   * @internal
+   */
+
+
+  static checkKeyLength(keys, expectedLength) {
+    if (keys.length < expectedLength) {
+      throw new Error(`invalid instruction; found ${keys.length} keys, expected at least ${expectedLength}`);
+    }
+  }
+
+}
 /**
  * An enumeration of valid VoteInstructionType's
  */
 
-Object.freeze({
+const VOTE_INSTRUCTION_LAYOUTS = Object.freeze({
   InitializeAccount: {
     index: 0,
     layout: struct([u32('instruction'), voteInit()])
@@ -39659,7 +52419,7 @@ Object.freeze({
 /**
  * An enumeration of valid VoteAuthorization layouts.
  */
-Object.freeze({
+const VoteAuthorizationLayout = Object.freeze({
   Voter: {
     index: 0
   },
@@ -39667,7 +52427,234 @@ Object.freeze({
     index: 1
   }
 });
-new PublicKey('Vote111111111111111111111111111111111111111');
+/**
+ * Factory class for transactions to interact with the Vote program
+ */
+
+class VoteProgram {
+  /**
+   * @internal
+   */
+  constructor() {}
+  /**
+   * Public key that identifies the Vote program
+   */
+
+
+  /**
+   * Generate an Initialize instruction.
+   */
+  static initializeAccount(params) {
+    const {
+      votePubkey,
+      nodePubkey,
+      voteInit
+    } = params;
+    const type = VOTE_INSTRUCTION_LAYOUTS.InitializeAccount;
+    const data = encodeData(type, {
+      voteInit: {
+        nodePubkey: toBuffer(voteInit.nodePubkey.toBuffer()),
+        authorizedVoter: toBuffer(voteInit.authorizedVoter.toBuffer()),
+        authorizedWithdrawer: toBuffer(voteInit.authorizedWithdrawer.toBuffer()),
+        commission: voteInit.commission
+      }
+    });
+    const instructionData = {
+      keys: [{
+        pubkey: votePubkey,
+        isSigner: false,
+        isWritable: true
+      }, {
+        pubkey: SYSVAR_RENT_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: SYSVAR_CLOCK_PUBKEY,
+        isSigner: false,
+        isWritable: false
+      }, {
+        pubkey: nodePubkey,
+        isSigner: true,
+        isWritable: false
+      }],
+      programId: this.programId,
+      data
+    };
+    return new TransactionInstruction(instructionData);
+  }
+  /**
+   * Generate a transaction that creates a new Vote account.
+   */
+
+
+  static createAccount(params) {
+    const transaction = new Transaction();
+    transaction.add(SystemProgram.createAccount({
+      fromPubkey: params.fromPubkey,
+      newAccountPubkey: params.votePubkey,
+      lamports: params.lamports,
+      space: this.space,
+      programId: this.programId
+    }));
+    return transaction.add(this.initializeAccount({
+      votePubkey: params.votePubkey,
+      nodePubkey: params.voteInit.nodePubkey,
+      voteInit: params.voteInit
+    }));
+  }
+  /**
+   * Generate a transaction that authorizes a new Voter or Withdrawer on the Vote account.
+   */
+
+
+  static authorize(params) {
+    const {
+      votePubkey,
+      authorizedPubkey,
+      newAuthorizedPubkey,
+      voteAuthorizationType
+    } = params;
+    const type = VOTE_INSTRUCTION_LAYOUTS.Authorize;
+    const data = encodeData(type, {
+      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
+      voteAuthorizationType: voteAuthorizationType.index
+    });
+    const keys = [{
+      pubkey: votePubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: SYSVAR_CLOCK_PUBKEY,
+      isSigner: false,
+      isWritable: false
+    }, {
+      pubkey: authorizedPubkey,
+      isSigner: true,
+      isWritable: false
+    }];
+    return new Transaction().add({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+  /**
+   * Generate a transaction to withdraw from a Vote account.
+   */
+
+
+  static withdraw(params) {
+    const {
+      votePubkey,
+      authorizedWithdrawerPubkey,
+      lamports,
+      toPubkey
+    } = params;
+    const type = VOTE_INSTRUCTION_LAYOUTS.Withdraw;
+    const data = encodeData(type, {
+      lamports
+    });
+    const keys = [{
+      pubkey: votePubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: toPubkey,
+      isSigner: false,
+      isWritable: true
+    }, {
+      pubkey: authorizedWithdrawerPubkey,
+      isSigner: true,
+      isWritable: false
+    }];
+    return new Transaction().add({
+      keys,
+      programId: this.programId,
+      data
+    });
+  }
+
+}
+VoteProgram.programId = new PublicKey('Vote111111111111111111111111111111111111111');
+VoteProgram.space = 3731;
+
+/**
+ * Send and confirm a raw transaction
+ *
+ * If `commitment` option is not specified, defaults to 'max' commitment.
+ *
+ * @param {Connection} connection
+ * @param {Buffer} rawTransaction
+ * @param {BlockheightBasedTransactionConfirmationStrategy} confirmationStrategy
+ * @param {ConfirmOptions} [options]
+ * @returns {Promise<TransactionSignature>}
+ */
+
+/**
+ * @deprecated Calling `sendAndConfirmRawTransaction()` without a `confirmationStrategy`
+ * is no longer supported and will be removed in a future version.
+ */
+// eslint-disable-next-line no-redeclare
+// eslint-disable-next-line no-redeclare
+async function sendAndConfirmRawTransaction(connection, rawTransaction, confirmationStrategyOrConfirmOptions, maybeConfirmOptions) {
+  let confirmationStrategy;
+  let options;
+
+  if (confirmationStrategyOrConfirmOptions && Object.prototype.hasOwnProperty.call(confirmationStrategyOrConfirmOptions, 'lastValidBlockHeight')) {
+    confirmationStrategy = confirmationStrategyOrConfirmOptions;
+    options = maybeConfirmOptions;
+  } else {
+    options = confirmationStrategyOrConfirmOptions;
+  }
+
+  const sendOptions = options && {
+    skipPreflight: options.skipPreflight,
+    preflightCommitment: options.preflightCommitment || options.commitment,
+    minContextSlot: options.minContextSlot
+  };
+  const signature = await connection.sendRawTransaction(rawTransaction, sendOptions);
+  const commitment = options && options.commitment;
+  const confirmationPromise = confirmationStrategy ? connection.confirmTransaction(confirmationStrategy, commitment) : connection.confirmTransaction(signature, commitment);
+  const status = (await confirmationPromise).value;
+
+  if (status.err) {
+    throw new Error(`Raw transaction ${signature} failed (${JSON.stringify(status)})`);
+  }
+
+  return signature;
+}
+
+const endpoint = {
+  http: {
+    devnet: 'http://api.devnet.solana.com',
+    testnet: 'http://api.testnet.solana.com',
+    'mainnet-beta': 'http://api.mainnet-beta.solana.com/'
+  },
+  https: {
+    devnet: 'https://api.devnet.solana.com',
+    testnet: 'https://api.testnet.solana.com',
+    'mainnet-beta': 'https://api.mainnet-beta.solana.com/'
+  }
+};
+
+/**
+ * Retrieves the RPC API URL for the specified cluster
+ */
+function clusterApiUrl(cluster, tls) {
+  const key = tls === false ? 'http' : 'https';
+
+  if (!cluster) {
+    return endpoint[key]['devnet'];
+  }
+
+  const url = endpoint[key][cluster];
+
+  if (!url) {
+    throw new Error(`Unknown ${key} cluster: ${cluster}`);
+  }
+
+  return url;
+}
 
 /**
  * There are 1-billion lamports in one SOL
@@ -39675,4 +52662,6247 @@ new PublicKey('Vote111111111111111111111111111111111111111');
 
 const LAMPORTS_PER_SOL = 1000000000;
 
-export { Connection, LAMPORTS_PER_SOL, PublicKey };
+var index_browser_esm = /*#__PURE__*/Object.freeze({
+	__proto__: null,
+	Account: Account,
+	Authorized: Authorized,
+	BLOCKHASH_CACHE_TIMEOUT_MS: BLOCKHASH_CACHE_TIMEOUT_MS,
+	BPF_LOADER_DEPRECATED_PROGRAM_ID: BPF_LOADER_DEPRECATED_PROGRAM_ID,
+	BPF_LOADER_PROGRAM_ID: BPF_LOADER_PROGRAM_ID,
+	BpfLoader: BpfLoader,
+	COMPUTE_BUDGET_INSTRUCTION_LAYOUTS: COMPUTE_BUDGET_INSTRUCTION_LAYOUTS,
+	ComputeBudgetInstruction: ComputeBudgetInstruction,
+	ComputeBudgetProgram: ComputeBudgetProgram,
+	Connection: Connection,
+	Ed25519Program: Ed25519Program,
+	Enum: Enum,
+	EpochSchedule: EpochSchedule,
+	FeeCalculatorLayout: FeeCalculatorLayout,
+	Keypair: Keypair,
+	LAMPORTS_PER_SOL: LAMPORTS_PER_SOL,
+	Loader: Loader,
+	Lockup: Lockup,
+	MAX_SEED_LENGTH: MAX_SEED_LENGTH,
+	Message: Message,
+	NONCE_ACCOUNT_LENGTH: NONCE_ACCOUNT_LENGTH,
+	NonceAccount: NonceAccount,
+	PACKET_DATA_SIZE: PACKET_DATA_SIZE,
+	PublicKey: PublicKey,
+	SIGNATURE_LENGTH_IN_BYTES: SIGNATURE_LENGTH_IN_BYTES,
+	SOLANA_SCHEMA: SOLANA_SCHEMA,
+	STAKE_CONFIG_ID: STAKE_CONFIG_ID,
+	STAKE_INSTRUCTION_LAYOUTS: STAKE_INSTRUCTION_LAYOUTS,
+	SYSTEM_INSTRUCTION_LAYOUTS: SYSTEM_INSTRUCTION_LAYOUTS,
+	SYSVAR_CLOCK_PUBKEY: SYSVAR_CLOCK_PUBKEY,
+	SYSVAR_EPOCH_SCHEDULE_PUBKEY: SYSVAR_EPOCH_SCHEDULE_PUBKEY,
+	SYSVAR_INSTRUCTIONS_PUBKEY: SYSVAR_INSTRUCTIONS_PUBKEY,
+	SYSVAR_RECENT_BLOCKHASHES_PUBKEY: SYSVAR_RECENT_BLOCKHASHES_PUBKEY,
+	SYSVAR_RENT_PUBKEY: SYSVAR_RENT_PUBKEY,
+	SYSVAR_REWARDS_PUBKEY: SYSVAR_REWARDS_PUBKEY,
+	SYSVAR_SLOT_HASHES_PUBKEY: SYSVAR_SLOT_HASHES_PUBKEY,
+	SYSVAR_SLOT_HISTORY_PUBKEY: SYSVAR_SLOT_HISTORY_PUBKEY,
+	SYSVAR_STAKE_HISTORY_PUBKEY: SYSVAR_STAKE_HISTORY_PUBKEY,
+	Secp256k1Program: Secp256k1Program,
+	SendTransactionError: SendTransactionError,
+	SolanaJSONRPCError: SolanaJSONRPCError,
+	SolanaJSONRPCErrorCode: SolanaJSONRPCErrorCode,
+	StakeAuthorizationLayout: StakeAuthorizationLayout,
+	StakeInstruction: StakeInstruction,
+	StakeProgram: StakeProgram,
+	Struct: Struct,
+	SystemInstruction: SystemInstruction,
+	SystemProgram: SystemProgram,
+	Transaction: Transaction,
+	TransactionExpiredBlockheightExceededError: TransactionExpiredBlockheightExceededError,
+	TransactionExpiredTimeoutError: TransactionExpiredTimeoutError,
+	TransactionInstruction: TransactionInstruction,
+	get TransactionStatus () { return TransactionStatus; },
+	VALIDATOR_INFO_KEY: VALIDATOR_INFO_KEY,
+	VOTE_PROGRAM_ID: VOTE_PROGRAM_ID,
+	ValidatorInfo: ValidatorInfo,
+	VoteAccount: VoteAccount,
+	VoteAuthorizationLayout: VoteAuthorizationLayout,
+	VoteInit: VoteInit,
+	VoteInstruction: VoteInstruction,
+	VoteProgram: VoteProgram,
+	clusterApiUrl: clusterApiUrl,
+	sendAndConfirmRawTransaction: sendAndConfirmRawTransaction,
+	sendAndConfirmTransaction: sendAndConfirmTransaction
+});
+
+var lib = {};
+
+var Layout$1 = {};
+
+/**
+ * Base class for layout objects.
+ *
+ * **NOTE** This is an abstract base class; you can create instances
+ * if it amuses you, but they won't support the {@link
+ * Layout#encode|encode} or {@link Layout#decode|decode} functions.
+ *
+ * @param {Number} span - Initializer for {@link Layout#span|span}.  The
+ * parameter must be an integer; a negative value signifies that the
+ * span is {@link Layout#getSpan|value-specific}.
+ *
+ * @param {string} [property] - Initializer for {@link
+ * Layout#property|property}.
+ *
+ * @abstract
+ */
+class Layout {
+  constructor(span, property) {
+    if (!Number.isInteger(span)) {
+      throw new TypeError('span must be an integer');
+    }
+
+    /** The span of the layout in bytes.
+     *
+     * Positive values are generally expected.
+     *
+     * Zero will only appear in {@link Constant}s and in {@link
+     * Sequence}s where the {@link Sequence#count|count} is zero.
+     *
+     * A negative value indicates that the span is value-specific, and
+     * must be obtained using {@link Layout#getSpan|getSpan}. */
+    this.span = span;
+
+    /** The property name used when this layout is represented in an
+     * Object.
+     *
+     * Used only for layouts that {@link Layout#decode|decode} to Object
+     * instances.  If left undefined the span of the unnamed layout will
+     * be treated as padding: it will not be mutated by {@link
+     * Layout#encode|encode} nor represented as a property in the
+     * decoded Object. */
+    this.property = property;
+  }
+
+  /** Function to create an Object into which decoded properties will
+   * be written.
+   *
+   * Used only for layouts that {@link Layout#decode|decode} to Object
+   * instances, which means:
+   * * {@link Structure}
+   * * {@link Union}
+   * * {@link VariantLayout}
+   * * {@link BitStructure}
+   *
+   * If left undefined the JavaScript representation of these layouts
+   * will be Object instances.
+   *
+   * See {@link bindConstructorLayout}.
+   */
+  makeDestinationObject() {
+    return {};
+  }
+
+  /**
+   * Decode from a Buffer into an JavaScript value.
+   *
+   * @param {Buffer} b - the buffer from which encoded data is read.
+   *
+   * @param {Number} [offset] - the offset at which the encoded data
+   * starts.  If absent a zero offset is inferred.
+   *
+   * @returns {(Number|Array|Object)} - the value of the decoded data.
+   *
+   * @abstract
+   */
+  decode(b, offset) {
+    throw new Error('Layout is abstract');
+  }
+
+  /**
+   * Encode a JavaScript value into a Buffer.
+   *
+   * @param {(Number|Array|Object)} src - the value to be encoded into
+   * the buffer.  The type accepted depends on the (sub-)type of {@link
+   * Layout}.
+   *
+   * @param {Buffer} b - the buffer into which encoded data will be
+   * written.
+   *
+   * @param {Number} [offset] - the offset at which the encoded data
+   * starts.  If absent a zero offset is inferred.
+   *
+   * @returns {Number} - the number of bytes encoded, including the
+   * space skipped for internal padding, but excluding data such as
+   * {@link Sequence#count|lengths} when stored {@link
+   * ExternalLayout|externally}.  This is the adjustment to `offset`
+   * producing the offset where data for the next layout would be
+   * written.
+   *
+   * @abstract
+   */
+  encode(src, b, offset) {
+    throw new Error('Layout is abstract');
+  }
+
+  /**
+   * Calculate the span of a specific instance of a layout.
+   *
+   * @param {Buffer} b - the buffer that contains an encoded instance.
+   *
+   * @param {Number} [offset] - the offset at which the encoded instance
+   * starts.  If absent a zero offset is inferred.
+   *
+   * @return {Number} - the number of bytes covered by the layout
+   * instance.  If this method is not overridden in a subclass the
+   * definition-time constant {@link Layout#span|span} will be
+   * returned.
+   *
+   * @throws {RangeError} - if the length of the value cannot be
+   * determined.
+   */
+  getSpan(b, offset) {
+    if (0 > this.span) {
+      throw new RangeError('indeterminate span');
+    }
+    return this.span;
+  }
+
+  /**
+   * Replicate the layout using a new property.
+   *
+   * This function must be used to get a structurally-equivalent layout
+   * with a different name since all {@link Layout} instances are
+   * immutable.
+   *
+   * **NOTE** This is a shallow copy.  All fields except {@link
+   * Layout#property|property} are strictly equal to the origin layout.
+   *
+   * @param {String} property - the value for {@link
+   * Layout#property|property} in the replica.
+   *
+   * @returns {Layout} - the copy with {@link Layout#property|property}
+   * set to `property`.
+   */
+  replicate(property) {
+    const rv = Object.create(this.constructor.prototype);
+    Object.assign(rv, this);
+    rv.property = property;
+    return rv;
+  }
+
+  /**
+   * Create an object from layout properties and an array of values.
+   *
+   * **NOTE** This function returns `undefined` if invoked on a layout
+   * that does not return its value as an Object.  Objects are
+   * returned for things that are a {@link Structure}, which includes
+   * {@link VariantLayout|variant layouts} if they are structures, and
+   * excludes {@link Union}s.  If you want this feature for a union
+   * you must use {@link Union.getVariant|getVariant} to select the
+   * desired layout.
+   *
+   * @param {Array} values - an array of values that correspond to the
+   * default order for properties.  As with {@link Layout#decode|decode}
+   * layout elements that have no property name are skipped when
+   * iterating over the array values.  Only the top-level properties are
+   * assigned; arguments are not assigned to properties of contained
+   * layouts.  Any unused values are ignored.
+   *
+   * @return {(Object|undefined)}
+   */
+  fromArray(values) {
+    return undefined;
+  }
+}
+Layout$1.Layout = Layout;
+
+/* Provide text that carries a name (such as for a function that will
+ * be throwing an error) annotated with the property of a given layout
+ * (such as one for which the value was unacceptable).
+ *
+ * @ignore */
+function nameWithProperty(name, lo) {
+  if (lo.property) {
+    return name + '[' + lo.property + ']';
+  }
+  return name;
+}
+Layout$1.nameWithProperty = nameWithProperty;
+
+/**
+ * Augment a class so that instances can be encoded/decoded using a
+ * given layout.
+ *
+ * Calling this function couples `Class` with `layout` in several ways:
+ *
+ * * `Class.layout_` becomes a static member property equal to `layout`;
+ * * `layout.boundConstructor_` becomes a static member property equal
+ *    to `Class`;
+ * * The {@link Layout#makeDestinationObject|makeDestinationObject()}
+ *   property of `layout` is set to a function that returns a `new
+ *   Class()`;
+ * * `Class.decode(b, offset)` becomes a static member function that
+ *   delegates to {@link Layout#decode|layout.decode}.  The
+ *   synthesized function may be captured and extended.
+ * * `Class.prototype.encode(b, offset)` provides an instance member
+ *   function that delegates to {@link Layout#encode|layout.encode}
+ *   with `src` set to `this`.  The synthesized function may be
+ *   captured and extended, but when the extension is invoked `this`
+ *   must be explicitly bound to the instance.
+ *
+ * @param {class} Class - a JavaScript class with a nullary
+ * constructor.
+ *
+ * @param {Layout} layout - the {@link Layout} instance used to encode
+ * instances of `Class`.
+ */
+function bindConstructorLayout(Class, layout) {
+  if ('function' !== typeof Class) {
+    throw new TypeError('Class must be constructor');
+  }
+  if (Class.hasOwnProperty('layout_')) {
+    throw new Error('Class is already bound to a layout');
+  }
+  if (!(layout && (layout instanceof Layout))) {
+    throw new TypeError('layout must be a Layout');
+  }
+  if (layout.hasOwnProperty('boundConstructor_')) {
+    throw new Error('layout is already bound to a constructor');
+  }
+  Class.layout_ = layout;
+  layout.boundConstructor_ = Class;
+  layout.makeDestinationObject = (() => new Class());
+  Object.defineProperty(Class.prototype, 'encode', {
+    value: function(b, offset) {
+      return layout.encode(this, b, offset);
+    },
+    writable: true,
+  });
+  Object.defineProperty(Class, 'decode', {
+    value: function(b, offset) {
+      return layout.decode(b, offset);
+    },
+    writable: true,
+  });
+}
+Layout$1.bindConstructorLayout = bindConstructorLayout;
+
+/**
+ * An object that behaves like a layout but does not consume space
+ * within its containing layout.
+ *
+ * This is primarily used to obtain metadata about a member, such as a
+ * {@link OffsetLayout} that can provide data about a {@link
+ * Layout#getSpan|value-specific span}.
+ *
+ * **NOTE** This is an abstract base class; you can create instances
+ * if it amuses you, but they won't support {@link
+ * ExternalLayout#isCount|isCount} or other {@link Layout} functions.
+ *
+ * @param {Number} span - initializer for {@link Layout#span|span}.
+ * The parameter can range from 1 through 6.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @abstract
+ * @augments {Layout}
+ */
+class ExternalLayout extends Layout {
+  /**
+   * Return `true` iff the external layout decodes to an unsigned
+   * integer layout.
+   *
+   * In that case it can be used as the source of {@link
+   * Sequence#count|Sequence counts}, {@link Blob#length|Blob lengths},
+   * or as {@link UnionLayoutDiscriminator#layout|external union
+   * discriminators}.
+   *
+   * @abstract
+   */
+  isCount() {
+    throw new Error('ExternalLayout is abstract');
+  }
+}
+
+/**
+ * An {@link ExternalLayout} that determines its {@link
+ * Layout#decode|value} based on offset into and length of the buffer
+ * on which it is invoked.
+ *
+ * *Factory*: {@link module:Layout.greedy|greedy}
+ *
+ * @param {Number} [elementSpan] - initializer for {@link
+ * GreedyCount#elementSpan|elementSpan}.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {ExternalLayout}
+ */
+class GreedyCount extends ExternalLayout {
+  constructor(elementSpan, property) {
+    if (undefined === elementSpan) {
+      elementSpan = 1;
+    }
+    if ((!Number.isInteger(elementSpan)) || (0 >= elementSpan)) {
+      throw new TypeError('elementSpan must be a (positive) integer');
+    }
+    super(-1, property);
+
+    /** The layout for individual elements of the sequence.  The value
+     * must be a positive integer.  If not provided, the value will be
+     * 1. */
+    this.elementSpan = elementSpan;
+  }
+
+  /** @override */
+  isCount() {
+    return true;
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const rem = b.length - offset;
+    return Math.floor(rem / this.elementSpan);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    return 0;
+  }
+}
+
+/**
+ * An {@link ExternalLayout} that supports accessing a {@link Layout}
+ * at a fixed offset from the start of another Layout.  The offset may
+ * be before, within, or after the base layout.
+ *
+ * *Factory*: {@link module:Layout.offset|offset}
+ *
+ * @param {Layout} layout - initializer for {@link
+ * OffsetLayout#layout|layout}, modulo `property`.
+ *
+ * @param {Number} [offset] - Initializes {@link
+ * OffsetLayout#offset|offset}.  Defaults to zero.
+ *
+ * @param {string} [property] - Optional new property name for a
+ * {@link Layout#replicate| replica} of `layout` to be used as {@link
+ * OffsetLayout#layout|layout}.  If not provided the `layout` is used
+ * unchanged.
+ *
+ * @augments {Layout}
+ */
+class OffsetLayout extends ExternalLayout {
+  constructor(layout, offset, property) {
+    if (!(layout instanceof Layout)) {
+      throw new TypeError('layout must be a Layout');
+    }
+
+    if (undefined === offset) {
+      offset = 0;
+    } else if (!Number.isInteger(offset)) {
+      throw new TypeError('offset must be integer or undefined');
+    }
+
+    super(layout.span, property || layout.property);
+
+    /** The subordinated layout. */
+    this.layout = layout;
+
+    /** The location of {@link OffsetLayout#layout} relative to the
+     * start of another layout.
+     *
+     * The value may be positive or negative, but an error will thrown
+     * if at the point of use it goes outside the span of the Buffer
+     * being accessed.  */
+    this.offset = offset;
+  }
+
+  /** @override */
+  isCount() {
+    return ((this.layout instanceof UInt)
+            || (this.layout instanceof UIntBE));
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return this.layout.decode(b, offset + this.offset);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return this.layout.encode(src, b, offset + this.offset);
+  }
+}
+
+/**
+ * Represent an unsigned integer in little-endian format.
+ *
+ * *Factory*: {@link module:Layout.u8|u8}, {@link
+ *  module:Layout.u16|u16}, {@link module:Layout.u24|u24}, {@link
+ *  module:Layout.u32|u32}, {@link module:Layout.u40|u40}, {@link
+ *  module:Layout.u48|u48}
+ *
+ * @param {Number} span - initializer for {@link Layout#span|span}.
+ * The parameter can range from 1 through 6.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class UInt extends Layout {
+  constructor(span, property) {
+    super(span, property);
+    if (6 < this.span) {
+      throw new RangeError('span must not exceed 6 bytes');
+    }
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readUIntLE(offset, this.span);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeUIntLE(src, offset, this.span);
+    return this.span;
+  }
+}
+
+/**
+ * Represent an unsigned integer in big-endian format.
+ *
+ * *Factory*: {@link module:Layout.u8be|u8be}, {@link
+ * module:Layout.u16be|u16be}, {@link module:Layout.u24be|u24be},
+ * {@link module:Layout.u32be|u32be}, {@link
+ * module:Layout.u40be|u40be}, {@link module:Layout.u48be|u48be}
+ *
+ * @param {Number} span - initializer for {@link Layout#span|span}.
+ * The parameter can range from 1 through 6.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class UIntBE extends Layout {
+  constructor(span, property) {
+    super( span, property);
+    if (6 < this.span) {
+      throw new RangeError('span must not exceed 6 bytes');
+    }
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readUIntBE(offset, this.span);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeUIntBE(src, offset, this.span);
+    return this.span;
+  }
+}
+
+/**
+ * Represent a signed integer in little-endian format.
+ *
+ * *Factory*: {@link module:Layout.s8|s8}, {@link
+ *  module:Layout.s16|s16}, {@link module:Layout.s24|s24}, {@link
+ *  module:Layout.s32|s32}, {@link module:Layout.s40|s40}, {@link
+ *  module:Layout.s48|s48}
+ *
+ * @param {Number} span - initializer for {@link Layout#span|span}.
+ * The parameter can range from 1 through 6.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Int extends Layout {
+  constructor(span, property) {
+    super(span, property);
+    if (6 < this.span) {
+      throw new RangeError('span must not exceed 6 bytes');
+    }
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readIntLE(offset, this.span);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeIntLE(src, offset, this.span);
+    return this.span;
+  }
+}
+
+/**
+ * Represent a signed integer in big-endian format.
+ *
+ * *Factory*: {@link module:Layout.s8be|s8be}, {@link
+ * module:Layout.s16be|s16be}, {@link module:Layout.s24be|s24be},
+ * {@link module:Layout.s32be|s32be}, {@link
+ * module:Layout.s40be|s40be}, {@link module:Layout.s48be|s48be}
+ *
+ * @param {Number} span - initializer for {@link Layout#span|span}.
+ * The parameter can range from 1 through 6.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class IntBE extends Layout {
+  constructor(span, property) {
+    super(span, property);
+    if (6 < this.span) {
+      throw new RangeError('span must not exceed 6 bytes');
+    }
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readIntBE(offset, this.span);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeIntBE(src, offset, this.span);
+    return this.span;
+  }
+}
+
+const V2E32 = Math.pow(2, 32);
+
+/* True modulus high and low 32-bit words, where low word is always
+ * non-negative. */
+function divmodInt64(src) {
+  const hi32 = Math.floor(src / V2E32);
+  const lo32 = src - (hi32 * V2E32);
+  return {hi32, lo32};
+}
+/* Reconstruct Number from quotient and non-negative remainder */
+function roundedInt64(hi32, lo32) {
+  return hi32 * V2E32 + lo32;
+}
+
+/**
+ * Represent an unsigned 64-bit integer in little-endian format when
+ * encoded and as a near integral JavaScript Number when decoded.
+ *
+ * *Factory*: {@link module:Layout.nu64|nu64}
+ *
+ * **NOTE** Values with magnitude greater than 2^52 may not decode to
+ * the exact value of the encoded representation.
+ *
+ * @augments {Layout}
+ */
+class NearUInt64 extends Layout {
+  constructor(property) {
+    super(8, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const lo32 = b.readUInt32LE(offset);
+    const hi32 = b.readUInt32LE(offset + 4);
+    return roundedInt64(hi32, lo32);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const split = divmodInt64(src);
+    b.writeUInt32LE(split.lo32, offset);
+    b.writeUInt32LE(split.hi32, offset + 4);
+    return 8;
+  }
+}
+
+/**
+ * Represent an unsigned 64-bit integer in big-endian format when
+ * encoded and as a near integral JavaScript Number when decoded.
+ *
+ * *Factory*: {@link module:Layout.nu64be|nu64be}
+ *
+ * **NOTE** Values with magnitude greater than 2^52 may not decode to
+ * the exact value of the encoded representation.
+ *
+ * @augments {Layout}
+ */
+class NearUInt64BE extends Layout {
+  constructor(property) {
+    super(8, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const hi32 = b.readUInt32BE(offset);
+    const lo32 = b.readUInt32BE(offset + 4);
+    return roundedInt64(hi32, lo32);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const split = divmodInt64(src);
+    b.writeUInt32BE(split.hi32, offset);
+    b.writeUInt32BE(split.lo32, offset + 4);
+    return 8;
+  }
+}
+
+/**
+ * Represent a signed 64-bit integer in little-endian format when
+ * encoded and as a near integral JavaScript Number when decoded.
+ *
+ * *Factory*: {@link module:Layout.ns64|ns64}
+ *
+ * **NOTE** Values with magnitude greater than 2^52 may not decode to
+ * the exact value of the encoded representation.
+ *
+ * @augments {Layout}
+ */
+class NearInt64 extends Layout {
+  constructor(property) {
+    super(8, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const lo32 = b.readUInt32LE(offset);
+    const hi32 = b.readInt32LE(offset + 4);
+    return roundedInt64(hi32, lo32);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const split = divmodInt64(src);
+    b.writeUInt32LE(split.lo32, offset);
+    b.writeInt32LE(split.hi32, offset + 4);
+    return 8;
+  }
+}
+
+/**
+ * Represent a signed 64-bit integer in big-endian format when
+ * encoded and as a near integral JavaScript Number when decoded.
+ *
+ * *Factory*: {@link module:Layout.ns64be|ns64be}
+ *
+ * **NOTE** Values with magnitude greater than 2^52 may not decode to
+ * the exact value of the encoded representation.
+ *
+ * @augments {Layout}
+ */
+class NearInt64BE extends Layout {
+  constructor(property) {
+    super(8, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const hi32 = b.readInt32BE(offset);
+    const lo32 = b.readUInt32BE(offset + 4);
+    return roundedInt64(hi32, lo32);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const split = divmodInt64(src);
+    b.writeInt32BE(split.hi32, offset);
+    b.writeUInt32BE(split.lo32, offset + 4);
+    return 8;
+  }
+}
+
+/**
+ * Represent a 32-bit floating point number in little-endian format.
+ *
+ * *Factory*: {@link module:Layout.f32|f32}
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Float extends Layout {
+  constructor(property) {
+    super(4, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readFloatLE(offset);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeFloatLE(src, offset);
+    return 4;
+  }
+}
+
+/**
+ * Represent a 32-bit floating point number in big-endian format.
+ *
+ * *Factory*: {@link module:Layout.f32be|f32be}
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class FloatBE extends Layout {
+  constructor(property) {
+    super(4, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readFloatBE(offset);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeFloatBE(src, offset);
+    return 4;
+  }
+}
+
+/**
+ * Represent a 64-bit floating point number in little-endian format.
+ *
+ * *Factory*: {@link module:Layout.f64|f64}
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Double extends Layout {
+  constructor(property) {
+    super(8, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readDoubleLE(offset);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeDoubleLE(src, offset);
+    return 8;
+  }
+}
+
+/**
+ * Represent a 64-bit floating point number in big-endian format.
+ *
+ * *Factory*: {@link module:Layout.f64be|f64be}
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class DoubleBE extends Layout {
+  constructor(property) {
+    super(8, property);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.readDoubleBE(offset);
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    b.writeDoubleBE(src, offset);
+    return 8;
+  }
+}
+
+/**
+ * Represent a contiguous sequence of a specific layout as an Array.
+ *
+ * *Factory*: {@link module:Layout.seq|seq}
+ *
+ * @param {Layout} elementLayout - initializer for {@link
+ * Sequence#elementLayout|elementLayout}.
+ *
+ * @param {(Number|ExternalLayout)} count - initializer for {@link
+ * Sequence#count|count}.  The parameter must be either a positive
+ * integer or an instance of {@link ExternalLayout}.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Sequence extends Layout {
+  constructor(elementLayout, count, property) {
+    if (!(elementLayout instanceof Layout)) {
+      throw new TypeError('elementLayout must be a Layout');
+    }
+    if (!(((count instanceof ExternalLayout) && count.isCount())
+          || (Number.isInteger(count) && (0 <= count)))) {
+      throw new TypeError('count must be non-negative integer '
+                          + 'or an unsigned integer ExternalLayout');
+    }
+    let span = -1;
+    if ((!(count instanceof ExternalLayout))
+        && (0 < elementLayout.span)) {
+      span = count * elementLayout.span;
+    }
+
+    super(span, property);
+
+    /** The layout for individual elements of the sequence. */
+    this.elementLayout = elementLayout;
+
+    /** The number of elements in the sequence.
+     *
+     * This will be either a non-negative integer or an instance of
+     * {@link ExternalLayout} for which {@link
+     * ExternalLayout#isCount|isCount()} is `true`. */
+    this.count = count;
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    if (0 <= this.span) {
+      return this.span;
+    }
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let span = 0;
+    let count = this.count;
+    if (count instanceof ExternalLayout) {
+      count = count.decode(b, offset);
+    }
+    if (0 < this.elementLayout.span) {
+      span = count * this.elementLayout.span;
+    } else {
+      let idx = 0;
+      while (idx < count) {
+        span += this.elementLayout.getSpan(b, offset + span);
+        ++idx;
+      }
+    }
+    return span;
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const rv = [];
+    let i = 0;
+    let count = this.count;
+    if (count instanceof ExternalLayout) {
+      count = count.decode(b, offset);
+    }
+    while (i < count) {
+      rv.push(this.elementLayout.decode(b, offset));
+      offset += this.elementLayout.getSpan(b, offset);
+      i += 1;
+    }
+    return rv;
+  }
+
+  /** Implement {@link Layout#encode|encode} for {@link Sequence}.
+   *
+   * **NOTE** If `src` is shorter than {@link Sequence#count|count} then
+   * the unused space in the buffer is left unchanged.  If `src` is
+   * longer than {@link Sequence#count|count} the unneeded elements are
+   * ignored.
+   *
+   * **NOTE** If {@link Layout#count|count} is an instance of {@link
+   * ExternalLayout} then the length of `src` will be encoded as the
+   * count after `src` is encoded. */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const elo = this.elementLayout;
+    const span = src.reduce((span, v) => {
+      return span + elo.encode(v, b, offset + span);
+    }, 0);
+    if (this.count instanceof ExternalLayout) {
+      this.count.encode(src.length, b, offset);
+    }
+    return span;
+  }
+}
+
+/**
+ * Represent a contiguous sequence of arbitrary layout elements as an
+ * Object.
+ *
+ * *Factory*: {@link module:Layout.struct|struct}
+ *
+ * **NOTE** The {@link Layout#span|span} of the structure is variable
+ * if any layout in {@link Structure#fields|fields} has a variable
+ * span.  When {@link Layout#encode|encoding} we must have a value for
+ * all variable-length fields, or we wouldn't be able to figure out
+ * how much space to use for storage.  We can only identify the value
+ * for a field when it has a {@link Layout#property|property}.  As
+ * such, although a structure may contain both unnamed fields and
+ * variable-length fields, it cannot contain an unnamed
+ * variable-length field.
+ *
+ * @param {Layout[]} fields - initializer for {@link
+ * Structure#fields|fields}.  An error is raised if this contains a
+ * variable-length field for which a {@link Layout#property|property}
+ * is not defined.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @param {Boolean} [decodePrefixes] - initializer for {@link
+ * Structure#decodePrefixes|property}.
+ *
+ * @throws {Error} - if `fields` contains an unnamed variable-length
+ * layout.
+ *
+ * @augments {Layout}
+ */
+class Structure extends Layout {
+  constructor(fields, property, decodePrefixes) {
+    if (!(Array.isArray(fields)
+          && fields.reduce((acc, v) => acc && (v instanceof Layout), true))) {
+      throw new TypeError('fields must be array of Layout instances');
+    }
+    if (('boolean' === typeof property)
+        && (undefined === decodePrefixes)) {
+      decodePrefixes = property;
+      property = undefined;
+    }
+
+    /* Verify absence of unnamed variable-length fields. */
+    for (const fd of fields) {
+      if ((0 > fd.span)
+          && (undefined === fd.property)) {
+        throw new Error('fields cannot contain unnamed variable-length layout');
+      }
+    }
+
+    let span = -1;
+    try {
+      span = fields.reduce((span, fd) => span + fd.getSpan(), 0);
+    } catch (e) {
+    }
+    super(span, property);
+
+    /** The sequence of {@link Layout} values that comprise the
+     * structure.
+     *
+     * The individual elements need not be the same type, and may be
+     * either scalar or aggregate layouts.  If a member layout leaves
+     * its {@link Layout#property|property} undefined the
+     * corresponding region of the buffer associated with the element
+     * will not be mutated.
+     *
+     * @type {Layout[]} */
+    this.fields = fields;
+
+    /** Control behavior of {@link Layout#decode|decode()} given short
+     * buffers.
+     *
+     * In some situations a structure many be extended with additional
+     * fields over time, with older installations providing only a
+     * prefix of the full structure.  If this property is `true`
+     * decoding will accept those buffers and leave subsequent fields
+     * undefined, as long as the buffer ends at a field boundary.
+     * Defaults to `false`. */
+    this.decodePrefixes = !!decodePrefixes;
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    if (0 <= this.span) {
+      return this.span;
+    }
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let span = 0;
+    try {
+      span = this.fields.reduce((span, fd) => {
+        const fsp = fd.getSpan(b, offset);
+        offset += fsp;
+        return span + fsp;
+      }, 0);
+    } catch (e) {
+      throw new RangeError('indeterminate span');
+    }
+    return span;
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const dest = this.makeDestinationObject();
+    for (const fd of this.fields) {
+      if (undefined !== fd.property) {
+        dest[fd.property] = fd.decode(b, offset);
+      }
+      offset += fd.getSpan(b, offset);
+      if (this.decodePrefixes
+          && (b.length === offset)) {
+        break;
+      }
+    }
+    return dest;
+  }
+
+  /** Implement {@link Layout#encode|encode} for {@link Structure}.
+   *
+   * If `src` is missing a property for a member with a defined {@link
+   * Layout#property|property} the corresponding region of the buffer is
+   * left unmodified. */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const firstOffset = offset;
+    let lastOffset = 0;
+    let lastWrote = 0;
+    for (const fd of this.fields) {
+      let span = fd.span;
+      lastWrote = (0 < span) ? span : 0;
+      if (undefined !== fd.property) {
+        const fv = src[fd.property];
+        if (undefined !== fv) {
+          lastWrote = fd.encode(fv, b, offset);
+          if (0 > span) {
+            /* Read the as-encoded span, which is not necessarily the
+             * same as what we wrote. */
+            span = fd.getSpan(b, offset);
+          }
+        }
+      }
+      lastOffset = offset;
+      offset += span;
+    }
+    /* Use (lastOffset + lastWrote) instead of offset because the last
+     * item may have had a dynamic length and we don't want to include
+     * the padding between it and the end of the space reserved for
+     * it. */
+    return (lastOffset + lastWrote) - firstOffset;
+  }
+
+  /** @override */
+  fromArray(values) {
+    const dest = this.makeDestinationObject();
+    for (const fd of this.fields) {
+      if ((undefined !== fd.property)
+          && (0 < values.length)) {
+        dest[fd.property] = values.shift();
+      }
+    }
+    return dest;
+  }
+
+  /**
+   * Get access to the layout of a given property.
+   *
+   * @param {String} property - the structure member of interest.
+   *
+   * @return {Layout} - the layout associated with `property`, or
+   * undefined if there is no such property.
+   */
+  layoutFor(property) {
+    if ('string' !== typeof property) {
+      throw new TypeError('property must be string');
+    }
+    for (const fd of this.fields) {
+      if (fd.property === property) {
+        return fd;
+      }
+    }
+  }
+
+  /**
+   * Get the offset of a structure member.
+   *
+   * @param {String} property - the structure member of interest.
+   *
+   * @return {Number} - the offset in bytes to the start of `property`
+   * within the structure, or undefined if `property` is not a field
+   * within the structure.  If the property is a member but follows a
+   * variable-length structure member a negative number will be
+   * returned.
+   */
+  offsetOf(property) {
+    if ('string' !== typeof property) {
+      throw new TypeError('property must be string');
+    }
+    let offset = 0;
+    for (const fd of this.fields) {
+      if (fd.property === property) {
+        return offset;
+      }
+      if (0 > fd.span) {
+        offset = -1;
+      } else if (0 <= offset) {
+        offset += fd.span;
+      }
+    }
+  }
+}
+
+/**
+ * An object that can provide a {@link
+ * Union#discriminator|discriminator} API for {@link Union}.
+ *
+ * **NOTE** This is an abstract base class; you can create instances
+ * if it amuses you, but they won't support the {@link
+ * UnionDiscriminator#encode|encode} or {@link
+ * UnionDiscriminator#decode|decode} functions.
+ *
+ * @param {string} [property] - Default for {@link
+ * UnionDiscriminator#property|property}.
+ *
+ * @abstract
+ */
+class UnionDiscriminator {
+  constructor(property) {
+    /** The {@link Layout#property|property} to be used when the
+     * discriminator is referenced in isolation (generally when {@link
+     * Union#decode|Union decode} cannot delegate to a specific
+     * variant). */
+    this.property = property;
+  }
+
+  /** Analog to {@link Layout#decode|Layout decode} for union discriminators.
+   *
+   * The implementation of this method need not reference the buffer if
+   * variant information is available through other means. */
+  decode() {
+    throw new Error('UnionDiscriminator is abstract');
+  }
+
+  /** Analog to {@link Layout#decode|Layout encode} for union discriminators.
+   *
+   * The implementation of this method need not store the value if
+   * variant information is maintained through other means. */
+  encode() {
+    throw new Error('UnionDiscriminator is abstract');
+  }
+}
+
+/**
+ * An object that can provide a {@link
+ * UnionDiscriminator|discriminator API} for {@link Union} using an
+ * unsigned integral {@link Layout} instance located either inside or
+ * outside the union.
+ *
+ * @param {ExternalLayout} layout - initializes {@link
+ * UnionLayoutDiscriminator#layout|layout}.  Must satisfy {@link
+ * ExternalLayout#isCount|isCount()}.
+ *
+ * @param {string} [property] - Default for {@link
+ * UnionDiscriminator#property|property}, superseding the property
+ * from `layout`, but defaulting to `variant` if neither `property`
+ * nor layout provide a property name.
+ *
+ * @augments {UnionDiscriminator}
+ */
+class UnionLayoutDiscriminator extends UnionDiscriminator {
+  constructor(layout, property) {
+    if (!((layout instanceof ExternalLayout)
+          && layout.isCount())) {
+      throw new TypeError('layout must be an unsigned integer ExternalLayout');
+    }
+
+    super(property || layout.property || 'variant');
+
+    /** The {@link ExternalLayout} used to access the discriminator
+     * value. */
+    this.layout = layout;
+  }
+
+  /** Delegate decoding to {@link UnionLayoutDiscriminator#layout|layout}. */
+  decode(b, offset) {
+    return this.layout.decode(b, offset);
+  }
+
+  /** Delegate encoding to {@link UnionLayoutDiscriminator#layout|layout}. */
+  encode(src, b, offset) {
+    return this.layout.encode(src, b, offset);
+  }
+}
+
+/**
+ * Represent any number of span-compatible layouts.
+ *
+ * *Factory*: {@link module:Layout.union|union}
+ *
+ * If the union has a {@link Union#defaultLayout|default layout} that
+ * layout must have a non-negative {@link Layout#span|span}.  The span
+ * of a fixed-span union includes its {@link
+ * Union#discriminator|discriminator} if the variant is a {@link
+ * Union#usesPrefixDiscriminator|prefix of the union}, plus the span
+ * of its {@link Union#defaultLayout|default layout}.
+ *
+ * If the union does not have a default layout then the encoded span
+ * of the union depends on the encoded span of its variant (which may
+ * be fixed or variable).
+ *
+ * {@link VariantLayout#layout|Variant layout}s are added through
+ * {@link Union#addVariant|addVariant}.  If the union has a default
+ * layout, the span of the {@link VariantLayout#layout|layout
+ * contained by the variant} must not exceed the span of the {@link
+ * Union#defaultLayout|default layout} (minus the span of a {@link
+ * Union#usesPrefixDiscriminator|prefix disriminator}, if used).  The
+ * span of the variant will equal the span of the union itself.
+ *
+ * The variant for a buffer can only be identified from the {@link
+ * Union#discriminator|discriminator} {@link
+ * UnionDiscriminator#property|property} (in the case of the {@link
+ * Union#defaultLayout|default layout}), or by using {@link
+ * Union#getVariant|getVariant} and examining the resulting {@link
+ * VariantLayout} instance.
+ *
+ * A variant compatible with a JavaScript object can be identified
+ * using {@link Union#getSourceVariant|getSourceVariant}.
+ *
+ * @param {(UnionDiscriminator|ExternalLayout|Layout)} discr - How to
+ * identify the layout used to interpret the union contents.  The
+ * parameter must be an instance of {@link UnionDiscriminator}, an
+ * {@link ExternalLayout} that satisfies {@link
+ * ExternalLayout#isCount|isCount()}, or {@link UInt} (or {@link
+ * UIntBE}).  When a non-external layout element is passed the layout
+ * appears at the start of the union.  In all cases the (synthesized)
+ * {@link UnionDiscriminator} instance is recorded as {@link
+ * Union#discriminator|discriminator}.
+ *
+ * @param {(Layout|null)} defaultLayout - initializer for {@link
+ * Union#defaultLayout|defaultLayout}.  If absent defaults to `null`.
+ * If `null` there is no default layout: the union has data-dependent
+ * length and attempts to decode or encode unrecognized variants will
+ * throw an exception.  A {@link Layout} instance must have a
+ * non-negative {@link Layout#span|span}, and if it lacks a {@link
+ * Layout#property|property} the {@link
+ * Union#defaultLayout|defaultLayout} will be a {@link
+ * Layout#replicate|replica} with property `content`.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Union extends Layout {
+  constructor(discr, defaultLayout, property) {
+    const upv = ((discr instanceof UInt)
+               || (discr instanceof UIntBE));
+    if (upv) {
+      discr = new UnionLayoutDiscriminator(new OffsetLayout(discr));
+    } else if ((discr instanceof ExternalLayout)
+               && discr.isCount()) {
+      discr = new UnionLayoutDiscriminator(discr);
+    } else if (!(discr instanceof UnionDiscriminator)) {
+      throw new TypeError('discr must be a UnionDiscriminator '
+                          + 'or an unsigned integer layout');
+    }
+    if (undefined === defaultLayout) {
+      defaultLayout = null;
+    }
+    if (!((null === defaultLayout)
+          || (defaultLayout instanceof Layout))) {
+      throw new TypeError('defaultLayout must be null or a Layout');
+    }
+    if (null !== defaultLayout) {
+      if (0 > defaultLayout.span) {
+        throw new Error('defaultLayout must have constant span');
+      }
+      if (undefined === defaultLayout.property) {
+        defaultLayout = defaultLayout.replicate('content');
+      }
+    }
+
+    /* The union span can be estimated only if there's a default
+     * layout.  The union spans its default layout, plus any prefix
+     * variant layout.  By construction both layouts, if present, have
+     * non-negative span. */
+    let span = -1;
+    if (defaultLayout) {
+      span = defaultLayout.span;
+      if ((0 <= span) && upv) {
+        span += discr.layout.span;
+      }
+    }
+    super(span, property);
+
+    /** The interface for the discriminator value in isolation.
+     *
+     * This a {@link UnionDiscriminator} either passed to the
+     * constructor or synthesized from the `discr` constructor
+     * argument.  {@link
+     * Union#usesPrefixDiscriminator|usesPrefixDiscriminator} will be
+     * `true` iff the `discr` parameter was a non-offset {@link
+     * Layout} instance. */
+    this.discriminator = discr;
+
+    /** `true` if the {@link Union#discriminator|discriminator} is the
+     * first field in the union.
+     *
+     * If `false` the discriminator is obtained from somewhere
+     * else. */
+    this.usesPrefixDiscriminator = upv;
+
+    /** The layout for non-discriminator content when the value of the
+     * discriminator is not recognized.
+     *
+     * This is the value passed to the constructor.  It is
+     * structurally equivalent to the second component of {@link
+     * Union#layout|layout} but may have a different property
+     * name. */
+    this.defaultLayout = defaultLayout;
+
+    /** A registry of allowed variants.
+     *
+     * The keys are unsigned integers which should be compatible with
+     * {@link Union.discriminator|discriminator}.  The property value
+     * is the corresponding {@link VariantLayout} instances assigned
+     * to this union by {@link Union#addVariant|addVariant}.
+     *
+     * **NOTE** The registry remains mutable so that variants can be
+     * {@link Union#addVariant|added} at any time.  Users should not
+     * manipulate the content of this property. */
+    this.registry = {};
+
+    /* Private variable used when invoking getSourceVariant */
+    let boundGetSourceVariant = this.defaultGetSourceVariant.bind(this);
+
+    /** Function to infer the variant selected by a source object.
+     *
+     * Defaults to {@link
+     * Union#defaultGetSourceVariant|defaultGetSourceVariant} but may
+     * be overridden using {@link
+     * Union#configGetSourceVariant|configGetSourceVariant}.
+     *
+     * @param {Object} src - as with {@link
+     * Union#defaultGetSourceVariant|defaultGetSourceVariant}.
+     *
+     * @returns {(undefined|VariantLayout)} The default variant
+     * (`undefined`) or first registered variant that uses a property
+     * available in `src`. */
+    this.getSourceVariant = function(src) {
+      return boundGetSourceVariant(src);
+    };
+
+    /** Function to override the implementation of {@link
+     * Union#getSourceVariant|getSourceVariant}.
+     *
+     * Use this if the desired variant cannot be identified using the
+     * algorithm of {@link
+     * Union#defaultGetSourceVariant|defaultGetSourceVariant}.
+     *
+     * **NOTE** The provided function will be invoked bound to this
+     * Union instance, providing local access to {@link
+     * Union#registry|registry}.
+     *
+     * @param {Function} gsv - a function that follows the API of
+     * {@link Union#defaultGetSourceVariant|defaultGetSourceVariant}. */
+    this.configGetSourceVariant = function(gsv) {
+      boundGetSourceVariant = gsv.bind(this);
+    };
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    if (0 <= this.span) {
+      return this.span;
+    }
+    if (undefined === offset) {
+      offset = 0;
+    }
+    /* Default layouts always have non-negative span, so we don't have
+     * one and we have to recognize the variant which will in turn
+     * determine the span. */
+    const vlo = this.getVariant(b, offset);
+    if (!vlo) {
+      throw new Error('unable to determine span for unrecognized variant');
+    }
+    return vlo.getSpan(b, offset);
+  }
+
+  /**
+   * Method to infer a registered Union variant compatible with `src`.
+   *
+   * The first satisified rule in the following sequence defines the
+   * return value:
+   * * If `src` has properties matching the Union discriminator and
+   *   the default layout, `undefined` is returned regardless of the
+   *   value of the discriminator property (this ensures the default
+   *   layout will be used);
+   * * If `src` has a property matching the Union discriminator, the
+   *   value of the discriminator identifies a registered variant, and
+   *   either (a) the variant has no layout, or (b) `src` has the
+   *   variant's property, then the variant is returned (because the
+   *   source satisfies the constraints of the variant it identifies);
+   * * If `src` does not have a property matching the Union
+   *   discriminator, but does have a property matching a registered
+   *   variant, then the variant is returned (because the source
+   *   matches a variant without an explicit conflict);
+   * * An error is thrown (because we either can't identify a variant,
+   *   or we were explicitly told the variant but can't satisfy it).
+   *
+   * @param {Object} src - an object presumed to be compatible with
+   * the content of the Union.
+   *
+   * @return {(undefined|VariantLayout)} - as described above.
+   *
+   * @throws {Error} - if `src` cannot be associated with a default or
+   * registered variant.
+   */
+  defaultGetSourceVariant(src) {
+    if (src.hasOwnProperty(this.discriminator.property)) {
+      if (this.defaultLayout
+          && src.hasOwnProperty(this.defaultLayout.property)) {
+        return undefined;
+      }
+      const vlo = this.registry[src[this.discriminator.property]];
+      if (vlo
+          && ((!vlo.layout)
+              || src.hasOwnProperty(vlo.property))) {
+        return vlo;
+      }
+    } else {
+      for (const tag in this.registry) {
+        const vlo = this.registry[tag];
+        if (src.hasOwnProperty(vlo.property)) {
+          return vlo;
+        }
+      }
+    }
+    throw new Error('unable to infer src variant');
+  }
+
+  /** Implement {@link Layout#decode|decode} for {@link Union}.
+   *
+   * If the variant is {@link Union#addVariant|registered} the return
+   * value is an instance of that variant, with no explicit
+   * discriminator.  Otherwise the {@link Union#defaultLayout|default
+   * layout} is used to decode the content. */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let dest;
+    const dlo = this.discriminator;
+    const discr = dlo.decode(b, offset);
+    let clo = this.registry[discr];
+    if (undefined === clo) {
+      let contentOffset = 0;
+      clo = this.defaultLayout;
+      if (this.usesPrefixDiscriminator) {
+        contentOffset = dlo.layout.span;
+      }
+      dest = this.makeDestinationObject();
+      dest[dlo.property] = discr;
+      dest[clo.property] = this.defaultLayout.decode(b, offset + contentOffset);
+    } else {
+      dest = clo.decode(b, offset);
+    }
+    return dest;
+  }
+
+  /** Implement {@link Layout#encode|encode} for {@link Union}.
+   *
+   * This API assumes the `src` object is consistent with the union's
+   * {@link Union#defaultLayout|default layout}.  To encode variants
+   * use the appropriate variant-specific {@link VariantLayout#encode}
+   * method. */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const vlo = this.getSourceVariant(src);
+    if (undefined === vlo) {
+      const dlo = this.discriminator;
+      const clo = this.defaultLayout;
+      let contentOffset = 0;
+      if (this.usesPrefixDiscriminator) {
+        contentOffset = dlo.layout.span;
+      }
+      dlo.encode(src[dlo.property], b, offset);
+      return contentOffset + clo.encode(src[clo.property], b,
+                                        offset + contentOffset);
+    }
+    return vlo.encode(src, b, offset);
+  }
+
+  /** Register a new variant structure within a union.  The newly
+   * created variant is returned.
+   *
+   * @param {Number} variant - initializer for {@link
+   * VariantLayout#variant|variant}.
+   *
+   * @param {Layout} layout - initializer for {@link
+   * VariantLayout#layout|layout}.
+   *
+   * @param {String} property - initializer for {@link
+   * Layout#property|property}.
+   *
+   * @return {VariantLayout} */
+  addVariant(variant, layout, property) {
+    const rv = new VariantLayout(this, variant, layout, property);
+    this.registry[variant] = rv;
+    return rv;
+  }
+
+  /**
+   * Get the layout associated with a registered variant.
+   *
+   * If `vb` does not produce a registered variant the function returns
+   * `undefined`.
+   *
+   * @param {(Number|Buffer)} vb - either the variant number, or a
+   * buffer from which the discriminator is to be read.
+   *
+   * @param {Number} offset - offset into `vb` for the start of the
+   * union.  Used only when `vb` is an instance of {Buffer}.
+   *
+   * @return {({VariantLayout}|undefined)}
+   */
+  getVariant(vb, offset) {
+    let variant = vb;
+    if (Buffer.isBuffer(vb)) {
+      if (undefined === offset) {
+        offset = 0;
+      }
+      variant = this.discriminator.decode(vb, offset);
+    }
+    return this.registry[variant];
+  }
+}
+
+/**
+ * Represent a specific variant within a containing union.
+ *
+ * **NOTE** The {@link Layout#span|span} of the variant may include
+ * the span of the {@link Union#discriminator|discriminator} used to
+ * identify it, but values read and written using the variant strictly
+ * conform to the content of {@link VariantLayout#layout|layout}.
+ *
+ * **NOTE** User code should not invoke this constructor directly.  Use
+ * the union {@link Union#addVariant|addVariant} helper method.
+ *
+ * @param {Union} union - initializer for {@link
+ * VariantLayout#union|union}.
+ *
+ * @param {Number} variant - initializer for {@link
+ * VariantLayout#variant|variant}.
+ *
+ * @param {Layout} [layout] - initializer for {@link
+ * VariantLayout#layout|layout}.  If absent the variant carries no
+ * data.
+ *
+ * @param {String} [property] - initializer for {@link
+ * Layout#property|property}.  Unlike many other layouts, variant
+ * layouts normally include a property name so they can be identified
+ * within their containing {@link Union}.  The property identifier may
+ * be absent only if `layout` is is absent.
+ *
+ * @augments {Layout}
+ */
+class VariantLayout extends Layout {
+  constructor(union, variant, layout, property) {
+    if (!(union instanceof Union)) {
+      throw new TypeError('union must be a Union');
+    }
+    if ((!Number.isInteger(variant)) || (0 > variant)) {
+      throw new TypeError('variant must be a (non-negative) integer');
+    }
+    if (('string' === typeof layout)
+        && (undefined === property)) {
+      property = layout;
+      layout = null;
+    }
+    if (layout) {
+      if (!(layout instanceof Layout)) {
+        throw new TypeError('layout must be a Layout');
+      }
+      if ((null !== union.defaultLayout)
+          && (0 <= layout.span)
+          && (layout.span > union.defaultLayout.span)) {
+        throw new Error('variant span exceeds span of containing union');
+      }
+      if ('string' !== typeof property) {
+        throw new TypeError('variant must have a String property');
+      }
+    }
+    let span = union.span;
+    if (0 > union.span) {
+      span = layout ? layout.span : 0;
+      if ((0 <= span) && union.usesPrefixDiscriminator) {
+        span += union.discriminator.layout.span;
+      }
+    }
+    super(span, property);
+
+    /** The {@link Union} to which this variant belongs. */
+    this.union = union;
+
+    /** The unsigned integral value identifying this variant within
+     * the {@link Union#discriminator|discriminator} of the containing
+     * union. */
+    this.variant = variant;
+
+    /** The {@link Layout} to be used when reading/writing the
+     * non-discriminator part of the {@link
+     * VariantLayout#union|union}.  If `null` the variant carries no
+     * data. */
+    this.layout = layout || null;
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    if (0 <= this.span) {
+      /* Will be equal to the containing union span if that is not
+       * variable. */
+      return this.span;
+    }
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let contentOffset = 0;
+    if (this.union.usesPrefixDiscriminator) {
+      contentOffset = this.union.discriminator.layout.span;
+    }
+    /* Span is defined solely by the variant (and prefix discriminator) */
+    return contentOffset + this.layout.getSpan(b, offset + contentOffset);
+  }
+
+  /** @override */
+  decode(b, offset) {
+    const dest = this.makeDestinationObject();
+    if (undefined === offset) {
+      offset = 0;
+    }
+    if (this !== this.union.getVariant(b, offset)) {
+      throw new Error('variant mismatch');
+    }
+    let contentOffset = 0;
+    if (this.union.usesPrefixDiscriminator) {
+      contentOffset = this.union.discriminator.layout.span;
+    }
+    if (this.layout) {
+      dest[this.property] = this.layout.decode(b, offset + contentOffset);
+    } else if (this.property) {
+      dest[this.property] = true;
+    } else if (this.union.usesPrefixDiscriminator) {
+      dest[this.union.discriminator.property] = this.variant;
+    }
+    return dest;
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let contentOffset = 0;
+    if (this.union.usesPrefixDiscriminator) {
+      contentOffset = this.union.discriminator.layout.span;
+    }
+    if (this.layout
+        && (!src.hasOwnProperty(this.property))) {
+      throw new TypeError('variant lacks property ' + this.property);
+    }
+    this.union.discriminator.encode(this.variant, b, offset);
+    let span = contentOffset;
+    if (this.layout) {
+      this.layout.encode(src[this.property], b, offset + contentOffset);
+      span += this.layout.getSpan(b, offset + contentOffset);
+      if ((0 <= this.union.span)
+          && (span > this.union.span)) {
+        throw new Error('encoded variant overruns containing union');
+      }
+    }
+    return span;
+  }
+
+  /** Delegate {@link Layout#fromArray|fromArray} to {@link
+   * VariantLayout#layout|layout}. */
+  fromArray(values) {
+    if (this.layout) {
+      return this.layout.fromArray(values);
+    }
+  }
+}
+
+/** JavaScript chose to define bitwise operations as operating on
+ * signed 32-bit values in 2's complement form, meaning any integer
+ * with bit 31 set is going to look negative.  For right shifts that's
+ * not a problem, because `>>>` is a logical shift, but for every
+ * other bitwise operator we have to compensate for possible negative
+ * results. */
+function fixBitwiseResult(v) {
+  if (0 > v) {
+    v += 0x100000000;
+  }
+  return v;
+}
+
+/**
+ * Contain a sequence of bit fields as an unsigned integer.
+ *
+ * *Factory*: {@link module:Layout.bits|bits}
+ *
+ * This is a container element; within it there are {@link BitField}
+ * instances that provide the extracted properties.  The container
+ * simply defines the aggregate representation and its bit ordering.
+ * The representation is an object containing properties with numeric
+ * or {@link Boolean} values.
+ *
+ * {@link BitField}s are added with the {@link
+ * BitStructure#addField|addField} and {@link
+ * BitStructure#addBoolean|addBoolean} methods.
+
+ * @param {Layout} word - initializer for {@link
+ * BitStructure#word|word}.  The parameter must be an instance of
+ * {@link UInt} (or {@link UIntBE}) that is no more than 4 bytes wide.
+ *
+ * @param {bool} [msb] - `true` if the bit numbering starts at the
+ * most significant bit of the containing word; `false` (default) if
+ * it starts at the least significant bit of the containing word.  If
+ * the parameter at this position is a string and `property` is
+ * `undefined` the value of this argument will instead be used as the
+ * value of `property`.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class BitStructure extends Layout {
+  constructor(word, msb, property) {
+    if (!((word instanceof UInt)
+          || (word instanceof UIntBE))) {
+      throw new TypeError('word must be a UInt or UIntBE layout');
+    }
+    if (('string' === typeof msb)
+        && (undefined === property)) {
+      property = msb;
+      msb = undefined;
+    }
+    if (4 < word.span) {
+      throw new RangeError('word cannot exceed 32 bits');
+    }
+    super(word.span, property);
+
+    /** The layout used for the packed value.  {@link BitField}
+     * instances are packed sequentially depending on {@link
+     * BitStructure#msb|msb}. */
+    this.word = word;
+
+    /** Whether the bit sequences are packed starting at the most
+     * significant bit growing down (`true`), or the least significant
+     * bit growing up (`false`).
+     *
+     * **NOTE** Regardless of this value, the least significant bit of
+     * any {@link BitField} value is the least significant bit of the
+     * corresponding section of the packed value. */
+    this.msb = !!msb;
+
+    /** The sequence of {@link BitField} layouts that comprise the
+     * packed structure.
+     *
+     * **NOTE** The array remains mutable to allow fields to be {@link
+     * BitStructure#addField|added} after construction.  Users should
+     * not manipulate the content of this property.*/
+    this.fields = [];
+
+    /* Storage for the value.  Capture a variable instead of using an
+     * instance property because we don't want anything to change the
+     * value without going through the mutator. */
+    let value = 0;
+    this._packedSetValue = function(v) {
+      value = fixBitwiseResult(v);
+      return this;
+    };
+    this._packedGetValue = function() {
+      return value;
+    };
+  }
+
+  /** @override */
+  decode(b, offset) {
+    const dest = this.makeDestinationObject();
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const value = this.word.decode(b, offset);
+    this._packedSetValue(value);
+    for (const fd of this.fields) {
+      if (undefined !== fd.property) {
+        dest[fd.property] = fd.decode(value);
+      }
+    }
+    return dest;
+  }
+
+  /** Implement {@link Layout#encode|encode} for {@link BitStructure}.
+   *
+   * If `src` is missing a property for a member with a defined {@link
+   * Layout#property|property} the corresponding region of the packed
+   * value is left unmodified.  Unused bits are also left unmodified. */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    const value = this.word.decode(b, offset);
+    this._packedSetValue(value);
+    for (const fd of this.fields) {
+      if (undefined !== fd.property) {
+        const fv = src[fd.property];
+        if (undefined !== fv) {
+          fd.encode(fv);
+        }
+      }
+    }
+    return this.word.encode(this._packedGetValue(), b, offset);
+  }
+
+  /** Register a new bitfield with a containing bit structure.  The
+   * resulting bitfield is returned.
+   *
+   * @param {Number} bits - initializer for {@link BitField#bits|bits}.
+   *
+   * @param {string} property - initializer for {@link
+   * Layout#property|property}.
+   *
+   * @return {BitField} */
+  addField(bits, property) {
+    const bf = new BitField(this, bits, property);
+    this.fields.push(bf);
+    return bf;
+  }
+
+  /** As with {@link BitStructure#addField|addField} for single-bit
+   * fields with `boolean` value representation.
+   *
+   * @param {string} property - initializer for {@link
+   * Layout#property|property}.
+   *
+   * @return {Boolean} */
+  addBoolean(property) {
+    // This is my Boolean, not the Javascript one.
+    // eslint-disable-next-line no-new-wrappers
+    const bf = new Boolean$1(this, property);
+    this.fields.push(bf);
+    return bf;
+  }
+
+  /**
+   * Get access to the bit field for a given property.
+   *
+   * @param {String} property - the bit field of interest.
+   *
+   * @return {BitField} - the field associated with `property`, or
+   * undefined if there is no such property.
+   */
+  fieldFor(property) {
+    if ('string' !== typeof property) {
+      throw new TypeError('property must be string');
+    }
+    for (const fd of this.fields) {
+      if (fd.property === property) {
+        return fd;
+      }
+    }
+  }
+}
+
+/**
+ * Represent a sequence of bits within a {@link BitStructure}.
+ *
+ * All bit field values are represented as unsigned integers.
+ *
+ * **NOTE** User code should not invoke this constructor directly.
+ * Use the container {@link BitStructure#addField|addField} helper
+ * method.
+ *
+ * **NOTE** BitField instances are not instances of {@link Layout}
+ * since {@link Layout#span|span} measures 8-bit units.
+ *
+ * @param {BitStructure} container - initializer for {@link
+ * BitField#container|container}.
+ *
+ * @param {Number} bits - initializer for {@link BitField#bits|bits}.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ */
+class BitField {
+  constructor(container, bits, property) {
+    if (!(container instanceof BitStructure)) {
+      throw new TypeError('container must be a BitStructure');
+    }
+    if ((!Number.isInteger(bits)) || (0 >= bits)) {
+      throw new TypeError('bits must be positive integer');
+    }
+    const totalBits = 8 * container.span;
+    const usedBits = container.fields.reduce((sum, fd) => sum + fd.bits, 0);
+    if ((bits + usedBits) > totalBits) {
+      throw new Error('bits too long for span remainder ('
+                      + (totalBits - usedBits) + ' of '
+                      + totalBits + ' remain)');
+    }
+
+    /** The {@link BitStructure} instance to which this bit field
+     * belongs. */
+    this.container = container;
+
+    /** The span of this value in bits. */
+    this.bits = bits;
+
+    /** A mask of {@link BitField#bits|bits} bits isolating value bits
+     * that fit within the field.
+     *
+     * That is, it masks a value that has not yet been shifted into
+     * position within its containing packed integer. */
+    this.valueMask = (1 << bits) - 1;
+    if (32 === bits) { // shifted value out of range
+      this.valueMask = 0xFFFFFFFF;
+    }
+
+    /** The offset of the value within the containing packed unsigned
+     * integer.  The least significant bit of the packed value is at
+     * offset zero, regardless of bit ordering used. */
+    this.start = usedBits;
+    if (this.container.msb) {
+      this.start = totalBits - usedBits - bits;
+    }
+
+    /** A mask of {@link BitField#bits|bits} isolating the field value
+     * within the containing packed unsigned integer. */
+    this.wordMask = fixBitwiseResult(this.valueMask << this.start);
+
+    /** The property name used when this bitfield is represented in an
+     * Object.
+     *
+     * Intended to be functionally equivalent to {@link
+     * Layout#property}.
+     *
+     * If left undefined the corresponding span of bits will be
+     * treated as padding: it will not be mutated by {@link
+     * Layout#encode|encode} nor represented as a property in the
+     * decoded Object. */
+    this.property = property;
+  }
+
+  /** Store a value into the corresponding subsequence of the containing
+   * bit field. */
+  decode() {
+    const word = this.container._packedGetValue();
+    const wordValue = fixBitwiseResult(word & this.wordMask);
+    const value = wordValue >>> this.start;
+    return value;
+  }
+
+  /** Store a value into the corresponding subsequence of the containing
+   * bit field.
+   *
+   * **NOTE** This is not a specialization of {@link
+   * Layout#encode|Layout.encode} and there is no return value. */
+  encode(value) {
+    if ((!Number.isInteger(value))
+        || (value !== fixBitwiseResult(value & this.valueMask))) {
+      throw new TypeError(nameWithProperty('BitField.encode', this)
+                          + ' value must be integer not exceeding ' + this.valueMask);
+    }
+    const word = this.container._packedGetValue();
+    const wordValue = fixBitwiseResult(value << this.start);
+    this.container._packedSetValue(fixBitwiseResult(word & ~this.wordMask)
+                                   | wordValue);
+  };
+}
+
+/**
+ * Represent a single bit within a {@link BitStructure} as a
+ * JavaScript boolean.
+ *
+ * **NOTE** User code should not invoke this constructor directly.
+ * Use the container {@link BitStructure#addBoolean|addBoolean} helper
+ * method.
+ *
+ * @param {BitStructure} container - initializer for {@link
+ * BitField#container|container}.
+ *
+ * @param {string} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {BitField}
+ */
+/* eslint-disable no-extend-native */
+class Boolean$1 extends BitField {
+  constructor(container, property) {
+    super(container, 1, property);
+  }
+
+  /** Override {@link BitField#decode|decode} for {@link Boolean|Boolean}.
+   *
+   * @returns {boolean} */
+  decode(b, offset) {
+    return !!BitField.prototype.decode.call(this, b, offset);
+  }
+
+  /** @override */
+  encode(value) {
+    if ('boolean' === typeof value) {
+      // BitField requires integer values
+      value = +value;
+    }
+    return BitField.prototype.encode.call(this, value);
+  }
+}
+/* eslint-enable no-extend-native */
+
+/**
+ * Contain a fixed-length block of arbitrary data, represented as a
+ * Buffer.
+ *
+ * *Factory*: {@link module:Layout.blob|blob}
+ *
+ * @param {(Number|ExternalLayout)} length - initializes {@link
+ * Blob#length|length}.
+ *
+ * @param {String} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Blob extends Layout {
+  constructor(length, property) {
+    if (!(((length instanceof ExternalLayout) && length.isCount())
+          || (Number.isInteger(length) && (0 <= length)))) {
+      throw new TypeError('length must be positive integer '
+                          + 'or an unsigned integer ExternalLayout');
+    }
+
+    let span = -1;
+    if (!(length instanceof ExternalLayout)) {
+      span = length;
+    }
+    super(span, property);
+
+    /** The number of bytes in the blob.
+     *
+     * This may be a non-negative integer, or an instance of {@link
+     * ExternalLayout} that satisfies {@link
+     * ExternalLayout#isCount|isCount()}. */
+    this.length = length;
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    let span = this.span;
+    if (0 > span) {
+      span = this.length.decode(b, offset);
+    }
+    return span;
+  }
+
+  /** @override */
+  decode(b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let span = this.span;
+    if (0 > span) {
+      span = this.length.decode(b, offset);
+    }
+    return b.slice(offset, offset + span);
+  }
+
+  /** Implement {@link Layout#encode|encode} for {@link Blob}.
+   *
+   * **NOTE** If {@link Layout#count|count} is an instance of {@link
+   * ExternalLayout} then the length of `src` will be encoded as the
+   * count after `src` is encoded. */
+  encode(src, b, offset) {
+    let span = this.length;
+    if (this.length instanceof ExternalLayout) {
+      span = src.length;
+    }
+    if (!(Buffer.isBuffer(src)
+          && (span === src.length))) {
+      throw new TypeError(nameWithProperty('Blob.encode', this)
+                          + ' requires (length ' + span + ') Buffer as src');
+    }
+    if ((offset + span) > b.length) {
+      throw new RangeError('encoding overruns Buffer');
+    }
+    b.write(src.toString('hex'), offset, span, 'hex');
+    if (this.length instanceof ExternalLayout) {
+      this.length.encode(span, b, offset);
+    }
+    return span;
+  }
+}
+
+/**
+ * Contain a `NUL`-terminated UTF8 string.
+ *
+ * *Factory*: {@link module:Layout.cstr|cstr}
+ *
+ * **NOTE** Any UTF8 string that incorporates a zero-valued byte will
+ * not be correctly decoded by this layout.
+ *
+ * @param {String} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class CString extends Layout {
+  constructor(property) {
+    super(-1, property);
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    if (!Buffer.isBuffer(b)) {
+      throw new TypeError('b must be a Buffer');
+    }
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let idx = offset;
+    while ((idx < b.length) && (0 !== b[idx])) {
+      idx += 1;
+    }
+    return 1 + idx - offset;
+  }
+
+  /** @override */
+  decode(b, offset, dest) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let span = this.getSpan(b, offset);
+    return b.slice(offset, offset + span - 1).toString('utf-8');
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    /* Must force this to a string, lest it be a number and the
+     * "utf8-encoding" below actually allocate a buffer of length
+     * src */
+    if ('string' !== typeof src) {
+      src = src.toString();
+    }
+    const srcb = new Buffer(src, 'utf8');
+    const span = srcb.length;
+    if ((offset + span) > b.length) {
+      throw new RangeError('encoding overruns Buffer');
+    }
+    srcb.copy(b, offset);
+    b[offset + span] = 0;
+    return span + 1;
+  }
+}
+
+/**
+ * Contain a UTF8 string with implicit length.
+ *
+ * *Factory*: {@link module:Layout.utf8|utf8}
+ *
+ * **NOTE** Because the length is implicit in the size of the buffer
+ * this layout should be used only in isolation, or in a situation
+ * where the length can be expressed by operating on a slice of the
+ * containing buffer.
+ *
+ * @param {Number} [maxSpan] - the maximum length allowed for encoded
+ * string content.  If not provided there is no bound on the allowed
+ * content.
+ *
+ * @param {String} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class UTF8 extends Layout {
+  constructor(maxSpan, property) {
+    if (('string' === typeof maxSpan)
+        && (undefined === property)) {
+      property = maxSpan;
+      maxSpan = undefined;
+    }
+    if (undefined === maxSpan) {
+      maxSpan = -1;
+    } else if (!Number.isInteger(maxSpan)) {
+      throw new TypeError('maxSpan must be an integer');
+    }
+
+    super(-1, property);
+
+    /** The maximum span of the layout in bytes.
+     *
+     * Positive values are generally expected.  Zero is abnormal.
+     * Attempts to encode or decode a value that exceeds this length
+     * will throw a `RangeError`.
+     *
+     * A negative value indicates that there is no bound on the length
+     * of the content. */
+    this.maxSpan = maxSpan;
+  }
+
+  /** @override */
+  getSpan(b, offset) {
+    if (!Buffer.isBuffer(b)) {
+      throw new TypeError('b must be a Buffer');
+    }
+    if (undefined === offset) {
+      offset = 0;
+    }
+    return b.length - offset;
+  }
+
+  /** @override */
+  decode(b, offset, dest) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    let span = this.getSpan(b, offset);
+    if ((0 <= this.maxSpan)
+        && (this.maxSpan < span)) {
+      throw new RangeError('text length exceeds maxSpan');
+    }
+    return b.slice(offset, offset + span).toString('utf-8');
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    if (undefined === offset) {
+      offset = 0;
+    }
+    /* Must force this to a string, lest it be a number and the
+     * "utf8-encoding" below actually allocate a buffer of length
+     * src */
+    if ('string' !== typeof src) {
+      src = src.toString();
+    }
+    const srcb = new Buffer(src, 'utf8');
+    const span = srcb.length;
+    if ((0 <= this.maxSpan)
+        && (this.maxSpan < span)) {
+      throw new RangeError('text length exceeds maxSpan');
+    }
+    if ((offset + span) > b.length) {
+      throw new RangeError('encoding overruns Buffer');
+    }
+    srcb.copy(b, offset);
+    return span;
+  }
+}
+
+/**
+ * Contain a constant value.
+ *
+ * This layout may be used in cases where a JavaScript value can be
+ * inferred without an expression in the binary encoding.  An example
+ * would be a {@link VariantLayout|variant layout} where the content
+ * is implied by the union {@link Union#discriminator|discriminator}.
+ *
+ * @param {Object|Number|String} value - initializer for {@link
+ * Constant#value|value}.  If the value is an object (or array) and
+ * the application intends the object to remain unchanged regardless
+ * of what is done to values decoded by this layout, the value should
+ * be frozen prior passing it to this constructor.
+ *
+ * @param {String} [property] - initializer for {@link
+ * Layout#property|property}.
+ *
+ * @augments {Layout}
+ */
+class Constant extends Layout {
+  constructor(value, property) {
+    super(0, property);
+
+    /** The value produced by this constant when the layout is {@link
+     * Constant#decode|decoded}.
+     *
+     * Any JavaScript value including `null` and `undefined` is
+     * permitted.
+     *
+     * **WARNING** If `value` passed in the constructor was not
+     * frozen, it is possible for users of decoded values to change
+     * the content of the value. */
+    this.value = value;
+  }
+
+  /** @override */
+  decode(b, offset, dest) {
+    return this.value;
+  }
+
+  /** @override */
+  encode(src, b, offset) {
+    /* Constants take no space */
+    return 0;
+  }
+}
+
+Layout$1.ExternalLayout = ExternalLayout;
+Layout$1.GreedyCount = GreedyCount;
+Layout$1.OffsetLayout = OffsetLayout;
+Layout$1.UInt = UInt;
+Layout$1.UIntBE = UIntBE;
+Layout$1.Int = Int;
+Layout$1.IntBE = IntBE;
+Layout$1.Float = Float;
+Layout$1.FloatBE = FloatBE;
+Layout$1.Double = Double;
+Layout$1.DoubleBE = DoubleBE;
+Layout$1.Sequence = Sequence;
+Layout$1.Structure = Structure;
+Layout$1.UnionDiscriminator = UnionDiscriminator;
+Layout$1.UnionLayoutDiscriminator = UnionLayoutDiscriminator;
+Layout$1.Union = Union;
+Layout$1.VariantLayout = VariantLayout;
+Layout$1.BitStructure = BitStructure;
+Layout$1.BitField = BitField;
+Layout$1.Boolean = Boolean$1;
+Layout$1.Blob = Blob;
+Layout$1.CString = CString;
+Layout$1.UTF8 = UTF8;
+Layout$1.Constant = Constant;
+
+/** Factory for {@link GreedyCount}. */
+Layout$1.greedy = ((elementSpan, property) => new GreedyCount(elementSpan, property));
+
+/** Factory for {@link OffsetLayout}. */
+Layout$1.offset = ((layout, offset, property) => new OffsetLayout(layout, offset, property));
+
+/** Factory for {@link UInt|unsigned int layouts} spanning one
+ * byte. */
+Layout$1.u8 = (property => new UInt(1, property));
+
+/** Factory for {@link UInt|little-endian unsigned int layouts}
+ * spanning two bytes. */
+Layout$1.u16 = (property => new UInt(2, property));
+
+/** Factory for {@link UInt|little-endian unsigned int layouts}
+ * spanning three bytes. */
+Layout$1.u24 = (property => new UInt(3, property));
+
+/** Factory for {@link UInt|little-endian unsigned int layouts}
+ * spanning four bytes. */
+Layout$1.u32 = (property => new UInt(4, property));
+
+/** Factory for {@link UInt|little-endian unsigned int layouts}
+ * spanning five bytes. */
+Layout$1.u40 = (property => new UInt(5, property));
+
+/** Factory for {@link UInt|little-endian unsigned int layouts}
+ * spanning six bytes. */
+Layout$1.u48 = (property => new UInt(6, property));
+
+/** Factory for {@link NearUInt64|little-endian unsigned int
+ * layouts} interpreted as Numbers. */
+Layout$1.nu64 = (property => new NearUInt64(property));
+
+/** Factory for {@link UInt|big-endian unsigned int layouts}
+ * spanning two bytes. */
+Layout$1.u16be = (property => new UIntBE(2, property));
+
+/** Factory for {@link UInt|big-endian unsigned int layouts}
+ * spanning three bytes. */
+Layout$1.u24be = (property => new UIntBE(3, property));
+
+/** Factory for {@link UInt|big-endian unsigned int layouts}
+ * spanning four bytes. */
+Layout$1.u32be = (property => new UIntBE(4, property));
+
+/** Factory for {@link UInt|big-endian unsigned int layouts}
+ * spanning five bytes. */
+Layout$1.u40be = (property => new UIntBE(5, property));
+
+/** Factory for {@link UInt|big-endian unsigned int layouts}
+ * spanning six bytes. */
+Layout$1.u48be = (property => new UIntBE(6, property));
+
+/** Factory for {@link NearUInt64BE|big-endian unsigned int
+ * layouts} interpreted as Numbers. */
+Layout$1.nu64be = (property => new NearUInt64BE(property));
+
+/** Factory for {@link Int|signed int layouts} spanning one
+ * byte. */
+Layout$1.s8 = (property => new Int(1, property));
+
+/** Factory for {@link Int|little-endian signed int layouts}
+ * spanning two bytes. */
+Layout$1.s16 = (property => new Int(2, property));
+
+/** Factory for {@link Int|little-endian signed int layouts}
+ * spanning three bytes. */
+Layout$1.s24 = (property => new Int(3, property));
+
+/** Factory for {@link Int|little-endian signed int layouts}
+ * spanning four bytes. */
+Layout$1.s32 = (property => new Int(4, property));
+
+/** Factory for {@link Int|little-endian signed int layouts}
+ * spanning five bytes. */
+Layout$1.s40 = (property => new Int(5, property));
+
+/** Factory for {@link Int|little-endian signed int layouts}
+ * spanning six bytes. */
+Layout$1.s48 = (property => new Int(6, property));
+
+/** Factory for {@link NearInt64|little-endian signed int layouts}
+ * interpreted as Numbers. */
+Layout$1.ns64 = (property => new NearInt64(property));
+
+/** Factory for {@link Int|big-endian signed int layouts}
+ * spanning two bytes. */
+Layout$1.s16be = (property => new IntBE(2, property));
+
+/** Factory for {@link Int|big-endian signed int layouts}
+ * spanning three bytes. */
+Layout$1.s24be = (property => new IntBE(3, property));
+
+/** Factory for {@link Int|big-endian signed int layouts}
+ * spanning four bytes. */
+Layout$1.s32be = (property => new IntBE(4, property));
+
+/** Factory for {@link Int|big-endian signed int layouts}
+ * spanning five bytes. */
+Layout$1.s40be = (property => new IntBE(5, property));
+
+/** Factory for {@link Int|big-endian signed int layouts}
+ * spanning six bytes. */
+Layout$1.s48be = (property => new IntBE(6, property));
+
+/** Factory for {@link NearInt64BE|big-endian signed int layouts}
+ * interpreted as Numbers. */
+Layout$1.ns64be = (property => new NearInt64BE(property));
+
+/** Factory for {@link Float|little-endian 32-bit floating point} values. */
+Layout$1.f32 = (property => new Float(property));
+
+/** Factory for {@link FloatBE|big-endian 32-bit floating point} values. */
+Layout$1.f32be = (property => new FloatBE(property));
+
+/** Factory for {@link Double|little-endian 64-bit floating point} values. */
+Layout$1.f64 = (property => new Double(property));
+
+/** Factory for {@link DoubleBE|big-endian 64-bit floating point} values. */
+Layout$1.f64be = (property => new DoubleBE(property));
+
+/** Factory for {@link Structure} values. */
+Layout$1.struct = ((fields, property, decodePrefixes) => new Structure(fields, property, decodePrefixes));
+
+/** Factory for {@link BitStructure} values. */
+Layout$1.bits = ((word, msb, property) => new BitStructure(word, msb, property));
+
+/** Factory for {@link Sequence} values. */
+Layout$1.seq = ((elementLayout, count, property) => new Sequence(elementLayout, count, property));
+
+/** Factory for {@link Union} values. */
+Layout$1.union = ((discr, defaultLayout, property) => new Union(discr, defaultLayout, property));
+
+/** Factory for {@link UnionLayoutDiscriminator} values. */
+Layout$1.unionLayoutDiscriminator = ((layout, property) => new UnionLayoutDiscriminator(layout, property));
+
+/** Factory for {@link Blob} values. */
+Layout$1.blob = ((length, property) => new Blob(length, property));
+
+/** Factory for {@link CString} values. */
+Layout$1.cstr = (property => new CString(property));
+
+/** Factory for {@link UTF8} values. */
+Layout$1.utf8 = ((maxSpan, property) => new UTF8(maxSpan, property));
+
+/** Factory for {@link Constant} values. */
+Layout$1.const = ((value, property) => new Constant(value, property));
+
+var require$$1 = /*@__PURE__*/getAugmentedNamespace(index_browser_esm);
+
+var bn = {exports: {}};
+
+(function (module) {
+	(function (module, exports) {
+
+	  // Utils
+	  function assert (val, msg) {
+	    if (!val) throw new Error(msg || 'Assertion failed');
+	  }
+
+	  // Could use `inherits` module, but don't want to move from single file
+	  // architecture yet.
+	  function inherits (ctor, superCtor) {
+	    ctor.super_ = superCtor;
+	    var TempCtor = function () {};
+	    TempCtor.prototype = superCtor.prototype;
+	    ctor.prototype = new TempCtor();
+	    ctor.prototype.constructor = ctor;
+	  }
+
+	  // BN
+
+	  function BN (number, base, endian) {
+	    if (BN.isBN(number)) {
+	      return number;
+	    }
+
+	    this.negative = 0;
+	    this.words = null;
+	    this.length = 0;
+
+	    // Reduction context
+	    this.red = null;
+
+	    if (number !== null) {
+	      if (base === 'le' || base === 'be') {
+	        endian = base;
+	        base = 10;
+	      }
+
+	      this._init(number || 0, base || 10, endian || 'be');
+	    }
+	  }
+	  if (typeof module === 'object') {
+	    module.exports = BN;
+	  } else {
+	    exports.BN = BN;
+	  }
+
+	  BN.BN = BN;
+	  BN.wordSize = 26;
+
+	  var Buffer;
+	  try {
+	    if (typeof window !== 'undefined' && typeof window.Buffer !== 'undefined') {
+	      Buffer = window.Buffer;
+	    } else {
+	      Buffer = require$$0$6.Buffer;
+	    }
+	  } catch (e) {
+	  }
+
+	  BN.isBN = function isBN (num) {
+	    if (num instanceof BN) {
+	      return true;
+	    }
+
+	    return num !== null && typeof num === 'object' &&
+	      num.constructor.wordSize === BN.wordSize && Array.isArray(num.words);
+	  };
+
+	  BN.max = function max (left, right) {
+	    if (left.cmp(right) > 0) return left;
+	    return right;
+	  };
+
+	  BN.min = function min (left, right) {
+	    if (left.cmp(right) < 0) return left;
+	    return right;
+	  };
+
+	  BN.prototype._init = function init (number, base, endian) {
+	    if (typeof number === 'number') {
+	      return this._initNumber(number, base, endian);
+	    }
+
+	    if (typeof number === 'object') {
+	      return this._initArray(number, base, endian);
+	    }
+
+	    if (base === 'hex') {
+	      base = 16;
+	    }
+	    assert(base === (base | 0) && base >= 2 && base <= 36);
+
+	    number = number.toString().replace(/\s+/g, '');
+	    var start = 0;
+	    if (number[0] === '-') {
+	      start++;
+	      this.negative = 1;
+	    }
+
+	    if (start < number.length) {
+	      if (base === 16) {
+	        this._parseHex(number, start, endian);
+	      } else {
+	        this._parseBase(number, base, start);
+	        if (endian === 'le') {
+	          this._initArray(this.toArray(), base, endian);
+	        }
+	      }
+	    }
+	  };
+
+	  BN.prototype._initNumber = function _initNumber (number, base, endian) {
+	    if (number < 0) {
+	      this.negative = 1;
+	      number = -number;
+	    }
+	    if (number < 0x4000000) {
+	      this.words = [number & 0x3ffffff];
+	      this.length = 1;
+	    } else if (number < 0x10000000000000) {
+	      this.words = [
+	        number & 0x3ffffff,
+	        (number / 0x4000000) & 0x3ffffff
+	      ];
+	      this.length = 2;
+	    } else {
+	      assert(number < 0x20000000000000); // 2 ^ 53 (unsafe)
+	      this.words = [
+	        number & 0x3ffffff,
+	        (number / 0x4000000) & 0x3ffffff,
+	        1
+	      ];
+	      this.length = 3;
+	    }
+
+	    if (endian !== 'le') return;
+
+	    // Reverse the bytes
+	    this._initArray(this.toArray(), base, endian);
+	  };
+
+	  BN.prototype._initArray = function _initArray (number, base, endian) {
+	    // Perhaps a Uint8Array
+	    assert(typeof number.length === 'number');
+	    if (number.length <= 0) {
+	      this.words = [0];
+	      this.length = 1;
+	      return this;
+	    }
+
+	    this.length = Math.ceil(number.length / 3);
+	    this.words = new Array(this.length);
+	    for (var i = 0; i < this.length; i++) {
+	      this.words[i] = 0;
+	    }
+
+	    var j, w;
+	    var off = 0;
+	    if (endian === 'be') {
+	      for (i = number.length - 1, j = 0; i >= 0; i -= 3) {
+	        w = number[i] | (number[i - 1] << 8) | (number[i - 2] << 16);
+	        this.words[j] |= (w << off) & 0x3ffffff;
+	        this.words[j + 1] = (w >>> (26 - off)) & 0x3ffffff;
+	        off += 24;
+	        if (off >= 26) {
+	          off -= 26;
+	          j++;
+	        }
+	      }
+	    } else if (endian === 'le') {
+	      for (i = 0, j = 0; i < number.length; i += 3) {
+	        w = number[i] | (number[i + 1] << 8) | (number[i + 2] << 16);
+	        this.words[j] |= (w << off) & 0x3ffffff;
+	        this.words[j + 1] = (w >>> (26 - off)) & 0x3ffffff;
+	        off += 24;
+	        if (off >= 26) {
+	          off -= 26;
+	          j++;
+	        }
+	      }
+	    }
+	    return this._strip();
+	  };
+
+	  function parseHex4Bits (string, index) {
+	    var c = string.charCodeAt(index);
+	    // '0' - '9'
+	    if (c >= 48 && c <= 57) {
+	      return c - 48;
+	    // 'A' - 'F'
+	    } else if (c >= 65 && c <= 70) {
+	      return c - 55;
+	    // 'a' - 'f'
+	    } else if (c >= 97 && c <= 102) {
+	      return c - 87;
+	    } else {
+	      assert(false, 'Invalid character in ' + string);
+	    }
+	  }
+
+	  function parseHexByte (string, lowerBound, index) {
+	    var r = parseHex4Bits(string, index);
+	    if (index - 1 >= lowerBound) {
+	      r |= parseHex4Bits(string, index - 1) << 4;
+	    }
+	    return r;
+	  }
+
+	  BN.prototype._parseHex = function _parseHex (number, start, endian) {
+	    // Create possibly bigger array to ensure that it fits the number
+	    this.length = Math.ceil((number.length - start) / 6);
+	    this.words = new Array(this.length);
+	    for (var i = 0; i < this.length; i++) {
+	      this.words[i] = 0;
+	    }
+
+	    // 24-bits chunks
+	    var off = 0;
+	    var j = 0;
+
+	    var w;
+	    if (endian === 'be') {
+	      for (i = number.length - 1; i >= start; i -= 2) {
+	        w = parseHexByte(number, start, i) << off;
+	        this.words[j] |= w & 0x3ffffff;
+	        if (off >= 18) {
+	          off -= 18;
+	          j += 1;
+	          this.words[j] |= w >>> 26;
+	        } else {
+	          off += 8;
+	        }
+	      }
+	    } else {
+	      var parseLength = number.length - start;
+	      for (i = parseLength % 2 === 0 ? start + 1 : start; i < number.length; i += 2) {
+	        w = parseHexByte(number, start, i) << off;
+	        this.words[j] |= w & 0x3ffffff;
+	        if (off >= 18) {
+	          off -= 18;
+	          j += 1;
+	          this.words[j] |= w >>> 26;
+	        } else {
+	          off += 8;
+	        }
+	      }
+	    }
+
+	    this._strip();
+	  };
+
+	  function parseBase (str, start, end, mul) {
+	    var r = 0;
+	    var b = 0;
+	    var len = Math.min(str.length, end);
+	    for (var i = start; i < len; i++) {
+	      var c = str.charCodeAt(i) - 48;
+
+	      r *= mul;
+
+	      // 'a'
+	      if (c >= 49) {
+	        b = c - 49 + 0xa;
+
+	      // 'A'
+	      } else if (c >= 17) {
+	        b = c - 17 + 0xa;
+
+	      // '0' - '9'
+	      } else {
+	        b = c;
+	      }
+	      assert(c >= 0 && b < mul, 'Invalid character');
+	      r += b;
+	    }
+	    return r;
+	  }
+
+	  BN.prototype._parseBase = function _parseBase (number, base, start) {
+	    // Initialize as zero
+	    this.words = [0];
+	    this.length = 1;
+
+	    // Find length of limb in base
+	    for (var limbLen = 0, limbPow = 1; limbPow <= 0x3ffffff; limbPow *= base) {
+	      limbLen++;
+	    }
+	    limbLen--;
+	    limbPow = (limbPow / base) | 0;
+
+	    var total = number.length - start;
+	    var mod = total % limbLen;
+	    var end = Math.min(total, total - mod) + start;
+
+	    var word = 0;
+	    for (var i = start; i < end; i += limbLen) {
+	      word = parseBase(number, i, i + limbLen, base);
+
+	      this.imuln(limbPow);
+	      if (this.words[0] + word < 0x4000000) {
+	        this.words[0] += word;
+	      } else {
+	        this._iaddn(word);
+	      }
+	    }
+
+	    if (mod !== 0) {
+	      var pow = 1;
+	      word = parseBase(number, i, number.length, base);
+
+	      for (i = 0; i < mod; i++) {
+	        pow *= base;
+	      }
+
+	      this.imuln(pow);
+	      if (this.words[0] + word < 0x4000000) {
+	        this.words[0] += word;
+	      } else {
+	        this._iaddn(word);
+	      }
+	    }
+
+	    this._strip();
+	  };
+
+	  BN.prototype.copy = function copy (dest) {
+	    dest.words = new Array(this.length);
+	    for (var i = 0; i < this.length; i++) {
+	      dest.words[i] = this.words[i];
+	    }
+	    dest.length = this.length;
+	    dest.negative = this.negative;
+	    dest.red = this.red;
+	  };
+
+	  function move (dest, src) {
+	    dest.words = src.words;
+	    dest.length = src.length;
+	    dest.negative = src.negative;
+	    dest.red = src.red;
+	  }
+
+	  BN.prototype._move = function _move (dest) {
+	    move(dest, this);
+	  };
+
+	  BN.prototype.clone = function clone () {
+	    var r = new BN(null);
+	    this.copy(r);
+	    return r;
+	  };
+
+	  BN.prototype._expand = function _expand (size) {
+	    while (this.length < size) {
+	      this.words[this.length++] = 0;
+	    }
+	    return this;
+	  };
+
+	  // Remove leading `0` from `this`
+	  BN.prototype._strip = function strip () {
+	    while (this.length > 1 && this.words[this.length - 1] === 0) {
+	      this.length--;
+	    }
+	    return this._normSign();
+	  };
+
+	  BN.prototype._normSign = function _normSign () {
+	    // -0 = 0
+	    if (this.length === 1 && this.words[0] === 0) {
+	      this.negative = 0;
+	    }
+	    return this;
+	  };
+
+	  // Check Symbol.for because not everywhere where Symbol defined
+	  // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol#Browser_compatibility
+	  if (typeof Symbol !== 'undefined' && typeof Symbol.for === 'function') {
+	    try {
+	      BN.prototype[Symbol.for('nodejs.util.inspect.custom')] = inspect;
+	    } catch (e) {
+	      BN.prototype.inspect = inspect;
+	    }
+	  } else {
+	    BN.prototype.inspect = inspect;
+	  }
+
+	  function inspect () {
+	    return (this.red ? '<BN-R: ' : '<BN: ') + this.toString(16) + '>';
+	  }
+
+	  /*
+
+	  var zeros = [];
+	  var groupSizes = [];
+	  var groupBases = [];
+
+	  var s = '';
+	  var i = -1;
+	  while (++i < BN.wordSize) {
+	    zeros[i] = s;
+	    s += '0';
+	  }
+	  groupSizes[0] = 0;
+	  groupSizes[1] = 0;
+	  groupBases[0] = 0;
+	  groupBases[1] = 0;
+	  var base = 2 - 1;
+	  while (++base < 36 + 1) {
+	    var groupSize = 0;
+	    var groupBase = 1;
+	    while (groupBase < (1 << BN.wordSize) / base) {
+	      groupBase *= base;
+	      groupSize += 1;
+	    }
+	    groupSizes[base] = groupSize;
+	    groupBases[base] = groupBase;
+	  }
+
+	  */
+
+	  var zeros = [
+	    '',
+	    '0',
+	    '00',
+	    '000',
+	    '0000',
+	    '00000',
+	    '000000',
+	    '0000000',
+	    '00000000',
+	    '000000000',
+	    '0000000000',
+	    '00000000000',
+	    '000000000000',
+	    '0000000000000',
+	    '00000000000000',
+	    '000000000000000',
+	    '0000000000000000',
+	    '00000000000000000',
+	    '000000000000000000',
+	    '0000000000000000000',
+	    '00000000000000000000',
+	    '000000000000000000000',
+	    '0000000000000000000000',
+	    '00000000000000000000000',
+	    '000000000000000000000000',
+	    '0000000000000000000000000'
+	  ];
+
+	  var groupSizes = [
+	    0, 0,
+	    25, 16, 12, 11, 10, 9, 8,
+	    8, 7, 7, 7, 7, 6, 6,
+	    6, 6, 6, 6, 6, 5, 5,
+	    5, 5, 5, 5, 5, 5, 5,
+	    5, 5, 5, 5, 5, 5, 5
+	  ];
+
+	  var groupBases = [
+	    0, 0,
+	    33554432, 43046721, 16777216, 48828125, 60466176, 40353607, 16777216,
+	    43046721, 10000000, 19487171, 35831808, 62748517, 7529536, 11390625,
+	    16777216, 24137569, 34012224, 47045881, 64000000, 4084101, 5153632,
+	    6436343, 7962624, 9765625, 11881376, 14348907, 17210368, 20511149,
+	    24300000, 28629151, 33554432, 39135393, 45435424, 52521875, 60466176
+	  ];
+
+	  BN.prototype.toString = function toString (base, padding) {
+	    base = base || 10;
+	    padding = padding | 0 || 1;
+
+	    var out;
+	    if (base === 16 || base === 'hex') {
+	      out = '';
+	      var off = 0;
+	      var carry = 0;
+	      for (var i = 0; i < this.length; i++) {
+	        var w = this.words[i];
+	        var word = (((w << off) | carry) & 0xffffff).toString(16);
+	        carry = (w >>> (24 - off)) & 0xffffff;
+	        off += 2;
+	        if (off >= 26) {
+	          off -= 26;
+	          i--;
+	        }
+	        if (carry !== 0 || i !== this.length - 1) {
+	          out = zeros[6 - word.length] + word + out;
+	        } else {
+	          out = word + out;
+	        }
+	      }
+	      if (carry !== 0) {
+	        out = carry.toString(16) + out;
+	      }
+	      while (out.length % padding !== 0) {
+	        out = '0' + out;
+	      }
+	      if (this.negative !== 0) {
+	        out = '-' + out;
+	      }
+	      return out;
+	    }
+
+	    if (base === (base | 0) && base >= 2 && base <= 36) {
+	      // var groupSize = Math.floor(BN.wordSize * Math.LN2 / Math.log(base));
+	      var groupSize = groupSizes[base];
+	      // var groupBase = Math.pow(base, groupSize);
+	      var groupBase = groupBases[base];
+	      out = '';
+	      var c = this.clone();
+	      c.negative = 0;
+	      while (!c.isZero()) {
+	        var r = c.modrn(groupBase).toString(base);
+	        c = c.idivn(groupBase);
+
+	        if (!c.isZero()) {
+	          out = zeros[groupSize - r.length] + r + out;
+	        } else {
+	          out = r + out;
+	        }
+	      }
+	      if (this.isZero()) {
+	        out = '0' + out;
+	      }
+	      while (out.length % padding !== 0) {
+	        out = '0' + out;
+	      }
+	      if (this.negative !== 0) {
+	        out = '-' + out;
+	      }
+	      return out;
+	    }
+
+	    assert(false, 'Base should be between 2 and 36');
+	  };
+
+	  BN.prototype.toNumber = function toNumber () {
+	    var ret = this.words[0];
+	    if (this.length === 2) {
+	      ret += this.words[1] * 0x4000000;
+	    } else if (this.length === 3 && this.words[2] === 0x01) {
+	      // NOTE: at this stage it is known that the top bit is set
+	      ret += 0x10000000000000 + (this.words[1] * 0x4000000);
+	    } else if (this.length > 2) {
+	      assert(false, 'Number can only safely store up to 53 bits');
+	    }
+	    return (this.negative !== 0) ? -ret : ret;
+	  };
+
+	  BN.prototype.toJSON = function toJSON () {
+	    return this.toString(16, 2);
+	  };
+
+	  if (Buffer) {
+	    BN.prototype.toBuffer = function toBuffer (endian, length) {
+	      return this.toArrayLike(Buffer, endian, length);
+	    };
+	  }
+
+	  BN.prototype.toArray = function toArray (endian, length) {
+	    return this.toArrayLike(Array, endian, length);
+	  };
+
+	  var allocate = function allocate (ArrayType, size) {
+	    if (ArrayType.allocUnsafe) {
+	      return ArrayType.allocUnsafe(size);
+	    }
+	    return new ArrayType(size);
+	  };
+
+	  BN.prototype.toArrayLike = function toArrayLike (ArrayType, endian, length) {
+	    this._strip();
+
+	    var byteLength = this.byteLength();
+	    var reqLength = length || Math.max(1, byteLength);
+	    assert(byteLength <= reqLength, 'byte array longer than desired length');
+	    assert(reqLength > 0, 'Requested array length <= 0');
+
+	    var res = allocate(ArrayType, reqLength);
+	    var postfix = endian === 'le' ? 'LE' : 'BE';
+	    this['_toArrayLike' + postfix](res, byteLength);
+	    return res;
+	  };
+
+	  BN.prototype._toArrayLikeLE = function _toArrayLikeLE (res, byteLength) {
+	    var position = 0;
+	    var carry = 0;
+
+	    for (var i = 0, shift = 0; i < this.length; i++) {
+	      var word = (this.words[i] << shift) | carry;
+
+	      res[position++] = word & 0xff;
+	      if (position < res.length) {
+	        res[position++] = (word >> 8) & 0xff;
+	      }
+	      if (position < res.length) {
+	        res[position++] = (word >> 16) & 0xff;
+	      }
+
+	      if (shift === 6) {
+	        if (position < res.length) {
+	          res[position++] = (word >> 24) & 0xff;
+	        }
+	        carry = 0;
+	        shift = 0;
+	      } else {
+	        carry = word >>> 24;
+	        shift += 2;
+	      }
+	    }
+
+	    if (position < res.length) {
+	      res[position++] = carry;
+
+	      while (position < res.length) {
+	        res[position++] = 0;
+	      }
+	    }
+	  };
+
+	  BN.prototype._toArrayLikeBE = function _toArrayLikeBE (res, byteLength) {
+	    var position = res.length - 1;
+	    var carry = 0;
+
+	    for (var i = 0, shift = 0; i < this.length; i++) {
+	      var word = (this.words[i] << shift) | carry;
+
+	      res[position--] = word & 0xff;
+	      if (position >= 0) {
+	        res[position--] = (word >> 8) & 0xff;
+	      }
+	      if (position >= 0) {
+	        res[position--] = (word >> 16) & 0xff;
+	      }
+
+	      if (shift === 6) {
+	        if (position >= 0) {
+	          res[position--] = (word >> 24) & 0xff;
+	        }
+	        carry = 0;
+	        shift = 0;
+	      } else {
+	        carry = word >>> 24;
+	        shift += 2;
+	      }
+	    }
+
+	    if (position >= 0) {
+	      res[position--] = carry;
+
+	      while (position >= 0) {
+	        res[position--] = 0;
+	      }
+	    }
+	  };
+
+	  if (Math.clz32) {
+	    BN.prototype._countBits = function _countBits (w) {
+	      return 32 - Math.clz32(w);
+	    };
+	  } else {
+	    BN.prototype._countBits = function _countBits (w) {
+	      var t = w;
+	      var r = 0;
+	      if (t >= 0x1000) {
+	        r += 13;
+	        t >>>= 13;
+	      }
+	      if (t >= 0x40) {
+	        r += 7;
+	        t >>>= 7;
+	      }
+	      if (t >= 0x8) {
+	        r += 4;
+	        t >>>= 4;
+	      }
+	      if (t >= 0x02) {
+	        r += 2;
+	        t >>>= 2;
+	      }
+	      return r + t;
+	    };
+	  }
+
+	  BN.prototype._zeroBits = function _zeroBits (w) {
+	    // Short-cut
+	    if (w === 0) return 26;
+
+	    var t = w;
+	    var r = 0;
+	    if ((t & 0x1fff) === 0) {
+	      r += 13;
+	      t >>>= 13;
+	    }
+	    if ((t & 0x7f) === 0) {
+	      r += 7;
+	      t >>>= 7;
+	    }
+	    if ((t & 0xf) === 0) {
+	      r += 4;
+	      t >>>= 4;
+	    }
+	    if ((t & 0x3) === 0) {
+	      r += 2;
+	      t >>>= 2;
+	    }
+	    if ((t & 0x1) === 0) {
+	      r++;
+	    }
+	    return r;
+	  };
+
+	  // Return number of used bits in a BN
+	  BN.prototype.bitLength = function bitLength () {
+	    var w = this.words[this.length - 1];
+	    var hi = this._countBits(w);
+	    return (this.length - 1) * 26 + hi;
+	  };
+
+	  function toBitArray (num) {
+	    var w = new Array(num.bitLength());
+
+	    for (var bit = 0; bit < w.length; bit++) {
+	      var off = (bit / 26) | 0;
+	      var wbit = bit % 26;
+
+	      w[bit] = (num.words[off] >>> wbit) & 0x01;
+	    }
+
+	    return w;
+	  }
+
+	  // Number of trailing zero bits
+	  BN.prototype.zeroBits = function zeroBits () {
+	    if (this.isZero()) return 0;
+
+	    var r = 0;
+	    for (var i = 0; i < this.length; i++) {
+	      var b = this._zeroBits(this.words[i]);
+	      r += b;
+	      if (b !== 26) break;
+	    }
+	    return r;
+	  };
+
+	  BN.prototype.byteLength = function byteLength () {
+	    return Math.ceil(this.bitLength() / 8);
+	  };
+
+	  BN.prototype.toTwos = function toTwos (width) {
+	    if (this.negative !== 0) {
+	      return this.abs().inotn(width).iaddn(1);
+	    }
+	    return this.clone();
+	  };
+
+	  BN.prototype.fromTwos = function fromTwos (width) {
+	    if (this.testn(width - 1)) {
+	      return this.notn(width).iaddn(1).ineg();
+	    }
+	    return this.clone();
+	  };
+
+	  BN.prototype.isNeg = function isNeg () {
+	    return this.negative !== 0;
+	  };
+
+	  // Return negative clone of `this`
+	  BN.prototype.neg = function neg () {
+	    return this.clone().ineg();
+	  };
+
+	  BN.prototype.ineg = function ineg () {
+	    if (!this.isZero()) {
+	      this.negative ^= 1;
+	    }
+
+	    return this;
+	  };
+
+	  // Or `num` with `this` in-place
+	  BN.prototype.iuor = function iuor (num) {
+	    while (this.length < num.length) {
+	      this.words[this.length++] = 0;
+	    }
+
+	    for (var i = 0; i < num.length; i++) {
+	      this.words[i] = this.words[i] | num.words[i];
+	    }
+
+	    return this._strip();
+	  };
+
+	  BN.prototype.ior = function ior (num) {
+	    assert((this.negative | num.negative) === 0);
+	    return this.iuor(num);
+	  };
+
+	  // Or `num` with `this`
+	  BN.prototype.or = function or (num) {
+	    if (this.length > num.length) return this.clone().ior(num);
+	    return num.clone().ior(this);
+	  };
+
+	  BN.prototype.uor = function uor (num) {
+	    if (this.length > num.length) return this.clone().iuor(num);
+	    return num.clone().iuor(this);
+	  };
+
+	  // And `num` with `this` in-place
+	  BN.prototype.iuand = function iuand (num) {
+	    // b = min-length(num, this)
+	    var b;
+	    if (this.length > num.length) {
+	      b = num;
+	    } else {
+	      b = this;
+	    }
+
+	    for (var i = 0; i < b.length; i++) {
+	      this.words[i] = this.words[i] & num.words[i];
+	    }
+
+	    this.length = b.length;
+
+	    return this._strip();
+	  };
+
+	  BN.prototype.iand = function iand (num) {
+	    assert((this.negative | num.negative) === 0);
+	    return this.iuand(num);
+	  };
+
+	  // And `num` with `this`
+	  BN.prototype.and = function and (num) {
+	    if (this.length > num.length) return this.clone().iand(num);
+	    return num.clone().iand(this);
+	  };
+
+	  BN.prototype.uand = function uand (num) {
+	    if (this.length > num.length) return this.clone().iuand(num);
+	    return num.clone().iuand(this);
+	  };
+
+	  // Xor `num` with `this` in-place
+	  BN.prototype.iuxor = function iuxor (num) {
+	    // a.length > b.length
+	    var a;
+	    var b;
+	    if (this.length > num.length) {
+	      a = this;
+	      b = num;
+	    } else {
+	      a = num;
+	      b = this;
+	    }
+
+	    for (var i = 0; i < b.length; i++) {
+	      this.words[i] = a.words[i] ^ b.words[i];
+	    }
+
+	    if (this !== a) {
+	      for (; i < a.length; i++) {
+	        this.words[i] = a.words[i];
+	      }
+	    }
+
+	    this.length = a.length;
+
+	    return this._strip();
+	  };
+
+	  BN.prototype.ixor = function ixor (num) {
+	    assert((this.negative | num.negative) === 0);
+	    return this.iuxor(num);
+	  };
+
+	  // Xor `num` with `this`
+	  BN.prototype.xor = function xor (num) {
+	    if (this.length > num.length) return this.clone().ixor(num);
+	    return num.clone().ixor(this);
+	  };
+
+	  BN.prototype.uxor = function uxor (num) {
+	    if (this.length > num.length) return this.clone().iuxor(num);
+	    return num.clone().iuxor(this);
+	  };
+
+	  // Not ``this`` with ``width`` bitwidth
+	  BN.prototype.inotn = function inotn (width) {
+	    assert(typeof width === 'number' && width >= 0);
+
+	    var bytesNeeded = Math.ceil(width / 26) | 0;
+	    var bitsLeft = width % 26;
+
+	    // Extend the buffer with leading zeroes
+	    this._expand(bytesNeeded);
+
+	    if (bitsLeft > 0) {
+	      bytesNeeded--;
+	    }
+
+	    // Handle complete words
+	    for (var i = 0; i < bytesNeeded; i++) {
+	      this.words[i] = ~this.words[i] & 0x3ffffff;
+	    }
+
+	    // Handle the residue
+	    if (bitsLeft > 0) {
+	      this.words[i] = ~this.words[i] & (0x3ffffff >> (26 - bitsLeft));
+	    }
+
+	    // And remove leading zeroes
+	    return this._strip();
+	  };
+
+	  BN.prototype.notn = function notn (width) {
+	    return this.clone().inotn(width);
+	  };
+
+	  // Set `bit` of `this`
+	  BN.prototype.setn = function setn (bit, val) {
+	    assert(typeof bit === 'number' && bit >= 0);
+
+	    var off = (bit / 26) | 0;
+	    var wbit = bit % 26;
+
+	    this._expand(off + 1);
+
+	    if (val) {
+	      this.words[off] = this.words[off] | (1 << wbit);
+	    } else {
+	      this.words[off] = this.words[off] & ~(1 << wbit);
+	    }
+
+	    return this._strip();
+	  };
+
+	  // Add `num` to `this` in-place
+	  BN.prototype.iadd = function iadd (num) {
+	    var r;
+
+	    // negative + positive
+	    if (this.negative !== 0 && num.negative === 0) {
+	      this.negative = 0;
+	      r = this.isub(num);
+	      this.negative ^= 1;
+	      return this._normSign();
+
+	    // positive + negative
+	    } else if (this.negative === 0 && num.negative !== 0) {
+	      num.negative = 0;
+	      r = this.isub(num);
+	      num.negative = 1;
+	      return r._normSign();
+	    }
+
+	    // a.length > b.length
+	    var a, b;
+	    if (this.length > num.length) {
+	      a = this;
+	      b = num;
+	    } else {
+	      a = num;
+	      b = this;
+	    }
+
+	    var carry = 0;
+	    for (var i = 0; i < b.length; i++) {
+	      r = (a.words[i] | 0) + (b.words[i] | 0) + carry;
+	      this.words[i] = r & 0x3ffffff;
+	      carry = r >>> 26;
+	    }
+	    for (; carry !== 0 && i < a.length; i++) {
+	      r = (a.words[i] | 0) + carry;
+	      this.words[i] = r & 0x3ffffff;
+	      carry = r >>> 26;
+	    }
+
+	    this.length = a.length;
+	    if (carry !== 0) {
+	      this.words[this.length] = carry;
+	      this.length++;
+	    // Copy the rest of the words
+	    } else if (a !== this) {
+	      for (; i < a.length; i++) {
+	        this.words[i] = a.words[i];
+	      }
+	    }
+
+	    return this;
+	  };
+
+	  // Add `num` to `this`
+	  BN.prototype.add = function add (num) {
+	    var res;
+	    if (num.negative !== 0 && this.negative === 0) {
+	      num.negative = 0;
+	      res = this.sub(num);
+	      num.negative ^= 1;
+	      return res;
+	    } else if (num.negative === 0 && this.negative !== 0) {
+	      this.negative = 0;
+	      res = num.sub(this);
+	      this.negative = 1;
+	      return res;
+	    }
+
+	    if (this.length > num.length) return this.clone().iadd(num);
+
+	    return num.clone().iadd(this);
+	  };
+
+	  // Subtract `num` from `this` in-place
+	  BN.prototype.isub = function isub (num) {
+	    // this - (-num) = this + num
+	    if (num.negative !== 0) {
+	      num.negative = 0;
+	      var r = this.iadd(num);
+	      num.negative = 1;
+	      return r._normSign();
+
+	    // -this - num = -(this + num)
+	    } else if (this.negative !== 0) {
+	      this.negative = 0;
+	      this.iadd(num);
+	      this.negative = 1;
+	      return this._normSign();
+	    }
+
+	    // At this point both numbers are positive
+	    var cmp = this.cmp(num);
+
+	    // Optimization - zeroify
+	    if (cmp === 0) {
+	      this.negative = 0;
+	      this.length = 1;
+	      this.words[0] = 0;
+	      return this;
+	    }
+
+	    // a > b
+	    var a, b;
+	    if (cmp > 0) {
+	      a = this;
+	      b = num;
+	    } else {
+	      a = num;
+	      b = this;
+	    }
+
+	    var carry = 0;
+	    for (var i = 0; i < b.length; i++) {
+	      r = (a.words[i] | 0) - (b.words[i] | 0) + carry;
+	      carry = r >> 26;
+	      this.words[i] = r & 0x3ffffff;
+	    }
+	    for (; carry !== 0 && i < a.length; i++) {
+	      r = (a.words[i] | 0) + carry;
+	      carry = r >> 26;
+	      this.words[i] = r & 0x3ffffff;
+	    }
+
+	    // Copy rest of the words
+	    if (carry === 0 && i < a.length && a !== this) {
+	      for (; i < a.length; i++) {
+	        this.words[i] = a.words[i];
+	      }
+	    }
+
+	    this.length = Math.max(this.length, i);
+
+	    if (a !== this) {
+	      this.negative = 1;
+	    }
+
+	    return this._strip();
+	  };
+
+	  // Subtract `num` from `this`
+	  BN.prototype.sub = function sub (num) {
+	    return this.clone().isub(num);
+	  };
+
+	  function smallMulTo (self, num, out) {
+	    out.negative = num.negative ^ self.negative;
+	    var len = (self.length + num.length) | 0;
+	    out.length = len;
+	    len = (len - 1) | 0;
+
+	    // Peel one iteration (compiler can't do it, because of code complexity)
+	    var a = self.words[0] | 0;
+	    var b = num.words[0] | 0;
+	    var r = a * b;
+
+	    var lo = r & 0x3ffffff;
+	    var carry = (r / 0x4000000) | 0;
+	    out.words[0] = lo;
+
+	    for (var k = 1; k < len; k++) {
+	      // Sum all words with the same `i + j = k` and accumulate `ncarry`,
+	      // note that ncarry could be >= 0x3ffffff
+	      var ncarry = carry >>> 26;
+	      var rword = carry & 0x3ffffff;
+	      var maxJ = Math.min(k, num.length - 1);
+	      for (var j = Math.max(0, k - self.length + 1); j <= maxJ; j++) {
+	        var i = (k - j) | 0;
+	        a = self.words[i] | 0;
+	        b = num.words[j] | 0;
+	        r = a * b + rword;
+	        ncarry += (r / 0x4000000) | 0;
+	        rword = r & 0x3ffffff;
+	      }
+	      out.words[k] = rword | 0;
+	      carry = ncarry | 0;
+	    }
+	    if (carry !== 0) {
+	      out.words[k] = carry | 0;
+	    } else {
+	      out.length--;
+	    }
+
+	    return out._strip();
+	  }
+
+	  // TODO(indutny): it may be reasonable to omit it for users who don't need
+	  // to work with 256-bit numbers, otherwise it gives 20% improvement for 256-bit
+	  // multiplication (like elliptic secp256k1).
+	  var comb10MulTo = function comb10MulTo (self, num, out) {
+	    var a = self.words;
+	    var b = num.words;
+	    var o = out.words;
+	    var c = 0;
+	    var lo;
+	    var mid;
+	    var hi;
+	    var a0 = a[0] | 0;
+	    var al0 = a0 & 0x1fff;
+	    var ah0 = a0 >>> 13;
+	    var a1 = a[1] | 0;
+	    var al1 = a1 & 0x1fff;
+	    var ah1 = a1 >>> 13;
+	    var a2 = a[2] | 0;
+	    var al2 = a2 & 0x1fff;
+	    var ah2 = a2 >>> 13;
+	    var a3 = a[3] | 0;
+	    var al3 = a3 & 0x1fff;
+	    var ah3 = a3 >>> 13;
+	    var a4 = a[4] | 0;
+	    var al4 = a4 & 0x1fff;
+	    var ah4 = a4 >>> 13;
+	    var a5 = a[5] | 0;
+	    var al5 = a5 & 0x1fff;
+	    var ah5 = a5 >>> 13;
+	    var a6 = a[6] | 0;
+	    var al6 = a6 & 0x1fff;
+	    var ah6 = a6 >>> 13;
+	    var a7 = a[7] | 0;
+	    var al7 = a7 & 0x1fff;
+	    var ah7 = a7 >>> 13;
+	    var a8 = a[8] | 0;
+	    var al8 = a8 & 0x1fff;
+	    var ah8 = a8 >>> 13;
+	    var a9 = a[9] | 0;
+	    var al9 = a9 & 0x1fff;
+	    var ah9 = a9 >>> 13;
+	    var b0 = b[0] | 0;
+	    var bl0 = b0 & 0x1fff;
+	    var bh0 = b0 >>> 13;
+	    var b1 = b[1] | 0;
+	    var bl1 = b1 & 0x1fff;
+	    var bh1 = b1 >>> 13;
+	    var b2 = b[2] | 0;
+	    var bl2 = b2 & 0x1fff;
+	    var bh2 = b2 >>> 13;
+	    var b3 = b[3] | 0;
+	    var bl3 = b3 & 0x1fff;
+	    var bh3 = b3 >>> 13;
+	    var b4 = b[4] | 0;
+	    var bl4 = b4 & 0x1fff;
+	    var bh4 = b4 >>> 13;
+	    var b5 = b[5] | 0;
+	    var bl5 = b5 & 0x1fff;
+	    var bh5 = b5 >>> 13;
+	    var b6 = b[6] | 0;
+	    var bl6 = b6 & 0x1fff;
+	    var bh6 = b6 >>> 13;
+	    var b7 = b[7] | 0;
+	    var bl7 = b7 & 0x1fff;
+	    var bh7 = b7 >>> 13;
+	    var b8 = b[8] | 0;
+	    var bl8 = b8 & 0x1fff;
+	    var bh8 = b8 >>> 13;
+	    var b9 = b[9] | 0;
+	    var bl9 = b9 & 0x1fff;
+	    var bh9 = b9 >>> 13;
+
+	    out.negative = self.negative ^ num.negative;
+	    out.length = 19;
+	    /* k = 0 */
+	    lo = Math.imul(al0, bl0);
+	    mid = Math.imul(al0, bh0);
+	    mid = (mid + Math.imul(ah0, bl0)) | 0;
+	    hi = Math.imul(ah0, bh0);
+	    var w0 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w0 >>> 26)) | 0;
+	    w0 &= 0x3ffffff;
+	    /* k = 1 */
+	    lo = Math.imul(al1, bl0);
+	    mid = Math.imul(al1, bh0);
+	    mid = (mid + Math.imul(ah1, bl0)) | 0;
+	    hi = Math.imul(ah1, bh0);
+	    lo = (lo + Math.imul(al0, bl1)) | 0;
+	    mid = (mid + Math.imul(al0, bh1)) | 0;
+	    mid = (mid + Math.imul(ah0, bl1)) | 0;
+	    hi = (hi + Math.imul(ah0, bh1)) | 0;
+	    var w1 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w1 >>> 26)) | 0;
+	    w1 &= 0x3ffffff;
+	    /* k = 2 */
+	    lo = Math.imul(al2, bl0);
+	    mid = Math.imul(al2, bh0);
+	    mid = (mid + Math.imul(ah2, bl0)) | 0;
+	    hi = Math.imul(ah2, bh0);
+	    lo = (lo + Math.imul(al1, bl1)) | 0;
+	    mid = (mid + Math.imul(al1, bh1)) | 0;
+	    mid = (mid + Math.imul(ah1, bl1)) | 0;
+	    hi = (hi + Math.imul(ah1, bh1)) | 0;
+	    lo = (lo + Math.imul(al0, bl2)) | 0;
+	    mid = (mid + Math.imul(al0, bh2)) | 0;
+	    mid = (mid + Math.imul(ah0, bl2)) | 0;
+	    hi = (hi + Math.imul(ah0, bh2)) | 0;
+	    var w2 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w2 >>> 26)) | 0;
+	    w2 &= 0x3ffffff;
+	    /* k = 3 */
+	    lo = Math.imul(al3, bl0);
+	    mid = Math.imul(al3, bh0);
+	    mid = (mid + Math.imul(ah3, bl0)) | 0;
+	    hi = Math.imul(ah3, bh0);
+	    lo = (lo + Math.imul(al2, bl1)) | 0;
+	    mid = (mid + Math.imul(al2, bh1)) | 0;
+	    mid = (mid + Math.imul(ah2, bl1)) | 0;
+	    hi = (hi + Math.imul(ah2, bh1)) | 0;
+	    lo = (lo + Math.imul(al1, bl2)) | 0;
+	    mid = (mid + Math.imul(al1, bh2)) | 0;
+	    mid = (mid + Math.imul(ah1, bl2)) | 0;
+	    hi = (hi + Math.imul(ah1, bh2)) | 0;
+	    lo = (lo + Math.imul(al0, bl3)) | 0;
+	    mid = (mid + Math.imul(al0, bh3)) | 0;
+	    mid = (mid + Math.imul(ah0, bl3)) | 0;
+	    hi = (hi + Math.imul(ah0, bh3)) | 0;
+	    var w3 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w3 >>> 26)) | 0;
+	    w3 &= 0x3ffffff;
+	    /* k = 4 */
+	    lo = Math.imul(al4, bl0);
+	    mid = Math.imul(al4, bh0);
+	    mid = (mid + Math.imul(ah4, bl0)) | 0;
+	    hi = Math.imul(ah4, bh0);
+	    lo = (lo + Math.imul(al3, bl1)) | 0;
+	    mid = (mid + Math.imul(al3, bh1)) | 0;
+	    mid = (mid + Math.imul(ah3, bl1)) | 0;
+	    hi = (hi + Math.imul(ah3, bh1)) | 0;
+	    lo = (lo + Math.imul(al2, bl2)) | 0;
+	    mid = (mid + Math.imul(al2, bh2)) | 0;
+	    mid = (mid + Math.imul(ah2, bl2)) | 0;
+	    hi = (hi + Math.imul(ah2, bh2)) | 0;
+	    lo = (lo + Math.imul(al1, bl3)) | 0;
+	    mid = (mid + Math.imul(al1, bh3)) | 0;
+	    mid = (mid + Math.imul(ah1, bl3)) | 0;
+	    hi = (hi + Math.imul(ah1, bh3)) | 0;
+	    lo = (lo + Math.imul(al0, bl4)) | 0;
+	    mid = (mid + Math.imul(al0, bh4)) | 0;
+	    mid = (mid + Math.imul(ah0, bl4)) | 0;
+	    hi = (hi + Math.imul(ah0, bh4)) | 0;
+	    var w4 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w4 >>> 26)) | 0;
+	    w4 &= 0x3ffffff;
+	    /* k = 5 */
+	    lo = Math.imul(al5, bl0);
+	    mid = Math.imul(al5, bh0);
+	    mid = (mid + Math.imul(ah5, bl0)) | 0;
+	    hi = Math.imul(ah5, bh0);
+	    lo = (lo + Math.imul(al4, bl1)) | 0;
+	    mid = (mid + Math.imul(al4, bh1)) | 0;
+	    mid = (mid + Math.imul(ah4, bl1)) | 0;
+	    hi = (hi + Math.imul(ah4, bh1)) | 0;
+	    lo = (lo + Math.imul(al3, bl2)) | 0;
+	    mid = (mid + Math.imul(al3, bh2)) | 0;
+	    mid = (mid + Math.imul(ah3, bl2)) | 0;
+	    hi = (hi + Math.imul(ah3, bh2)) | 0;
+	    lo = (lo + Math.imul(al2, bl3)) | 0;
+	    mid = (mid + Math.imul(al2, bh3)) | 0;
+	    mid = (mid + Math.imul(ah2, bl3)) | 0;
+	    hi = (hi + Math.imul(ah2, bh3)) | 0;
+	    lo = (lo + Math.imul(al1, bl4)) | 0;
+	    mid = (mid + Math.imul(al1, bh4)) | 0;
+	    mid = (mid + Math.imul(ah1, bl4)) | 0;
+	    hi = (hi + Math.imul(ah1, bh4)) | 0;
+	    lo = (lo + Math.imul(al0, bl5)) | 0;
+	    mid = (mid + Math.imul(al0, bh5)) | 0;
+	    mid = (mid + Math.imul(ah0, bl5)) | 0;
+	    hi = (hi + Math.imul(ah0, bh5)) | 0;
+	    var w5 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w5 >>> 26)) | 0;
+	    w5 &= 0x3ffffff;
+	    /* k = 6 */
+	    lo = Math.imul(al6, bl0);
+	    mid = Math.imul(al6, bh0);
+	    mid = (mid + Math.imul(ah6, bl0)) | 0;
+	    hi = Math.imul(ah6, bh0);
+	    lo = (lo + Math.imul(al5, bl1)) | 0;
+	    mid = (mid + Math.imul(al5, bh1)) | 0;
+	    mid = (mid + Math.imul(ah5, bl1)) | 0;
+	    hi = (hi + Math.imul(ah5, bh1)) | 0;
+	    lo = (lo + Math.imul(al4, bl2)) | 0;
+	    mid = (mid + Math.imul(al4, bh2)) | 0;
+	    mid = (mid + Math.imul(ah4, bl2)) | 0;
+	    hi = (hi + Math.imul(ah4, bh2)) | 0;
+	    lo = (lo + Math.imul(al3, bl3)) | 0;
+	    mid = (mid + Math.imul(al3, bh3)) | 0;
+	    mid = (mid + Math.imul(ah3, bl3)) | 0;
+	    hi = (hi + Math.imul(ah3, bh3)) | 0;
+	    lo = (lo + Math.imul(al2, bl4)) | 0;
+	    mid = (mid + Math.imul(al2, bh4)) | 0;
+	    mid = (mid + Math.imul(ah2, bl4)) | 0;
+	    hi = (hi + Math.imul(ah2, bh4)) | 0;
+	    lo = (lo + Math.imul(al1, bl5)) | 0;
+	    mid = (mid + Math.imul(al1, bh5)) | 0;
+	    mid = (mid + Math.imul(ah1, bl5)) | 0;
+	    hi = (hi + Math.imul(ah1, bh5)) | 0;
+	    lo = (lo + Math.imul(al0, bl6)) | 0;
+	    mid = (mid + Math.imul(al0, bh6)) | 0;
+	    mid = (mid + Math.imul(ah0, bl6)) | 0;
+	    hi = (hi + Math.imul(ah0, bh6)) | 0;
+	    var w6 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w6 >>> 26)) | 0;
+	    w6 &= 0x3ffffff;
+	    /* k = 7 */
+	    lo = Math.imul(al7, bl0);
+	    mid = Math.imul(al7, bh0);
+	    mid = (mid + Math.imul(ah7, bl0)) | 0;
+	    hi = Math.imul(ah7, bh0);
+	    lo = (lo + Math.imul(al6, bl1)) | 0;
+	    mid = (mid + Math.imul(al6, bh1)) | 0;
+	    mid = (mid + Math.imul(ah6, bl1)) | 0;
+	    hi = (hi + Math.imul(ah6, bh1)) | 0;
+	    lo = (lo + Math.imul(al5, bl2)) | 0;
+	    mid = (mid + Math.imul(al5, bh2)) | 0;
+	    mid = (mid + Math.imul(ah5, bl2)) | 0;
+	    hi = (hi + Math.imul(ah5, bh2)) | 0;
+	    lo = (lo + Math.imul(al4, bl3)) | 0;
+	    mid = (mid + Math.imul(al4, bh3)) | 0;
+	    mid = (mid + Math.imul(ah4, bl3)) | 0;
+	    hi = (hi + Math.imul(ah4, bh3)) | 0;
+	    lo = (lo + Math.imul(al3, bl4)) | 0;
+	    mid = (mid + Math.imul(al3, bh4)) | 0;
+	    mid = (mid + Math.imul(ah3, bl4)) | 0;
+	    hi = (hi + Math.imul(ah3, bh4)) | 0;
+	    lo = (lo + Math.imul(al2, bl5)) | 0;
+	    mid = (mid + Math.imul(al2, bh5)) | 0;
+	    mid = (mid + Math.imul(ah2, bl5)) | 0;
+	    hi = (hi + Math.imul(ah2, bh5)) | 0;
+	    lo = (lo + Math.imul(al1, bl6)) | 0;
+	    mid = (mid + Math.imul(al1, bh6)) | 0;
+	    mid = (mid + Math.imul(ah1, bl6)) | 0;
+	    hi = (hi + Math.imul(ah1, bh6)) | 0;
+	    lo = (lo + Math.imul(al0, bl7)) | 0;
+	    mid = (mid + Math.imul(al0, bh7)) | 0;
+	    mid = (mid + Math.imul(ah0, bl7)) | 0;
+	    hi = (hi + Math.imul(ah0, bh7)) | 0;
+	    var w7 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w7 >>> 26)) | 0;
+	    w7 &= 0x3ffffff;
+	    /* k = 8 */
+	    lo = Math.imul(al8, bl0);
+	    mid = Math.imul(al8, bh0);
+	    mid = (mid + Math.imul(ah8, bl0)) | 0;
+	    hi = Math.imul(ah8, bh0);
+	    lo = (lo + Math.imul(al7, bl1)) | 0;
+	    mid = (mid + Math.imul(al7, bh1)) | 0;
+	    mid = (mid + Math.imul(ah7, bl1)) | 0;
+	    hi = (hi + Math.imul(ah7, bh1)) | 0;
+	    lo = (lo + Math.imul(al6, bl2)) | 0;
+	    mid = (mid + Math.imul(al6, bh2)) | 0;
+	    mid = (mid + Math.imul(ah6, bl2)) | 0;
+	    hi = (hi + Math.imul(ah6, bh2)) | 0;
+	    lo = (lo + Math.imul(al5, bl3)) | 0;
+	    mid = (mid + Math.imul(al5, bh3)) | 0;
+	    mid = (mid + Math.imul(ah5, bl3)) | 0;
+	    hi = (hi + Math.imul(ah5, bh3)) | 0;
+	    lo = (lo + Math.imul(al4, bl4)) | 0;
+	    mid = (mid + Math.imul(al4, bh4)) | 0;
+	    mid = (mid + Math.imul(ah4, bl4)) | 0;
+	    hi = (hi + Math.imul(ah4, bh4)) | 0;
+	    lo = (lo + Math.imul(al3, bl5)) | 0;
+	    mid = (mid + Math.imul(al3, bh5)) | 0;
+	    mid = (mid + Math.imul(ah3, bl5)) | 0;
+	    hi = (hi + Math.imul(ah3, bh5)) | 0;
+	    lo = (lo + Math.imul(al2, bl6)) | 0;
+	    mid = (mid + Math.imul(al2, bh6)) | 0;
+	    mid = (mid + Math.imul(ah2, bl6)) | 0;
+	    hi = (hi + Math.imul(ah2, bh6)) | 0;
+	    lo = (lo + Math.imul(al1, bl7)) | 0;
+	    mid = (mid + Math.imul(al1, bh7)) | 0;
+	    mid = (mid + Math.imul(ah1, bl7)) | 0;
+	    hi = (hi + Math.imul(ah1, bh7)) | 0;
+	    lo = (lo + Math.imul(al0, bl8)) | 0;
+	    mid = (mid + Math.imul(al0, bh8)) | 0;
+	    mid = (mid + Math.imul(ah0, bl8)) | 0;
+	    hi = (hi + Math.imul(ah0, bh8)) | 0;
+	    var w8 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w8 >>> 26)) | 0;
+	    w8 &= 0x3ffffff;
+	    /* k = 9 */
+	    lo = Math.imul(al9, bl0);
+	    mid = Math.imul(al9, bh0);
+	    mid = (mid + Math.imul(ah9, bl0)) | 0;
+	    hi = Math.imul(ah9, bh0);
+	    lo = (lo + Math.imul(al8, bl1)) | 0;
+	    mid = (mid + Math.imul(al8, bh1)) | 0;
+	    mid = (mid + Math.imul(ah8, bl1)) | 0;
+	    hi = (hi + Math.imul(ah8, bh1)) | 0;
+	    lo = (lo + Math.imul(al7, bl2)) | 0;
+	    mid = (mid + Math.imul(al7, bh2)) | 0;
+	    mid = (mid + Math.imul(ah7, bl2)) | 0;
+	    hi = (hi + Math.imul(ah7, bh2)) | 0;
+	    lo = (lo + Math.imul(al6, bl3)) | 0;
+	    mid = (mid + Math.imul(al6, bh3)) | 0;
+	    mid = (mid + Math.imul(ah6, bl3)) | 0;
+	    hi = (hi + Math.imul(ah6, bh3)) | 0;
+	    lo = (lo + Math.imul(al5, bl4)) | 0;
+	    mid = (mid + Math.imul(al5, bh4)) | 0;
+	    mid = (mid + Math.imul(ah5, bl4)) | 0;
+	    hi = (hi + Math.imul(ah5, bh4)) | 0;
+	    lo = (lo + Math.imul(al4, bl5)) | 0;
+	    mid = (mid + Math.imul(al4, bh5)) | 0;
+	    mid = (mid + Math.imul(ah4, bl5)) | 0;
+	    hi = (hi + Math.imul(ah4, bh5)) | 0;
+	    lo = (lo + Math.imul(al3, bl6)) | 0;
+	    mid = (mid + Math.imul(al3, bh6)) | 0;
+	    mid = (mid + Math.imul(ah3, bl6)) | 0;
+	    hi = (hi + Math.imul(ah3, bh6)) | 0;
+	    lo = (lo + Math.imul(al2, bl7)) | 0;
+	    mid = (mid + Math.imul(al2, bh7)) | 0;
+	    mid = (mid + Math.imul(ah2, bl7)) | 0;
+	    hi = (hi + Math.imul(ah2, bh7)) | 0;
+	    lo = (lo + Math.imul(al1, bl8)) | 0;
+	    mid = (mid + Math.imul(al1, bh8)) | 0;
+	    mid = (mid + Math.imul(ah1, bl8)) | 0;
+	    hi = (hi + Math.imul(ah1, bh8)) | 0;
+	    lo = (lo + Math.imul(al0, bl9)) | 0;
+	    mid = (mid + Math.imul(al0, bh9)) | 0;
+	    mid = (mid + Math.imul(ah0, bl9)) | 0;
+	    hi = (hi + Math.imul(ah0, bh9)) | 0;
+	    var w9 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w9 >>> 26)) | 0;
+	    w9 &= 0x3ffffff;
+	    /* k = 10 */
+	    lo = Math.imul(al9, bl1);
+	    mid = Math.imul(al9, bh1);
+	    mid = (mid + Math.imul(ah9, bl1)) | 0;
+	    hi = Math.imul(ah9, bh1);
+	    lo = (lo + Math.imul(al8, bl2)) | 0;
+	    mid = (mid + Math.imul(al8, bh2)) | 0;
+	    mid = (mid + Math.imul(ah8, bl2)) | 0;
+	    hi = (hi + Math.imul(ah8, bh2)) | 0;
+	    lo = (lo + Math.imul(al7, bl3)) | 0;
+	    mid = (mid + Math.imul(al7, bh3)) | 0;
+	    mid = (mid + Math.imul(ah7, bl3)) | 0;
+	    hi = (hi + Math.imul(ah7, bh3)) | 0;
+	    lo = (lo + Math.imul(al6, bl4)) | 0;
+	    mid = (mid + Math.imul(al6, bh4)) | 0;
+	    mid = (mid + Math.imul(ah6, bl4)) | 0;
+	    hi = (hi + Math.imul(ah6, bh4)) | 0;
+	    lo = (lo + Math.imul(al5, bl5)) | 0;
+	    mid = (mid + Math.imul(al5, bh5)) | 0;
+	    mid = (mid + Math.imul(ah5, bl5)) | 0;
+	    hi = (hi + Math.imul(ah5, bh5)) | 0;
+	    lo = (lo + Math.imul(al4, bl6)) | 0;
+	    mid = (mid + Math.imul(al4, bh6)) | 0;
+	    mid = (mid + Math.imul(ah4, bl6)) | 0;
+	    hi = (hi + Math.imul(ah4, bh6)) | 0;
+	    lo = (lo + Math.imul(al3, bl7)) | 0;
+	    mid = (mid + Math.imul(al3, bh7)) | 0;
+	    mid = (mid + Math.imul(ah3, bl7)) | 0;
+	    hi = (hi + Math.imul(ah3, bh7)) | 0;
+	    lo = (lo + Math.imul(al2, bl8)) | 0;
+	    mid = (mid + Math.imul(al2, bh8)) | 0;
+	    mid = (mid + Math.imul(ah2, bl8)) | 0;
+	    hi = (hi + Math.imul(ah2, bh8)) | 0;
+	    lo = (lo + Math.imul(al1, bl9)) | 0;
+	    mid = (mid + Math.imul(al1, bh9)) | 0;
+	    mid = (mid + Math.imul(ah1, bl9)) | 0;
+	    hi = (hi + Math.imul(ah1, bh9)) | 0;
+	    var w10 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w10 >>> 26)) | 0;
+	    w10 &= 0x3ffffff;
+	    /* k = 11 */
+	    lo = Math.imul(al9, bl2);
+	    mid = Math.imul(al9, bh2);
+	    mid = (mid + Math.imul(ah9, bl2)) | 0;
+	    hi = Math.imul(ah9, bh2);
+	    lo = (lo + Math.imul(al8, bl3)) | 0;
+	    mid = (mid + Math.imul(al8, bh3)) | 0;
+	    mid = (mid + Math.imul(ah8, bl3)) | 0;
+	    hi = (hi + Math.imul(ah8, bh3)) | 0;
+	    lo = (lo + Math.imul(al7, bl4)) | 0;
+	    mid = (mid + Math.imul(al7, bh4)) | 0;
+	    mid = (mid + Math.imul(ah7, bl4)) | 0;
+	    hi = (hi + Math.imul(ah7, bh4)) | 0;
+	    lo = (lo + Math.imul(al6, bl5)) | 0;
+	    mid = (mid + Math.imul(al6, bh5)) | 0;
+	    mid = (mid + Math.imul(ah6, bl5)) | 0;
+	    hi = (hi + Math.imul(ah6, bh5)) | 0;
+	    lo = (lo + Math.imul(al5, bl6)) | 0;
+	    mid = (mid + Math.imul(al5, bh6)) | 0;
+	    mid = (mid + Math.imul(ah5, bl6)) | 0;
+	    hi = (hi + Math.imul(ah5, bh6)) | 0;
+	    lo = (lo + Math.imul(al4, bl7)) | 0;
+	    mid = (mid + Math.imul(al4, bh7)) | 0;
+	    mid = (mid + Math.imul(ah4, bl7)) | 0;
+	    hi = (hi + Math.imul(ah4, bh7)) | 0;
+	    lo = (lo + Math.imul(al3, bl8)) | 0;
+	    mid = (mid + Math.imul(al3, bh8)) | 0;
+	    mid = (mid + Math.imul(ah3, bl8)) | 0;
+	    hi = (hi + Math.imul(ah3, bh8)) | 0;
+	    lo = (lo + Math.imul(al2, bl9)) | 0;
+	    mid = (mid + Math.imul(al2, bh9)) | 0;
+	    mid = (mid + Math.imul(ah2, bl9)) | 0;
+	    hi = (hi + Math.imul(ah2, bh9)) | 0;
+	    var w11 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w11 >>> 26)) | 0;
+	    w11 &= 0x3ffffff;
+	    /* k = 12 */
+	    lo = Math.imul(al9, bl3);
+	    mid = Math.imul(al9, bh3);
+	    mid = (mid + Math.imul(ah9, bl3)) | 0;
+	    hi = Math.imul(ah9, bh3);
+	    lo = (lo + Math.imul(al8, bl4)) | 0;
+	    mid = (mid + Math.imul(al8, bh4)) | 0;
+	    mid = (mid + Math.imul(ah8, bl4)) | 0;
+	    hi = (hi + Math.imul(ah8, bh4)) | 0;
+	    lo = (lo + Math.imul(al7, bl5)) | 0;
+	    mid = (mid + Math.imul(al7, bh5)) | 0;
+	    mid = (mid + Math.imul(ah7, bl5)) | 0;
+	    hi = (hi + Math.imul(ah7, bh5)) | 0;
+	    lo = (lo + Math.imul(al6, bl6)) | 0;
+	    mid = (mid + Math.imul(al6, bh6)) | 0;
+	    mid = (mid + Math.imul(ah6, bl6)) | 0;
+	    hi = (hi + Math.imul(ah6, bh6)) | 0;
+	    lo = (lo + Math.imul(al5, bl7)) | 0;
+	    mid = (mid + Math.imul(al5, bh7)) | 0;
+	    mid = (mid + Math.imul(ah5, bl7)) | 0;
+	    hi = (hi + Math.imul(ah5, bh7)) | 0;
+	    lo = (lo + Math.imul(al4, bl8)) | 0;
+	    mid = (mid + Math.imul(al4, bh8)) | 0;
+	    mid = (mid + Math.imul(ah4, bl8)) | 0;
+	    hi = (hi + Math.imul(ah4, bh8)) | 0;
+	    lo = (lo + Math.imul(al3, bl9)) | 0;
+	    mid = (mid + Math.imul(al3, bh9)) | 0;
+	    mid = (mid + Math.imul(ah3, bl9)) | 0;
+	    hi = (hi + Math.imul(ah3, bh9)) | 0;
+	    var w12 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w12 >>> 26)) | 0;
+	    w12 &= 0x3ffffff;
+	    /* k = 13 */
+	    lo = Math.imul(al9, bl4);
+	    mid = Math.imul(al9, bh4);
+	    mid = (mid + Math.imul(ah9, bl4)) | 0;
+	    hi = Math.imul(ah9, bh4);
+	    lo = (lo + Math.imul(al8, bl5)) | 0;
+	    mid = (mid + Math.imul(al8, bh5)) | 0;
+	    mid = (mid + Math.imul(ah8, bl5)) | 0;
+	    hi = (hi + Math.imul(ah8, bh5)) | 0;
+	    lo = (lo + Math.imul(al7, bl6)) | 0;
+	    mid = (mid + Math.imul(al7, bh6)) | 0;
+	    mid = (mid + Math.imul(ah7, bl6)) | 0;
+	    hi = (hi + Math.imul(ah7, bh6)) | 0;
+	    lo = (lo + Math.imul(al6, bl7)) | 0;
+	    mid = (mid + Math.imul(al6, bh7)) | 0;
+	    mid = (mid + Math.imul(ah6, bl7)) | 0;
+	    hi = (hi + Math.imul(ah6, bh7)) | 0;
+	    lo = (lo + Math.imul(al5, bl8)) | 0;
+	    mid = (mid + Math.imul(al5, bh8)) | 0;
+	    mid = (mid + Math.imul(ah5, bl8)) | 0;
+	    hi = (hi + Math.imul(ah5, bh8)) | 0;
+	    lo = (lo + Math.imul(al4, bl9)) | 0;
+	    mid = (mid + Math.imul(al4, bh9)) | 0;
+	    mid = (mid + Math.imul(ah4, bl9)) | 0;
+	    hi = (hi + Math.imul(ah4, bh9)) | 0;
+	    var w13 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w13 >>> 26)) | 0;
+	    w13 &= 0x3ffffff;
+	    /* k = 14 */
+	    lo = Math.imul(al9, bl5);
+	    mid = Math.imul(al9, bh5);
+	    mid = (mid + Math.imul(ah9, bl5)) | 0;
+	    hi = Math.imul(ah9, bh5);
+	    lo = (lo + Math.imul(al8, bl6)) | 0;
+	    mid = (mid + Math.imul(al8, bh6)) | 0;
+	    mid = (mid + Math.imul(ah8, bl6)) | 0;
+	    hi = (hi + Math.imul(ah8, bh6)) | 0;
+	    lo = (lo + Math.imul(al7, bl7)) | 0;
+	    mid = (mid + Math.imul(al7, bh7)) | 0;
+	    mid = (mid + Math.imul(ah7, bl7)) | 0;
+	    hi = (hi + Math.imul(ah7, bh7)) | 0;
+	    lo = (lo + Math.imul(al6, bl8)) | 0;
+	    mid = (mid + Math.imul(al6, bh8)) | 0;
+	    mid = (mid + Math.imul(ah6, bl8)) | 0;
+	    hi = (hi + Math.imul(ah6, bh8)) | 0;
+	    lo = (lo + Math.imul(al5, bl9)) | 0;
+	    mid = (mid + Math.imul(al5, bh9)) | 0;
+	    mid = (mid + Math.imul(ah5, bl9)) | 0;
+	    hi = (hi + Math.imul(ah5, bh9)) | 0;
+	    var w14 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w14 >>> 26)) | 0;
+	    w14 &= 0x3ffffff;
+	    /* k = 15 */
+	    lo = Math.imul(al9, bl6);
+	    mid = Math.imul(al9, bh6);
+	    mid = (mid + Math.imul(ah9, bl6)) | 0;
+	    hi = Math.imul(ah9, bh6);
+	    lo = (lo + Math.imul(al8, bl7)) | 0;
+	    mid = (mid + Math.imul(al8, bh7)) | 0;
+	    mid = (mid + Math.imul(ah8, bl7)) | 0;
+	    hi = (hi + Math.imul(ah8, bh7)) | 0;
+	    lo = (lo + Math.imul(al7, bl8)) | 0;
+	    mid = (mid + Math.imul(al7, bh8)) | 0;
+	    mid = (mid + Math.imul(ah7, bl8)) | 0;
+	    hi = (hi + Math.imul(ah7, bh8)) | 0;
+	    lo = (lo + Math.imul(al6, bl9)) | 0;
+	    mid = (mid + Math.imul(al6, bh9)) | 0;
+	    mid = (mid + Math.imul(ah6, bl9)) | 0;
+	    hi = (hi + Math.imul(ah6, bh9)) | 0;
+	    var w15 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w15 >>> 26)) | 0;
+	    w15 &= 0x3ffffff;
+	    /* k = 16 */
+	    lo = Math.imul(al9, bl7);
+	    mid = Math.imul(al9, bh7);
+	    mid = (mid + Math.imul(ah9, bl7)) | 0;
+	    hi = Math.imul(ah9, bh7);
+	    lo = (lo + Math.imul(al8, bl8)) | 0;
+	    mid = (mid + Math.imul(al8, bh8)) | 0;
+	    mid = (mid + Math.imul(ah8, bl8)) | 0;
+	    hi = (hi + Math.imul(ah8, bh8)) | 0;
+	    lo = (lo + Math.imul(al7, bl9)) | 0;
+	    mid = (mid + Math.imul(al7, bh9)) | 0;
+	    mid = (mid + Math.imul(ah7, bl9)) | 0;
+	    hi = (hi + Math.imul(ah7, bh9)) | 0;
+	    var w16 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w16 >>> 26)) | 0;
+	    w16 &= 0x3ffffff;
+	    /* k = 17 */
+	    lo = Math.imul(al9, bl8);
+	    mid = Math.imul(al9, bh8);
+	    mid = (mid + Math.imul(ah9, bl8)) | 0;
+	    hi = Math.imul(ah9, bh8);
+	    lo = (lo + Math.imul(al8, bl9)) | 0;
+	    mid = (mid + Math.imul(al8, bh9)) | 0;
+	    mid = (mid + Math.imul(ah8, bl9)) | 0;
+	    hi = (hi + Math.imul(ah8, bh9)) | 0;
+	    var w17 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w17 >>> 26)) | 0;
+	    w17 &= 0x3ffffff;
+	    /* k = 18 */
+	    lo = Math.imul(al9, bl9);
+	    mid = Math.imul(al9, bh9);
+	    mid = (mid + Math.imul(ah9, bl9)) | 0;
+	    hi = Math.imul(ah9, bh9);
+	    var w18 = (((c + lo) | 0) + ((mid & 0x1fff) << 13)) | 0;
+	    c = (((hi + (mid >>> 13)) | 0) + (w18 >>> 26)) | 0;
+	    w18 &= 0x3ffffff;
+	    o[0] = w0;
+	    o[1] = w1;
+	    o[2] = w2;
+	    o[3] = w3;
+	    o[4] = w4;
+	    o[5] = w5;
+	    o[6] = w6;
+	    o[7] = w7;
+	    o[8] = w8;
+	    o[9] = w9;
+	    o[10] = w10;
+	    o[11] = w11;
+	    o[12] = w12;
+	    o[13] = w13;
+	    o[14] = w14;
+	    o[15] = w15;
+	    o[16] = w16;
+	    o[17] = w17;
+	    o[18] = w18;
+	    if (c !== 0) {
+	      o[19] = c;
+	      out.length++;
+	    }
+	    return out;
+	  };
+
+	  // Polyfill comb
+	  if (!Math.imul) {
+	    comb10MulTo = smallMulTo;
+	  }
+
+	  function bigMulTo (self, num, out) {
+	    out.negative = num.negative ^ self.negative;
+	    out.length = self.length + num.length;
+
+	    var carry = 0;
+	    var hncarry = 0;
+	    for (var k = 0; k < out.length - 1; k++) {
+	      // Sum all words with the same `i + j = k` and accumulate `ncarry`,
+	      // note that ncarry could be >= 0x3ffffff
+	      var ncarry = hncarry;
+	      hncarry = 0;
+	      var rword = carry & 0x3ffffff;
+	      var maxJ = Math.min(k, num.length - 1);
+	      for (var j = Math.max(0, k - self.length + 1); j <= maxJ; j++) {
+	        var i = k - j;
+	        var a = self.words[i] | 0;
+	        var b = num.words[j] | 0;
+	        var r = a * b;
+
+	        var lo = r & 0x3ffffff;
+	        ncarry = (ncarry + ((r / 0x4000000) | 0)) | 0;
+	        lo = (lo + rword) | 0;
+	        rword = lo & 0x3ffffff;
+	        ncarry = (ncarry + (lo >>> 26)) | 0;
+
+	        hncarry += ncarry >>> 26;
+	        ncarry &= 0x3ffffff;
+	      }
+	      out.words[k] = rword;
+	      carry = ncarry;
+	      ncarry = hncarry;
+	    }
+	    if (carry !== 0) {
+	      out.words[k] = carry;
+	    } else {
+	      out.length--;
+	    }
+
+	    return out._strip();
+	  }
+
+	  function jumboMulTo (self, num, out) {
+	    // Temporary disable, see https://github.com/indutny/bn.js/issues/211
+	    // var fftm = new FFTM();
+	    // return fftm.mulp(self, num, out);
+	    return bigMulTo(self, num, out);
+	  }
+
+	  BN.prototype.mulTo = function mulTo (num, out) {
+	    var res;
+	    var len = this.length + num.length;
+	    if (this.length === 10 && num.length === 10) {
+	      res = comb10MulTo(this, num, out);
+	    } else if (len < 63) {
+	      res = smallMulTo(this, num, out);
+	    } else if (len < 1024) {
+	      res = bigMulTo(this, num, out);
+	    } else {
+	      res = jumboMulTo(this, num, out);
+	    }
+
+	    return res;
+	  };
+
+	  // Multiply `this` by `num`
+	  BN.prototype.mul = function mul (num) {
+	    var out = new BN(null);
+	    out.words = new Array(this.length + num.length);
+	    return this.mulTo(num, out);
+	  };
+
+	  // Multiply employing FFT
+	  BN.prototype.mulf = function mulf (num) {
+	    var out = new BN(null);
+	    out.words = new Array(this.length + num.length);
+	    return jumboMulTo(this, num, out);
+	  };
+
+	  // In-place Multiplication
+	  BN.prototype.imul = function imul (num) {
+	    return this.clone().mulTo(num, this);
+	  };
+
+	  BN.prototype.imuln = function imuln (num) {
+	    var isNegNum = num < 0;
+	    if (isNegNum) num = -num;
+
+	    assert(typeof num === 'number');
+	    assert(num < 0x4000000);
+
+	    // Carry
+	    var carry = 0;
+	    for (var i = 0; i < this.length; i++) {
+	      var w = (this.words[i] | 0) * num;
+	      var lo = (w & 0x3ffffff) + (carry & 0x3ffffff);
+	      carry >>= 26;
+	      carry += (w / 0x4000000) | 0;
+	      // NOTE: lo is 27bit maximum
+	      carry += lo >>> 26;
+	      this.words[i] = lo & 0x3ffffff;
+	    }
+
+	    if (carry !== 0) {
+	      this.words[i] = carry;
+	      this.length++;
+	    }
+
+	    return isNegNum ? this.ineg() : this;
+	  };
+
+	  BN.prototype.muln = function muln (num) {
+	    return this.clone().imuln(num);
+	  };
+
+	  // `this` * `this`
+	  BN.prototype.sqr = function sqr () {
+	    return this.mul(this);
+	  };
+
+	  // `this` * `this` in-place
+	  BN.prototype.isqr = function isqr () {
+	    return this.imul(this.clone());
+	  };
+
+	  // Math.pow(`this`, `num`)
+	  BN.prototype.pow = function pow (num) {
+	    var w = toBitArray(num);
+	    if (w.length === 0) return new BN(1);
+
+	    // Skip leading zeroes
+	    var res = this;
+	    for (var i = 0; i < w.length; i++, res = res.sqr()) {
+	      if (w[i] !== 0) break;
+	    }
+
+	    if (++i < w.length) {
+	      for (var q = res.sqr(); i < w.length; i++, q = q.sqr()) {
+	        if (w[i] === 0) continue;
+
+	        res = res.mul(q);
+	      }
+	    }
+
+	    return res;
+	  };
+
+	  // Shift-left in-place
+	  BN.prototype.iushln = function iushln (bits) {
+	    assert(typeof bits === 'number' && bits >= 0);
+	    var r = bits % 26;
+	    var s = (bits - r) / 26;
+	    var carryMask = (0x3ffffff >>> (26 - r)) << (26 - r);
+	    var i;
+
+	    if (r !== 0) {
+	      var carry = 0;
+
+	      for (i = 0; i < this.length; i++) {
+	        var newCarry = this.words[i] & carryMask;
+	        var c = ((this.words[i] | 0) - newCarry) << r;
+	        this.words[i] = c | carry;
+	        carry = newCarry >>> (26 - r);
+	      }
+
+	      if (carry) {
+	        this.words[i] = carry;
+	        this.length++;
+	      }
+	    }
+
+	    if (s !== 0) {
+	      for (i = this.length - 1; i >= 0; i--) {
+	        this.words[i + s] = this.words[i];
+	      }
+
+	      for (i = 0; i < s; i++) {
+	        this.words[i] = 0;
+	      }
+
+	      this.length += s;
+	    }
+
+	    return this._strip();
+	  };
+
+	  BN.prototype.ishln = function ishln (bits) {
+	    // TODO(indutny): implement me
+	    assert(this.negative === 0);
+	    return this.iushln(bits);
+	  };
+
+	  // Shift-right in-place
+	  // NOTE: `hint` is a lowest bit before trailing zeroes
+	  // NOTE: if `extended` is present - it will be filled with destroyed bits
+	  BN.prototype.iushrn = function iushrn (bits, hint, extended) {
+	    assert(typeof bits === 'number' && bits >= 0);
+	    var h;
+	    if (hint) {
+	      h = (hint - (hint % 26)) / 26;
+	    } else {
+	      h = 0;
+	    }
+
+	    var r = bits % 26;
+	    var s = Math.min((bits - r) / 26, this.length);
+	    var mask = 0x3ffffff ^ ((0x3ffffff >>> r) << r);
+	    var maskedWords = extended;
+
+	    h -= s;
+	    h = Math.max(0, h);
+
+	    // Extended mode, copy masked part
+	    if (maskedWords) {
+	      for (var i = 0; i < s; i++) {
+	        maskedWords.words[i] = this.words[i];
+	      }
+	      maskedWords.length = s;
+	    }
+
+	    if (s === 0) ; else if (this.length > s) {
+	      this.length -= s;
+	      for (i = 0; i < this.length; i++) {
+	        this.words[i] = this.words[i + s];
+	      }
+	    } else {
+	      this.words[0] = 0;
+	      this.length = 1;
+	    }
+
+	    var carry = 0;
+	    for (i = this.length - 1; i >= 0 && (carry !== 0 || i >= h); i--) {
+	      var word = this.words[i] | 0;
+	      this.words[i] = (carry << (26 - r)) | (word >>> r);
+	      carry = word & mask;
+	    }
+
+	    // Push carried bits as a mask
+	    if (maskedWords && carry !== 0) {
+	      maskedWords.words[maskedWords.length++] = carry;
+	    }
+
+	    if (this.length === 0) {
+	      this.words[0] = 0;
+	      this.length = 1;
+	    }
+
+	    return this._strip();
+	  };
+
+	  BN.prototype.ishrn = function ishrn (bits, hint, extended) {
+	    // TODO(indutny): implement me
+	    assert(this.negative === 0);
+	    return this.iushrn(bits, hint, extended);
+	  };
+
+	  // Shift-left
+	  BN.prototype.shln = function shln (bits) {
+	    return this.clone().ishln(bits);
+	  };
+
+	  BN.prototype.ushln = function ushln (bits) {
+	    return this.clone().iushln(bits);
+	  };
+
+	  // Shift-right
+	  BN.prototype.shrn = function shrn (bits) {
+	    return this.clone().ishrn(bits);
+	  };
+
+	  BN.prototype.ushrn = function ushrn (bits) {
+	    return this.clone().iushrn(bits);
+	  };
+
+	  // Test if n bit is set
+	  BN.prototype.testn = function testn (bit) {
+	    assert(typeof bit === 'number' && bit >= 0);
+	    var r = bit % 26;
+	    var s = (bit - r) / 26;
+	    var q = 1 << r;
+
+	    // Fast case: bit is much higher than all existing words
+	    if (this.length <= s) return false;
+
+	    // Check bit and return
+	    var w = this.words[s];
+
+	    return !!(w & q);
+	  };
+
+	  // Return only lowers bits of number (in-place)
+	  BN.prototype.imaskn = function imaskn (bits) {
+	    assert(typeof bits === 'number' && bits >= 0);
+	    var r = bits % 26;
+	    var s = (bits - r) / 26;
+
+	    assert(this.negative === 0, 'imaskn works only with positive numbers');
+
+	    if (this.length <= s) {
+	      return this;
+	    }
+
+	    if (r !== 0) {
+	      s++;
+	    }
+	    this.length = Math.min(s, this.length);
+
+	    if (r !== 0) {
+	      var mask = 0x3ffffff ^ ((0x3ffffff >>> r) << r);
+	      this.words[this.length - 1] &= mask;
+	    }
+
+	    return this._strip();
+	  };
+
+	  // Return only lowers bits of number
+	  BN.prototype.maskn = function maskn (bits) {
+	    return this.clone().imaskn(bits);
+	  };
+
+	  // Add plain number `num` to `this`
+	  BN.prototype.iaddn = function iaddn (num) {
+	    assert(typeof num === 'number');
+	    assert(num < 0x4000000);
+	    if (num < 0) return this.isubn(-num);
+
+	    // Possible sign change
+	    if (this.negative !== 0) {
+	      if (this.length === 1 && (this.words[0] | 0) <= num) {
+	        this.words[0] = num - (this.words[0] | 0);
+	        this.negative = 0;
+	        return this;
+	      }
+
+	      this.negative = 0;
+	      this.isubn(num);
+	      this.negative = 1;
+	      return this;
+	    }
+
+	    // Add without checks
+	    return this._iaddn(num);
+	  };
+
+	  BN.prototype._iaddn = function _iaddn (num) {
+	    this.words[0] += num;
+
+	    // Carry
+	    for (var i = 0; i < this.length && this.words[i] >= 0x4000000; i++) {
+	      this.words[i] -= 0x4000000;
+	      if (i === this.length - 1) {
+	        this.words[i + 1] = 1;
+	      } else {
+	        this.words[i + 1]++;
+	      }
+	    }
+	    this.length = Math.max(this.length, i + 1);
+
+	    return this;
+	  };
+
+	  // Subtract plain number `num` from `this`
+	  BN.prototype.isubn = function isubn (num) {
+	    assert(typeof num === 'number');
+	    assert(num < 0x4000000);
+	    if (num < 0) return this.iaddn(-num);
+
+	    if (this.negative !== 0) {
+	      this.negative = 0;
+	      this.iaddn(num);
+	      this.negative = 1;
+	      return this;
+	    }
+
+	    this.words[0] -= num;
+
+	    if (this.length === 1 && this.words[0] < 0) {
+	      this.words[0] = -this.words[0];
+	      this.negative = 1;
+	    } else {
+	      // Carry
+	      for (var i = 0; i < this.length && this.words[i] < 0; i++) {
+	        this.words[i] += 0x4000000;
+	        this.words[i + 1] -= 1;
+	      }
+	    }
+
+	    return this._strip();
+	  };
+
+	  BN.prototype.addn = function addn (num) {
+	    return this.clone().iaddn(num);
+	  };
+
+	  BN.prototype.subn = function subn (num) {
+	    return this.clone().isubn(num);
+	  };
+
+	  BN.prototype.iabs = function iabs () {
+	    this.negative = 0;
+
+	    return this;
+	  };
+
+	  BN.prototype.abs = function abs () {
+	    return this.clone().iabs();
+	  };
+
+	  BN.prototype._ishlnsubmul = function _ishlnsubmul (num, mul, shift) {
+	    var len = num.length + shift;
+	    var i;
+
+	    this._expand(len);
+
+	    var w;
+	    var carry = 0;
+	    for (i = 0; i < num.length; i++) {
+	      w = (this.words[i + shift] | 0) + carry;
+	      var right = (num.words[i] | 0) * mul;
+	      w -= right & 0x3ffffff;
+	      carry = (w >> 26) - ((right / 0x4000000) | 0);
+	      this.words[i + shift] = w & 0x3ffffff;
+	    }
+	    for (; i < this.length - shift; i++) {
+	      w = (this.words[i + shift] | 0) + carry;
+	      carry = w >> 26;
+	      this.words[i + shift] = w & 0x3ffffff;
+	    }
+
+	    if (carry === 0) return this._strip();
+
+	    // Subtraction overflow
+	    assert(carry === -1);
+	    carry = 0;
+	    for (i = 0; i < this.length; i++) {
+	      w = -(this.words[i] | 0) + carry;
+	      carry = w >> 26;
+	      this.words[i] = w & 0x3ffffff;
+	    }
+	    this.negative = 1;
+
+	    return this._strip();
+	  };
+
+	  BN.prototype._wordDiv = function _wordDiv (num, mode) {
+	    var shift = this.length - num.length;
+
+	    var a = this.clone();
+	    var b = num;
+
+	    // Normalize
+	    var bhi = b.words[b.length - 1] | 0;
+	    var bhiBits = this._countBits(bhi);
+	    shift = 26 - bhiBits;
+	    if (shift !== 0) {
+	      b = b.ushln(shift);
+	      a.iushln(shift);
+	      bhi = b.words[b.length - 1] | 0;
+	    }
+
+	    // Initialize quotient
+	    var m = a.length - b.length;
+	    var q;
+
+	    if (mode !== 'mod') {
+	      q = new BN(null);
+	      q.length = m + 1;
+	      q.words = new Array(q.length);
+	      for (var i = 0; i < q.length; i++) {
+	        q.words[i] = 0;
+	      }
+	    }
+
+	    var diff = a.clone()._ishlnsubmul(b, 1, m);
+	    if (diff.negative === 0) {
+	      a = diff;
+	      if (q) {
+	        q.words[m] = 1;
+	      }
+	    }
+
+	    for (var j = m - 1; j >= 0; j--) {
+	      var qj = (a.words[b.length + j] | 0) * 0x4000000 +
+	        (a.words[b.length + j - 1] | 0);
+
+	      // NOTE: (qj / bhi) is (0x3ffffff * 0x4000000 + 0x3ffffff) / 0x2000000 max
+	      // (0x7ffffff)
+	      qj = Math.min((qj / bhi) | 0, 0x3ffffff);
+
+	      a._ishlnsubmul(b, qj, j);
+	      while (a.negative !== 0) {
+	        qj--;
+	        a.negative = 0;
+	        a._ishlnsubmul(b, 1, j);
+	        if (!a.isZero()) {
+	          a.negative ^= 1;
+	        }
+	      }
+	      if (q) {
+	        q.words[j] = qj;
+	      }
+	    }
+	    if (q) {
+	      q._strip();
+	    }
+	    a._strip();
+
+	    // Denormalize
+	    if (mode !== 'div' && shift !== 0) {
+	      a.iushrn(shift);
+	    }
+
+	    return {
+	      div: q || null,
+	      mod: a
+	    };
+	  };
+
+	  // NOTE: 1) `mode` can be set to `mod` to request mod only,
+	  //       to `div` to request div only, or be absent to
+	  //       request both div & mod
+	  //       2) `positive` is true if unsigned mod is requested
+	  BN.prototype.divmod = function divmod (num, mode, positive) {
+	    assert(!num.isZero());
+
+	    if (this.isZero()) {
+	      return {
+	        div: new BN(0),
+	        mod: new BN(0)
+	      };
+	    }
+
+	    var div, mod, res;
+	    if (this.negative !== 0 && num.negative === 0) {
+	      res = this.neg().divmod(num, mode);
+
+	      if (mode !== 'mod') {
+	        div = res.div.neg();
+	      }
+
+	      if (mode !== 'div') {
+	        mod = res.mod.neg();
+	        if (positive && mod.negative !== 0) {
+	          mod.iadd(num);
+	        }
+	      }
+
+	      return {
+	        div: div,
+	        mod: mod
+	      };
+	    }
+
+	    if (this.negative === 0 && num.negative !== 0) {
+	      res = this.divmod(num.neg(), mode);
+
+	      if (mode !== 'mod') {
+	        div = res.div.neg();
+	      }
+
+	      return {
+	        div: div,
+	        mod: res.mod
+	      };
+	    }
+
+	    if ((this.negative & num.negative) !== 0) {
+	      res = this.neg().divmod(num.neg(), mode);
+
+	      if (mode !== 'div') {
+	        mod = res.mod.neg();
+	        if (positive && mod.negative !== 0) {
+	          mod.isub(num);
+	        }
+	      }
+
+	      return {
+	        div: res.div,
+	        mod: mod
+	      };
+	    }
+
+	    // Both numbers are positive at this point
+
+	    // Strip both numbers to approximate shift value
+	    if (num.length > this.length || this.cmp(num) < 0) {
+	      return {
+	        div: new BN(0),
+	        mod: this
+	      };
+	    }
+
+	    // Very short reduction
+	    if (num.length === 1) {
+	      if (mode === 'div') {
+	        return {
+	          div: this.divn(num.words[0]),
+	          mod: null
+	        };
+	      }
+
+	      if (mode === 'mod') {
+	        return {
+	          div: null,
+	          mod: new BN(this.modrn(num.words[0]))
+	        };
+	      }
+
+	      return {
+	        div: this.divn(num.words[0]),
+	        mod: new BN(this.modrn(num.words[0]))
+	      };
+	    }
+
+	    return this._wordDiv(num, mode);
+	  };
+
+	  // Find `this` / `num`
+	  BN.prototype.div = function div (num) {
+	    return this.divmod(num, 'div', false).div;
+	  };
+
+	  // Find `this` % `num`
+	  BN.prototype.mod = function mod (num) {
+	    return this.divmod(num, 'mod', false).mod;
+	  };
+
+	  BN.prototype.umod = function umod (num) {
+	    return this.divmod(num, 'mod', true).mod;
+	  };
+
+	  // Find Round(`this` / `num`)
+	  BN.prototype.divRound = function divRound (num) {
+	    var dm = this.divmod(num);
+
+	    // Fast case - exact division
+	    if (dm.mod.isZero()) return dm.div;
+
+	    var mod = dm.div.negative !== 0 ? dm.mod.isub(num) : dm.mod;
+
+	    var half = num.ushrn(1);
+	    var r2 = num.andln(1);
+	    var cmp = mod.cmp(half);
+
+	    // Round down
+	    if (cmp < 0 || (r2 === 1 && cmp === 0)) return dm.div;
+
+	    // Round up
+	    return dm.div.negative !== 0 ? dm.div.isubn(1) : dm.div.iaddn(1);
+	  };
+
+	  BN.prototype.modrn = function modrn (num) {
+	    var isNegNum = num < 0;
+	    if (isNegNum) num = -num;
+
+	    assert(num <= 0x3ffffff);
+	    var p = (1 << 26) % num;
+
+	    var acc = 0;
+	    for (var i = this.length - 1; i >= 0; i--) {
+	      acc = (p * acc + (this.words[i] | 0)) % num;
+	    }
+
+	    return isNegNum ? -acc : acc;
+	  };
+
+	  // WARNING: DEPRECATED
+	  BN.prototype.modn = function modn (num) {
+	    return this.modrn(num);
+	  };
+
+	  // In-place division by number
+	  BN.prototype.idivn = function idivn (num) {
+	    var isNegNum = num < 0;
+	    if (isNegNum) num = -num;
+
+	    assert(num <= 0x3ffffff);
+
+	    var carry = 0;
+	    for (var i = this.length - 1; i >= 0; i--) {
+	      var w = (this.words[i] | 0) + carry * 0x4000000;
+	      this.words[i] = (w / num) | 0;
+	      carry = w % num;
+	    }
+
+	    this._strip();
+	    return isNegNum ? this.ineg() : this;
+	  };
+
+	  BN.prototype.divn = function divn (num) {
+	    return this.clone().idivn(num);
+	  };
+
+	  BN.prototype.egcd = function egcd (p) {
+	    assert(p.negative === 0);
+	    assert(!p.isZero());
+
+	    var x = this;
+	    var y = p.clone();
+
+	    if (x.negative !== 0) {
+	      x = x.umod(p);
+	    } else {
+	      x = x.clone();
+	    }
+
+	    // A * x + B * y = x
+	    var A = new BN(1);
+	    var B = new BN(0);
+
+	    // C * x + D * y = y
+	    var C = new BN(0);
+	    var D = new BN(1);
+
+	    var g = 0;
+
+	    while (x.isEven() && y.isEven()) {
+	      x.iushrn(1);
+	      y.iushrn(1);
+	      ++g;
+	    }
+
+	    var yp = y.clone();
+	    var xp = x.clone();
+
+	    while (!x.isZero()) {
+	      for (var i = 0, im = 1; (x.words[0] & im) === 0 && i < 26; ++i, im <<= 1);
+	      if (i > 0) {
+	        x.iushrn(i);
+	        while (i-- > 0) {
+	          if (A.isOdd() || B.isOdd()) {
+	            A.iadd(yp);
+	            B.isub(xp);
+	          }
+
+	          A.iushrn(1);
+	          B.iushrn(1);
+	        }
+	      }
+
+	      for (var j = 0, jm = 1; (y.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1);
+	      if (j > 0) {
+	        y.iushrn(j);
+	        while (j-- > 0) {
+	          if (C.isOdd() || D.isOdd()) {
+	            C.iadd(yp);
+	            D.isub(xp);
+	          }
+
+	          C.iushrn(1);
+	          D.iushrn(1);
+	        }
+	      }
+
+	      if (x.cmp(y) >= 0) {
+	        x.isub(y);
+	        A.isub(C);
+	        B.isub(D);
+	      } else {
+	        y.isub(x);
+	        C.isub(A);
+	        D.isub(B);
+	      }
+	    }
+
+	    return {
+	      a: C,
+	      b: D,
+	      gcd: y.iushln(g)
+	    };
+	  };
+
+	  // This is reduced incarnation of the binary EEA
+	  // above, designated to invert members of the
+	  // _prime_ fields F(p) at a maximal speed
+	  BN.prototype._invmp = function _invmp (p) {
+	    assert(p.negative === 0);
+	    assert(!p.isZero());
+
+	    var a = this;
+	    var b = p.clone();
+
+	    if (a.negative !== 0) {
+	      a = a.umod(p);
+	    } else {
+	      a = a.clone();
+	    }
+
+	    var x1 = new BN(1);
+	    var x2 = new BN(0);
+
+	    var delta = b.clone();
+
+	    while (a.cmpn(1) > 0 && b.cmpn(1) > 0) {
+	      for (var i = 0, im = 1; (a.words[0] & im) === 0 && i < 26; ++i, im <<= 1);
+	      if (i > 0) {
+	        a.iushrn(i);
+	        while (i-- > 0) {
+	          if (x1.isOdd()) {
+	            x1.iadd(delta);
+	          }
+
+	          x1.iushrn(1);
+	        }
+	      }
+
+	      for (var j = 0, jm = 1; (b.words[0] & jm) === 0 && j < 26; ++j, jm <<= 1);
+	      if (j > 0) {
+	        b.iushrn(j);
+	        while (j-- > 0) {
+	          if (x2.isOdd()) {
+	            x2.iadd(delta);
+	          }
+
+	          x2.iushrn(1);
+	        }
+	      }
+
+	      if (a.cmp(b) >= 0) {
+	        a.isub(b);
+	        x1.isub(x2);
+	      } else {
+	        b.isub(a);
+	        x2.isub(x1);
+	      }
+	    }
+
+	    var res;
+	    if (a.cmpn(1) === 0) {
+	      res = x1;
+	    } else {
+	      res = x2;
+	    }
+
+	    if (res.cmpn(0) < 0) {
+	      res.iadd(p);
+	    }
+
+	    return res;
+	  };
+
+	  BN.prototype.gcd = function gcd (num) {
+	    if (this.isZero()) return num.abs();
+	    if (num.isZero()) return this.abs();
+
+	    var a = this.clone();
+	    var b = num.clone();
+	    a.negative = 0;
+	    b.negative = 0;
+
+	    // Remove common factor of two
+	    for (var shift = 0; a.isEven() && b.isEven(); shift++) {
+	      a.iushrn(1);
+	      b.iushrn(1);
+	    }
+
+	    do {
+	      while (a.isEven()) {
+	        a.iushrn(1);
+	      }
+	      while (b.isEven()) {
+	        b.iushrn(1);
+	      }
+
+	      var r = a.cmp(b);
+	      if (r < 0) {
+	        // Swap `a` and `b` to make `a` always bigger than `b`
+	        var t = a;
+	        a = b;
+	        b = t;
+	      } else if (r === 0 || b.cmpn(1) === 0) {
+	        break;
+	      }
+
+	      a.isub(b);
+	    } while (true);
+
+	    return b.iushln(shift);
+	  };
+
+	  // Invert number in the field F(num)
+	  BN.prototype.invm = function invm (num) {
+	    return this.egcd(num).a.umod(num);
+	  };
+
+	  BN.prototype.isEven = function isEven () {
+	    return (this.words[0] & 1) === 0;
+	  };
+
+	  BN.prototype.isOdd = function isOdd () {
+	    return (this.words[0] & 1) === 1;
+	  };
+
+	  // And first word and num
+	  BN.prototype.andln = function andln (num) {
+	    return this.words[0] & num;
+	  };
+
+	  // Increment at the bit position in-line
+	  BN.prototype.bincn = function bincn (bit) {
+	    assert(typeof bit === 'number');
+	    var r = bit % 26;
+	    var s = (bit - r) / 26;
+	    var q = 1 << r;
+
+	    // Fast case: bit is much higher than all existing words
+	    if (this.length <= s) {
+	      this._expand(s + 1);
+	      this.words[s] |= q;
+	      return this;
+	    }
+
+	    // Add bit and propagate, if needed
+	    var carry = q;
+	    for (var i = s; carry !== 0 && i < this.length; i++) {
+	      var w = this.words[i] | 0;
+	      w += carry;
+	      carry = w >>> 26;
+	      w &= 0x3ffffff;
+	      this.words[i] = w;
+	    }
+	    if (carry !== 0) {
+	      this.words[i] = carry;
+	      this.length++;
+	    }
+	    return this;
+	  };
+
+	  BN.prototype.isZero = function isZero () {
+	    return this.length === 1 && this.words[0] === 0;
+	  };
+
+	  BN.prototype.cmpn = function cmpn (num) {
+	    var negative = num < 0;
+
+	    if (this.negative !== 0 && !negative) return -1;
+	    if (this.negative === 0 && negative) return 1;
+
+	    this._strip();
+
+	    var res;
+	    if (this.length > 1) {
+	      res = 1;
+	    } else {
+	      if (negative) {
+	        num = -num;
+	      }
+
+	      assert(num <= 0x3ffffff, 'Number is too big');
+
+	      var w = this.words[0] | 0;
+	      res = w === num ? 0 : w < num ? -1 : 1;
+	    }
+	    if (this.negative !== 0) return -res | 0;
+	    return res;
+	  };
+
+	  // Compare two numbers and return:
+	  // 1 - if `this` > `num`
+	  // 0 - if `this` == `num`
+	  // -1 - if `this` < `num`
+	  BN.prototype.cmp = function cmp (num) {
+	    if (this.negative !== 0 && num.negative === 0) return -1;
+	    if (this.negative === 0 && num.negative !== 0) return 1;
+
+	    var res = this.ucmp(num);
+	    if (this.negative !== 0) return -res | 0;
+	    return res;
+	  };
+
+	  // Unsigned comparison
+	  BN.prototype.ucmp = function ucmp (num) {
+	    // At this point both numbers have the same sign
+	    if (this.length > num.length) return 1;
+	    if (this.length < num.length) return -1;
+
+	    var res = 0;
+	    for (var i = this.length - 1; i >= 0; i--) {
+	      var a = this.words[i] | 0;
+	      var b = num.words[i] | 0;
+
+	      if (a === b) continue;
+	      if (a < b) {
+	        res = -1;
+	      } else if (a > b) {
+	        res = 1;
+	      }
+	      break;
+	    }
+	    return res;
+	  };
+
+	  BN.prototype.gtn = function gtn (num) {
+	    return this.cmpn(num) === 1;
+	  };
+
+	  BN.prototype.gt = function gt (num) {
+	    return this.cmp(num) === 1;
+	  };
+
+	  BN.prototype.gten = function gten (num) {
+	    return this.cmpn(num) >= 0;
+	  };
+
+	  BN.prototype.gte = function gte (num) {
+	    return this.cmp(num) >= 0;
+	  };
+
+	  BN.prototype.ltn = function ltn (num) {
+	    return this.cmpn(num) === -1;
+	  };
+
+	  BN.prototype.lt = function lt (num) {
+	    return this.cmp(num) === -1;
+	  };
+
+	  BN.prototype.lten = function lten (num) {
+	    return this.cmpn(num) <= 0;
+	  };
+
+	  BN.prototype.lte = function lte (num) {
+	    return this.cmp(num) <= 0;
+	  };
+
+	  BN.prototype.eqn = function eqn (num) {
+	    return this.cmpn(num) === 0;
+	  };
+
+	  BN.prototype.eq = function eq (num) {
+	    return this.cmp(num) === 0;
+	  };
+
+	  //
+	  // A reduce context, could be using montgomery or something better, depending
+	  // on the `m` itself.
+	  //
+	  BN.red = function red (num) {
+	    return new Red(num);
+	  };
+
+	  BN.prototype.toRed = function toRed (ctx) {
+	    assert(!this.red, 'Already a number in reduction context');
+	    assert(this.negative === 0, 'red works only with positives');
+	    return ctx.convertTo(this)._forceRed(ctx);
+	  };
+
+	  BN.prototype.fromRed = function fromRed () {
+	    assert(this.red, 'fromRed works only with numbers in reduction context');
+	    return this.red.convertFrom(this);
+	  };
+
+	  BN.prototype._forceRed = function _forceRed (ctx) {
+	    this.red = ctx;
+	    return this;
+	  };
+
+	  BN.prototype.forceRed = function forceRed (ctx) {
+	    assert(!this.red, 'Already a number in reduction context');
+	    return this._forceRed(ctx);
+	  };
+
+	  BN.prototype.redAdd = function redAdd (num) {
+	    assert(this.red, 'redAdd works only with red numbers');
+	    return this.red.add(this, num);
+	  };
+
+	  BN.prototype.redIAdd = function redIAdd (num) {
+	    assert(this.red, 'redIAdd works only with red numbers');
+	    return this.red.iadd(this, num);
+	  };
+
+	  BN.prototype.redSub = function redSub (num) {
+	    assert(this.red, 'redSub works only with red numbers');
+	    return this.red.sub(this, num);
+	  };
+
+	  BN.prototype.redISub = function redISub (num) {
+	    assert(this.red, 'redISub works only with red numbers');
+	    return this.red.isub(this, num);
+	  };
+
+	  BN.prototype.redShl = function redShl (num) {
+	    assert(this.red, 'redShl works only with red numbers');
+	    return this.red.shl(this, num);
+	  };
+
+	  BN.prototype.redMul = function redMul (num) {
+	    assert(this.red, 'redMul works only with red numbers');
+	    this.red._verify2(this, num);
+	    return this.red.mul(this, num);
+	  };
+
+	  BN.prototype.redIMul = function redIMul (num) {
+	    assert(this.red, 'redMul works only with red numbers');
+	    this.red._verify2(this, num);
+	    return this.red.imul(this, num);
+	  };
+
+	  BN.prototype.redSqr = function redSqr () {
+	    assert(this.red, 'redSqr works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.sqr(this);
+	  };
+
+	  BN.prototype.redISqr = function redISqr () {
+	    assert(this.red, 'redISqr works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.isqr(this);
+	  };
+
+	  // Square root over p
+	  BN.prototype.redSqrt = function redSqrt () {
+	    assert(this.red, 'redSqrt works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.sqrt(this);
+	  };
+
+	  BN.prototype.redInvm = function redInvm () {
+	    assert(this.red, 'redInvm works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.invm(this);
+	  };
+
+	  // Return negative clone of `this` % `red modulo`
+	  BN.prototype.redNeg = function redNeg () {
+	    assert(this.red, 'redNeg works only with red numbers');
+	    this.red._verify1(this);
+	    return this.red.neg(this);
+	  };
+
+	  BN.prototype.redPow = function redPow (num) {
+	    assert(this.red && !num.red, 'redPow(normalNum)');
+	    this.red._verify1(this);
+	    return this.red.pow(this, num);
+	  };
+
+	  // Prime numbers with efficient reduction
+	  var primes = {
+	    k256: null,
+	    p224: null,
+	    p192: null,
+	    p25519: null
+	  };
+
+	  // Pseudo-Mersenne prime
+	  function MPrime (name, p) {
+	    // P = 2 ^ N - K
+	    this.name = name;
+	    this.p = new BN(p, 16);
+	    this.n = this.p.bitLength();
+	    this.k = new BN(1).iushln(this.n).isub(this.p);
+
+	    this.tmp = this._tmp();
+	  }
+
+	  MPrime.prototype._tmp = function _tmp () {
+	    var tmp = new BN(null);
+	    tmp.words = new Array(Math.ceil(this.n / 13));
+	    return tmp;
+	  };
+
+	  MPrime.prototype.ireduce = function ireduce (num) {
+	    // Assumes that `num` is less than `P^2`
+	    // num = HI * (2 ^ N - K) + HI * K + LO = HI * K + LO (mod P)
+	    var r = num;
+	    var rlen;
+
+	    do {
+	      this.split(r, this.tmp);
+	      r = this.imulK(r);
+	      r = r.iadd(this.tmp);
+	      rlen = r.bitLength();
+	    } while (rlen > this.n);
+
+	    var cmp = rlen < this.n ? -1 : r.ucmp(this.p);
+	    if (cmp === 0) {
+	      r.words[0] = 0;
+	      r.length = 1;
+	    } else if (cmp > 0) {
+	      r.isub(this.p);
+	    } else {
+	      if (r.strip !== undefined) {
+	        // r is a BN v4 instance
+	        r.strip();
+	      } else {
+	        // r is a BN v5 instance
+	        r._strip();
+	      }
+	    }
+
+	    return r;
+	  };
+
+	  MPrime.prototype.split = function split (input, out) {
+	    input.iushrn(this.n, 0, out);
+	  };
+
+	  MPrime.prototype.imulK = function imulK (num) {
+	    return num.imul(this.k);
+	  };
+
+	  function K256 () {
+	    MPrime.call(
+	      this,
+	      'k256',
+	      'ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff fffffffe fffffc2f');
+	  }
+	  inherits(K256, MPrime);
+
+	  K256.prototype.split = function split (input, output) {
+	    // 256 = 9 * 26 + 22
+	    var mask = 0x3fffff;
+
+	    var outLen = Math.min(input.length, 9);
+	    for (var i = 0; i < outLen; i++) {
+	      output.words[i] = input.words[i];
+	    }
+	    output.length = outLen;
+
+	    if (input.length <= 9) {
+	      input.words[0] = 0;
+	      input.length = 1;
+	      return;
+	    }
+
+	    // Shift by 9 limbs
+	    var prev = input.words[9];
+	    output.words[output.length++] = prev & mask;
+
+	    for (i = 10; i < input.length; i++) {
+	      var next = input.words[i] | 0;
+	      input.words[i - 10] = ((next & mask) << 4) | (prev >>> 22);
+	      prev = next;
+	    }
+	    prev >>>= 22;
+	    input.words[i - 10] = prev;
+	    if (prev === 0 && input.length > 10) {
+	      input.length -= 10;
+	    } else {
+	      input.length -= 9;
+	    }
+	  };
+
+	  K256.prototype.imulK = function imulK (num) {
+	    // K = 0x1000003d1 = [ 0x40, 0x3d1 ]
+	    num.words[num.length] = 0;
+	    num.words[num.length + 1] = 0;
+	    num.length += 2;
+
+	    // bounded at: 0x40 * 0x3ffffff + 0x3d0 = 0x100000390
+	    var lo = 0;
+	    for (var i = 0; i < num.length; i++) {
+	      var w = num.words[i] | 0;
+	      lo += w * 0x3d1;
+	      num.words[i] = lo & 0x3ffffff;
+	      lo = w * 0x40 + ((lo / 0x4000000) | 0);
+	    }
+
+	    // Fast length reduction
+	    if (num.words[num.length - 1] === 0) {
+	      num.length--;
+	      if (num.words[num.length - 1] === 0) {
+	        num.length--;
+	      }
+	    }
+	    return num;
+	  };
+
+	  function P224 () {
+	    MPrime.call(
+	      this,
+	      'p224',
+	      'ffffffff ffffffff ffffffff ffffffff 00000000 00000000 00000001');
+	  }
+	  inherits(P224, MPrime);
+
+	  function P192 () {
+	    MPrime.call(
+	      this,
+	      'p192',
+	      'ffffffff ffffffff ffffffff fffffffe ffffffff ffffffff');
+	  }
+	  inherits(P192, MPrime);
+
+	  function P25519 () {
+	    // 2 ^ 255 - 19
+	    MPrime.call(
+	      this,
+	      '25519',
+	      '7fffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffed');
+	  }
+	  inherits(P25519, MPrime);
+
+	  P25519.prototype.imulK = function imulK (num) {
+	    // K = 0x13
+	    var carry = 0;
+	    for (var i = 0; i < num.length; i++) {
+	      var hi = (num.words[i] | 0) * 0x13 + carry;
+	      var lo = hi & 0x3ffffff;
+	      hi >>>= 26;
+
+	      num.words[i] = lo;
+	      carry = hi;
+	    }
+	    if (carry !== 0) {
+	      num.words[num.length++] = carry;
+	    }
+	    return num;
+	  };
+
+	  // Exported mostly for testing purposes, use plain name instead
+	  BN._prime = function prime (name) {
+	    // Cached version of prime
+	    if (primes[name]) return primes[name];
+
+	    var prime;
+	    if (name === 'k256') {
+	      prime = new K256();
+	    } else if (name === 'p224') {
+	      prime = new P224();
+	    } else if (name === 'p192') {
+	      prime = new P192();
+	    } else if (name === 'p25519') {
+	      prime = new P25519();
+	    } else {
+	      throw new Error('Unknown prime ' + name);
+	    }
+	    primes[name] = prime;
+
+	    return prime;
+	  };
+
+	  //
+	  // Base reduction engine
+	  //
+	  function Red (m) {
+	    if (typeof m === 'string') {
+	      var prime = BN._prime(m);
+	      this.m = prime.p;
+	      this.prime = prime;
+	    } else {
+	      assert(m.gtn(1), 'modulus must be greater than 1');
+	      this.m = m;
+	      this.prime = null;
+	    }
+	  }
+
+	  Red.prototype._verify1 = function _verify1 (a) {
+	    assert(a.negative === 0, 'red works only with positives');
+	    assert(a.red, 'red works only with red numbers');
+	  };
+
+	  Red.prototype._verify2 = function _verify2 (a, b) {
+	    assert((a.negative | b.negative) === 0, 'red works only with positives');
+	    assert(a.red && a.red === b.red,
+	      'red works only with red numbers');
+	  };
+
+	  Red.prototype.imod = function imod (a) {
+	    if (this.prime) return this.prime.ireduce(a)._forceRed(this);
+
+	    move(a, a.umod(this.m)._forceRed(this));
+	    return a;
+	  };
+
+	  Red.prototype.neg = function neg (a) {
+	    if (a.isZero()) {
+	      return a.clone();
+	    }
+
+	    return this.m.sub(a)._forceRed(this);
+	  };
+
+	  Red.prototype.add = function add (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.add(b);
+	    if (res.cmp(this.m) >= 0) {
+	      res.isub(this.m);
+	    }
+	    return res._forceRed(this);
+	  };
+
+	  Red.prototype.iadd = function iadd (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.iadd(b);
+	    if (res.cmp(this.m) >= 0) {
+	      res.isub(this.m);
+	    }
+	    return res;
+	  };
+
+	  Red.prototype.sub = function sub (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.sub(b);
+	    if (res.cmpn(0) < 0) {
+	      res.iadd(this.m);
+	    }
+	    return res._forceRed(this);
+	  };
+
+	  Red.prototype.isub = function isub (a, b) {
+	    this._verify2(a, b);
+
+	    var res = a.isub(b);
+	    if (res.cmpn(0) < 0) {
+	      res.iadd(this.m);
+	    }
+	    return res;
+	  };
+
+	  Red.prototype.shl = function shl (a, num) {
+	    this._verify1(a);
+	    return this.imod(a.ushln(num));
+	  };
+
+	  Red.prototype.imul = function imul (a, b) {
+	    this._verify2(a, b);
+	    return this.imod(a.imul(b));
+	  };
+
+	  Red.prototype.mul = function mul (a, b) {
+	    this._verify2(a, b);
+	    return this.imod(a.mul(b));
+	  };
+
+	  Red.prototype.isqr = function isqr (a) {
+	    return this.imul(a, a.clone());
+	  };
+
+	  Red.prototype.sqr = function sqr (a) {
+	    return this.mul(a, a);
+	  };
+
+	  Red.prototype.sqrt = function sqrt (a) {
+	    if (a.isZero()) return a.clone();
+
+	    var mod3 = this.m.andln(3);
+	    assert(mod3 % 2 === 1);
+
+	    // Fast case
+	    if (mod3 === 3) {
+	      var pow = this.m.add(new BN(1)).iushrn(2);
+	      return this.pow(a, pow);
+	    }
+
+	    // Tonelli-Shanks algorithm (Totally unoptimized and slow)
+	    //
+	    // Find Q and S, that Q * 2 ^ S = (P - 1)
+	    var q = this.m.subn(1);
+	    var s = 0;
+	    while (!q.isZero() && q.andln(1) === 0) {
+	      s++;
+	      q.iushrn(1);
+	    }
+	    assert(!q.isZero());
+
+	    var one = new BN(1).toRed(this);
+	    var nOne = one.redNeg();
+
+	    // Find quadratic non-residue
+	    // NOTE: Max is such because of generalized Riemann hypothesis.
+	    var lpow = this.m.subn(1).iushrn(1);
+	    var z = this.m.bitLength();
+	    z = new BN(2 * z * z).toRed(this);
+
+	    while (this.pow(z, lpow).cmp(nOne) !== 0) {
+	      z.redIAdd(nOne);
+	    }
+
+	    var c = this.pow(z, q);
+	    var r = this.pow(a, q.addn(1).iushrn(1));
+	    var t = this.pow(a, q);
+	    var m = s;
+	    while (t.cmp(one) !== 0) {
+	      var tmp = t;
+	      for (var i = 0; tmp.cmp(one) !== 0; i++) {
+	        tmp = tmp.redSqr();
+	      }
+	      assert(i < m);
+	      var b = this.pow(c, new BN(1).iushln(m - i - 1));
+
+	      r = r.redMul(b);
+	      c = b.redSqr();
+	      t = t.redMul(c);
+	      m = i;
+	    }
+
+	    return r;
+	  };
+
+	  Red.prototype.invm = function invm (a) {
+	    var inv = a._invmp(this.m);
+	    if (inv.negative !== 0) {
+	      inv.negative = 0;
+	      return this.imod(inv).redNeg();
+	    } else {
+	      return this.imod(inv);
+	    }
+	  };
+
+	  Red.prototype.pow = function pow (a, num) {
+	    if (num.isZero()) return new BN(1).toRed(this);
+	    if (num.cmpn(1) === 0) return a.clone();
+
+	    var windowSize = 4;
+	    var wnd = new Array(1 << windowSize);
+	    wnd[0] = new BN(1).toRed(this);
+	    wnd[1] = a;
+	    for (var i = 2; i < wnd.length; i++) {
+	      wnd[i] = this.mul(wnd[i - 1], a);
+	    }
+
+	    var res = wnd[0];
+	    var current = 0;
+	    var currentLen = 0;
+	    var start = num.bitLength() % 26;
+	    if (start === 0) {
+	      start = 26;
+	    }
+
+	    for (i = num.length - 1; i >= 0; i--) {
+	      var word = num.words[i];
+	      for (var j = start - 1; j >= 0; j--) {
+	        var bit = (word >> j) & 1;
+	        if (res !== wnd[0]) {
+	          res = this.sqr(res);
+	        }
+
+	        if (bit === 0 && current === 0) {
+	          currentLen = 0;
+	          continue;
+	        }
+
+	        current <<= 1;
+	        current |= bit;
+	        currentLen++;
+	        if (currentLen !== windowSize && (i !== 0 || j !== 0)) continue;
+
+	        res = this.mul(res, wnd[current]);
+	        currentLen = 0;
+	        current = 0;
+	      }
+	      start = 26;
+	    }
+
+	    return res;
+	  };
+
+	  Red.prototype.convertTo = function convertTo (num) {
+	    var r = num.umod(this.m);
+
+	    return r === num ? r.clone() : r;
+	  };
+
+	  Red.prototype.convertFrom = function convertFrom (num) {
+	    var res = num.clone();
+	    res.red = null;
+	    return res;
+	  };
+
+	  //
+	  // Montgomery method engine
+	  //
+
+	  BN.mont = function mont (num) {
+	    return new Mont(num);
+	  };
+
+	  function Mont (m) {
+	    Red.call(this, m);
+
+	    this.shift = this.m.bitLength();
+	    if (this.shift % 26 !== 0) {
+	      this.shift += 26 - (this.shift % 26);
+	    }
+
+	    this.r = new BN(1).iushln(this.shift);
+	    this.r2 = this.imod(this.r.sqr());
+	    this.rinv = this.r._invmp(this.m);
+
+	    this.minv = this.rinv.mul(this.r).isubn(1).div(this.m);
+	    this.minv = this.minv.umod(this.r);
+	    this.minv = this.r.sub(this.minv);
+	  }
+	  inherits(Mont, Red);
+
+	  Mont.prototype.convertTo = function convertTo (num) {
+	    return this.imod(num.ushln(this.shift));
+	  };
+
+	  Mont.prototype.convertFrom = function convertFrom (num) {
+	    var r = this.imod(num.mul(this.rinv));
+	    r.red = null;
+	    return r;
+	  };
+
+	  Mont.prototype.imul = function imul (a, b) {
+	    if (a.isZero() || b.isZero()) {
+	      a.words[0] = 0;
+	      a.length = 1;
+	      return a;
+	    }
+
+	    var t = a.imul(b);
+	    var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+	    var u = t.isub(c).iushrn(this.shift);
+	    var res = u;
+
+	    if (u.cmp(this.m) >= 0) {
+	      res = u.isub(this.m);
+	    } else if (u.cmpn(0) < 0) {
+	      res = u.iadd(this.m);
+	    }
+
+	    return res._forceRed(this);
+	  };
+
+	  Mont.prototype.mul = function mul (a, b) {
+	    if (a.isZero() || b.isZero()) return new BN(0)._forceRed(this);
+
+	    var t = a.mul(b);
+	    var c = t.maskn(this.shift).mul(this.minv).imaskn(this.shift).mul(this.m);
+	    var u = t.isub(c).iushrn(this.shift);
+	    var res = u;
+	    if (u.cmp(this.m) >= 0) {
+	      res = u.isub(this.m);
+	    } else if (u.cmpn(0) < 0) {
+	      res = u.iadd(this.m);
+	    }
+
+	    return res._forceRed(this);
+	  };
+
+	  Mont.prototype.invm = function invm (a) {
+	    // (AR)^-1 * R^2 = (A^-1 * R^-1) * R^2 = A^-1 * R
+	    var res = this.imod(a._invmp(this.m).mul(this.r2));
+	    return res._forceRed(this);
+	  };
+	})(module, commonjsGlobal);
+} (bn));
+
+(function (exports) {
+	var __importDefault = (commonjsGlobal && commonjsGlobal.__importDefault) || function (mod) {
+	    return (mod && mod.__esModule) ? mod : { "default": mod };
+	};
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.map = exports.array = exports.rustEnum = exports.str = exports.vecU8 = exports.tagged = exports.vec = exports.bool = exports.option = exports.publicKey = exports.i128 = exports.u128 = exports.i64 = exports.u64 = exports.struct = exports.f64 = exports.f32 = exports.i32 = exports.u32 = exports.i16 = exports.u16 = exports.i8 = exports.u8 = void 0;
+	const buffer_layout_1 = Layout$1;
+	const web3_js_1 = require$$1;
+	const bn_js_1 = __importDefault(bn.exports);
+	var buffer_layout_2 = Layout$1;
+	Object.defineProperty(exports, "u8", { enumerable: true, get: function () { return buffer_layout_2.u8; } });
+	Object.defineProperty(exports, "i8", { enumerable: true, get: function () { return buffer_layout_2.s8; } });
+	Object.defineProperty(exports, "u16", { enumerable: true, get: function () { return buffer_layout_2.u16; } });
+	Object.defineProperty(exports, "i16", { enumerable: true, get: function () { return buffer_layout_2.s16; } });
+	Object.defineProperty(exports, "u32", { enumerable: true, get: function () { return buffer_layout_2.u32; } });
+	Object.defineProperty(exports, "i32", { enumerable: true, get: function () { return buffer_layout_2.s32; } });
+	Object.defineProperty(exports, "f32", { enumerable: true, get: function () { return buffer_layout_2.f32; } });
+	Object.defineProperty(exports, "f64", { enumerable: true, get: function () { return buffer_layout_2.f64; } });
+	Object.defineProperty(exports, "struct", { enumerable: true, get: function () { return buffer_layout_2.struct; } });
+	class BNLayout extends buffer_layout_1.Layout {
+	    constructor(span, signed, property) {
+	        super(span, property);
+	        this.blob = buffer_layout_1.blob(span);
+	        this.signed = signed;
+	    }
+	    decode(b, offset = 0) {
+	        const num = new bn_js_1.default(this.blob.decode(b, offset), 10, 'le');
+	        if (this.signed) {
+	            return num.fromTwos(this.span * 8).clone();
+	        }
+	        return num;
+	    }
+	    encode(src, b, offset = 0) {
+	        if (this.signed) {
+	            src = src.toTwos(this.span * 8);
+	        }
+	        return this.blob.encode(src.toArrayLike(Buffer, 'le', this.span), b, offset);
+	    }
+	}
+	function u64(property) {
+	    return new BNLayout(8, false, property);
+	}
+	exports.u64 = u64;
+	function i64(property) {
+	    return new BNLayout(8, true, property);
+	}
+	exports.i64 = i64;
+	function u128(property) {
+	    return new BNLayout(16, false, property);
+	}
+	exports.u128 = u128;
+	function i128(property) {
+	    return new BNLayout(16, true, property);
+	}
+	exports.i128 = i128;
+	class WrappedLayout extends buffer_layout_1.Layout {
+	    constructor(layout, decoder, encoder, property) {
+	        super(layout.span, property);
+	        this.layout = layout;
+	        this.decoder = decoder;
+	        this.encoder = encoder;
+	    }
+	    decode(b, offset) {
+	        return this.decoder(this.layout.decode(b, offset));
+	    }
+	    encode(src, b, offset) {
+	        return this.layout.encode(this.encoder(src), b, offset);
+	    }
+	    getSpan(b, offset) {
+	        return this.layout.getSpan(b, offset);
+	    }
+	}
+	function publicKey(property) {
+	    return new WrappedLayout(buffer_layout_1.blob(32), (b) => new web3_js_1.PublicKey(b), (key) => key.toBuffer(), property);
+	}
+	exports.publicKey = publicKey;
+	class OptionLayout extends buffer_layout_1.Layout {
+	    constructor(layout, property) {
+	        super(-1, property);
+	        this.layout = layout;
+	        this.discriminator = buffer_layout_1.u8();
+	    }
+	    encode(src, b, offset = 0) {
+	        if (src === null || src === undefined) {
+	            return this.discriminator.encode(0, b, offset);
+	        }
+	        this.discriminator.encode(1, b, offset);
+	        return this.layout.encode(src, b, offset + 1) + 1;
+	    }
+	    decode(b, offset = 0) {
+	        const discriminator = this.discriminator.decode(b, offset);
+	        if (discriminator === 0) {
+	            return null;
+	        }
+	        else if (discriminator === 1) {
+	            return this.layout.decode(b, offset + 1);
+	        }
+	        throw new Error('Invalid option ' + this.property);
+	    }
+	    getSpan(b, offset = 0) {
+	        const discriminator = this.discriminator.decode(b, offset);
+	        if (discriminator === 0) {
+	            return 1;
+	        }
+	        else if (discriminator === 1) {
+	            return this.layout.getSpan(b, offset + 1) + 1;
+	        }
+	        throw new Error('Invalid option ' + this.property);
+	    }
+	}
+	function option(layout, property) {
+	    return new OptionLayout(layout, property);
+	}
+	exports.option = option;
+	function bool(property) {
+	    return new WrappedLayout(buffer_layout_1.u8(), decodeBool, encodeBool, property);
+	}
+	exports.bool = bool;
+	function decodeBool(value) {
+	    if (value === 0) {
+	        return false;
+	    }
+	    else if (value === 1) {
+	        return true;
+	    }
+	    throw new Error('Invalid bool: ' + value);
+	}
+	function encodeBool(value) {
+	    return value ? 1 : 0;
+	}
+	function vec(elementLayout, property) {
+	    const length = buffer_layout_1.u32('length');
+	    const layout = buffer_layout_1.struct([
+	        length,
+	        buffer_layout_1.seq(elementLayout, buffer_layout_1.offset(length, -length.span), 'values'),
+	    ]);
+	    return new WrappedLayout(layout, ({ values }) => values, values => ({ values }), property);
+	}
+	exports.vec = vec;
+	function tagged(tag, layout, property) {
+	    const wrappedLayout = buffer_layout_1.struct([
+	        u64('tag'),
+	        layout.replicate('data'),
+	    ]);
+	    function decodeTag({ tag: receivedTag, data }) {
+	        if (!receivedTag.eq(tag)) {
+	            throw new Error('Invalid tag, expected: ' +
+	                tag.toString('hex') +
+	                ', got: ' +
+	                receivedTag.toString('hex'));
+	        }
+	        return data;
+	    }
+	    return new WrappedLayout(wrappedLayout, decodeTag, data => ({ tag, data }), property);
+	}
+	exports.tagged = tagged;
+	function vecU8(property) {
+	    const length = buffer_layout_1.u32('length');
+	    const layout = buffer_layout_1.struct([
+	        length,
+	        buffer_layout_1.blob(buffer_layout_1.offset(length, -length.span), 'data'),
+	    ]);
+	    return new WrappedLayout(layout, ({ data }) => data, data => ({ data }), property);
+	}
+	exports.vecU8 = vecU8;
+	function str(property) {
+	    return new WrappedLayout(vecU8(), data => data.toString('utf-8'), s => Buffer.from(s, 'utf-8'), property);
+	}
+	exports.str = str;
+	function rustEnum(variants, property, discriminant) {
+	    const unionLayout = buffer_layout_1.union(discriminant !== null && discriminant !== void 0 ? discriminant : buffer_layout_1.u8(), property);
+	    variants.forEach((variant, index) => unionLayout.addVariant(index, variant, variant.property));
+	    return unionLayout;
+	}
+	exports.rustEnum = rustEnum;
+	function array(elementLayout, length, property) {
+	    const layout = buffer_layout_1.struct([
+	        buffer_layout_1.seq(elementLayout, length, 'values'),
+	    ]);
+	    return new WrappedLayout(layout, ({ values }) => values, values => ({ values }), property);
+	}
+	exports.array = array;
+	class MapEntryLayout extends buffer_layout_1.Layout {
+	    constructor(keyLayout, valueLayout, property) {
+	        super(keyLayout.span + valueLayout.span, property);
+	        this.keyLayout = keyLayout;
+	        this.valueLayout = valueLayout;
+	    }
+	    decode(b, offset) {
+	        offset = offset || 0;
+	        const key = this.keyLayout.decode(b, offset);
+	        const value = this.valueLayout.decode(b, offset + this.keyLayout.getSpan(b, offset));
+	        return [key, value];
+	    }
+	    encode(src, b, offset) {
+	        offset = offset || 0;
+	        const keyBytes = this.keyLayout.encode(src[0], b, offset);
+	        const valueBytes = this.valueLayout.encode(src[1], b, offset + keyBytes);
+	        return keyBytes + valueBytes;
+	    }
+	    getSpan(b, offset) {
+	        return (this.keyLayout.getSpan(b, offset) + this.valueLayout.getSpan(b, offset));
+	    }
+	}
+	function map(keyLayout, valueLayout, property) {
+	    const length = buffer_layout_1.u32('length');
+	    const layout = buffer_layout_1.struct([
+	        length,
+	        buffer_layout_1.seq(new MapEntryLayout(keyLayout, valueLayout), buffer_layout_1.offset(length, -length.span), 'values'),
+	    ]);
+	    return new WrappedLayout(layout, ({ values }) => new Map(values), values => ({ values: Array.from(values.entries()) }), property);
+	}
+	exports.map = map;
+	
+} (lib));
+
+var array$1 = lib.array;
+var bool = lib.bool;
+var i128 = lib.i128;
+var i16 = lib.i16;
+var i32 = lib.i32;
+var i64 = lib.i64;
+var i8 = lib.i8;
+var map$2 = lib.map;
+var option = lib.option;
+var publicKey$1 = lib.publicKey;
+var rustEnum = lib.rustEnum;
+var str = lib.str;
+var struct$1 = lib.struct;
+var tagged = lib.tagged;
+var u128 = lib.u128;
+var u16$1 = lib.u16;
+var u32$1 = lib.u32;
+var u64$1 = lib.u64;
+var u8$1 = lib.u8;
+var vec = lib.vec;
+var vecU8 = lib.vecU8;
+export { Connection, LAMPORTS_PER_SOL, PublicKey, array$1 as array, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
