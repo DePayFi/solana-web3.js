@@ -40,7 +40,6 @@ import {
 In case you need to load this pre-built into a node test environment, make sure you supply globals for `crypto` and `fetch`:
 
 ```
-// CoinbaseWalletSdk
 import { Crypto } from "@peculiar/webcrypto"
 global.crypto = new Crypto()
 import fetch from 'cross-fetch'
