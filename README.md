@@ -11,5 +11,3 @@ yarn build
 ```
 npm publish --access public
 ```
-
-## Testing with Jest (node)

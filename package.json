@@ -1,7 +1,7 @@
 {
   "name": "@depay/solana-web3.js",
   "moduleName": "SolanaWeb3js",
-  "version": "1.0.24",
+  "version": "1.1.0",
   "description": "Solana Web3.js browser pre-built usable in rollup bundles.",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
@@ -25,33 +25,29 @@
   "homepage": "https://github.com/DePayFi/solana-web3.js#readme",
   "devDependencies": {
     "@babel/core": "^7.18.6",
+    "@ethersproject/sha2": "^5.5.0",
+    "@project-serum/borsh": "^0.2.5",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.1",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",
     "@rollup/plugin-sucrase": "^4.0.4",
-    "rollup": "^2.75.7",
-    "rollup-plugin-polyfill-node": "^0.10.0"
-  },
-  "peerDependencies": {
-    "@ethersproject/sha2": "^5.5.0",
     "@solana/buffer-layout": "^4.0.0",
     "@solana/web3.js": "^1.47.3",
+    "bigint-buffer": "^1.1.5",
     "bn.js": "^5.0.0",
+    "borsh": "^0.7.0",
     "bs58": "^4.0.1",
     "buffer": "6.0.1",
     "fast-stable-stringify": "^1.0.0",
     "jayson": "^3.4.4",
-    "node-fetch": "2",
+    "js-sha3": "^0.8.0",
+    "rollup": "^2.76.0",
+    "rollup-plugin-polyfill-node": "^0.10.1",
+    "rpc-websockets": "^7.5.0",
     "secp256k1": "^4.0.2",
     "superstruct": "^0.14.2",
     "tweetnacl": "^1.0.0"
-  },
-  "dependencies": {
-    "borsh": "^0.7.0",
-    "bigint-buffer": "^1.1.5",
-    "js-sha3": "^0.8.0",
-    "rpc-websockets": "^7.5.0"
   }
 }

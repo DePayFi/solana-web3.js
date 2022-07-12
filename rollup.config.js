@@ -24,19 +24,17 @@ export default {
     },
   ],
   external: [
-    'borsh',
-    'bigint-buffer',
-    'js-sha3',
-    'rpc-websockets',
   ],
   treeshake: {
     moduleSideEffects: false,
   },
   plugins: [
-    nodePolyfills(),
+    commonjs({
+      transformMixedEsModules: true
+    }),
     json(),
+    nodePolyfills(),
     resolve(),
-    commonjs(),
     babel({
       exclude: '**/node_modules/**',
       extensions: ['.js','.ts'],
