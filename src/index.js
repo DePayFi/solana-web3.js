@@ -4,7 +4,8 @@ import {
   PublicKey,
 } from "@solana/web3.js"
 
-var Buffer = require('buffer/').Buffer
+const Buffer = require('buffer/').Buffer
+const BN = require('bn.js')
 
 import {
   u8,
@@ -56,4 +57,5 @@ export {
   array,
   map,
   Buffer,
+  BN,
 }
