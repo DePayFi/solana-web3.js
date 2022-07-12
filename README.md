@@ -32,6 +32,7 @@ import {
   rustEnum,
   array,
   map,
+  Buffer
 } from "@depay/solana-web3.js"
 ```
 

@@ -4,6 +4,8 @@ import {
   PublicKey,
 } from "@solana/web3.js"
 
+var Buffer = require('buffer/').Buffer
+
 import {
   u8,
   i8,
@@ -53,4 +55,5 @@ export {
   rustEnum,
   array,
   map,
+  Buffer,
 }
