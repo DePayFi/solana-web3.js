@@ -31,12 +31,6 @@ import {
   map,
 } from "@project-serum/borsh"
 
-import {
-  getAccount,
-  getMint,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token"
-
 export {
   Connection,
   LAMPORTS_PER_SOL,
@@ -64,7 +58,4 @@ export {
   map,
   Buffer,
   BN,
-  getAccount,
-  getMint,
-  TOKEN_PROGRAM_ID,
 }
