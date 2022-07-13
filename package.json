@@ -1,7 +1,7 @@
 {
   "name": "@depay/solana-web3.js",
   "moduleName": "SolanaWeb3js",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Solana Web3.js browser pre-built usable in rollup bundles.",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",

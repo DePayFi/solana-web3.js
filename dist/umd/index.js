@@ -58912,6 +58912,21 @@
 	};
 	const u64$2 = bigInt$2(8);
 
+	const bool = (property) => {
+	    const layout = u8(property);
+	    const { encode, decode } = encodeDecode$2(layout);
+	    const boolLayout = layout;
+	    boolLayout.decode = (buffer, offset) => {
+	        const src = decode(buffer, offset);
+	        return !!src;
+	    };
+	    boolLayout.encode = (bool, buffer, offset) => {
+	        const src = Number(bool);
+	        return encode(src, buffer, offset);
+	    };
+	    return boolLayout;
+	};
+
 	const toBuffer$1 = arr => {
 	  if (Buffer$2.isBuffer(arr)) {
 	    return arr;
@@ -65315,6 +65330,47 @@
 	    };
 	}
 
+	/** Buffer layout for de/serializing a mint */
+	const MintLayout = struct([
+	    u32('mintAuthorityOption'),
+	    publicKey$1('mintAuthority'),
+	    u64$2('supply'),
+	    u8('decimals'),
+	    bool('isInitialized'),
+	    u32('freezeAuthorityOption'),
+	    publicKey$1('freezeAuthority'),
+	]);
+	/** Byte length of a mint */
+	const MINT_SIZE = MintLayout.span;
+	/**
+	 * Retrieve information about a mint
+	 *
+	 * @param connection Connection to use
+	 * @param address    Mint account
+	 * @param commitment Desired level of commitment for querying the state
+	 * @param programId  SPL Token program account
+	 *
+	 * @return Mint information
+	 */
+	async function getMint(connection, address, commitment, programId = TOKEN_PROGRAM_ID) {
+	    const info = await connection.getAccountInfo(address, commitment);
+	    if (!info)
+	        throw new TokenAccountNotFoundError();
+	    if (!info.owner.equals(programId))
+	        throw new TokenInvalidAccountOwnerError();
+	    if (info.data.length != MINT_SIZE)
+	        throw new TokenInvalidAccountSizeError();
+	    const rawMint = MintLayout.decode(info.data);
+	    return {
+	        address,
+	        mintAuthority: rawMint.mintAuthorityOption ? rawMint.mintAuthority : null,
+	        supply: rawMint.supply,
+	        decimals: rawMint.decimals,
+	        isInitialized: rawMint.isInitialized,
+	        freezeAuthority: rawMint.freezeAuthorityOption ? rawMint.freezeAuthority : null,
+	    };
+	}
+
 	const Buffer$1 = require$$0$7.Buffer;
 	const BN = bn$2.exports;
 
@@ -65327,6 +65383,7 @@
 	exports.array = lib.array;
 	exports.bool = lib.bool;
 	exports.getAccount = getAccount;
+	exports.getMint = getMint;
 	exports.i128 = lib.i128;
 	exports.i16 = lib.i16;
 	exports.i32 = lib.i32;
