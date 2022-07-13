@@ -259,7 +259,7 @@ var INSPECT_MAX_BYTES = 50;
  * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
  * get the Object implementation, which is slower but behaves correctly.
  */
-Buffer$1.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
+Buffer$2.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
   ? global$1.TYPED_ARRAY_SUPPORT
   : true;
 
@@ -269,7 +269,7 @@ Buffer$1.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
 var _kMaxLength = kMaxLength();
 
 function kMaxLength () {
-  return Buffer$1.TYPED_ARRAY_SUPPORT
+  return Buffer$2.TYPED_ARRAY_SUPPORT
     ? 0x7fffffff
     : 0x3fffffff
 }
@@ -278,14 +278,14 @@ function createBuffer (that, length) {
   if (kMaxLength() < length) {
     throw new RangeError('Invalid typed array length')
   }
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     // Return an augmented `Uint8Array` instance, for best performance
     that = new Uint8Array(length);
-    that.__proto__ = Buffer$1.prototype;
+    that.__proto__ = Buffer$2.prototype;
   } else {
     // Fallback: Return an object instance of the Buffer class
     if (that === null) {
-      that = new Buffer$1(length);
+      that = new Buffer$2(length);
     }
     that.length = length;
   }
@@ -303,9 +303,9 @@ function createBuffer (that, length) {
  * The `Uint8Array` prototype remains unmodified.
  */
 
-function Buffer$1 (arg, encodingOrOffset, length) {
-  if (!Buffer$1.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer$1)) {
-    return new Buffer$1(arg, encodingOrOffset, length)
+function Buffer$2 (arg, encodingOrOffset, length) {
+  if (!Buffer$2.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer$2)) {
+    return new Buffer$2(arg, encodingOrOffset, length)
   }
 
   // Common case.
@@ -320,11 +320,11 @@ function Buffer$1 (arg, encodingOrOffset, length) {
   return from(this, arg, encodingOrOffset, length)
 }
 
-Buffer$1.poolSize = 8192; // not used by this implementation
+Buffer$2.poolSize = 8192; // not used by this implementation
 
 // TODO: Legacy, not needed anymore. Remove in next major version.
-Buffer$1._augment = function (arr) {
-  arr.__proto__ = Buffer$1.prototype;
+Buffer$2._augment = function (arr) {
+  arr.__proto__ = Buffer$2.prototype;
   return arr
 };
 
@@ -352,13 +352,13 @@ function from (that, value, encodingOrOffset, length) {
  * Buffer.from(buffer)
  * Buffer.from(arrayBuffer[, byteOffset[, length]])
  **/
-Buffer$1.from = function (value, encodingOrOffset, length) {
+Buffer$2.from = function (value, encodingOrOffset, length) {
   return from(null, value, encodingOrOffset, length)
 };
 
-if (Buffer$1.TYPED_ARRAY_SUPPORT) {
-  Buffer$1.prototype.__proto__ = Uint8Array.prototype;
-  Buffer$1.__proto__ = Uint8Array;
+if (Buffer$2.TYPED_ARRAY_SUPPORT) {
+  Buffer$2.prototype.__proto__ = Uint8Array.prototype;
+  Buffer$2.__proto__ = Uint8Array;
 }
 
 function assertSize (size) {
@@ -389,14 +389,14 @@ function alloc (that, size, fill, encoding) {
  * Creates a new filled Buffer instance.
  * alloc(size[, fill[, encoding]])
  **/
-Buffer$1.alloc = function (size, fill, encoding) {
+Buffer$2.alloc = function (size, fill, encoding) {
   return alloc(null, size, fill, encoding)
 };
 
 function allocUnsafe (that, size) {
   assertSize(size);
   that = createBuffer(that, size < 0 ? 0 : checked(size) | 0);
-  if (!Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (!Buffer$2.TYPED_ARRAY_SUPPORT) {
     for (var i = 0; i < size; ++i) {
       that[i] = 0;
     }
@@ -407,13 +407,13 @@ function allocUnsafe (that, size) {
 /**
  * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.
  * */
-Buffer$1.allocUnsafe = function (size) {
+Buffer$2.allocUnsafe = function (size) {
   return allocUnsafe(null, size)
 };
 /**
  * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.
  */
-Buffer$1.allocUnsafeSlow = function (size) {
+Buffer$2.allocUnsafeSlow = function (size) {
   return allocUnsafe(null, size)
 };
 
@@ -422,7 +422,7 @@ function fromString (that, string, encoding) {
     encoding = 'utf8';
   }
 
-  if (!Buffer$1.isEncoding(encoding)) {
+  if (!Buffer$2.isEncoding(encoding)) {
     throw new TypeError('"encoding" must be a valid string encoding')
   }
 
@@ -469,10 +469,10 @@ function fromArrayBuffer (that, array, byteOffset, length) {
     array = new Uint8Array(array, byteOffset, length);
   }
 
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     // Return an augmented `Uint8Array` instance, for best performance
     that = array;
-    that.__proto__ = Buffer$1.prototype;
+    that.__proto__ = Buffer$2.prototype;
   } else {
     // Fallback: Return an object instance of the Buffer class
     that = fromArrayLike(that, array);
@@ -524,14 +524,14 @@ function SlowBuffer (length) {
   if (+length != length) { // eslint-disable-line eqeqeq
     length = 0;
   }
-  return Buffer$1.alloc(+length)
+  return Buffer$2.alloc(+length)
 }
-Buffer$1.isBuffer = isBuffer;
+Buffer$2.isBuffer = isBuffer;
 function internalIsBuffer (b) {
   return !!(b != null && b._isBuffer)
 }
 
-Buffer$1.compare = function compare (a, b) {
+Buffer$2.compare = function compare (a, b) {
   if (!internalIsBuffer(a) || !internalIsBuffer(b)) {
     throw new TypeError('Arguments must be Buffers')
   }
@@ -554,7 +554,7 @@ Buffer$1.compare = function compare (a, b) {
   return 0
 };
 
-Buffer$1.isEncoding = function isEncoding (encoding) {
+Buffer$2.isEncoding = function isEncoding (encoding) {
   switch (String(encoding).toLowerCase()) {
     case 'hex':
     case 'utf8':
@@ -573,13 +573,13 @@ Buffer$1.isEncoding = function isEncoding (encoding) {
   }
 };
 
-Buffer$1.concat = function concat (list, length) {
+Buffer$2.concat = function concat (list, length) {
   if (!isArray$2(list)) {
     throw new TypeError('"list" argument must be an Array of Buffers')
   }
 
   if (list.length === 0) {
-    return Buffer$1.alloc(0)
+    return Buffer$2.alloc(0)
   }
 
   var i;
@@ -590,7 +590,7 @@ Buffer$1.concat = function concat (list, length) {
     }
   }
 
-  var buffer = Buffer$1.allocUnsafe(length);
+  var buffer = Buffer$2.allocUnsafe(length);
   var pos = 0;
   for (i = 0; i < list.length; ++i) {
     var buf = list[i];
@@ -646,7 +646,7 @@ function byteLength (string, encoding) {
     }
   }
 }
-Buffer$1.byteLength = byteLength;
+Buffer$2.byteLength = byteLength;
 
 function slowToString (encoding, start, end) {
   var loweredCase = false;
@@ -720,7 +720,7 @@ function slowToString (encoding, start, end) {
 
 // The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect
 // Buffer instances.
-Buffer$1.prototype._isBuffer = true;
+Buffer$2.prototype._isBuffer = true;
 
 function swap (b, n, m) {
   var i = b[n];
@@ -728,7 +728,7 @@ function swap (b, n, m) {
   b[m] = i;
 }
 
-Buffer$1.prototype.swap16 = function swap16 () {
+Buffer$2.prototype.swap16 = function swap16 () {
   var len = this.length;
   if (len % 2 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 16-bits')
@@ -739,7 +739,7 @@ Buffer$1.prototype.swap16 = function swap16 () {
   return this
 };
 
-Buffer$1.prototype.swap32 = function swap32 () {
+Buffer$2.prototype.swap32 = function swap32 () {
   var len = this.length;
   if (len % 4 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 32-bits')
@@ -751,7 +751,7 @@ Buffer$1.prototype.swap32 = function swap32 () {
   return this
 };
 
-Buffer$1.prototype.swap64 = function swap64 () {
+Buffer$2.prototype.swap64 = function swap64 () {
   var len = this.length;
   if (len % 8 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 64-bits')
@@ -765,20 +765,20 @@ Buffer$1.prototype.swap64 = function swap64 () {
   return this
 };
 
-Buffer$1.prototype.toString = function toString () {
+Buffer$2.prototype.toString = function toString () {
   var length = this.length | 0;
   if (length === 0) return ''
   if (arguments.length === 0) return utf8Slice(this, 0, length)
   return slowToString.apply(this, arguments)
 };
 
-Buffer$1.prototype.equals = function equals (b) {
+Buffer$2.prototype.equals = function equals (b) {
   if (!internalIsBuffer(b)) throw new TypeError('Argument must be a Buffer')
   if (this === b) return true
-  return Buffer$1.compare(this, b) === 0
+  return Buffer$2.compare(this, b) === 0
 };
 
-Buffer$1.prototype.inspect = function inspect () {
+Buffer$2.prototype.inspect = function inspect () {
   var str = '';
   var max = INSPECT_MAX_BYTES;
   if (this.length > 0) {
@@ -788,7 +788,7 @@ Buffer$1.prototype.inspect = function inspect () {
   return '<Buffer ' + str + '>'
 };
 
-Buffer$1.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
+Buffer$2.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
   if (!internalIsBuffer(target)) {
     throw new TypeError('Argument must be a Buffer')
   }
@@ -887,7 +887,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
 
   // Normalize val
   if (typeof val === 'string') {
-    val = Buffer$1.from(val, encoding);
+    val = Buffer$2.from(val, encoding);
   }
 
   // Finally, search either indexOf (if dir is true) or lastIndexOf
@@ -899,7 +899,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
     return arrayIndexOf(buffer, val, byteOffset, encoding, dir)
   } else if (typeof val === 'number') {
     val = val & 0xFF; // Search for a byte value [0-255]
-    if (Buffer$1.TYPED_ARRAY_SUPPORT &&
+    if (Buffer$2.TYPED_ARRAY_SUPPORT &&
         typeof Uint8Array.prototype.indexOf === 'function') {
       if (dir) {
         return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset)
@@ -969,15 +969,15 @@ function arrayIndexOf (arr, val, byteOffset, encoding, dir) {
   return -1
 }
 
-Buffer$1.prototype.includes = function includes (val, byteOffset, encoding) {
+Buffer$2.prototype.includes = function includes (val, byteOffset, encoding) {
   return this.indexOf(val, byteOffset, encoding) !== -1
 };
 
-Buffer$1.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
+Buffer$2.prototype.indexOf = function indexOf (val, byteOffset, encoding) {
   return bidirectionalIndexOf(this, val, byteOffset, encoding, true)
 };
 
-Buffer$1.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
+Buffer$2.prototype.lastIndexOf = function lastIndexOf (val, byteOffset, encoding) {
   return bidirectionalIndexOf(this, val, byteOffset, encoding, false)
 };
 
@@ -1028,7 +1028,7 @@ function ucs2Write (buf, string, offset, length) {
   return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
 }
 
-Buffer$1.prototype.write = function write (string, offset, length, encoding) {
+Buffer$2.prototype.write = function write (string, offset, length, encoding) {
   // Buffer#write(string)
   if (offset === undefined) {
     encoding = 'utf8';
@@ -1100,7 +1100,7 @@ Buffer$1.prototype.write = function write (string, offset, length, encoding) {
   }
 };
 
-Buffer$1.prototype.toJSON = function toJSON () {
+Buffer$2.prototype.toJSON = function toJSON () {
   return {
     type: 'Buffer',
     data: Array.prototype.slice.call(this._arr || this, 0)
@@ -1239,7 +1239,7 @@ function hexSlice (buf, start, end) {
 
   var out = '';
   for (var i = start; i < end; ++i) {
-    out += toHex$2(buf[i]);
+    out += toHex$4(buf[i]);
   }
   return out
 }
@@ -1253,7 +1253,7 @@ function utf16leSlice (buf, start, end) {
   return res
 }
 
-Buffer$1.prototype.slice = function slice (start, end) {
+Buffer$2.prototype.slice = function slice (start, end) {
   var len = this.length;
   start = ~~start;
   end = end === undefined ? len : ~~end;
@@ -1275,12 +1275,12 @@ Buffer$1.prototype.slice = function slice (start, end) {
   if (end < start) end = start;
 
   var newBuf;
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     newBuf = this.subarray(start, end);
-    newBuf.__proto__ = Buffer$1.prototype;
+    newBuf.__proto__ = Buffer$2.prototype;
   } else {
     var sliceLen = end - start;
-    newBuf = new Buffer$1(sliceLen, undefined);
+    newBuf = new Buffer$2(sliceLen, undefined);
     for (var i = 0; i < sliceLen; ++i) {
       newBuf[i] = this[i + start];
     }
@@ -1297,7 +1297,7 @@ function checkOffset (offset, ext, length) {
   if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length')
 }
 
-Buffer$1.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
+Buffer$2.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
   offset = offset | 0;
   byteLength = byteLength | 0;
   if (!noAssert) checkOffset(offset, byteLength, this.length);
@@ -1312,7 +1312,7 @@ Buffer$1.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAsser
   return val
 };
 
-Buffer$1.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
+Buffer$2.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
   offset = offset | 0;
   byteLength = byteLength | 0;
   if (!noAssert) {
@@ -1328,22 +1328,22 @@ Buffer$1.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAsser
   return val
 };
 
-Buffer$1.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
+Buffer$2.prototype.readUInt8 = function readUInt8 (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 1, this.length);
   return this[offset]
 };
 
-Buffer$1.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
+Buffer$2.prototype.readUInt16LE = function readUInt16LE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length);
   return this[offset] | (this[offset + 1] << 8)
 };
 
-Buffer$1.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
+Buffer$2.prototype.readUInt16BE = function readUInt16BE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length);
   return (this[offset] << 8) | this[offset + 1]
 };
 
-Buffer$1.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
+Buffer$2.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 4, this.length);
 
   return ((this[offset]) |
@@ -1352,7 +1352,7 @@ Buffer$1.prototype.readUInt32LE = function readUInt32LE (offset, noAssert) {
       (this[offset + 3] * 0x1000000)
 };
 
-Buffer$1.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
+Buffer$2.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 4, this.length);
 
   return (this[offset] * 0x1000000) +
@@ -1361,7 +1361,7 @@ Buffer$1.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
     this[offset + 3])
 };
 
-Buffer$1.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
+Buffer$2.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
   offset = offset | 0;
   byteLength = byteLength | 0;
   if (!noAssert) checkOffset(offset, byteLength, this.length);
@@ -1379,7 +1379,7 @@ Buffer$1.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert)
   return val
 };
 
-Buffer$1.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
+Buffer$2.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
   offset = offset | 0;
   byteLength = byteLength | 0;
   if (!noAssert) checkOffset(offset, byteLength, this.length);
@@ -1397,25 +1397,25 @@ Buffer$1.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert)
   return val
 };
 
-Buffer$1.prototype.readInt8 = function readInt8 (offset, noAssert) {
+Buffer$2.prototype.readInt8 = function readInt8 (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 1, this.length);
   if (!(this[offset] & 0x80)) return (this[offset])
   return ((0xff - this[offset] + 1) * -1)
 };
 
-Buffer$1.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
+Buffer$2.prototype.readInt16LE = function readInt16LE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length);
   var val = this[offset] | (this[offset + 1] << 8);
   return (val & 0x8000) ? val | 0xFFFF0000 : val
 };
 
-Buffer$1.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
+Buffer$2.prototype.readInt16BE = function readInt16BE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length);
   var val = this[offset + 1] | (this[offset] << 8);
   return (val & 0x8000) ? val | 0xFFFF0000 : val
 };
 
-Buffer$1.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
+Buffer$2.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 4, this.length);
 
   return (this[offset]) |
@@ -1424,7 +1424,7 @@ Buffer$1.prototype.readInt32LE = function readInt32LE (offset, noAssert) {
     (this[offset + 3] << 24)
 };
 
-Buffer$1.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
+Buffer$2.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 4, this.length);
 
   return (this[offset] << 24) |
@@ -1433,22 +1433,22 @@ Buffer$1.prototype.readInt32BE = function readInt32BE (offset, noAssert) {
     (this[offset + 3])
 };
 
-Buffer$1.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
+Buffer$2.prototype.readFloatLE = function readFloatLE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 4, this.length);
   return read(this, offset, true, 23, 4)
 };
 
-Buffer$1.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
+Buffer$2.prototype.readFloatBE = function readFloatBE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 4, this.length);
   return read(this, offset, false, 23, 4)
 };
 
-Buffer$1.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
+Buffer$2.prototype.readDoubleLE = function readDoubleLE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 8, this.length);
   return read(this, offset, true, 52, 8)
 };
 
-Buffer$1.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
+Buffer$2.prototype.readDoubleBE = function readDoubleBE (offset, noAssert) {
   if (!noAssert) checkOffset(offset, 8, this.length);
   return read(this, offset, false, 52, 8)
 };
@@ -1459,7 +1459,7 @@ function checkInt (buf, value, offset, ext, max, min) {
   if (offset + ext > buf.length) throw new RangeError('Index out of range')
 }
 
-Buffer$1.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
+Buffer$2.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
   value = +value;
   offset = offset | 0;
   byteLength = byteLength | 0;
@@ -1478,7 +1478,7 @@ Buffer$1.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength
   return offset + byteLength
 };
 
-Buffer$1.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
+Buffer$2.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
   value = +value;
   offset = offset | 0;
   byteLength = byteLength | 0;
@@ -1497,11 +1497,11 @@ Buffer$1.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength
   return offset + byteLength
 };
 
-Buffer$1.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
+Buffer$2.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
-  if (!Buffer$1.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
+  if (!Buffer$2.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
   this[offset] = (value & 0xff);
   return offset + 1
 };
@@ -1514,11 +1514,11 @@ function objectWriteUInt16 (buf, value, offset, littleEndian) {
   }
 }
 
-Buffer$1.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
+Buffer$2.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value & 0xff);
     this[offset + 1] = (value >>> 8);
   } else {
@@ -1527,11 +1527,11 @@ Buffer$1.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAsse
   return offset + 2
 };
 
-Buffer$1.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
+Buffer$2.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8);
     this[offset + 1] = (value & 0xff);
   } else {
@@ -1547,11 +1547,11 @@ function objectWriteUInt32 (buf, value, offset, littleEndian) {
   }
 }
 
-Buffer$1.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
+Buffer$2.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset + 3] = (value >>> 24);
     this[offset + 2] = (value >>> 16);
     this[offset + 1] = (value >>> 8);
@@ -1562,11 +1562,11 @@ Buffer$1.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAsse
   return offset + 4
 };
 
-Buffer$1.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
+Buffer$2.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 24);
     this[offset + 1] = (value >>> 16);
     this[offset + 2] = (value >>> 8);
@@ -1577,7 +1577,7 @@ Buffer$1.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAsse
   return offset + 4
 };
 
-Buffer$1.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
+Buffer$2.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) {
@@ -1600,7 +1600,7 @@ Buffer$1.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, 
   return offset + byteLength
 };
 
-Buffer$1.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
+Buffer$2.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) {
@@ -1623,21 +1623,21 @@ Buffer$1.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, 
   return offset + byteLength
 };
 
-Buffer$1.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
+Buffer$2.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
-  if (!Buffer$1.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
+  if (!Buffer$2.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
   if (value < 0) value = 0xff + value + 1;
   this[offset] = (value & 0xff);
   return offset + 1
 };
 
-Buffer$1.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
+Buffer$2.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value & 0xff);
     this[offset + 1] = (value >>> 8);
   } else {
@@ -1646,11 +1646,11 @@ Buffer$1.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert
   return offset + 2
 };
 
-Buffer$1.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
+Buffer$2.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8);
     this[offset + 1] = (value & 0xff);
   } else {
@@ -1659,11 +1659,11 @@ Buffer$1.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert
   return offset + 2
 };
 
-Buffer$1.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
+Buffer$2.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value & 0xff);
     this[offset + 1] = (value >>> 8);
     this[offset + 2] = (value >>> 16);
@@ -1674,12 +1674,12 @@ Buffer$1.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert
   return offset + 4
 };
 
-Buffer$1.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
+Buffer$2.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
   value = +value;
   offset = offset | 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
   if (value < 0) value = 0xffffffff + value + 1;
-  if (Buffer$1.TYPED_ARRAY_SUPPORT) {
+  if (Buffer$2.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 24);
     this[offset + 1] = (value >>> 16);
     this[offset + 2] = (value >>> 8);
@@ -1703,11 +1703,11 @@ function writeFloat (buf, value, offset, littleEndian, noAssert) {
   return offset + 4
 }
 
-Buffer$1.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
+Buffer$2.prototype.writeFloatLE = function writeFloatLE (value, offset, noAssert) {
   return writeFloat(this, value, offset, true, noAssert)
 };
 
-Buffer$1.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
+Buffer$2.prototype.writeFloatBE = function writeFloatBE (value, offset, noAssert) {
   return writeFloat(this, value, offset, false, noAssert)
 };
 
@@ -1719,16 +1719,16 @@ function writeDouble (buf, value, offset, littleEndian, noAssert) {
   return offset + 8
 }
 
-Buffer$1.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
+Buffer$2.prototype.writeDoubleLE = function writeDoubleLE (value, offset, noAssert) {
   return writeDouble(this, value, offset, true, noAssert)
 };
 
-Buffer$1.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
+Buffer$2.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert) {
   return writeDouble(this, value, offset, false, noAssert)
 };
 
 // copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
-Buffer$1.prototype.copy = function copy (target, targetStart, start, end) {
+Buffer$2.prototype.copy = function copy (target, targetStart, start, end) {
   if (!start) start = 0;
   if (!end && end !== 0) end = this.length;
   if (targetStart >= target.length) targetStart = target.length;
@@ -1760,7 +1760,7 @@ Buffer$1.prototype.copy = function copy (target, targetStart, start, end) {
     for (i = len - 1; i >= 0; --i) {
       target[i + targetStart] = this[i + start];
     }
-  } else if (len < 1000 || !Buffer$1.TYPED_ARRAY_SUPPORT) {
+  } else if (len < 1000 || !Buffer$2.TYPED_ARRAY_SUPPORT) {
     // ascending copy from start
     for (i = 0; i < len; ++i) {
       target[i + targetStart] = this[i + start];
@@ -1780,7 +1780,7 @@ Buffer$1.prototype.copy = function copy (target, targetStart, start, end) {
 //    buffer.fill(number[, offset[, end]])
 //    buffer.fill(buffer[, offset[, end]])
 //    buffer.fill(string[, offset[, end]][, encoding])
-Buffer$1.prototype.fill = function fill (val, start, end, encoding) {
+Buffer$2.prototype.fill = function fill (val, start, end, encoding) {
   // Handle string cases:
   if (typeof val === 'string') {
     if (typeof start === 'string') {
@@ -1800,7 +1800,7 @@ Buffer$1.prototype.fill = function fill (val, start, end, encoding) {
     if (encoding !== undefined && typeof encoding !== 'string') {
       throw new TypeError('encoding must be a string')
     }
-    if (typeof encoding === 'string' && !Buffer$1.isEncoding(encoding)) {
+    if (typeof encoding === 'string' && !Buffer$2.isEncoding(encoding)) {
       throw new TypeError('Unknown encoding: ' + encoding)
     }
   } else if (typeof val === 'number') {
@@ -1829,7 +1829,7 @@ Buffer$1.prototype.fill = function fill (val, start, end, encoding) {
   } else {
     var bytes = internalIsBuffer(val)
       ? val
-      : utf8ToBytes(new Buffer$1(val, encoding).toString());
+      : utf8ToBytes(new Buffer$2(val, encoding).toString());
     var len = bytes.length;
     for (i = 0; i < end - start; ++i) {
       this[i + start] = bytes[i % len];
@@ -1861,7 +1861,7 @@ function stringtrim (str) {
   return str.replace(/^\s+|\s+$/g, '')
 }
 
-function toHex$2 (n) {
+function toHex$4 (n) {
   if (n < 16) return '0' + n.toString(16)
   return n.toString(16)
 }
@@ -2007,7 +2007,7 @@ function isSlowBuffer (obj) {
 
 var _polyfillNode_buffer = /*#__PURE__*/Object.freeze({
 	__proto__: null,
-	Buffer: Buffer$1,
+	Buffer: Buffer$2,
 	INSPECT_MAX_BYTES: INSPECT_MAX_BYTES,
 	SlowBuffer: SlowBuffer,
 	isBuffer: isBuffer,
@@ -8664,13 +8664,13 @@ const ResolvedTextDecoder = typeof TextDecoder !== "function" ? encoding.TextDec
 const textDecoder = new ResolvedTextDecoder("utf-8", { fatal: true });
 function baseEncode(value) {
     if (typeof value === "string") {
-        value = Buffer$1.from(value, "utf8");
+        value = Buffer$2.from(value, "utf8");
     }
-    return bs58_1.default.encode(Buffer$1.from(value));
+    return bs58_1.default.encode(Buffer$2.from(value));
 }
 lib$2.baseEncode = baseEncode;
 function baseDecode(value) {
-    return Buffer$1.from(bs58_1.default.decode(value));
+    return Buffer$2.from(bs58_1.default.decode(value));
 }
 lib$2.baseDecode = baseDecode;
 const INITIAL_LENGTH = 1024;
@@ -8690,12 +8690,12 @@ lib$2.BorshError = BorshError;
 /// Binary encoder.
 class BinaryWriter {
     constructor() {
-        this.buf = Buffer$1.alloc(INITIAL_LENGTH);
+        this.buf = Buffer$2.alloc(INITIAL_LENGTH);
         this.length = 0;
     }
     maybeResize() {
         if (this.buf.length < 16 + this.length) {
-            this.buf = Buffer$1.concat([this.buf, Buffer$1.alloc(INITIAL_LENGTH)]);
+            this.buf = Buffer$2.concat([this.buf, Buffer$2.alloc(INITIAL_LENGTH)]);
         }
     }
     writeU8(value) {
@@ -8715,37 +8715,37 @@ class BinaryWriter {
     }
     writeU64(value) {
         this.maybeResize();
-        this.writeBuffer(Buffer$1.from(new bn_js_1.default(value).toArray("le", 8)));
+        this.writeBuffer(Buffer$2.from(new bn_js_1.default(value).toArray("le", 8)));
     }
     writeU128(value) {
         this.maybeResize();
-        this.writeBuffer(Buffer$1.from(new bn_js_1.default(value).toArray("le", 16)));
+        this.writeBuffer(Buffer$2.from(new bn_js_1.default(value).toArray("le", 16)));
     }
     writeU256(value) {
         this.maybeResize();
-        this.writeBuffer(Buffer$1.from(new bn_js_1.default(value).toArray("le", 32)));
+        this.writeBuffer(Buffer$2.from(new bn_js_1.default(value).toArray("le", 32)));
     }
     writeU512(value) {
         this.maybeResize();
-        this.writeBuffer(Buffer$1.from(new bn_js_1.default(value).toArray("le", 64)));
+        this.writeBuffer(Buffer$2.from(new bn_js_1.default(value).toArray("le", 64)));
     }
     writeBuffer(buffer) {
         // Buffer.from is needed as this.buf.subarray can return plain Uint8Array in browser
-        this.buf = Buffer$1.concat([
-            Buffer$1.from(this.buf.subarray(0, this.length)),
+        this.buf = Buffer$2.concat([
+            Buffer$2.from(this.buf.subarray(0, this.length)),
             buffer,
-            Buffer$1.alloc(INITIAL_LENGTH),
+            Buffer$2.alloc(INITIAL_LENGTH),
         ]);
         this.length += buffer.length;
     }
     writeString(str) {
         this.maybeResize();
-        const b = Buffer$1.from(str, "utf8");
+        const b = Buffer$2.from(str, "utf8");
         this.writeU32(b.length);
         this.writeBuffer(b);
     }
     writeFixedArray(array) {
-        this.writeBuffer(Buffer$1.from(array));
+        this.writeBuffer(Buffer$2.from(array));
     }
     writeArray(array, fn) {
         this.maybeResize();
@@ -11359,7 +11359,7 @@ Object.defineProperty(browser$2, "__esModule", { value: true });
  */
 function toBigIntLE(buf) {
     {
-        const reversed = Buffer$1.from(buf);
+        const reversed = Buffer$2.from(buf);
         reversed.reverse();
         const hex = reversed.toString('hex');
         if (hex.length === 0) {
@@ -11393,7 +11393,7 @@ browser$2.toBigIntBE = toBigIntBE;
 function toBufferLE(num, width) {
     {
         const hex = num.toString(16);
-        const buffer = Buffer$1.from(hex.padStart(width * 2, '0').slice(0, width * 2), 'hex');
+        const buffer = Buffer$2.from(hex.padStart(width * 2, '0').slice(0, width * 2), 'hex');
         buffer.reverse();
         return buffer;
     }
@@ -11408,7 +11408,7 @@ var toBufferLE_1 = browser$2.toBufferLE = toBufferLE;
 function toBufferBE(num, width) {
     {
         const hex = num.toString(16);
-        return Buffer$1.from(hex.padStart(width * 2, '0').slice(0, width * 2), 'hex');
+        return Buffer$2.from(hex.padStart(width * 2, '0').slice(0, width * 2), 'hex');
     }
 }
 browser$2.toBufferBE = toBufferBE;
@@ -11618,7 +11618,7 @@ function* run(value, struct, options = {}) {
  * validate unknown input data against the struct.
  */
 
-class Struct$1 {
+class Struct$3 {
   constructor(props) {
     const {
       type,
@@ -11777,7 +11777,7 @@ function validate$1(value, struct, options = {}) {
  */
 
 function define(name, validator) {
-  return new Struct$1({
+  return new Struct$3({
     type: name,
     schema: null,
     validator
@@ -11792,7 +11792,7 @@ function any() {
   return define('any', () => true);
 }
 function array(Element) {
-  return new Struct$1({
+  return new Struct$3({
     type: 'array',
     schema: Element,
 
@@ -11835,7 +11835,7 @@ function instance(Class) {
 function literal(constant) {
   const description = print(constant);
   const t = typeof constant;
-  return new Struct$1({
+  return new Struct$3({
     type: 'literal',
     schema: t === 'string' || t === 'number' || t === 'boolean' ? constant : null,
 
@@ -11857,7 +11857,7 @@ function never() {
  */
 
 function nullable(struct) {
-  return new Struct$1({ ...struct,
+  return new Struct$3({ ...struct,
     validator: (value, ctx) => value === null || struct.validator(value, ctx),
     refiner: (value, ctx) => value === null || struct.refiner(value, ctx)
   });
@@ -11876,7 +11876,7 @@ function number() {
  */
 
 function optional(struct) {
-  return new Struct$1({ ...struct,
+  return new Struct$3({ ...struct,
     validator: (value, ctx) => value === undefined || struct.validator(value, ctx),
     refiner: (value, ctx) => value === undefined || struct.refiner(value, ctx)
   });
@@ -11889,7 +11889,7 @@ function optional(struct) {
  */
 
 function record(Key, Value) {
-  return new Struct$1({
+  return new Struct$3({
     type: 'record',
     schema: null,
 
@@ -11920,7 +11920,7 @@ function string() {
 }
 function tuple(Elements) {
   const Never = never();
-  return new Struct$1({
+  return new Struct$3({
     type: 'tuple',
     schema: null,
 
@@ -11949,7 +11949,7 @@ function tuple(Elements) {
 
 function type$1(schema) {
   const keys = Object.keys(schema);
-  return new Struct$1({
+  return new Struct$3({
     type: 'type',
     schema,
 
@@ -11969,7 +11969,7 @@ function type$1(schema) {
 }
 function union(Structs) {
   const description = Structs.map(s => s.type).join(' | ');
-  return new Struct$1({
+  return new Struct$3({
     type: 'union',
     schema: null,
 
@@ -12016,7 +12016,7 @@ function unknown() {
  */
 
 function coerce(struct, condition, coercer) {
-  return new Struct$1({ ...struct,
+  return new Struct$3({ ...struct,
     coercer: (value, ctx) => {
       return is(value, condition) ? struct.coercer(coercer(value, ctx), ctx) : struct.coercer(value, ctx);
     }
@@ -12088,7 +12088,7 @@ function requireClassCallCheck () {
 	return classCallCheck.exports;
 }
 
-var inherits$9 = {exports: {}};
+var inherits$b = {exports: {}};
 
 var setPrototypeOf = {exports: {}};
 
@@ -12114,7 +12114,7 @@ function requireSetPrototypeOf () {
 var hasRequiredInherits;
 
 function requireInherits () {
-	if (hasRequiredInherits) return inherits$9.exports;
+	if (hasRequiredInherits) return inherits$b.exports;
 	hasRequiredInherits = 1;
 	(function (module) {
 		var setPrototypeOf = requireSetPrototypeOf();
@@ -12138,8 +12138,8 @@ function requireInherits () {
 		}
 
 		module.exports = _inherits, module.exports.__esModule = true, module.exports["default"] = module.exports;
-} (inherits$9));
-	return inherits$9.exports;
+} (inherits$b));
+	return inherits$b.exports;
 }
 
 var possibleConstructorReturn = {exports: {}};
@@ -12373,7 +12373,7 @@ var platform$1 = 'browser';
 var browser$1 = true;
 var env = {};
 var argv = [];
-var version$5 = ''; // empty string to avoid regexp issues
+var version$7 = ''; // empty string to avoid regexp issues
 var versions = {};
 var release$1 = {};
 var config = {};
@@ -12437,7 +12437,7 @@ var browser$1$1 = {
   browser: browser$1,
   env: env,
   argv: argv,
-  version: version$5,
+  version: version$7,
   versions: versions,
   on: on,
   addListener: addListener,
@@ -12990,9 +12990,9 @@ function isFunction$1(value) {
 
 xhr = null; // Help gc
 
-var inherits$7;
+var inherits$9;
 if (typeof Object.create === 'function'){
-  inherits$7 = function inherits(ctor, superCtor) {
+  inherits$9 = function inherits(ctor, superCtor) {
     // implementation from standard node.js 'util' module
     ctor.super_ = superCtor;
     ctor.prototype = Object.create(superCtor.prototype, {
@@ -13005,7 +13005,7 @@ if (typeof Object.create === 'function'){
     });
   };
 } else {
-  inherits$7 = function inherits(ctor, superCtor) {
+  inherits$9 = function inherits(ctor, superCtor) {
     ctor.super_ = superCtor;
     var TempCtor = function () {};
     TempCtor.prototype = superCtor.prototype;
@@ -13013,7 +13013,7 @@ if (typeof Object.create === 'function'){
     ctor.prototype.constructor = ctor;
   };
 }
-var inherits$8 = inherits$7;
+var inherits$a = inherits$9;
 
 var formatRegExp = /%[sdj%]/g;
 function format$1(f) {
@@ -13547,9 +13547,9 @@ BufferList.prototype.join = function (s) {
 };
 
 BufferList.prototype.concat = function (n) {
-  if (this.length === 0) return Buffer$1.alloc(0);
+  if (this.length === 0) return Buffer$2.alloc(0);
   if (this.length === 1) return this.head.data;
-  var ret = Buffer$1.allocUnsafe(n >>> 0);
+  var ret = Buffer$2.allocUnsafe(n >>> 0);
   var p = this.head;
   var i = 0;
   while (p) {
@@ -13561,7 +13561,7 @@ BufferList.prototype.concat = function (n) {
 };
 
 // Copyright Joyent, Inc. and other Node contributors.
-var isBufferEncoding = Buffer$1.isEncoding
+var isBufferEncoding = Buffer$2.isEncoding
   || function(encoding) {
        switch (encoding && encoding.toLowerCase()) {
          case 'hex': case 'utf8': case 'utf-8': case 'ascii': case 'binary': case 'base64': case 'ucs2': case 'ucs-2': case 'utf16le': case 'utf-16le': case 'raw': return true;
@@ -13610,7 +13610,7 @@ function StringDecoder(encoding) {
 
   // Enough space to store all bytes of a single character. UTF-8 needs 4
   // bytes, but CESU-8 may require up to 6 (3 bytes per surrogate).
-  this.charBuffer = new Buffer$1(6);
+  this.charBuffer = new Buffer$2(6);
   // Number of bytes received for the current incomplete multi-byte character.
   this.charReceived = 0;
   // Number of bytes expected for the current incomplete multi-byte character.
@@ -13762,7 +13762,7 @@ function base64DetectIncompleteChar(buffer) {
 Readable.ReadableState = ReadableState;
 
 var debug = debuglog('stream');
-inherits$8(Readable, EventEmitter);
+inherits$a(Readable, EventEmitter);
 
 function prependListener(emitter, event, fn) {
   // Sadly this is not cacheable as some libraries bundle their own
@@ -13875,7 +13875,7 @@ Readable.prototype.push = function (chunk, encoding) {
   if (!state.objectMode && typeof chunk === 'string') {
     encoding = encoding || state.defaultEncoding;
     if (encoding !== state.encoding) {
-      chunk = Buffer$1.from(chunk, encoding);
+      chunk = Buffer$2.from(chunk, encoding);
       encoding = '';
     }
   }
@@ -14101,7 +14101,7 @@ Readable.prototype.read = function (n) {
 
 function chunkInvalid(state, chunk) {
   var er = null;
-  if (!Buffer$1.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
+  if (!Buffer$2.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== null && chunk !== undefined && !state.objectMode) {
     er = new TypeError('Invalid non-string/buffer chunk');
   }
   return er;
@@ -14585,7 +14585,7 @@ function copyFromBufferString(n, list) {
 // This function is designed to be inlinable, so please take care when making
 // changes to the function body.
 function copyFromBuffer(n, list) {
-  var ret = Buffer$1.allocUnsafe(n);
+  var ret = Buffer$2.allocUnsafe(n);
   var p = list.head;
   var c = 1;
   p.data.copy(ret);
@@ -14648,7 +14648,7 @@ function indexOf(xs, x) {
 
 // A bit simpler than readable streams.
 Writable.WritableState = WritableState;
-inherits$8(Writable, EventEmitter);
+inherits$a(Writable, EventEmitter);
 
 function nop() {}
 
@@ -14811,7 +14811,7 @@ function validChunk(stream, state, chunk, cb) {
   // if it is not a buffer, string, or undefined.
   if (chunk === null) {
     er = new TypeError('May not write null values to stream');
-  } else if (!Buffer$1.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
+  } else if (!Buffer$2.isBuffer(chunk) && typeof chunk !== 'string' && chunk !== undefined && !state.objectMode) {
     er = new TypeError('Invalid non-string/buffer chunk');
   }
   if (er) {
@@ -14831,7 +14831,7 @@ Writable.prototype.write = function (chunk, encoding, cb) {
     encoding = null;
   }
 
-  if (Buffer$1.isBuffer(chunk)) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
+  if (Buffer$2.isBuffer(chunk)) encoding = 'buffer';else if (!encoding) encoding = state.defaultEncoding;
 
   if (typeof cb !== 'function') cb = nop;
 
@@ -14869,7 +14869,7 @@ Writable.prototype.setDefaultEncoding = function setDefaultEncoding(encoding) {
 
 function decodeChunk(state, chunk, encoding) {
   if (!state.objectMode && state.decodeStrings !== false && typeof chunk === 'string') {
-    chunk = Buffer$1.from(chunk, encoding);
+    chunk = Buffer$2.from(chunk, encoding);
   }
   return chunk;
 }
@@ -14880,7 +14880,7 @@ function decodeChunk(state, chunk, encoding) {
 function writeOrBuffer(stream, state, chunk, encoding, cb) {
   chunk = decodeChunk(state, chunk, encoding);
 
-  if (Buffer$1.isBuffer(chunk)) encoding = 'buffer';
+  if (Buffer$2.isBuffer(chunk)) encoding = 'buffer';
   var len = state.objectMode ? 1 : chunk.length;
 
   state.length += len;
@@ -15119,7 +15119,7 @@ function CorkedRequest(state) {
   };
 }
 
-inherits$8(Duplex, Readable);
+inherits$a(Duplex, Readable);
 
 var keys = Object.keys(Writable.prototype);
 for (var v = 0; v < keys.length; v++) {
@@ -15158,7 +15158,7 @@ function onEndNT(self) {
 }
 
 // a transform stream is a readable/writable stream where you do
-inherits$8(Transform, Duplex);
+inherits$a(Transform, Duplex);
 
 function TransformState(stream) {
   this.afterTransform = function (er, data) {
@@ -15285,7 +15285,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-inherits$8(PassThrough, Transform);
+inherits$a(PassThrough, Transform);
 function PassThrough(options) {
   if (!(this instanceof PassThrough)) return new PassThrough(options);
 
@@ -15296,7 +15296,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-inherits$8(Stream, EventEmitter);
+inherits$a(Stream, EventEmitter);
 Stream.Readable = Readable;
 Stream.Writable = Writable;
 Stream.Duplex = Duplex;
@@ -15456,7 +15456,7 @@ function IncomingMessage(xhr, response, mode) {
           self.push(null);
           return
         }
-        self.push(new Buffer$1(result.value));
+        self.push(new Buffer$2(result.value));
         read();
       });
     };
@@ -15503,7 +15503,7 @@ function IncomingMessage(xhr, response, mode) {
   }
 }
 
-inherits$8(IncomingMessage, Readable);
+inherits$a(IncomingMessage, Readable);
 
 IncomingMessage.prototype._read = function() {};
 
@@ -15524,7 +15524,7 @@ IncomingMessage.prototype._onXHRProgress = function() {
       // pass
     }
     if (response !== null) {
-      self.push(new Buffer$1(response));
+      self.push(new Buffer$2(response));
       break
     }
     // Falls through in IE8
@@ -15538,7 +15538,7 @@ IncomingMessage.prototype._onXHRProgress = function() {
     if (response.length > self._pos) {
       var newData = response.substr(self._pos);
       if (self._charset === 'x-user-defined') {
-        var buffer = new Buffer$1(newData.length);
+        var buffer = new Buffer$2(newData.length);
         for (var i = 0; i < newData.length; i++)
           buffer[i] = newData.charCodeAt(i) & 0xff;
 
@@ -15553,13 +15553,13 @@ IncomingMessage.prototype._onXHRProgress = function() {
     if (xhr.readyState !== rStates.DONE || !xhr.response)
       break
     response = xhr.response;
-    self.push(new Buffer$1(new Uint8Array(response)));
+    self.push(new Buffer$2(new Uint8Array(response)));
     break
   case 'moz-chunked-arraybuffer': // take whole
     response = xhr.response;
     if (xhr.readyState !== rStates.LOADING || !response)
       break
-    self.push(new Buffer$1(new Uint8Array(response)));
+    self.push(new Buffer$2(new Uint8Array(response)));
     break
   case 'ms-stream':
     response = xhr.response;
@@ -15568,7 +15568,7 @@ IncomingMessage.prototype._onXHRProgress = function() {
     var reader = new global$1.MSStreamReader();
     reader.onprogress = function() {
       if (reader.result.byteLength > self._pos) {
-        self.push(new Buffer$1(new Uint8Array(reader.result.slice(self._pos))));
+        self.push(new Buffer$2(new Uint8Array(reader.result.slice(self._pos))));
         self._pos = reader.result.byteLength;
       }
     };
@@ -15637,7 +15637,7 @@ function ClientRequest(opts) {
   self._body = [];
   self._headers = {};
   if (opts.auth)
-    self.setHeader('Authorization', 'Basic ' + new Buffer$1(opts.auth).toString('base64'));
+    self.setHeader('Authorization', 'Basic ' + new Buffer$2(opts.auth).toString('base64'));
   Object.keys(opts.headers).forEach(function(name) {
     self.setHeader(name, opts.headers[name]);
   });
@@ -15668,7 +15668,7 @@ function ClientRequest(opts) {
   });
 }
 
-inherits$8(ClientRequest, Writable);
+inherits$a(ClientRequest, Writable);
 // Taken from http://www.w3.org/TR/XMLHttpRequest/#the-setrequestheader%28%29-method
 var unsafeHeaders = [
   'accept-charset',
@@ -15736,7 +15736,7 @@ ClientRequest.prototype._onFinish = function() {
       });
     } else {
       // get utf8 string
-      body = Buffer$1.concat(self._body).toString();
+      body = Buffer$2.concat(self._body).toString();
     }
   }
 
@@ -22872,7 +22872,7 @@ Zlib$1.prototype._write = function(flush, input, in_off, in_len, out, out_off, o
   }
 
   if (input == null) {
-    input = new Buffer$1(0);
+    input = new Buffer$2(0);
     in_len = 0;
     in_off = 0;
   }
@@ -23185,7 +23185,7 @@ function zlibBuffer(engine, buffer, callback) {
   }
 
   function onEnd() {
-    var buf = Buffer$1.concat(buffers, nread);
+    var buf = Buffer$2.concat(buffers, nread);
     buffers = [];
     callback(null, buf);
     engine.close();
@@ -23194,8 +23194,8 @@ function zlibBuffer(engine, buffer, callback) {
 
 function zlibBufferSync(engine, buffer) {
   if (typeof buffer === 'string')
-    buffer = new Buffer$1(buffer);
-  if (!Buffer$1.isBuffer(buffer))
+    buffer = new Buffer$2(buffer);
+  if (!Buffer$2.isBuffer(buffer))
     throw new TypeError('Not a string or buffer');
 
   var flushFlag = binding.Z_FINISH;
@@ -23311,7 +23311,7 @@ function Zlib(opts, mode) {
   }
 
   if (opts.dictionary) {
-    if (!Buffer$1.isBuffer(opts.dictionary)) {
+    if (!Buffer$2.isBuffer(opts.dictionary)) {
       throw new Error('Invalid dictionary: it should be a Buffer instance');
     }
   }
@@ -23344,7 +23344,7 @@ function Zlib(opts, mode) {
                      strategy,
                      opts.dictionary);
 
-  this._buffer = new Buffer$1(this._chunkSize);
+  this._buffer = new Buffer$2(this._chunkSize);
   this._offset = 0;
   this._closed = false;
   this._level = level;
@@ -23353,7 +23353,7 @@ function Zlib(opts, mode) {
   this.once('end', this.close);
 }
 
-inherits$8(Zlib, Transform);
+inherits$a(Zlib, Transform);
 
 Zlib.prototype.params = function(level, strategy, callback) {
   if (level < binding.Z_MIN_LEVEL ||
@@ -23390,7 +23390,7 @@ Zlib.prototype.reset = function() {
 // This is the _flush function called by the transform class,
 // internally, when the last chunk has been written.
 Zlib.prototype._flush = function(callback) {
-  this._transform(new Buffer$1(0), '', callback);
+  this._transform(new Buffer$2(0), '', callback);
 };
 
 Zlib.prototype.flush = function(kind, callback) {
@@ -23414,7 +23414,7 @@ Zlib.prototype.flush = function(kind, callback) {
     });
   } else {
     this._flushFlag = kind;
-    this.write(new Buffer$1(0), '', callback);
+    this.write(new Buffer$2(0), '', callback);
   }
 };
 
@@ -23441,7 +23441,7 @@ Zlib.prototype._transform = function(chunk, encoding, cb) {
   var ending = ws.ending || ws.ended;
   var last = ending && (!chunk || ws.length === chunk.length);
 
-  if (!chunk === null && !Buffer$1.isBuffer(chunk))
+  if (!chunk === null && !Buffer$2.isBuffer(chunk))
     return cb(new Error('invalid input'));
 
   // If it's the last chunk, or a final flush, we use the Z_FINISH flush flag.
@@ -23494,7 +23494,7 @@ Zlib.prototype._processChunk = function(chunk, flushFlag, cb) {
       throw error;
     }
 
-    var buf = Buffer$1.concat(buffers, nread);
+    var buf = Buffer$2.concat(buffers, nread);
     this.close();
 
     return buf;
@@ -23534,7 +23534,7 @@ Zlib.prototype._processChunk = function(chunk, flushFlag, cb) {
     if (availOutAfter === 0 || self._offset >= self._chunkSize) {
       availOutBefore = self._chunkSize;
       self._offset = 0;
-      self._buffer = new Buffer$1(self._chunkSize);
+      self._buffer = new Buffer$2(self._chunkSize);
     }
 
     if (availOutAfter === 0) {
@@ -23568,13 +23568,13 @@ Zlib.prototype._processChunk = function(chunk, flushFlag, cb) {
   }
 };
 
-inherits$8(Deflate, Zlib);
-inherits$8(Inflate, Zlib);
-inherits$8(Gzip, Zlib);
-inherits$8(Gunzip, Zlib);
-inherits$8(DeflateRaw, Zlib);
-inherits$8(InflateRaw, Zlib);
-inherits$8(Unzip, Zlib);
+inherits$a(Deflate, Zlib);
+inherits$a(Inflate, Zlib);
+inherits$a(Gzip, Zlib);
+inherits$a(Gunzip, Zlib);
+inherits$a(DeflateRaw, Zlib);
+inherits$a(InflateRaw, Zlib);
+inherits$a(Unzip, Zlib);
 var _polyfillNode_zlib = {
   codes: codes,
   createDeflate: createDeflate,
@@ -23656,7 +23656,7 @@ function requireConstants () {
 
 	constants = {
 	  BINARY_TYPES: ['nodebuffer', 'arraybuffer', 'fragments'],
-	  EMPTY_BUFFER: Buffer$1.alloc(0),
+	  EMPTY_BUFFER: Buffer$2.alloc(0),
 	  GUID: '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
 	  kForOnEventAttribute: Symbol('kIsForOnEventAttribute'),
 	  kListener: Symbol('kListener'),
@@ -24375,7 +24375,7 @@ function requireBufferUtil () {
 	  if (list.length === 0) return EMPTY_BUFFER;
 	  if (list.length === 1) return list[0];
 
-	  const target = Buffer$1.allocUnsafe(totalLength);
+	  const target = Buffer$2.allocUnsafe(totalLength);
 	  let offset = 0;
 
 	  for (let i = 0; i < list.length; i++) {
@@ -24444,16 +24444,16 @@ function requireBufferUtil () {
 	function toBuffer(data) {
 	  toBuffer.readOnly = true;
 
-	  if (Buffer$1.isBuffer(data)) return data;
+	  if (Buffer$2.isBuffer(data)) return data;
 
 	  let buf;
 
 	  if (data instanceof ArrayBuffer) {
-	    buf = Buffer$1.from(data);
+	    buf = Buffer$2.from(data);
 	  } else if (ArrayBuffer.isView(data)) {
-	    buf = Buffer$1.from(data.buffer, data.byteOffset, data.byteLength);
+	    buf = Buffer$2.from(data.buffer, data.byteOffset, data.byteLength);
 	  } else {
-	    buf = Buffer$1.from(data);
+	    buf = Buffer$2.from(data);
 	    toBuffer.readOnly = false;
 	  }
 
@@ -24565,7 +24565,7 @@ function requirePermessageDeflate () {
 	const Limiter = requireLimiter();
 	const { kStatusCode } = requireConstants();
 
-	const TRAILER = Buffer$1.from([0x00, 0x00, 0xff, 0xff]);
+	const TRAILER = Buffer$2.from([0x00, 0x00, 0xff, 0xff]);
 	const kPerMessageDeflate = Symbol('permessage-deflate');
 	const kTotalLength = Symbol('total-length');
 	const kCallback = Symbol('callback');
@@ -25403,7 +25403,7 @@ function requireReceiver () {
 	      return buf.slice(0, n);
 	    }
 
-	    const dst = Buffer$1.allocUnsafe(n);
+	    const dst = Buffer$2.allocUnsafe(n);
 
 	    do {
 	      const buf = this._buffers[0];
@@ -25935,7 +25935,7 @@ function requireSender () {
 	const { mask: applyMask, toBuffer } = requireBufferUtil();
 
 	const kByteLength = Symbol('kByteLength');
-	const maskBuffer = Buffer$1.alloc(4);
+	const maskBuffer = Buffer$2.alloc(4);
 
 	/**
 	 * HyBi Sender implementation.
@@ -25954,7 +25954,7 @@ function requireSender () {
 
 	    if (generateMask) {
 	      this._generateMask = generateMask;
-	      this._maskBuffer = Buffer$1.alloc(4);
+	      this._maskBuffer = Buffer$2.alloc(4);
 	    }
 
 	    this._socket = socket;
@@ -26016,7 +26016,7 @@ function requireSender () {
 	      ) {
 	        dataLength = options[kByteLength];
 	      } else {
-	        data = Buffer$1.from(data);
+	        data = Buffer$2.from(data);
 	        dataLength = data.length;
 	      }
 	    } else {
@@ -26034,7 +26034,7 @@ function requireSender () {
 	      payloadLength = 126;
 	    }
 
-	    const target = Buffer$1.allocUnsafe(merge ? dataLength + offset : offset);
+	    const target = Buffer$2.allocUnsafe(merge ? dataLength + offset : offset);
 
 	    target[0] = options.fin ? options.opcode | 0x80 : options.opcode;
 	    if (options.rsv1) target[0] |= 0x40;
@@ -26084,16 +26084,16 @@ function requireSender () {
 	    } else if (typeof code !== 'number' || !isValidStatusCode(code)) {
 	      throw new TypeError('First argument must be a valid error code number');
 	    } else if (data === undefined || !data.length) {
-	      buf = Buffer$1.allocUnsafe(2);
+	      buf = Buffer$2.allocUnsafe(2);
 	      buf.writeUInt16BE(code, 0);
 	    } else {
-	      const length = Buffer$1.byteLength(data);
+	      const length = Buffer$2.byteLength(data);
 
 	      if (length > 123) {
 	        throw new RangeError('The message must not be greater than 123 bytes');
 	      }
 
-	      buf = Buffer$1.allocUnsafe(2 + length);
+	      buf = Buffer$2.allocUnsafe(2 + length);
 	      buf.writeUInt16BE(code, 0);
 
 	      if (typeof data === 'string') {
@@ -26134,7 +26134,7 @@ function requireSender () {
 	    let readOnly;
 
 	    if (typeof data === 'string') {
-	      byteLength = Buffer$1.byteLength(data);
+	      byteLength = Buffer$2.byteLength(data);
 	      readOnly = false;
 	    } else {
 	      data = toBuffer(data);
@@ -26177,7 +26177,7 @@ function requireSender () {
 	    let readOnly;
 
 	    if (typeof data === 'string') {
-	      byteLength = Buffer$1.byteLength(data);
+	      byteLength = Buffer$2.byteLength(data);
 	      readOnly = false;
 	    } else {
 	      data = toBuffer(data);
@@ -26232,7 +26232,7 @@ function requireSender () {
 	    let readOnly;
 
 	    if (typeof data === 'string') {
-	      byteLength = Buffer$1.byteLength(data);
+	      byteLength = Buffer$2.byteLength(data);
 	      readOnly = false;
 	    } else {
 	      data = toBuffer(data);
@@ -27702,7 +27702,7 @@ function requireWebsocket$1 () {
 	    //
 	    if (opts.auth && !options.headers.authorization) {
 	      options.headers.authorization =
-	        'Basic ' + Buffer$1.from(opts.auth).toString('base64');
+	        'Basic ' + Buffer$2.from(opts.auth).toString('base64');
 	    }
 
 	    req = websocket._req = request(opts);
@@ -28923,7 +28923,7 @@ function requireWebsocketServer () {
 	  headers = {
 	    Connection: 'close',
 	    'Content-Type': 'text/html',
-	    'Content-Length': Buffer$1.byteLength(message),
+	    'Content-Length': Buffer$2.byteLength(message),
 	    ...headers
 	  };
 
@@ -30218,7 +30218,7 @@ function requireClient () {
 		      });
 		      this.socket.addEventListener("message", function (_ref) {
 		        var message = _ref.data;
-		        if (message instanceof ArrayBuffer) message = Buffer$1.from(message).toString();
+		        if (message instanceof ArrayBuffer) message = Buffer$2.from(message).toString();
 
 		        try {
 		          message = JSON.parse(message);
@@ -30921,7 +30921,7 @@ function v4(options, buf, offset) {
 
 // Adapted from Chris Veness' SHA1 code at
 // http://www.movable-type.co.uk/scripts/sha1.html
-function f$2(s, x, y, z) {
+function f$4(s, x, y, z) {
   switch (s) {
     case 0:
       return x & y ^ ~x & z;
@@ -30996,7 +30996,7 @@ function sha1(bytes) {
 
     for (var _t2 = 0; _t2 < 80; ++_t2) {
       var s = Math.floor(_t2 / 20);
-      var T = ROTL(a, 5) + f$2(s, b, c, d) + e + K[s] + W[_t2] >>> 0;
+      var T = ROTL(a, 5) + f$4(s, b, c, d) + e + K[s] + W[_t2] >>> 0;
       e = d;
       d = c;
       c = ROTL(b, 30) >>> 0;
@@ -31019,7 +31019,7 @@ var v5$1 = v5;
 
 var nil = '00000000-0000-0000-0000-000000000000';
 
-function version$4(uuid) {
+function version$6(uuid) {
   if (!validate(uuid)) {
     throw TypeError('Invalid UUID');
   }
@@ -31034,7 +31034,7 @@ var esmBrowser = /*#__PURE__*/Object.freeze({
 	v4: v4,
 	v5: v5$1,
 	NIL: nil,
-	version: version$4,
+	version: version$6,
 	validate: validate,
 	stringify: stringify$1,
 	parse: parse
@@ -31042,18 +31042,18 @@ var esmBrowser = /*#__PURE__*/Object.freeze({
 
 var require$$0$1 = /*@__PURE__*/getAugmentedNamespace(esmBrowser);
 
-var utils$x = {};
+var utils$z = {};
 
 var hasRequiredUtils;
 
 function requireUtils () {
-	if (hasRequiredUtils) return utils$x;
+	if (hasRequiredUtils) return utils$z;
 	hasRequiredUtils = 1;
 
-	Object.defineProperty(utils$x, "__esModule", {
+	Object.defineProperty(utils$z, "__esModule", {
 	  value: true
 	});
-	utils$x.createError = createError;
+	utils$z.createError = createError;
 	var errors = new Map([[-32000, "Event not provided"], [-32600, "Invalid Request"], [-32601, "Method not found"], [-32602, "Invalid params"], [-32603, "Internal error"], [-32604, "Params not found"], [-32605, "Method forbidden"], [-32606, "Event forbidden"], [-32700, "Parse error"]]);
 	/**
 	 * Creates a JSON-RPC 2.0-compliant error.
@@ -31070,7 +31070,7 @@ function requireUtils () {
 	  if (details) error["data"] = details;
 	  return error;
 	}
-	return utils$x;
+	return utils$z;
 }
 
 var hasRequiredServer;
@@ -31579,7 +31579,7 @@ function requireServer () {
 
 		                  if (data instanceof ArrayBuffer) {
 		                    msg_options.binary = true;
-		                    data = Buffer$1.from(data).toString();
+		                    data = Buffer$2.from(data).toString();
 		                  }
 
 		                  if (!(socket.readyState !== 1)) {
@@ -32800,7 +32800,7 @@ var lib$1 = (secp256k1) => {
 var elliptic$2 = {};
 
 var name = "elliptic";
-var version$3 = "6.5.4";
+var version$5 = "6.5.4";
 var description = "EC cryptography";
 var main = "lib/elliptic.js";
 var files = [
@@ -32855,7 +32855,7 @@ var dependencies = {
 };
 var require$$0 = {
 	name: name,
-	version: version$3,
+	version: version$5,
 	description: description,
 	main: main,
 	files: files,
@@ -32870,7 +32870,7 @@ var require$$0 = {
 	dependencies: dependencies
 };
 
-var utils$w = {};
+var utils$y = {};
 
 var bn$1 = {exports: {}};
 
@@ -36320,7 +36320,7 @@ var bn$1 = {exports: {}};
 	})(module, commonjsGlobal);
 } (bn$1));
 
-var minimalisticAssert$1 = assert$m;
+var minimalisticAssert$3 = assert$m;
 
 function assert$m(val, msg) {
   if (!val)
@@ -36332,7 +36332,7 @@ assert$m.equal = function assertEqual(l, r, msg) {
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-var utils$v = {};
+var utils$x = {};
 
 (function (exports) {
 
@@ -36392,14 +36392,14 @@ var utils$v = {};
 	  else
 	    return arr;
 	};
-} (utils$v));
+} (utils$x));
 
 (function (exports) {
 
 	var utils = exports;
 	var BN = bn$1.exports;
-	var minAssert = minimalisticAssert$1;
-	var minUtils = utils$v;
+	var minAssert = minimalisticAssert$3;
+	var minUtils = utils$x;
 
 	utils.assert = minAssert;
 	utils.toArray = minUtils.toArray;
@@ -36512,17 +36512,17 @@ var utils$v = {};
 	  return new BN(bytes, 'hex', 'le');
 	}
 	utils.intFromLE = intFromLE;
-} (utils$w));
+} (utils$y));
 
 var brorand = {exports: {}};
 
-var r$2;
+var r$4;
 
 brorand.exports = function rand(len) {
-  if (!r$2)
-    r$2 = new Rand(null);
+  if (!r$4)
+    r$4 = new Rand(null);
 
-  return r$2.generate(len);
+  return r$4.generate(len);
 };
 
 function Rand(rand) {
@@ -36585,10 +36585,10 @@ if (typeof self === 'object') {
 var curve = {};
 
 var BN$9 = bn$1.exports;
-var utils$u = utils$w;
-var getNAF = utils$u.getNAF;
-var getJSF = utils$u.getJSF;
-var assert$l = utils$u.assert;
+var utils$w = utils$y;
+var getNAF = utils$w.getNAF;
+var getJSF = utils$w.getJSF;
+var assert$l = utils$w.assert;
 
 function BaseCurve(type, conf) {
   this.type = type;
@@ -36851,7 +36851,7 @@ BasePoint.prototype.validate = function validate() {
 };
 
 BaseCurve.prototype.decodePoint = function decodePoint(bytes, enc) {
-  bytes = utils$u.toArray(bytes, enc);
+  bytes = utils$w.toArray(bytes, enc);
 
   var len = this.p.byteLength();
 
@@ -36889,7 +36889,7 @@ BasePoint.prototype._encode = function _encode(compact) {
 };
 
 BasePoint.prototype.encode = function encode(enc, compact) {
-  return utils$u.encode(this._encode(compact), enc);
+  return utils$w.encode(this._encode(compact), enc);
 };
 
 BasePoint.prototype.precompute = function precompute(power) {
@@ -36963,9 +36963,9 @@ BasePoint.prototype.dblp = function dblp(k) {
   return r;
 };
 
-var inherits$5;
+var inherits$7;
 if (typeof Object.create === 'function'){
-  inherits$5 = function inherits(ctor, superCtor) {
+  inherits$7 = function inherits(ctor, superCtor) {
     // implementation from standard node.js 'util' module
     ctor.super_ = superCtor;
     ctor.prototype = Object.create(superCtor.prototype, {
@@ -36978,7 +36978,7 @@ if (typeof Object.create === 'function'){
     });
   };
 } else {
-  inherits$5 = function inherits(ctor, superCtor) {
+  inherits$7 = function inherits(ctor, superCtor) {
     ctor.super_ = superCtor;
     var TempCtor = function () {};
     TempCtor.prototype = superCtor.prototype;
@@ -36986,21 +36986,21 @@ if (typeof Object.create === 'function'){
     ctor.prototype.constructor = ctor;
   };
 }
-var inherits$6 = inherits$5;
+var inherits$8 = inherits$7;
 
 var _polyfillNode_inherits = /*#__PURE__*/Object.freeze({
 	__proto__: null,
-	'default': inherits$6
+	'default': inherits$8
 });
 
 var require$$1$1 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_inherits);
 
-var utils$t = utils$w;
+var utils$v = utils$y;
 var BN$8 = bn$1.exports;
-var inherits$4 = require$$1$1;
+var inherits$6 = require$$1$1;
 var Base$2 = base;
 
-var assert$k = utils$t.assert;
+var assert$k = utils$v.assert;
 
 function ShortCurve(conf) {
   Base$2.call(this, 'short', conf);
@@ -37017,7 +37017,7 @@ function ShortCurve(conf) {
   this._endoWnafT1 = new Array(4);
   this._endoWnafT2 = new Array(4);
 }
-inherits$4(ShortCurve, Base$2);
+inherits$6(ShortCurve, Base$2);
 var short = ShortCurve;
 
 ShortCurve.prototype._getEndomorphism = function _getEndomorphism(conf) {
@@ -37264,7 +37264,7 @@ function Point$2(curve, x, y, isRed) {
     this.inf = false;
   }
 }
-inherits$4(Point$2, Base$2.BasePoint);
+inherits$6(Point$2, Base$2.BasePoint);
 
 ShortCurve.prototype.point = function point(x, y, isRed) {
   return new Point$2(this, x, y, isRed);
@@ -37502,7 +37502,7 @@ function JPoint(curve, x, y, z) {
 
   this.zOne = this.z === this.curve.one;
 }
-inherits$4(JPoint, Base$2.BasePoint);
+inherits$6(JPoint, Base$2.BasePoint);
 
 ShortCurve.prototype.jpoint = function jpoint(x, y, z) {
   return new JPoint(this, x, y, z);
@@ -37933,10 +37933,10 @@ JPoint.prototype.isInfinity = function isInfinity() {
 };
 
 var BN$7 = bn$1.exports;
-var inherits$3 = require$$1$1;
+var inherits$5 = require$$1$1;
 var Base$1 = base;
 
-var utils$s = utils$w;
+var utils$u = utils$y;
 
 function MontCurve(conf) {
   Base$1.call(this, 'mont', conf);
@@ -37947,7 +37947,7 @@ function MontCurve(conf) {
   this.two = new BN$7(2).toRed(this.red);
   this.a24 = this.i4.redMul(this.a.redAdd(this.two));
 }
-inherits$3(MontCurve, Base$1);
+inherits$5(MontCurve, Base$1);
 var mont = MontCurve;
 
 MontCurve.prototype.validate = function validate(point) {
@@ -37973,10 +37973,10 @@ function Point$1(curve, x, z) {
       this.z = this.z.toRed(this.curve.red);
   }
 }
-inherits$3(Point$1, Base$1.BasePoint);
+inherits$5(Point$1, Base$1.BasePoint);
 
 MontCurve.prototype.decodePoint = function decodePoint(bytes, enc) {
-  return this.point(utils$s.toArray(bytes, enc), 1);
+  return this.point(utils$u.toArray(bytes, enc), 1);
 };
 
 MontCurve.prototype.point = function point(x, z) {
@@ -38109,12 +38109,12 @@ Point$1.prototype.getX = function getX() {
   return this.x.fromRed();
 };
 
-var utils$r = utils$w;
+var utils$t = utils$y;
 var BN$6 = bn$1.exports;
-var inherits$2 = require$$1$1;
+var inherits$4 = require$$1$1;
 var Base = base;
 
-var assert$j = utils$r.assert;
+var assert$j = utils$t.assert;
 
 function EdwardsCurve(conf) {
   // NOTE: Important as we are creating point in Base.call()
@@ -38134,7 +38134,7 @@ function EdwardsCurve(conf) {
   assert$j(!this.twisted || this.c.fromRed().cmpn(1) === 0);
   this.oneC = (conf.c | 0) === 1;
 }
-inherits$2(EdwardsCurve, Base);
+inherits$4(EdwardsCurve, Base);
 var edwards = EdwardsCurve;
 
 EdwardsCurve.prototype._mulA = function _mulA(num) {
@@ -38251,7 +38251,7 @@ function Point(curve, x, y, z, t) {
     }
   }
 }
-inherits$2(Point, Base.BasePoint);
+inherits$4(Point, Base.BasePoint);
 
 EdwardsCurve.prototype.pointFromJSON = function pointFromJSON(obj) {
   return Point.fromJSON(this, obj);
@@ -38555,16 +38555,16 @@ Point.prototype.mixedAdd = Point.prototype.add;
 
 var curves$2 = {};
 
-var hash$4 = {};
+var hash$6 = {};
 
-var utils$q = {};
+var utils$s = {};
 
-var assert$i = minimalisticAssert$1;
-var inherits$1 = require$$1$1;
+var assert$i = minimalisticAssert$3;
+var inherits$3 = require$$1$1;
 
-utils$q.inherits = inherits$1;
+utils$s.inherits = inherits$3;
 
-function isSurrogatePair$1(msg, i) {
+function isSurrogatePair$3(msg, i) {
   if ((msg.charCodeAt(i) & 0xFC00) !== 0xD800) {
     return false;
   }
@@ -38574,7 +38574,7 @@ function isSurrogatePair$1(msg, i) {
   return (msg.charCodeAt(i + 1) & 0xFC00) === 0xDC00;
 }
 
-function toArray$1(msg, enc) {
+function toArray$3(msg, enc) {
   if (Array.isArray(msg))
     return msg.slice();
   if (!msg)
@@ -38594,7 +38594,7 @@ function toArray$1(msg, enc) {
         } else if (c < 2048) {
           res[p++] = (c >> 6) | 192;
           res[p++] = (c & 63) | 128;
-        } else if (isSurrogatePair$1(msg, i)) {
+        } else if (isSurrogatePair$3(msg, i)) {
           c = 0x10000 + ((c & 0x03FF) << 10) + (msg.charCodeAt(++i) & 0x03FF);
           res[p++] = (c >> 18) | 240;
           res[p++] = ((c >> 12) & 63) | 128;
@@ -38619,46 +38619,46 @@ function toArray$1(msg, enc) {
   }
   return res;
 }
-utils$q.toArray = toArray$1;
+utils$s.toArray = toArray$3;
 
-function toHex$1(msg) {
+function toHex$3(msg) {
   var res = '';
   for (var i = 0; i < msg.length; i++)
-    res += zero2$1(msg[i].toString(16));
+    res += zero2$3(msg[i].toString(16));
   return res;
 }
-utils$q.toHex = toHex$1;
+utils$s.toHex = toHex$3;
 
-function htonl$1(w) {
+function htonl$3(w) {
   var res = (w >>> 24) |
             ((w >>> 8) & 0xff00) |
             ((w << 8) & 0xff0000) |
             ((w & 0xff) << 24);
   return res >>> 0;
 }
-utils$q.htonl = htonl$1;
+utils$s.htonl = htonl$3;
 
-function toHex32$1(msg, endian) {
+function toHex32$3(msg, endian) {
   var res = '';
   for (var i = 0; i < msg.length; i++) {
     var w = msg[i];
     if (endian === 'little')
-      w = htonl$1(w);
-    res += zero8$1(w.toString(16));
+      w = htonl$3(w);
+    res += zero8$3(w.toString(16));
   }
   return res;
 }
-utils$q.toHex32 = toHex32$1;
+utils$s.toHex32 = toHex32$3;
 
-function zero2$1(word) {
+function zero2$3(word) {
   if (word.length === 1)
     return '0' + word;
   else
     return word;
 }
-utils$q.zero2 = zero2$1;
+utils$s.zero2 = zero2$3;
 
-function zero8$1(word) {
+function zero8$3(word) {
   if (word.length === 7)
     return '0' + word;
   else if (word.length === 6)
@@ -38676,9 +38676,9 @@ function zero8$1(word) {
   else
     return word;
 }
-utils$q.zero8 = zero8$1;
+utils$s.zero8 = zero8$3;
 
-function join32$1(msg, start, end, endian) {
+function join32$3(msg, start, end, endian) {
   var len = end - start;
   assert$i(len % 4 === 0);
   var res = new Array(len / 4);
@@ -38692,9 +38692,9 @@ function join32$1(msg, start, end, endian) {
   }
   return res;
 }
-utils$q.join32 = join32$1;
+utils$s.join32 = join32$3;
 
-function split32$1(msg, endian) {
+function split32$3(msg, endian) {
   var res = new Array(msg.length * 4);
   for (var i = 0, k = 0; i < msg.length; i++, k += 4) {
     var m = msg[i];
@@ -38712,39 +38712,39 @@ function split32$1(msg, endian) {
   }
   return res;
 }
-utils$q.split32 = split32$1;
+utils$s.split32 = split32$3;
 
-function rotr32$3(w, b) {
+function rotr32$5(w, b) {
   return (w >>> b) | (w << (32 - b));
 }
-utils$q.rotr32 = rotr32$3;
+utils$s.rotr32 = rotr32$5;
 
-function rotl32$5(w, b) {
+function rotl32$7(w, b) {
   return (w << b) | (w >>> (32 - b));
 }
-utils$q.rotl32 = rotl32$5;
+utils$s.rotl32 = rotl32$7;
 
-function sum32$7(a, b) {
+function sum32$9(a, b) {
   return (a + b) >>> 0;
 }
-utils$q.sum32 = sum32$7;
+utils$s.sum32 = sum32$9;
 
-function sum32_3$3(a, b, c) {
+function sum32_3$5(a, b, c) {
   return (a + b + c) >>> 0;
 }
-utils$q.sum32_3 = sum32_3$3;
+utils$s.sum32_3 = sum32_3$5;
 
-function sum32_4$5(a, b, c, d) {
+function sum32_4$7(a, b, c, d) {
   return (a + b + c + d) >>> 0;
 }
-utils$q.sum32_4 = sum32_4$5;
+utils$s.sum32_4 = sum32_4$7;
 
-function sum32_5$5(a, b, c, d, e) {
+function sum32_5$7(a, b, c, d, e) {
   return (a + b + c + d + e) >>> 0;
 }
-utils$q.sum32_5 = sum32_5$5;
+utils$s.sum32_5 = sum32_5$7;
 
-function sum64$3(buf, pos, ah, al) {
+function sum64$5(buf, pos, ah, al) {
   var bh = buf[pos];
   var bl = buf[pos + 1];
 
@@ -38753,22 +38753,22 @@ function sum64$3(buf, pos, ah, al) {
   buf[pos] = hi >>> 0;
   buf[pos + 1] = lo;
 }
-utils$q.sum64 = sum64$3;
+utils$s.sum64 = sum64$5;
 
-function sum64_hi$3(ah, al, bh, bl) {
+function sum64_hi$5(ah, al, bh, bl) {
   var lo = (al + bl) >>> 0;
   var hi = (lo < al ? 1 : 0) + ah + bh;
   return hi >>> 0;
 }
-utils$q.sum64_hi = sum64_hi$3;
+utils$s.sum64_hi = sum64_hi$5;
 
-function sum64_lo$3(ah, al, bh, bl) {
+function sum64_lo$5(ah, al, bh, bl) {
   var lo = al + bl;
   return lo >>> 0;
 }
-utils$q.sum64_lo = sum64_lo$3;
+utils$s.sum64_lo = sum64_lo$5;
 
-function sum64_4_hi$3(ah, al, bh, bl, ch, cl, dh, dl) {
+function sum64_4_hi$5(ah, al, bh, bl, ch, cl, dh, dl) {
   var carry = 0;
   var lo = al;
   lo = (lo + bl) >>> 0;
@@ -38781,15 +38781,15 @@ function sum64_4_hi$3(ah, al, bh, bl, ch, cl, dh, dl) {
   var hi = ah + bh + ch + dh + carry;
   return hi >>> 0;
 }
-utils$q.sum64_4_hi = sum64_4_hi$3;
+utils$s.sum64_4_hi = sum64_4_hi$5;
 
-function sum64_4_lo$3(ah, al, bh, bl, ch, cl, dh, dl) {
+function sum64_4_lo$5(ah, al, bh, bl, ch, cl, dh, dl) {
   var lo = al + bl + cl + dl;
   return lo >>> 0;
 }
-utils$q.sum64_4_lo = sum64_4_lo$3;
+utils$s.sum64_4_lo = sum64_4_lo$5;
 
-function sum64_5_hi$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+function sum64_5_hi$5(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
   var carry = 0;
   var lo = al;
   lo = (lo + bl) >>> 0;
@@ -38804,44 +38804,44 @@ function sum64_5_hi$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
   var hi = ah + bh + ch + dh + eh + carry;
   return hi >>> 0;
 }
-utils$q.sum64_5_hi = sum64_5_hi$3;
+utils$s.sum64_5_hi = sum64_5_hi$5;
 
-function sum64_5_lo$3(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+function sum64_5_lo$5(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
   var lo = al + bl + cl + dl + el;
 
   return lo >>> 0;
 }
-utils$q.sum64_5_lo = sum64_5_lo$3;
+utils$s.sum64_5_lo = sum64_5_lo$5;
 
-function rotr64_hi$3(ah, al, num) {
+function rotr64_hi$5(ah, al, num) {
   var r = (al << (32 - num)) | (ah >>> num);
   return r >>> 0;
 }
-utils$q.rotr64_hi = rotr64_hi$3;
+utils$s.rotr64_hi = rotr64_hi$5;
 
-function rotr64_lo$3(ah, al, num) {
+function rotr64_lo$5(ah, al, num) {
   var r = (ah << (32 - num)) | (al >>> num);
   return r >>> 0;
 }
-utils$q.rotr64_lo = rotr64_lo$3;
+utils$s.rotr64_lo = rotr64_lo$5;
 
-function shr64_hi$3(ah, al, num) {
+function shr64_hi$5(ah, al, num) {
   return ah >>> num;
 }
-utils$q.shr64_hi = shr64_hi$3;
+utils$s.shr64_hi = shr64_hi$5;
 
-function shr64_lo$3(ah, al, num) {
+function shr64_lo$5(ah, al, num) {
   var r = (ah << (32 - num)) | (al >>> num);
   return r >>> 0;
 }
-utils$q.shr64_lo = shr64_lo$3;
+utils$s.shr64_lo = shr64_lo$5;
 
-var common$b = {};
+var common$d = {};
 
-var utils$p = utils$q;
-var assert$h = minimalisticAssert$1;
+var utils$r = utils$s;
+var assert$h = minimalisticAssert$3;
 
-function BlockHash$9() {
+function BlockHash$b() {
   this.pending = null;
   this.pendingTotal = 0;
   this.blockSize = this.constructor.blockSize;
@@ -38853,11 +38853,11 @@ function BlockHash$9() {
   this._delta8 = this.blockSize / 8;
   this._delta32 = this.blockSize / 32;
 }
-common$b.BlockHash = BlockHash$9;
+common$d.BlockHash = BlockHash$b;
 
-BlockHash$9.prototype.update = function update(msg, enc) {
+BlockHash$b.prototype.update = function update(msg, enc) {
   // Convert message to array, pad it, and join into 32bit blocks
-  msg = utils$p.toArray(msg, enc);
+  msg = utils$r.toArray(msg, enc);
   if (!this.pending)
     this.pending = msg;
   else
@@ -38874,7 +38874,7 @@ BlockHash$9.prototype.update = function update(msg, enc) {
     if (this.pending.length === 0)
       this.pending = null;
 
-    msg = utils$p.join32(msg, 0, msg.length - r, this.endian);
+    msg = utils$r.join32(msg, 0, msg.length - r, this.endian);
     for (var i = 0; i < msg.length; i += this._delta32)
       this._update(msg, i, i + this._delta32);
   }
@@ -38882,14 +38882,14 @@ BlockHash$9.prototype.update = function update(msg, enc) {
   return this;
 };
 
-BlockHash$9.prototype.digest = function digest(enc) {
+BlockHash$b.prototype.digest = function digest(enc) {
   this.update(this._pad());
   assert$h(this.pending === null);
 
   return this._digest(enc);
 };
 
-BlockHash$9.prototype._pad = function pad() {
+BlockHash$b.prototype._pad = function pad() {
   var len = this.pendingTotal;
   var bytes = this._delta8;
   var k = bytes - ((len + this.padLength) % bytes);
@@ -38929,100 +38929,100 @@ BlockHash$9.prototype._pad = function pad() {
   return res;
 };
 
-var sha$1 = {};
+var sha$3 = {};
 
-var common$a = {};
+var common$c = {};
 
-var utils$o = utils$q;
-var rotr32$2 = utils$o.rotr32;
+var utils$q = utils$s;
+var rotr32$4 = utils$q.rotr32;
 
-function ft_1$3(s, x, y, z) {
+function ft_1$5(s, x, y, z) {
   if (s === 0)
-    return ch32$3(x, y, z);
+    return ch32$5(x, y, z);
   if (s === 1 || s === 3)
-    return p32$1(x, y, z);
+    return p32$3(x, y, z);
   if (s === 2)
-    return maj32$3(x, y, z);
+    return maj32$5(x, y, z);
 }
-common$a.ft_1 = ft_1$3;
+common$c.ft_1 = ft_1$5;
 
-function ch32$3(x, y, z) {
+function ch32$5(x, y, z) {
   return (x & y) ^ ((~x) & z);
 }
-common$a.ch32 = ch32$3;
+common$c.ch32 = ch32$5;
 
-function maj32$3(x, y, z) {
+function maj32$5(x, y, z) {
   return (x & y) ^ (x & z) ^ (y & z);
 }
-common$a.maj32 = maj32$3;
+common$c.maj32 = maj32$5;
 
-function p32$1(x, y, z) {
+function p32$3(x, y, z) {
   return x ^ y ^ z;
 }
-common$a.p32 = p32$1;
+common$c.p32 = p32$3;
 
-function s0_256$3(x) {
-  return rotr32$2(x, 2) ^ rotr32$2(x, 13) ^ rotr32$2(x, 22);
+function s0_256$5(x) {
+  return rotr32$4(x, 2) ^ rotr32$4(x, 13) ^ rotr32$4(x, 22);
 }
-common$a.s0_256 = s0_256$3;
+common$c.s0_256 = s0_256$5;
 
-function s1_256$3(x) {
-  return rotr32$2(x, 6) ^ rotr32$2(x, 11) ^ rotr32$2(x, 25);
+function s1_256$5(x) {
+  return rotr32$4(x, 6) ^ rotr32$4(x, 11) ^ rotr32$4(x, 25);
 }
-common$a.s1_256 = s1_256$3;
+common$c.s1_256 = s1_256$5;
 
-function g0_256$3(x) {
-  return rotr32$2(x, 7) ^ rotr32$2(x, 18) ^ (x >>> 3);
+function g0_256$5(x) {
+  return rotr32$4(x, 7) ^ rotr32$4(x, 18) ^ (x >>> 3);
 }
-common$a.g0_256 = g0_256$3;
+common$c.g0_256 = g0_256$5;
 
-function g1_256$3(x) {
-  return rotr32$2(x, 17) ^ rotr32$2(x, 19) ^ (x >>> 10);
+function g1_256$5(x) {
+  return rotr32$4(x, 17) ^ rotr32$4(x, 19) ^ (x >>> 10);
 }
-common$a.g1_256 = g1_256$3;
+common$c.g1_256 = g1_256$5;
 
-var utils$n = utils$q;
-var common$9 = common$b;
-var shaCommon$3 = common$a;
+var utils$p = utils$s;
+var common$b = common$d;
+var shaCommon$5 = common$c;
 
-var rotl32$4 = utils$n.rotl32;
-var sum32$6 = utils$n.sum32;
-var sum32_5$4 = utils$n.sum32_5;
-var ft_1$2 = shaCommon$3.ft_1;
-var BlockHash$8 = common$9.BlockHash;
+var rotl32$6 = utils$p.rotl32;
+var sum32$8 = utils$p.sum32;
+var sum32_5$6 = utils$p.sum32_5;
+var ft_1$4 = shaCommon$5.ft_1;
+var BlockHash$a = common$b.BlockHash;
 
-var sha1_K$1 = [
+var sha1_K$3 = [
   0x5A827999, 0x6ED9EBA1,
   0x8F1BBCDC, 0xCA62C1D6
 ];
 
-function SHA1$1() {
-  if (!(this instanceof SHA1$1))
-    return new SHA1$1();
+function SHA1$3() {
+  if (!(this instanceof SHA1$3))
+    return new SHA1$3();
 
-  BlockHash$8.call(this);
+  BlockHash$a.call(this);
   this.h = [
     0x67452301, 0xefcdab89, 0x98badcfe,
     0x10325476, 0xc3d2e1f0 ];
   this.W = new Array(80);
 }
 
-utils$n.inherits(SHA1$1, BlockHash$8);
-var _1$1 = SHA1$1;
+utils$p.inherits(SHA1$3, BlockHash$a);
+var _1$3 = SHA1$3;
 
-SHA1$1.blockSize = 512;
-SHA1$1.outSize = 160;
-SHA1$1.hmacStrength = 80;
-SHA1$1.padLength = 64;
+SHA1$3.blockSize = 512;
+SHA1$3.outSize = 160;
+SHA1$3.hmacStrength = 80;
+SHA1$3.padLength = 64;
 
-SHA1$1.prototype._update = function _update(msg, start) {
+SHA1$3.prototype._update = function _update(msg, start) {
   var W = this.W;
 
   for (var i = 0; i < 16; i++)
     W[i] = msg[start + i];
 
   for(; i < W.length; i++)
-    W[i] = rotl32$4(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+    W[i] = rotl32$6(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
 
   var a = this.h[0];
   var b = this.h[1];
@@ -39032,46 +39032,46 @@ SHA1$1.prototype._update = function _update(msg, start) {
 
   for (i = 0; i < W.length; i++) {
     var s = ~~(i / 20);
-    var t = sum32_5$4(rotl32$4(a, 5), ft_1$2(s, b, c, d), e, W[i], sha1_K$1[s]);
+    var t = sum32_5$6(rotl32$6(a, 5), ft_1$4(s, b, c, d), e, W[i], sha1_K$3[s]);
     e = d;
     d = c;
-    c = rotl32$4(b, 30);
+    c = rotl32$6(b, 30);
     b = a;
     a = t;
   }
 
-  this.h[0] = sum32$6(this.h[0], a);
-  this.h[1] = sum32$6(this.h[1], b);
-  this.h[2] = sum32$6(this.h[2], c);
-  this.h[3] = sum32$6(this.h[3], d);
-  this.h[4] = sum32$6(this.h[4], e);
+  this.h[0] = sum32$8(this.h[0], a);
+  this.h[1] = sum32$8(this.h[1], b);
+  this.h[2] = sum32$8(this.h[2], c);
+  this.h[3] = sum32$8(this.h[3], d);
+  this.h[4] = sum32$8(this.h[4], e);
 };
 
-SHA1$1.prototype._digest = function digest(enc) {
+SHA1$3.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$n.toHex32(this.h, 'big');
+    return utils$p.toHex32(this.h, 'big');
   else
-    return utils$n.split32(this.h, 'big');
+    return utils$p.split32(this.h, 'big');
 };
 
-var utils$m = utils$q;
-var common$8 = common$b;
-var shaCommon$2 = common$a;
-var assert$g = minimalisticAssert$1;
+var utils$o = utils$s;
+var common$a = common$d;
+var shaCommon$4 = common$c;
+var assert$g = minimalisticAssert$3;
 
-var sum32$5 = utils$m.sum32;
-var sum32_4$4 = utils$m.sum32_4;
-var sum32_5$3 = utils$m.sum32_5;
-var ch32$2 = shaCommon$2.ch32;
-var maj32$2 = shaCommon$2.maj32;
-var s0_256$2 = shaCommon$2.s0_256;
-var s1_256$2 = shaCommon$2.s1_256;
-var g0_256$2 = shaCommon$2.g0_256;
-var g1_256$2 = shaCommon$2.g1_256;
+var sum32$7 = utils$o.sum32;
+var sum32_4$6 = utils$o.sum32_4;
+var sum32_5$5 = utils$o.sum32_5;
+var ch32$4 = shaCommon$4.ch32;
+var maj32$4 = shaCommon$4.maj32;
+var s0_256$4 = shaCommon$4.s0_256;
+var s1_256$4 = shaCommon$4.s1_256;
+var g0_256$4 = shaCommon$4.g0_256;
+var g1_256$4 = shaCommon$4.g1_256;
 
-var BlockHash$7 = common$8.BlockHash;
+var BlockHash$9 = common$a.BlockHash;
 
-var sha256_K$1 = [
+var sha256_K$3 = [
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
   0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
   0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -39090,33 +39090,33 @@ var sha256_K$1 = [
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 ];
 
-function SHA256$3() {
-  if (!(this instanceof SHA256$3))
-    return new SHA256$3();
+function SHA256$5() {
+  if (!(this instanceof SHA256$5))
+    return new SHA256$5();
 
-  BlockHash$7.call(this);
+  BlockHash$9.call(this);
   this.h = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
   ];
-  this.k = sha256_K$1;
+  this.k = sha256_K$3;
   this.W = new Array(64);
 }
-utils$m.inherits(SHA256$3, BlockHash$7);
-var _256$1 = SHA256$3;
+utils$o.inherits(SHA256$5, BlockHash$9);
+var _256$3 = SHA256$5;
 
-SHA256$3.blockSize = 512;
-SHA256$3.outSize = 256;
-SHA256$3.hmacStrength = 192;
-SHA256$3.padLength = 64;
+SHA256$5.blockSize = 512;
+SHA256$5.outSize = 256;
+SHA256$5.hmacStrength = 192;
+SHA256$5.padLength = 64;
 
-SHA256$3.prototype._update = function _update(msg, start) {
+SHA256$5.prototype._update = function _update(msg, start) {
   var W = this.W;
 
   for (var i = 0; i < 16; i++)
     W[i] = msg[start + i];
   for (; i < W.length; i++)
-    W[i] = sum32_4$4(g1_256$2(W[i - 2]), W[i - 7], g0_256$2(W[i - 15]), W[i - 16]);
+    W[i] = sum32_4$6(g1_256$4(W[i - 2]), W[i - 7], g0_256$4(W[i - 15]), W[i - 16]);
 
   var a = this.h[0];
   var b = this.h[1];
@@ -39129,82 +39129,82 @@ SHA256$3.prototype._update = function _update(msg, start) {
 
   assert$g(this.k.length === W.length);
   for (i = 0; i < W.length; i++) {
-    var T1 = sum32_5$3(h, s1_256$2(e), ch32$2(e, f, g), this.k[i], W[i]);
-    var T2 = sum32$5(s0_256$2(a), maj32$2(a, b, c));
+    var T1 = sum32_5$5(h, s1_256$4(e), ch32$4(e, f, g), this.k[i], W[i]);
+    var T2 = sum32$7(s0_256$4(a), maj32$4(a, b, c));
     h = g;
     g = f;
     f = e;
-    e = sum32$5(d, T1);
+    e = sum32$7(d, T1);
     d = c;
     c = b;
     b = a;
-    a = sum32$5(T1, T2);
+    a = sum32$7(T1, T2);
   }
 
-  this.h[0] = sum32$5(this.h[0], a);
-  this.h[1] = sum32$5(this.h[1], b);
-  this.h[2] = sum32$5(this.h[2], c);
-  this.h[3] = sum32$5(this.h[3], d);
-  this.h[4] = sum32$5(this.h[4], e);
-  this.h[5] = sum32$5(this.h[5], f);
-  this.h[6] = sum32$5(this.h[6], g);
-  this.h[7] = sum32$5(this.h[7], h);
+  this.h[0] = sum32$7(this.h[0], a);
+  this.h[1] = sum32$7(this.h[1], b);
+  this.h[2] = sum32$7(this.h[2], c);
+  this.h[3] = sum32$7(this.h[3], d);
+  this.h[4] = sum32$7(this.h[4], e);
+  this.h[5] = sum32$7(this.h[5], f);
+  this.h[6] = sum32$7(this.h[6], g);
+  this.h[7] = sum32$7(this.h[7], h);
 };
 
-SHA256$3.prototype._digest = function digest(enc) {
+SHA256$5.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$m.toHex32(this.h, 'big');
+    return utils$o.toHex32(this.h, 'big');
   else
-    return utils$m.split32(this.h, 'big');
+    return utils$o.split32(this.h, 'big');
 };
 
-var utils$l = utils$q;
-var SHA256$2 = _256$1;
+var utils$n = utils$s;
+var SHA256$4 = _256$3;
 
-function SHA224$1() {
-  if (!(this instanceof SHA224$1))
-    return new SHA224$1();
+function SHA224$3() {
+  if (!(this instanceof SHA224$3))
+    return new SHA224$3();
 
-  SHA256$2.call(this);
+  SHA256$4.call(this);
   this.h = [
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
     0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 ];
 }
-utils$l.inherits(SHA224$1, SHA256$2);
-var _224$1 = SHA224$1;
+utils$n.inherits(SHA224$3, SHA256$4);
+var _224$3 = SHA224$3;
 
-SHA224$1.blockSize = 512;
-SHA224$1.outSize = 224;
-SHA224$1.hmacStrength = 192;
-SHA224$1.padLength = 64;
+SHA224$3.blockSize = 512;
+SHA224$3.outSize = 224;
+SHA224$3.hmacStrength = 192;
+SHA224$3.padLength = 64;
 
-SHA224$1.prototype._digest = function digest(enc) {
+SHA224$3.prototype._digest = function digest(enc) {
   // Just truncate output
   if (enc === 'hex')
-    return utils$l.toHex32(this.h.slice(0, 7), 'big');
+    return utils$n.toHex32(this.h.slice(0, 7), 'big');
   else
-    return utils$l.split32(this.h.slice(0, 7), 'big');
+    return utils$n.split32(this.h.slice(0, 7), 'big');
 };
 
-var utils$k = utils$q;
-var common$7 = common$b;
-var assert$f = minimalisticAssert$1;
+var utils$m = utils$s;
+var common$9 = common$d;
+var assert$f = minimalisticAssert$3;
 
-var rotr64_hi$2 = utils$k.rotr64_hi;
-var rotr64_lo$2 = utils$k.rotr64_lo;
-var shr64_hi$2 = utils$k.shr64_hi;
-var shr64_lo$2 = utils$k.shr64_lo;
-var sum64$2 = utils$k.sum64;
-var sum64_hi$2 = utils$k.sum64_hi;
-var sum64_lo$2 = utils$k.sum64_lo;
-var sum64_4_hi$2 = utils$k.sum64_4_hi;
-var sum64_4_lo$2 = utils$k.sum64_4_lo;
-var sum64_5_hi$2 = utils$k.sum64_5_hi;
-var sum64_5_lo$2 = utils$k.sum64_5_lo;
+var rotr64_hi$4 = utils$m.rotr64_hi;
+var rotr64_lo$4 = utils$m.rotr64_lo;
+var shr64_hi$4 = utils$m.shr64_hi;
+var shr64_lo$4 = utils$m.shr64_lo;
+var sum64$4 = utils$m.sum64;
+var sum64_hi$4 = utils$m.sum64_hi;
+var sum64_lo$4 = utils$m.sum64_lo;
+var sum64_4_hi$4 = utils$m.sum64_4_hi;
+var sum64_4_lo$4 = utils$m.sum64_4_lo;
+var sum64_5_hi$4 = utils$m.sum64_5_hi;
+var sum64_5_lo$4 = utils$m.sum64_5_lo;
 
-var BlockHash$6 = common$7.BlockHash;
+var BlockHash$8 = common$9.BlockHash;
 
-var sha512_K$1 = [
+var sha512_K$3 = [
   0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
   0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
   0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
@@ -39247,11 +39247,11 @@ var sha512_K$1 = [
   0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
 ];
 
-function SHA512$3() {
-  if (!(this instanceof SHA512$3))
-    return new SHA512$3();
+function SHA512$5() {
+  if (!(this instanceof SHA512$5))
+    return new SHA512$5();
 
-  BlockHash$6.call(this);
+  BlockHash$8.call(this);
   this.h = [
     0x6a09e667, 0xf3bcc908,
     0xbb67ae85, 0x84caa73b,
@@ -39261,39 +39261,39 @@ function SHA512$3() {
     0x9b05688c, 0x2b3e6c1f,
     0x1f83d9ab, 0xfb41bd6b,
     0x5be0cd19, 0x137e2179 ];
-  this.k = sha512_K$1;
+  this.k = sha512_K$3;
   this.W = new Array(160);
 }
-utils$k.inherits(SHA512$3, BlockHash$6);
-var _512$1 = SHA512$3;
+utils$m.inherits(SHA512$5, BlockHash$8);
+var _512$3 = SHA512$5;
 
-SHA512$3.blockSize = 1024;
-SHA512$3.outSize = 512;
-SHA512$3.hmacStrength = 192;
-SHA512$3.padLength = 128;
+SHA512$5.blockSize = 1024;
+SHA512$5.outSize = 512;
+SHA512$5.hmacStrength = 192;
+SHA512$5.padLength = 128;
 
-SHA512$3.prototype._prepareBlock = function _prepareBlock(msg, start) {
+SHA512$5.prototype._prepareBlock = function _prepareBlock(msg, start) {
   var W = this.W;
 
   // 32 x 32bit words
   for (var i = 0; i < 32; i++)
     W[i] = msg[start + i];
   for (; i < W.length; i += 2) {
-    var c0_hi = g1_512_hi$1(W[i - 4], W[i - 3]);  // i - 2
-    var c0_lo = g1_512_lo$1(W[i - 4], W[i - 3]);
+    var c0_hi = g1_512_hi$3(W[i - 4], W[i - 3]);  // i - 2
+    var c0_lo = g1_512_lo$3(W[i - 4], W[i - 3]);
     var c1_hi = W[i - 14];  // i - 7
     var c1_lo = W[i - 13];
-    var c2_hi = g0_512_hi$1(W[i - 30], W[i - 29]);  // i - 15
-    var c2_lo = g0_512_lo$1(W[i - 30], W[i - 29]);
+    var c2_hi = g0_512_hi$3(W[i - 30], W[i - 29]);  // i - 15
+    var c2_lo = g0_512_lo$3(W[i - 30], W[i - 29]);
     var c3_hi = W[i - 32];  // i - 16
     var c3_lo = W[i - 31];
 
-    W[i] = sum64_4_hi$2(
+    W[i] = sum64_4_hi$4(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
       c3_hi, c3_lo);
-    W[i + 1] = sum64_4_lo$2(
+    W[i + 1] = sum64_4_lo$4(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
@@ -39301,7 +39301,7 @@ SHA512$3.prototype._prepareBlock = function _prepareBlock(msg, start) {
   }
 };
 
-SHA512$3.prototype._update = function _update(msg, start) {
+SHA512$5.prototype._update = function _update(msg, start) {
   this._prepareBlock(msg, start);
 
   var W = this.W;
@@ -39327,35 +39327,35 @@ SHA512$3.prototype._update = function _update(msg, start) {
   for (var i = 0; i < W.length; i += 2) {
     var c0_hi = hh;
     var c0_lo = hl;
-    var c1_hi = s1_512_hi$1(eh, el);
-    var c1_lo = s1_512_lo$1(eh, el);
-    var c2_hi = ch64_hi$1(eh, el, fh, fl, gh);
-    var c2_lo = ch64_lo$1(eh, el, fh, fl, gh, gl);
+    var c1_hi = s1_512_hi$3(eh, el);
+    var c1_lo = s1_512_lo$3(eh, el);
+    var c2_hi = ch64_hi$3(eh, el, fh, fl, gh);
+    var c2_lo = ch64_lo$3(eh, el, fh, fl, gh, gl);
     var c3_hi = this.k[i];
     var c3_lo = this.k[i + 1];
     var c4_hi = W[i];
     var c4_lo = W[i + 1];
 
-    var T1_hi = sum64_5_hi$2(
+    var T1_hi = sum64_5_hi$4(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
       c3_hi, c3_lo,
       c4_hi, c4_lo);
-    var T1_lo = sum64_5_lo$2(
+    var T1_lo = sum64_5_lo$4(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
       c3_hi, c3_lo,
       c4_hi, c4_lo);
 
-    c0_hi = s0_512_hi$1(ah, al);
-    c0_lo = s0_512_lo$1(ah, al);
-    c1_hi = maj64_hi$1(ah, al, bh, bl, ch);
-    c1_lo = maj64_lo$1(ah, al, bh, bl, ch, cl);
+    c0_hi = s0_512_hi$3(ah, al);
+    c0_lo = s0_512_lo$3(ah, al);
+    c1_hi = maj64_hi$3(ah, al, bh, bl, ch);
+    c1_lo = maj64_lo$3(ah, al, bh, bl, ch, cl);
 
-    var T2_hi = sum64_hi$2(c0_hi, c0_lo, c1_hi, c1_lo);
-    var T2_lo = sum64_lo$2(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_hi = sum64_hi$4(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_lo = sum64_lo$4(c0_hi, c0_lo, c1_hi, c1_lo);
 
     hh = gh;
     hl = gl;
@@ -39366,8 +39366,8 @@ SHA512$3.prototype._update = function _update(msg, start) {
     fh = eh;
     fl = el;
 
-    eh = sum64_hi$2(dh, dl, T1_hi, T1_lo);
-    el = sum64_lo$2(dl, dl, T1_hi, T1_lo);
+    eh = sum64_hi$4(dh, dl, T1_hi, T1_lo);
+    el = sum64_lo$4(dl, dl, T1_hi, T1_lo);
 
     dh = ch;
     dl = cl;
@@ -39378,59 +39378,59 @@ SHA512$3.prototype._update = function _update(msg, start) {
     bh = ah;
     bl = al;
 
-    ah = sum64_hi$2(T1_hi, T1_lo, T2_hi, T2_lo);
-    al = sum64_lo$2(T1_hi, T1_lo, T2_hi, T2_lo);
+    ah = sum64_hi$4(T1_hi, T1_lo, T2_hi, T2_lo);
+    al = sum64_lo$4(T1_hi, T1_lo, T2_hi, T2_lo);
   }
 
-  sum64$2(this.h, 0, ah, al);
-  sum64$2(this.h, 2, bh, bl);
-  sum64$2(this.h, 4, ch, cl);
-  sum64$2(this.h, 6, dh, dl);
-  sum64$2(this.h, 8, eh, el);
-  sum64$2(this.h, 10, fh, fl);
-  sum64$2(this.h, 12, gh, gl);
-  sum64$2(this.h, 14, hh, hl);
+  sum64$4(this.h, 0, ah, al);
+  sum64$4(this.h, 2, bh, bl);
+  sum64$4(this.h, 4, ch, cl);
+  sum64$4(this.h, 6, dh, dl);
+  sum64$4(this.h, 8, eh, el);
+  sum64$4(this.h, 10, fh, fl);
+  sum64$4(this.h, 12, gh, gl);
+  sum64$4(this.h, 14, hh, hl);
 };
 
-SHA512$3.prototype._digest = function digest(enc) {
+SHA512$5.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$k.toHex32(this.h, 'big');
+    return utils$m.toHex32(this.h, 'big');
   else
-    return utils$k.split32(this.h, 'big');
+    return utils$m.split32(this.h, 'big');
 };
 
-function ch64_hi$1(xh, xl, yh, yl, zh) {
+function ch64_hi$3(xh, xl, yh, yl, zh) {
   var r = (xh & yh) ^ ((~xh) & zh);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function ch64_lo$1(xh, xl, yh, yl, zh, zl) {
+function ch64_lo$3(xh, xl, yh, yl, zh, zl) {
   var r = (xl & yl) ^ ((~xl) & zl);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function maj64_hi$1(xh, xl, yh, yl, zh) {
+function maj64_hi$3(xh, xl, yh, yl, zh) {
   var r = (xh & yh) ^ (xh & zh) ^ (yh & zh);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function maj64_lo$1(xh, xl, yh, yl, zh, zl) {
+function maj64_lo$3(xh, xl, yh, yl, zh, zl) {
   var r = (xl & yl) ^ (xl & zl) ^ (yl & zl);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function s0_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 28);
-  var c1_hi = rotr64_hi$2(xl, xh, 2);  // 34
-  var c2_hi = rotr64_hi$2(xl, xh, 7);  // 39
+function s0_512_hi$3(xh, xl) {
+  var c0_hi = rotr64_hi$4(xh, xl, 28);
+  var c1_hi = rotr64_hi$4(xl, xh, 2);  // 34
+  var c2_hi = rotr64_hi$4(xl, xh, 7);  // 39
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -39438,10 +39438,10 @@ function s0_512_hi$1(xh, xl) {
   return r;
 }
 
-function s0_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 28);
-  var c1_lo = rotr64_lo$2(xl, xh, 2);  // 34
-  var c2_lo = rotr64_lo$2(xl, xh, 7);  // 39
+function s0_512_lo$3(xh, xl) {
+  var c0_lo = rotr64_lo$4(xh, xl, 28);
+  var c1_lo = rotr64_lo$4(xl, xh, 2);  // 34
+  var c2_lo = rotr64_lo$4(xl, xh, 7);  // 39
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -39449,10 +39449,10 @@ function s0_512_lo$1(xh, xl) {
   return r;
 }
 
-function s1_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 14);
-  var c1_hi = rotr64_hi$2(xh, xl, 18);
-  var c2_hi = rotr64_hi$2(xl, xh, 9);  // 41
+function s1_512_hi$3(xh, xl) {
+  var c0_hi = rotr64_hi$4(xh, xl, 14);
+  var c1_hi = rotr64_hi$4(xh, xl, 18);
+  var c2_hi = rotr64_hi$4(xl, xh, 9);  // 41
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -39460,10 +39460,10 @@ function s1_512_hi$1(xh, xl) {
   return r;
 }
 
-function s1_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 14);
-  var c1_lo = rotr64_lo$2(xh, xl, 18);
-  var c2_lo = rotr64_lo$2(xl, xh, 9);  // 41
+function s1_512_lo$3(xh, xl) {
+  var c0_lo = rotr64_lo$4(xh, xl, 14);
+  var c1_lo = rotr64_lo$4(xh, xl, 18);
+  var c2_lo = rotr64_lo$4(xl, xh, 9);  // 41
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -39471,10 +39471,10 @@ function s1_512_lo$1(xh, xl) {
   return r;
 }
 
-function g0_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 1);
-  var c1_hi = rotr64_hi$2(xh, xl, 8);
-  var c2_hi = shr64_hi$2(xh, xl, 7);
+function g0_512_hi$3(xh, xl) {
+  var c0_hi = rotr64_hi$4(xh, xl, 1);
+  var c1_hi = rotr64_hi$4(xh, xl, 8);
+  var c2_hi = shr64_hi$4(xh, xl, 7);
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -39482,10 +39482,10 @@ function g0_512_hi$1(xh, xl) {
   return r;
 }
 
-function g0_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 1);
-  var c1_lo = rotr64_lo$2(xh, xl, 8);
-  var c2_lo = shr64_lo$2(xh, xl, 7);
+function g0_512_lo$3(xh, xl) {
+  var c0_lo = rotr64_lo$4(xh, xl, 1);
+  var c1_lo = rotr64_lo$4(xh, xl, 8);
+  var c2_lo = shr64_lo$4(xh, xl, 7);
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -39493,10 +39493,10 @@ function g0_512_lo$1(xh, xl) {
   return r;
 }
 
-function g1_512_hi$1(xh, xl) {
-  var c0_hi = rotr64_hi$2(xh, xl, 19);
-  var c1_hi = rotr64_hi$2(xl, xh, 29);  // 61
-  var c2_hi = shr64_hi$2(xh, xl, 6);
+function g1_512_hi$3(xh, xl) {
+  var c0_hi = rotr64_hi$4(xh, xl, 19);
+  var c1_hi = rotr64_hi$4(xl, xh, 29);  // 61
+  var c2_hi = shr64_hi$4(xh, xl, 6);
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -39504,10 +39504,10 @@ function g1_512_hi$1(xh, xl) {
   return r;
 }
 
-function g1_512_lo$1(xh, xl) {
-  var c0_lo = rotr64_lo$2(xh, xl, 19);
-  var c1_lo = rotr64_lo$2(xl, xh, 29);  // 61
-  var c2_lo = shr64_lo$2(xh, xl, 6);
+function g1_512_lo$3(xh, xl) {
+  var c0_lo = rotr64_lo$4(xh, xl, 19);
+  var c1_lo = rotr64_lo$4(xl, xh, 29);  // 61
+  var c2_lo = shr64_lo$4(xh, xl, 6);
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -39515,15 +39515,15 @@ function g1_512_lo$1(xh, xl) {
   return r;
 }
 
-var utils$j = utils$q;
+var utils$l = utils$s;
 
-var SHA512$2 = _512$1;
+var SHA512$4 = _512$3;
 
-function SHA384$1() {
-  if (!(this instanceof SHA384$1))
-    return new SHA384$1();
+function SHA384$3() {
+  if (!(this instanceof SHA384$3))
+    return new SHA384$3();
 
-  SHA512$2.call(this);
+  SHA512$4.call(this);
   this.h = [
     0xcbbb9d5d, 0xc1059ed8,
     0x629a292a, 0x367cd507,
@@ -39534,56 +39534,56 @@ function SHA384$1() {
     0xdb0c2e0d, 0x64f98fa7,
     0x47b5481d, 0xbefa4fa4 ];
 }
-utils$j.inherits(SHA384$1, SHA512$2);
-var _384$1 = SHA384$1;
+utils$l.inherits(SHA384$3, SHA512$4);
+var _384$3 = SHA384$3;
 
-SHA384$1.blockSize = 1024;
-SHA384$1.outSize = 384;
-SHA384$1.hmacStrength = 192;
-SHA384$1.padLength = 128;
+SHA384$3.blockSize = 1024;
+SHA384$3.outSize = 384;
+SHA384$3.hmacStrength = 192;
+SHA384$3.padLength = 128;
 
-SHA384$1.prototype._digest = function digest(enc) {
+SHA384$3.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$j.toHex32(this.h.slice(0, 12), 'big');
+    return utils$l.toHex32(this.h.slice(0, 12), 'big');
   else
-    return utils$j.split32(this.h.slice(0, 12), 'big');
+    return utils$l.split32(this.h.slice(0, 12), 'big');
 };
 
-sha$1.sha1 = _1$1;
-sha$1.sha224 = _224$1;
-sha$1.sha256 = _256$1;
-sha$1.sha384 = _384$1;
-sha$1.sha512 = _512$1;
+sha$3.sha1 = _1$3;
+sha$3.sha224 = _224$3;
+sha$3.sha256 = _256$3;
+sha$3.sha384 = _384$3;
+sha$3.sha512 = _512$3;
 
-var ripemd$1 = {};
+var ripemd$3 = {};
 
-var utils$i = utils$q;
-var common$6 = common$b;
+var utils$k = utils$s;
+var common$8 = common$d;
 
-var rotl32$3 = utils$i.rotl32;
-var sum32$4 = utils$i.sum32;
-var sum32_3$2 = utils$i.sum32_3;
-var sum32_4$3 = utils$i.sum32_4;
-var BlockHash$5 = common$6.BlockHash;
+var rotl32$5 = utils$k.rotl32;
+var sum32$6 = utils$k.sum32;
+var sum32_3$4 = utils$k.sum32_3;
+var sum32_4$5 = utils$k.sum32_4;
+var BlockHash$7 = common$8.BlockHash;
 
-function RIPEMD160$1() {
-  if (!(this instanceof RIPEMD160$1))
-    return new RIPEMD160$1();
+function RIPEMD160$3() {
+  if (!(this instanceof RIPEMD160$3))
+    return new RIPEMD160$3();
 
-  BlockHash$5.call(this);
+  BlockHash$7.call(this);
 
   this.h = [ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 ];
   this.endian = 'little';
 }
-utils$i.inherits(RIPEMD160$1, BlockHash$5);
-ripemd$1.ripemd160 = RIPEMD160$1;
+utils$k.inherits(RIPEMD160$3, BlockHash$7);
+ripemd$3.ripemd160 = RIPEMD160$3;
 
-RIPEMD160$1.blockSize = 512;
-RIPEMD160$1.outSize = 160;
-RIPEMD160$1.hmacStrength = 192;
-RIPEMD160$1.padLength = 64;
+RIPEMD160$3.blockSize = 512;
+RIPEMD160$3.outSize = 160;
+RIPEMD160$3.hmacStrength = 192;
+RIPEMD160$3.padLength = 64;
 
-RIPEMD160$1.prototype._update = function update(msg, start) {
+RIPEMD160$3.prototype._update = function update(msg, start) {
   var A = this.h[0];
   var B = this.h[1];
   var C = this.h[2];
@@ -39595,43 +39595,43 @@ RIPEMD160$1.prototype._update = function update(msg, start) {
   var Dh = D;
   var Eh = E;
   for (var j = 0; j < 80; j++) {
-    var T = sum32$4(
-      rotl32$3(
-        sum32_4$3(A, f$1(j, B, C, D), msg[r$1[j] + start], K$1(j)),
-        s$1[j]),
+    var T = sum32$6(
+      rotl32$5(
+        sum32_4$5(A, f$3(j, B, C, D), msg[r$3[j] + start], K$3(j)),
+        s$3[j]),
       E);
     A = E;
     E = D;
-    D = rotl32$3(C, 10);
+    D = rotl32$5(C, 10);
     C = B;
     B = T;
-    T = sum32$4(
-      rotl32$3(
-        sum32_4$3(Ah, f$1(79 - j, Bh, Ch, Dh), msg[rh$1[j] + start], Kh$1(j)),
-        sh$1[j]),
+    T = sum32$6(
+      rotl32$5(
+        sum32_4$5(Ah, f$3(79 - j, Bh, Ch, Dh), msg[rh$3[j] + start], Kh$3(j)),
+        sh$3[j]),
       Eh);
     Ah = Eh;
     Eh = Dh;
-    Dh = rotl32$3(Ch, 10);
+    Dh = rotl32$5(Ch, 10);
     Ch = Bh;
     Bh = T;
   }
-  T = sum32_3$2(this.h[1], C, Dh);
-  this.h[1] = sum32_3$2(this.h[2], D, Eh);
-  this.h[2] = sum32_3$2(this.h[3], E, Ah);
-  this.h[3] = sum32_3$2(this.h[4], A, Bh);
-  this.h[4] = sum32_3$2(this.h[0], B, Ch);
+  T = sum32_3$4(this.h[1], C, Dh);
+  this.h[1] = sum32_3$4(this.h[2], D, Eh);
+  this.h[2] = sum32_3$4(this.h[3], E, Ah);
+  this.h[3] = sum32_3$4(this.h[4], A, Bh);
+  this.h[4] = sum32_3$4(this.h[0], B, Ch);
   this.h[0] = T;
 };
 
-RIPEMD160$1.prototype._digest = function digest(enc) {
+RIPEMD160$3.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$i.toHex32(this.h, 'little');
+    return utils$k.toHex32(this.h, 'little');
   else
-    return utils$i.split32(this.h, 'little');
+    return utils$k.split32(this.h, 'little');
 };
 
-function f$1(j, x, y, z) {
+function f$3(j, x, y, z) {
   if (j <= 15)
     return x ^ y ^ z;
   else if (j <= 31)
@@ -39644,7 +39644,7 @@ function f$1(j, x, y, z) {
     return x ^ (y | (~z));
 }
 
-function K$1(j) {
+function K$3(j) {
   if (j <= 15)
     return 0x00000000;
   else if (j <= 31)
@@ -39657,7 +39657,7 @@ function K$1(j) {
     return 0xa953fd4e;
 }
 
-function Kh$1(j) {
+function Kh$3(j) {
   if (j <= 15)
     return 0x50a28be6;
   else if (j <= 31)
@@ -39670,7 +39670,7 @@ function Kh$1(j) {
     return 0x00000000;
 }
 
-var r$1 = [
+var r$3 = [
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
   7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
   3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
@@ -39678,7 +39678,7 @@ var r$1 = [
   4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13
 ];
 
-var rh$1 = [
+var rh$3 = [
   5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
   6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
   15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
@@ -39686,7 +39686,7 @@ var rh$1 = [
   12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11
 ];
 
-var s$1 = [
+var s$3 = [
   11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
   7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
   11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
@@ -39694,7 +39694,7 @@ var s$1 = [
   9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6
 ];
 
-var sh$1 = [
+var sh$3 = [
   8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
   9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
   9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
@@ -39702,23 +39702,23 @@ var sh$1 = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-var utils$h = utils$q;
-var assert$e = minimalisticAssert$1;
+var utils$j = utils$s;
+var assert$e = minimalisticAssert$3;
 
-function Hmac$1(hash, key, enc) {
-  if (!(this instanceof Hmac$1))
-    return new Hmac$1(hash, key, enc);
+function Hmac$3(hash, key, enc) {
+  if (!(this instanceof Hmac$3))
+    return new Hmac$3(hash, key, enc);
   this.Hash = hash;
   this.blockSize = hash.blockSize / 8;
   this.outSize = hash.outSize / 8;
   this.inner = null;
   this.outer = null;
 
-  this._init(utils$h.toArray(key, enc));
+  this._init(utils$j.toArray(key, enc));
 }
-var hmac$1 = Hmac$1;
+var hmac$3 = Hmac$3;
 
-Hmac$1.prototype._init = function init(key) {
+Hmac$3.prototype._init = function init(key) {
   // Shorten key, if needed
   if (key.length > this.blockSize)
     key = new this.Hash().update(key).digest();
@@ -39738,12 +39738,12 @@ Hmac$1.prototype._init = function init(key) {
   this.outer = new this.Hash().update(key);
 };
 
-Hmac$1.prototype.update = function update(msg, enc) {
+Hmac$3.prototype.update = function update(msg, enc) {
   this.inner.update(msg, enc);
   return this;
 };
 
-Hmac$1.prototype.digest = function digest(enc) {
+Hmac$3.prototype.digest = function digest(enc) {
   this.outer.update(this.inner.digest());
   return this.outer.digest(enc);
 };
@@ -39751,11 +39751,11 @@ Hmac$1.prototype.digest = function digest(enc) {
 (function (exports) {
 	var hash = exports;
 
-	hash.utils = utils$q;
-	hash.common = common$b;
-	hash.sha = sha$1;
-	hash.ripemd = ripemd$1;
-	hash.hmac = hmac$1;
+	hash.utils = utils$s;
+	hash.common = common$d;
+	hash.sha = sha$3;
+	hash.ripemd = ripemd$3;
+	hash.hmac = hmac$3;
 
 	// Proxy hash functions to the main object
 	hash.sha1 = hash.sha.sha1;
@@ -39764,7 +39764,7 @@ Hmac$1.prototype.digest = function digest(enc) {
 	hash.sha384 = hash.sha.sha384;
 	hash.sha512 = hash.sha.sha512;
 	hash.ripemd160 = hash.ripemd.ripemd160;
-} (hash$4));
+} (hash$6));
 
 var secp256k1$1;
 var hasRequiredSecp256k1;
@@ -40559,9 +40559,9 @@ function requireSecp256k1 () {
 
 	var curves = exports;
 
-	var hash = hash$4;
+	var hash = hash$6;
 	var curve$1 = curve;
-	var utils = utils$w;
+	var utils = utils$y;
 
 	var assert = utils.assert;
 
@@ -40763,9 +40763,9 @@ function requireSecp256k1 () {
 	});
 } (curves$2));
 
-var hash$3 = hash$4;
-var utils$g = utils$v;
-var assert$d = minimalisticAssert$1;
+var hash$5 = hash$6;
+var utils$i = utils$x;
+var assert$d = minimalisticAssert$3;
 
 function HmacDRBG$1(options) {
   if (!(this instanceof HmacDRBG$1))
@@ -40781,9 +40781,9 @@ function HmacDRBG$1(options) {
   this.K = null;
   this.V = null;
 
-  var entropy = utils$g.toArray(options.entropy, options.entropyEnc || 'hex');
-  var nonce = utils$g.toArray(options.nonce, options.nonceEnc || 'hex');
-  var pers = utils$g.toArray(options.pers, options.persEnc || 'hex');
+  var entropy = utils$i.toArray(options.entropy, options.entropyEnc || 'hex');
+  var nonce = utils$i.toArray(options.nonce, options.nonceEnc || 'hex');
+  var pers = utils$i.toArray(options.pers, options.persEnc || 'hex');
   assert$d(entropy.length >= (this.minEntropy / 8),
          'Not enough entropy. Minimum is: ' + this.minEntropy + ' bits');
   this._init(entropy, nonce, pers);
@@ -40806,7 +40806,7 @@ HmacDRBG$1.prototype._init = function init(entropy, nonce, pers) {
 };
 
 HmacDRBG$1.prototype._hmac = function hmac() {
-  return new hash$3.hmac(this.hash, this.K);
+  return new hash$5.hmac(this.hash, this.K);
 };
 
 HmacDRBG$1.prototype._update = function update(seed) {
@@ -40836,8 +40836,8 @@ HmacDRBG$1.prototype.reseed = function reseed(entropy, entropyEnc, add, addEnc) 
     entropyEnc = null;
   }
 
-  entropy = utils$g.toArray(entropy, entropyEnc);
-  add = utils$g.toArray(add, addEnc);
+  entropy = utils$i.toArray(entropy, entropyEnc);
+  add = utils$i.toArray(add, addEnc);
 
   assert$d(entropy.length >= (this.minEntropy / 8),
          'Not enough entropy. Minimum is: ' + this.minEntropy + ' bits');
@@ -40859,7 +40859,7 @@ HmacDRBG$1.prototype.generate = function generate(len, enc, add, addEnc) {
 
   // Optional additional data
   if (add) {
-    add = utils$g.toArray(add, addEnc || 'hex');
+    add = utils$i.toArray(add, addEnc || 'hex');
     this._update(add);
   }
 
@@ -40872,12 +40872,12 @@ HmacDRBG$1.prototype.generate = function generate(len, enc, add, addEnc) {
   var res = temp.slice(0, len);
   this._update(add);
   this._reseed++;
-  return utils$g.encode(res, enc);
+  return utils$i.encode(res, enc);
 };
 
 var BN$5 = bn$1.exports;
-var utils$f = utils$w;
-var assert$c = utils$f.assert;
+var utils$h = utils$y;
+var assert$c = utils$h.assert;
 
 function KeyPair$3(ec, options) {
   this.ec = ec;
@@ -40997,8 +40997,8 @@ KeyPair$3.prototype.inspect = function inspect() {
 
 var BN$4 = bn$1.exports;
 
-var utils$e = utils$w;
-var assert$b = utils$e.assert;
+var utils$g = utils$y;
+var assert$b = utils$g.assert;
 
 function Signature$3(options, enc) {
   if (options instanceof Signature$3)
@@ -41062,7 +41062,7 @@ function rmPadding(buf) {
 }
 
 Signature$3.prototype._importDER = function _importDER(data, enc) {
-  data = utils$e.toArray(data, enc);
+  data = utils$g.toArray(data, enc);
   var p = new Position();
   if (data[p.place++] !== 0x30) {
     return false;
@@ -41157,15 +41157,15 @@ Signature$3.prototype.toDER = function toDER(enc) {
   var res = [ 0x30 ];
   constructLength(res, backHalf.length);
   res = res.concat(backHalf);
-  return utils$e.encode(res, enc);
+  return utils$g.encode(res, enc);
 };
 
 var BN$3 = bn$1.exports;
 var HmacDRBG = hmacDrbg;
-var utils$d = utils$w;
+var utils$f = utils$y;
 var curves$1 = curves$2;
 var rand = brorand.exports;
-var assert$a = utils$d.assert;
+var assert$a = utils$f.assert;
 
 var KeyPair$2 = key$1;
 var Signature$2 = signature$1;
@@ -41402,10 +41402,10 @@ EC$1.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
   throw new Error('Unable to find valid recovery factor');
 };
 
-var utils$c = utils$w;
-var assert$9 = utils$c.assert;
-var parseBytes$2 = utils$c.parseBytes;
-var cachedProperty$1 = utils$c.cachedProperty;
+var utils$e = utils$y;
+var assert$9 = utils$e.assert;
+var parseBytes$2 = utils$e.parseBytes;
+var cachedProperty$1 = utils$e.cachedProperty;
 
 /**
 * @param {EDDSA} eddsa - instance
@@ -41487,20 +41487,20 @@ KeyPair$1.prototype.verify = function verify(message, sig) {
 
 KeyPair$1.prototype.getSecret = function getSecret(enc) {
   assert$9(this._secret, 'KeyPair is public only');
-  return utils$c.encode(this.secret(), enc);
+  return utils$e.encode(this.secret(), enc);
 };
 
 KeyPair$1.prototype.getPublic = function getPublic(enc) {
-  return utils$c.encode(this.pubBytes(), enc);
+  return utils$e.encode(this.pubBytes(), enc);
 };
 
 var key = KeyPair$1;
 
 var BN$2 = bn$1.exports;
-var utils$b = utils$w;
-var assert$8 = utils$b.assert;
-var cachedProperty = utils$b.cachedProperty;
-var parseBytes$1 = utils$b.parseBytes;
+var utils$d = utils$y;
+var assert$8 = utils$d.assert;
+var cachedProperty = utils$d.cachedProperty;
+var parseBytes$1 = utils$d.parseBytes;
 
 /**
 * @param {EDDSA} eddsa - eddsa instance
@@ -41555,16 +41555,16 @@ Signature$1.prototype.toBytes = function toBytes() {
 };
 
 Signature$1.prototype.toHex = function toHex() {
-  return utils$b.encode(this.toBytes(), 'hex').toUpperCase();
+  return utils$d.encode(this.toBytes(), 'hex').toUpperCase();
 };
 
 var signature = Signature$1;
 
-var hash$2 = hash$4;
+var hash$4 = hash$6;
 var curves = curves$2;
-var utils$a = utils$w;
-var assert$7 = utils$a.assert;
-var parseBytes = utils$a.parseBytes;
+var utils$c = utils$y;
+var assert$7 = utils$c.assert;
+var parseBytes = utils$c.parseBytes;
 var KeyPair = key;
 var Signature = signature;
 
@@ -41581,7 +41581,7 @@ function EDDSA(curve) {
 
   this.pointClass = curve.point().constructor;
   this.encodingLength = Math.ceil(curve.n.bitLength() / 8);
-  this.hash = hash$2.sha512;
+  this.hash = hash$4.sha512;
 }
 
 var eddsa = EDDSA;
@@ -41623,7 +41623,7 @@ EDDSA.prototype.hashInt = function hashInt() {
   var hash = this.hash();
   for (var i = 0; i < arguments.length; i++)
     hash.update(arguments[i]);
-  return utils$a.intFromLE(hash.digest()).umod(this.curve.n);
+  return utils$c.intFromLE(hash.digest()).umod(this.curve.n);
 };
 
 EDDSA.prototype.keyFromPublic = function keyFromPublic(pub) {
@@ -41655,13 +41655,13 @@ EDDSA.prototype.encodePoint = function encodePoint(point) {
 };
 
 EDDSA.prototype.decodePoint = function decodePoint(bytes) {
-  bytes = utils$a.parseBytes(bytes);
+  bytes = utils$c.parseBytes(bytes);
 
   var lastIx = bytes.length - 1;
   var normed = bytes.slice(0, lastIx).concat(bytes[lastIx] & ~0x80);
   var xIsOdd = (bytes[lastIx] & 0x80) !== 0;
 
-  var y = utils$a.intFromLE(normed);
+  var y = utils$c.intFromLE(normed);
   return this.curve.pointFromY(y, xIsOdd);
 };
 
@@ -41670,7 +41670,7 @@ EDDSA.prototype.encodeInt = function encodeInt(num) {
 };
 
 EDDSA.prototype.decodeInt = function decodeInt(bytes) {
-  return utils$a.intFromLE(bytes);
+  return utils$c.intFromLE(bytes);
 };
 
 EDDSA.prototype.isPoint = function isPoint(val) {
@@ -41682,7 +41682,7 @@ EDDSA.prototype.isPoint = function isPoint(val) {
 	var elliptic = exports;
 
 	elliptic.version = require$$0.version;
-	elliptic.utils = utils$w;
+	elliptic.utils = utils$y;
 	elliptic.rand = brorand.exports;
 	elliptic.curve = curve;
 	elliptic.curves = curves$2;
@@ -42747,37 +42747,37 @@ var sha3$1 = {exports: {}};
 
 var sha3 = sha3$1.exports;
 
-const toBuffer = arr => {
-  if (Buffer$1.isBuffer(arr)) {
+const toBuffer$2 = arr => {
+  if (Buffer$2.isBuffer(arr)) {
     return arr;
   } else if (arr instanceof Uint8Array) {
-    return Buffer$1.from(arr.buffer, arr.byteOffset, arr.byteLength);
+    return Buffer$2.from(arr.buffer, arr.byteOffset, arr.byteLength);
   } else {
-    return Buffer$1.from(arr);
+    return Buffer$2.from(arr);
   }
 };
 
-var hash$1 = {};
+var hash$1$2 = {};
 
-var utils$9 = {};
+var utils$9$2 = {};
 
-var minimalisticAssert = assert$6;
+var minimalisticAssert$2 = assert$6$2;
 
-function assert$6(val, msg) {
+function assert$6$2(val, msg) {
   if (!val)
     throw new Error(msg || 'Assertion failed');
 }
 
-assert$6.equal = function assertEqual(l, r, msg) {
+assert$6$2.equal = function assertEqual(l, r, msg) {
   if (l != r)
     throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
 };
 
-var inherits_browser = {exports: {}};
+var inherits_browser$2 = {exports: {}};
 
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
-  inherits_browser.exports = function inherits(ctor, superCtor) {
+  inherits_browser$2.exports = function inherits(ctor, superCtor) {
     if (superCtor) {
       ctor.super_ = superCtor;
       ctor.prototype = Object.create(superCtor.prototype, {
@@ -42792,7 +42792,7 @@ if (typeof Object.create === 'function') {
   };
 } else {
   // old school shim for old browsers
-  inherits_browser.exports = function inherits(ctor, superCtor) {
+  inherits_browser$2.exports = function inherits(ctor, superCtor) {
     if (superCtor) {
       ctor.super_ = superCtor;
       var TempCtor = function () {};
@@ -42803,12 +42803,12 @@ if (typeof Object.create === 'function') {
   };
 }
 
-var assert$5 = minimalisticAssert;
-var inherits = inherits_browser.exports;
+var assert$5$2 = minimalisticAssert$2;
+var inherits$2 = inherits_browser$2.exports;
 
-utils$9.inherits = inherits;
+utils$9$2.inherits = inherits$2;
 
-function isSurrogatePair(msg, i) {
+function isSurrogatePair$2(msg, i) {
   if ((msg.charCodeAt(i) & 0xFC00) !== 0xD800) {
     return false;
   }
@@ -42818,7 +42818,7 @@ function isSurrogatePair(msg, i) {
   return (msg.charCodeAt(i + 1) & 0xFC00) === 0xDC00;
 }
 
-function toArray(msg, enc) {
+function toArray$2(msg, enc) {
   if (Array.isArray(msg))
     return msg.slice();
   if (!msg)
@@ -42838,7 +42838,7 @@ function toArray(msg, enc) {
         } else if (c < 2048) {
           res[p++] = (c >> 6) | 192;
           res[p++] = (c & 63) | 128;
-        } else if (isSurrogatePair(msg, i)) {
+        } else if (isSurrogatePair$2(msg, i)) {
           c = 0x10000 + ((c & 0x03FF) << 10) + (msg.charCodeAt(++i) & 0x03FF);
           res[p++] = (c >> 18) | 240;
           res[p++] = ((c >> 12) & 63) | 128;
@@ -42863,46 +42863,46 @@ function toArray(msg, enc) {
   }
   return res;
 }
-utils$9.toArray = toArray;
+utils$9$2.toArray = toArray$2;
 
-function toHex(msg) {
+function toHex$2(msg) {
   var res = '';
   for (var i = 0; i < msg.length; i++)
-    res += zero2(msg[i].toString(16));
+    res += zero2$2(msg[i].toString(16));
   return res;
 }
-utils$9.toHex = toHex;
+utils$9$2.toHex = toHex$2;
 
-function htonl(w) {
+function htonl$2(w) {
   var res = (w >>> 24) |
             ((w >>> 8) & 0xff00) |
             ((w << 8) & 0xff0000) |
             ((w & 0xff) << 24);
   return res >>> 0;
 }
-utils$9.htonl = htonl;
+utils$9$2.htonl = htonl$2;
 
-function toHex32(msg, endian) {
+function toHex32$2(msg, endian) {
   var res = '';
   for (var i = 0; i < msg.length; i++) {
     var w = msg[i];
     if (endian === 'little')
-      w = htonl(w);
-    res += zero8(w.toString(16));
+      w = htonl$2(w);
+    res += zero8$2(w.toString(16));
   }
   return res;
 }
-utils$9.toHex32 = toHex32;
+utils$9$2.toHex32 = toHex32$2;
 
-function zero2(word) {
+function zero2$2(word) {
   if (word.length === 1)
     return '0' + word;
   else
     return word;
 }
-utils$9.zero2 = zero2;
+utils$9$2.zero2 = zero2$2;
 
-function zero8(word) {
+function zero8$2(word) {
   if (word.length === 7)
     return '0' + word;
   else if (word.length === 6)
@@ -42920,11 +42920,11 @@ function zero8(word) {
   else
     return word;
 }
-utils$9.zero8 = zero8;
+utils$9$2.zero8 = zero8$2;
 
-function join32(msg, start, end, endian) {
+function join32$2(msg, start, end, endian) {
   var len = end - start;
-  assert$5(len % 4 === 0);
+  assert$5$2(len % 4 === 0);
   var res = new Array(len / 4);
   for (var i = 0, k = start; i < res.length; i++, k += 4) {
     var w;
@@ -42936,9 +42936,9 @@ function join32(msg, start, end, endian) {
   }
   return res;
 }
-utils$9.join32 = join32;
+utils$9$2.join32 = join32$2;
 
-function split32(msg, endian) {
+function split32$2(msg, endian) {
   var res = new Array(msg.length * 4);
   for (var i = 0, k = 0; i < msg.length; i++, k += 4) {
     var m = msg[i];
@@ -42956,39 +42956,39 @@ function split32(msg, endian) {
   }
   return res;
 }
-utils$9.split32 = split32;
+utils$9$2.split32 = split32$2;
 
-function rotr32$1(w, b) {
+function rotr32$1$2(w, b) {
   return (w >>> b) | (w << (32 - b));
 }
-utils$9.rotr32 = rotr32$1;
+utils$9$2.rotr32 = rotr32$1$2;
 
-function rotl32$2(w, b) {
+function rotl32$2$2(w, b) {
   return (w << b) | (w >>> (32 - b));
 }
-utils$9.rotl32 = rotl32$2;
+utils$9$2.rotl32 = rotl32$2$2;
 
-function sum32$3(a, b) {
+function sum32$3$2(a, b) {
   return (a + b) >>> 0;
 }
-utils$9.sum32 = sum32$3;
+utils$9$2.sum32 = sum32$3$2;
 
-function sum32_3$1(a, b, c) {
+function sum32_3$1$2(a, b, c) {
   return (a + b + c) >>> 0;
 }
-utils$9.sum32_3 = sum32_3$1;
+utils$9$2.sum32_3 = sum32_3$1$2;
 
-function sum32_4$2(a, b, c, d) {
+function sum32_4$2$2(a, b, c, d) {
   return (a + b + c + d) >>> 0;
 }
-utils$9.sum32_4 = sum32_4$2;
+utils$9$2.sum32_4 = sum32_4$2$2;
 
-function sum32_5$2(a, b, c, d, e) {
+function sum32_5$2$2(a, b, c, d, e) {
   return (a + b + c + d + e) >>> 0;
 }
-utils$9.sum32_5 = sum32_5$2;
+utils$9$2.sum32_5 = sum32_5$2$2;
 
-function sum64$1(buf, pos, ah, al) {
+function sum64$1$2(buf, pos, ah, al) {
   var bh = buf[pos];
   var bl = buf[pos + 1];
 
@@ -42997,22 +42997,22 @@ function sum64$1(buf, pos, ah, al) {
   buf[pos] = hi >>> 0;
   buf[pos + 1] = lo;
 }
-utils$9.sum64 = sum64$1;
+utils$9$2.sum64 = sum64$1$2;
 
-function sum64_hi$1(ah, al, bh, bl) {
+function sum64_hi$1$2(ah, al, bh, bl) {
   var lo = (al + bl) >>> 0;
   var hi = (lo < al ? 1 : 0) + ah + bh;
   return hi >>> 0;
 }
-utils$9.sum64_hi = sum64_hi$1;
+utils$9$2.sum64_hi = sum64_hi$1$2;
 
-function sum64_lo$1(ah, al, bh, bl) {
+function sum64_lo$1$2(ah, al, bh, bl) {
   var lo = al + bl;
   return lo >>> 0;
 }
-utils$9.sum64_lo = sum64_lo$1;
+utils$9$2.sum64_lo = sum64_lo$1$2;
 
-function sum64_4_hi$1(ah, al, bh, bl, ch, cl, dh, dl) {
+function sum64_4_hi$1$2(ah, al, bh, bl, ch, cl, dh, dl) {
   var carry = 0;
   var lo = al;
   lo = (lo + bl) >>> 0;
@@ -43025,15 +43025,15 @@ function sum64_4_hi$1(ah, al, bh, bl, ch, cl, dh, dl) {
   var hi = ah + bh + ch + dh + carry;
   return hi >>> 0;
 }
-utils$9.sum64_4_hi = sum64_4_hi$1;
+utils$9$2.sum64_4_hi = sum64_4_hi$1$2;
 
-function sum64_4_lo$1(ah, al, bh, bl, ch, cl, dh, dl) {
+function sum64_4_lo$1$2(ah, al, bh, bl, ch, cl, dh, dl) {
   var lo = al + bl + cl + dl;
   return lo >>> 0;
 }
-utils$9.sum64_4_lo = sum64_4_lo$1;
+utils$9$2.sum64_4_lo = sum64_4_lo$1$2;
 
-function sum64_5_hi$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+function sum64_5_hi$1$2(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
   var carry = 0;
   var lo = al;
   lo = (lo + bl) >>> 0;
@@ -43048,44 +43048,44 @@ function sum64_5_hi$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
   var hi = ah + bh + ch + dh + eh + carry;
   return hi >>> 0;
 }
-utils$9.sum64_5_hi = sum64_5_hi$1;
+utils$9$2.sum64_5_hi = sum64_5_hi$1$2;
 
-function sum64_5_lo$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+function sum64_5_lo$1$2(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
   var lo = al + bl + cl + dl + el;
 
   return lo >>> 0;
 }
-utils$9.sum64_5_lo = sum64_5_lo$1;
+utils$9$2.sum64_5_lo = sum64_5_lo$1$2;
 
-function rotr64_hi$1(ah, al, num) {
+function rotr64_hi$1$2(ah, al, num) {
   var r = (al << (32 - num)) | (ah >>> num);
   return r >>> 0;
 }
-utils$9.rotr64_hi = rotr64_hi$1;
+utils$9$2.rotr64_hi = rotr64_hi$1$2;
 
-function rotr64_lo$1(ah, al, num) {
+function rotr64_lo$1$2(ah, al, num) {
   var r = (ah << (32 - num)) | (al >>> num);
   return r >>> 0;
 }
-utils$9.rotr64_lo = rotr64_lo$1;
+utils$9$2.rotr64_lo = rotr64_lo$1$2;
 
-function shr64_hi$1(ah, al, num) {
+function shr64_hi$1$2(ah, al, num) {
   return ah >>> num;
 }
-utils$9.shr64_hi = shr64_hi$1;
+utils$9$2.shr64_hi = shr64_hi$1$2;
 
-function shr64_lo$1(ah, al, num) {
+function shr64_lo$1$2(ah, al, num) {
   var r = (ah << (32 - num)) | (al >>> num);
   return r >>> 0;
 }
-utils$9.shr64_lo = shr64_lo$1;
+utils$9$2.shr64_lo = shr64_lo$1$2;
 
-var common$5 = {};
+var common$5$2 = {};
 
-var utils$8 = utils$9;
-var assert$4 = minimalisticAssert;
+var utils$8$2 = utils$9$2;
+var assert$4$2 = minimalisticAssert$2;
 
-function BlockHash$4() {
+function BlockHash$4$2() {
   this.pending = null;
   this.pendingTotal = 0;
   this.blockSize = this.constructor.blockSize;
@@ -43097,11 +43097,11 @@ function BlockHash$4() {
   this._delta8 = this.blockSize / 8;
   this._delta32 = this.blockSize / 32;
 }
-common$5.BlockHash = BlockHash$4;
+common$5$2.BlockHash = BlockHash$4$2;
 
-BlockHash$4.prototype.update = function update(msg, enc) {
+BlockHash$4$2.prototype.update = function update(msg, enc) {
   // Convert message to array, pad it, and join into 32bit blocks
-  msg = utils$8.toArray(msg, enc);
+  msg = utils$8$2.toArray(msg, enc);
   if (!this.pending)
     this.pending = msg;
   else
@@ -43118,7 +43118,7 @@ BlockHash$4.prototype.update = function update(msg, enc) {
     if (this.pending.length === 0)
       this.pending = null;
 
-    msg = utils$8.join32(msg, 0, msg.length - r, this.endian);
+    msg = utils$8$2.join32(msg, 0, msg.length - r, this.endian);
     for (var i = 0; i < msg.length; i += this._delta32)
       this._update(msg, i, i + this._delta32);
   }
@@ -43126,14 +43126,14 @@ BlockHash$4.prototype.update = function update(msg, enc) {
   return this;
 };
 
-BlockHash$4.prototype.digest = function digest(enc) {
+BlockHash$4$2.prototype.digest = function digest(enc) {
   this.update(this._pad());
-  assert$4(this.pending === null);
+  assert$4$2(this.pending === null);
 
   return this._digest(enc);
 };
 
-BlockHash$4.prototype._pad = function pad() {
+BlockHash$4$2.prototype._pad = function pad() {
   var len = this.pendingTotal;
   var bytes = this._delta8;
   var k = bytes - ((len + this.padLength) % bytes);
@@ -43173,100 +43173,100 @@ BlockHash$4.prototype._pad = function pad() {
   return res;
 };
 
-var sha = {};
+var sha$2 = {};
 
-var common$4 = {};
+var common$4$2 = {};
 
-var utils$7 = utils$9;
-var rotr32 = utils$7.rotr32;
+var utils$7$2 = utils$9$2;
+var rotr32$3 = utils$7$2.rotr32;
 
-function ft_1$1(s, x, y, z) {
+function ft_1$1$2(s, x, y, z) {
   if (s === 0)
-    return ch32$1(x, y, z);
+    return ch32$1$2(x, y, z);
   if (s === 1 || s === 3)
-    return p32(x, y, z);
+    return p32$2(x, y, z);
   if (s === 2)
-    return maj32$1(x, y, z);
+    return maj32$1$2(x, y, z);
 }
-common$4.ft_1 = ft_1$1;
+common$4$2.ft_1 = ft_1$1$2;
 
-function ch32$1(x, y, z) {
+function ch32$1$2(x, y, z) {
   return (x & y) ^ ((~x) & z);
 }
-common$4.ch32 = ch32$1;
+common$4$2.ch32 = ch32$1$2;
 
-function maj32$1(x, y, z) {
+function maj32$1$2(x, y, z) {
   return (x & y) ^ (x & z) ^ (y & z);
 }
-common$4.maj32 = maj32$1;
+common$4$2.maj32 = maj32$1$2;
 
-function p32(x, y, z) {
+function p32$2(x, y, z) {
   return x ^ y ^ z;
 }
-common$4.p32 = p32;
+common$4$2.p32 = p32$2;
 
-function s0_256$1(x) {
-  return rotr32(x, 2) ^ rotr32(x, 13) ^ rotr32(x, 22);
+function s0_256$1$2(x) {
+  return rotr32$3(x, 2) ^ rotr32$3(x, 13) ^ rotr32$3(x, 22);
 }
-common$4.s0_256 = s0_256$1;
+common$4$2.s0_256 = s0_256$1$2;
 
-function s1_256$1(x) {
-  return rotr32(x, 6) ^ rotr32(x, 11) ^ rotr32(x, 25);
+function s1_256$1$2(x) {
+  return rotr32$3(x, 6) ^ rotr32$3(x, 11) ^ rotr32$3(x, 25);
 }
-common$4.s1_256 = s1_256$1;
+common$4$2.s1_256 = s1_256$1$2;
 
-function g0_256$1(x) {
-  return rotr32(x, 7) ^ rotr32(x, 18) ^ (x >>> 3);
+function g0_256$1$2(x) {
+  return rotr32$3(x, 7) ^ rotr32$3(x, 18) ^ (x >>> 3);
 }
-common$4.g0_256 = g0_256$1;
+common$4$2.g0_256 = g0_256$1$2;
 
-function g1_256$1(x) {
-  return rotr32(x, 17) ^ rotr32(x, 19) ^ (x >>> 10);
+function g1_256$1$2(x) {
+  return rotr32$3(x, 17) ^ rotr32$3(x, 19) ^ (x >>> 10);
 }
-common$4.g1_256 = g1_256$1;
+common$4$2.g1_256 = g1_256$1$2;
 
-var utils$6 = utils$9;
-var common$3 = common$5;
-var shaCommon$1 = common$4;
+var utils$6$2 = utils$9$2;
+var common$3$2 = common$5$2;
+var shaCommon$1$2 = common$4$2;
 
-var rotl32$1 = utils$6.rotl32;
-var sum32$2 = utils$6.sum32;
-var sum32_5$1 = utils$6.sum32_5;
-var ft_1 = shaCommon$1.ft_1;
-var BlockHash$3 = common$3.BlockHash;
+var rotl32$1$2 = utils$6$2.rotl32;
+var sum32$2$2 = utils$6$2.sum32;
+var sum32_5$1$2 = utils$6$2.sum32_5;
+var ft_1$3 = shaCommon$1$2.ft_1;
+var BlockHash$3$2 = common$3$2.BlockHash;
 
-var sha1_K = [
+var sha1_K$2 = [
   0x5A827999, 0x6ED9EBA1,
   0x8F1BBCDC, 0xCA62C1D6
 ];
 
-function SHA1() {
-  if (!(this instanceof SHA1))
-    return new SHA1();
+function SHA1$2() {
+  if (!(this instanceof SHA1$2))
+    return new SHA1$2();
 
-  BlockHash$3.call(this);
+  BlockHash$3$2.call(this);
   this.h = [
     0x67452301, 0xefcdab89, 0x98badcfe,
     0x10325476, 0xc3d2e1f0 ];
   this.W = new Array(80);
 }
 
-utils$6.inherits(SHA1, BlockHash$3);
-var _1 = SHA1;
+utils$6$2.inherits(SHA1$2, BlockHash$3$2);
+var _1$2 = SHA1$2;
 
-SHA1.blockSize = 512;
-SHA1.outSize = 160;
-SHA1.hmacStrength = 80;
-SHA1.padLength = 64;
+SHA1$2.blockSize = 512;
+SHA1$2.outSize = 160;
+SHA1$2.hmacStrength = 80;
+SHA1$2.padLength = 64;
 
-SHA1.prototype._update = function _update(msg, start) {
+SHA1$2.prototype._update = function _update(msg, start) {
   var W = this.W;
 
   for (var i = 0; i < 16; i++)
     W[i] = msg[start + i];
 
   for(; i < W.length; i++)
-    W[i] = rotl32$1(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+    W[i] = rotl32$1$2(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
 
   var a = this.h[0];
   var b = this.h[1];
@@ -43276,46 +43276,46 @@ SHA1.prototype._update = function _update(msg, start) {
 
   for (i = 0; i < W.length; i++) {
     var s = ~~(i / 20);
-    var t = sum32_5$1(rotl32$1(a, 5), ft_1(s, b, c, d), e, W[i], sha1_K[s]);
+    var t = sum32_5$1$2(rotl32$1$2(a, 5), ft_1$3(s, b, c, d), e, W[i], sha1_K$2[s]);
     e = d;
     d = c;
-    c = rotl32$1(b, 30);
+    c = rotl32$1$2(b, 30);
     b = a;
     a = t;
   }
 
-  this.h[0] = sum32$2(this.h[0], a);
-  this.h[1] = sum32$2(this.h[1], b);
-  this.h[2] = sum32$2(this.h[2], c);
-  this.h[3] = sum32$2(this.h[3], d);
-  this.h[4] = sum32$2(this.h[4], e);
+  this.h[0] = sum32$2$2(this.h[0], a);
+  this.h[1] = sum32$2$2(this.h[1], b);
+  this.h[2] = sum32$2$2(this.h[2], c);
+  this.h[3] = sum32$2$2(this.h[3], d);
+  this.h[4] = sum32$2$2(this.h[4], e);
 };
 
-SHA1.prototype._digest = function digest(enc) {
+SHA1$2.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$6.toHex32(this.h, 'big');
+    return utils$6$2.toHex32(this.h, 'big');
   else
-    return utils$6.split32(this.h, 'big');
+    return utils$6$2.split32(this.h, 'big');
 };
 
-var utils$5 = utils$9;
-var common$2 = common$5;
-var shaCommon = common$4;
-var assert$3 = minimalisticAssert;
+var utils$5$2 = utils$9$2;
+var common$2$2 = common$5$2;
+var shaCommon$3 = common$4$2;
+var assert$3$2 = minimalisticAssert$2;
 
-var sum32$1 = utils$5.sum32;
-var sum32_4$1 = utils$5.sum32_4;
-var sum32_5 = utils$5.sum32_5;
-var ch32 = shaCommon.ch32;
-var maj32 = shaCommon.maj32;
-var s0_256 = shaCommon.s0_256;
-var s1_256 = shaCommon.s1_256;
-var g0_256 = shaCommon.g0_256;
-var g1_256 = shaCommon.g1_256;
+var sum32$1$2 = utils$5$2.sum32;
+var sum32_4$1$2 = utils$5$2.sum32_4;
+var sum32_5$4 = utils$5$2.sum32_5;
+var ch32$3 = shaCommon$3.ch32;
+var maj32$3 = shaCommon$3.maj32;
+var s0_256$3 = shaCommon$3.s0_256;
+var s1_256$3 = shaCommon$3.s1_256;
+var g0_256$3 = shaCommon$3.g0_256;
+var g1_256$3 = shaCommon$3.g1_256;
 
-var BlockHash$2 = common$2.BlockHash;
+var BlockHash$2$2 = common$2$2.BlockHash;
 
-var sha256_K = [
+var sha256_K$2 = [
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
   0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
   0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -43334,33 +43334,33 @@ var sha256_K = [
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 ];
 
-function SHA256$1() {
-  if (!(this instanceof SHA256$1))
-    return new SHA256$1();
+function SHA256$1$2() {
+  if (!(this instanceof SHA256$1$2))
+    return new SHA256$1$2();
 
-  BlockHash$2.call(this);
+  BlockHash$2$2.call(this);
   this.h = [
     0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
   ];
-  this.k = sha256_K;
+  this.k = sha256_K$2;
   this.W = new Array(64);
 }
-utils$5.inherits(SHA256$1, BlockHash$2);
-var _256 = SHA256$1;
+utils$5$2.inherits(SHA256$1$2, BlockHash$2$2);
+var _256$2 = SHA256$1$2;
 
-SHA256$1.blockSize = 512;
-SHA256$1.outSize = 256;
-SHA256$1.hmacStrength = 192;
-SHA256$1.padLength = 64;
+SHA256$1$2.blockSize = 512;
+SHA256$1$2.outSize = 256;
+SHA256$1$2.hmacStrength = 192;
+SHA256$1$2.padLength = 64;
 
-SHA256$1.prototype._update = function _update(msg, start) {
+SHA256$1$2.prototype._update = function _update(msg, start) {
   var W = this.W;
 
   for (var i = 0; i < 16; i++)
     W[i] = msg[start + i];
   for (; i < W.length; i++)
-    W[i] = sum32_4$1(g1_256(W[i - 2]), W[i - 7], g0_256(W[i - 15]), W[i - 16]);
+    W[i] = sum32_4$1$2(g1_256$3(W[i - 2]), W[i - 7], g0_256$3(W[i - 15]), W[i - 16]);
 
   var a = this.h[0];
   var b = this.h[1];
@@ -43371,84 +43371,84 @@ SHA256$1.prototype._update = function _update(msg, start) {
   var g = this.h[6];
   var h = this.h[7];
 
-  assert$3(this.k.length === W.length);
+  assert$3$2(this.k.length === W.length);
   for (i = 0; i < W.length; i++) {
-    var T1 = sum32_5(h, s1_256(e), ch32(e, f, g), this.k[i], W[i]);
-    var T2 = sum32$1(s0_256(a), maj32(a, b, c));
+    var T1 = sum32_5$4(h, s1_256$3(e), ch32$3(e, f, g), this.k[i], W[i]);
+    var T2 = sum32$1$2(s0_256$3(a), maj32$3(a, b, c));
     h = g;
     g = f;
     f = e;
-    e = sum32$1(d, T1);
+    e = sum32$1$2(d, T1);
     d = c;
     c = b;
     b = a;
-    a = sum32$1(T1, T2);
+    a = sum32$1$2(T1, T2);
   }
 
-  this.h[0] = sum32$1(this.h[0], a);
-  this.h[1] = sum32$1(this.h[1], b);
-  this.h[2] = sum32$1(this.h[2], c);
-  this.h[3] = sum32$1(this.h[3], d);
-  this.h[4] = sum32$1(this.h[4], e);
-  this.h[5] = sum32$1(this.h[5], f);
-  this.h[6] = sum32$1(this.h[6], g);
-  this.h[7] = sum32$1(this.h[7], h);
+  this.h[0] = sum32$1$2(this.h[0], a);
+  this.h[1] = sum32$1$2(this.h[1], b);
+  this.h[2] = sum32$1$2(this.h[2], c);
+  this.h[3] = sum32$1$2(this.h[3], d);
+  this.h[4] = sum32$1$2(this.h[4], e);
+  this.h[5] = sum32$1$2(this.h[5], f);
+  this.h[6] = sum32$1$2(this.h[6], g);
+  this.h[7] = sum32$1$2(this.h[7], h);
 };
 
-SHA256$1.prototype._digest = function digest(enc) {
+SHA256$1$2.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$5.toHex32(this.h, 'big');
+    return utils$5$2.toHex32(this.h, 'big');
   else
-    return utils$5.split32(this.h, 'big');
+    return utils$5$2.split32(this.h, 'big');
 };
 
-var utils$4 = utils$9;
-var SHA256 = _256;
+var utils$4$2 = utils$9$2;
+var SHA256$3 = _256$2;
 
-function SHA224() {
-  if (!(this instanceof SHA224))
-    return new SHA224();
+function SHA224$2() {
+  if (!(this instanceof SHA224$2))
+    return new SHA224$2();
 
-  SHA256.call(this);
+  SHA256$3.call(this);
   this.h = [
     0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
     0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 ];
 }
-utils$4.inherits(SHA224, SHA256);
-var _224 = SHA224;
+utils$4$2.inherits(SHA224$2, SHA256$3);
+var _224$2 = SHA224$2;
 
-SHA224.blockSize = 512;
-SHA224.outSize = 224;
-SHA224.hmacStrength = 192;
-SHA224.padLength = 64;
+SHA224$2.blockSize = 512;
+SHA224$2.outSize = 224;
+SHA224$2.hmacStrength = 192;
+SHA224$2.padLength = 64;
 
-SHA224.prototype._digest = function digest(enc) {
+SHA224$2.prototype._digest = function digest(enc) {
   // Just truncate output
   if (enc === 'hex')
-    return utils$4.toHex32(this.h.slice(0, 7), 'big');
+    return utils$4$2.toHex32(this.h.slice(0, 7), 'big');
   else
-    return utils$4.split32(this.h.slice(0, 7), 'big');
+    return utils$4$2.split32(this.h.slice(0, 7), 'big');
 };
 
-var utils$3 = utils$9;
-var common$1 = common$5;
-var assert$2 = minimalisticAssert;
+var utils$3$2 = utils$9$2;
+var common$1$2 = common$5$2;
+var assert$2$2 = minimalisticAssert$2;
 
-var rotr64_hi = utils$3.rotr64_hi;
-var rotr64_lo = utils$3.rotr64_lo;
-var shr64_hi = utils$3.shr64_hi;
-var shr64_lo = utils$3.shr64_lo;
-var sum64 = utils$3.sum64;
-var sum64_hi = utils$3.sum64_hi;
-var sum64_lo = utils$3.sum64_lo;
-var sum64_4_hi = utils$3.sum64_4_hi;
-var sum64_4_lo = utils$3.sum64_4_lo;
-var sum64_5_hi = utils$3.sum64_5_hi;
-var sum64_5_lo = utils$3.sum64_5_lo;
+var rotr64_hi$3 = utils$3$2.rotr64_hi;
+var rotr64_lo$3 = utils$3$2.rotr64_lo;
+var shr64_hi$3 = utils$3$2.shr64_hi;
+var shr64_lo$3 = utils$3$2.shr64_lo;
+var sum64$3 = utils$3$2.sum64;
+var sum64_hi$3 = utils$3$2.sum64_hi;
+var sum64_lo$3 = utils$3$2.sum64_lo;
+var sum64_4_hi$3 = utils$3$2.sum64_4_hi;
+var sum64_4_lo$3 = utils$3$2.sum64_4_lo;
+var sum64_5_hi$3 = utils$3$2.sum64_5_hi;
+var sum64_5_lo$3 = utils$3$2.sum64_5_lo;
 
-var BlockHash$1 = common$1.BlockHash;
+var BlockHash$1$2 = common$1$2.BlockHash;
 
-var sha512_K = [
+var sha512_K$2 = [
   0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
   0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
   0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
@@ -43491,11 +43491,11 @@ var sha512_K = [
   0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
 ];
 
-function SHA512$1() {
-  if (!(this instanceof SHA512$1))
-    return new SHA512$1();
+function SHA512$1$2() {
+  if (!(this instanceof SHA512$1$2))
+    return new SHA512$1$2();
 
-  BlockHash$1.call(this);
+  BlockHash$1$2.call(this);
   this.h = [
     0x6a09e667, 0xf3bcc908,
     0xbb67ae85, 0x84caa73b,
@@ -43505,39 +43505,39 @@ function SHA512$1() {
     0x9b05688c, 0x2b3e6c1f,
     0x1f83d9ab, 0xfb41bd6b,
     0x5be0cd19, 0x137e2179 ];
-  this.k = sha512_K;
+  this.k = sha512_K$2;
   this.W = new Array(160);
 }
-utils$3.inherits(SHA512$1, BlockHash$1);
-var _512 = SHA512$1;
+utils$3$2.inherits(SHA512$1$2, BlockHash$1$2);
+var _512$2 = SHA512$1$2;
 
-SHA512$1.blockSize = 1024;
-SHA512$1.outSize = 512;
-SHA512$1.hmacStrength = 192;
-SHA512$1.padLength = 128;
+SHA512$1$2.blockSize = 1024;
+SHA512$1$2.outSize = 512;
+SHA512$1$2.hmacStrength = 192;
+SHA512$1$2.padLength = 128;
 
-SHA512$1.prototype._prepareBlock = function _prepareBlock(msg, start) {
+SHA512$1$2.prototype._prepareBlock = function _prepareBlock(msg, start) {
   var W = this.W;
 
   // 32 x 32bit words
   for (var i = 0; i < 32; i++)
     W[i] = msg[start + i];
   for (; i < W.length; i += 2) {
-    var c0_hi = g1_512_hi(W[i - 4], W[i - 3]);  // i - 2
-    var c0_lo = g1_512_lo(W[i - 4], W[i - 3]);
+    var c0_hi = g1_512_hi$2(W[i - 4], W[i - 3]);  // i - 2
+    var c0_lo = g1_512_lo$2(W[i - 4], W[i - 3]);
     var c1_hi = W[i - 14];  // i - 7
     var c1_lo = W[i - 13];
-    var c2_hi = g0_512_hi(W[i - 30], W[i - 29]);  // i - 15
-    var c2_lo = g0_512_lo(W[i - 30], W[i - 29]);
+    var c2_hi = g0_512_hi$2(W[i - 30], W[i - 29]);  // i - 15
+    var c2_lo = g0_512_lo$2(W[i - 30], W[i - 29]);
     var c3_hi = W[i - 32];  // i - 16
     var c3_lo = W[i - 31];
 
-    W[i] = sum64_4_hi(
+    W[i] = sum64_4_hi$3(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
       c3_hi, c3_lo);
-    W[i + 1] = sum64_4_lo(
+    W[i + 1] = sum64_4_lo$3(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
@@ -43545,7 +43545,7 @@ SHA512$1.prototype._prepareBlock = function _prepareBlock(msg, start) {
   }
 };
 
-SHA512$1.prototype._update = function _update(msg, start) {
+SHA512$1$2.prototype._update = function _update(msg, start) {
   this._prepareBlock(msg, start);
 
   var W = this.W;
@@ -43567,39 +43567,39 @@ SHA512$1.prototype._update = function _update(msg, start) {
   var hh = this.h[14];
   var hl = this.h[15];
 
-  assert$2(this.k.length === W.length);
+  assert$2$2(this.k.length === W.length);
   for (var i = 0; i < W.length; i += 2) {
     var c0_hi = hh;
     var c0_lo = hl;
-    var c1_hi = s1_512_hi(eh, el);
-    var c1_lo = s1_512_lo(eh, el);
-    var c2_hi = ch64_hi(eh, el, fh, fl, gh);
-    var c2_lo = ch64_lo(eh, el, fh, fl, gh, gl);
+    var c1_hi = s1_512_hi$2(eh, el);
+    var c1_lo = s1_512_lo$2(eh, el);
+    var c2_hi = ch64_hi$2(eh, el, fh, fl, gh);
+    var c2_lo = ch64_lo$2(eh, el, fh, fl, gh, gl);
     var c3_hi = this.k[i];
     var c3_lo = this.k[i + 1];
     var c4_hi = W[i];
     var c4_lo = W[i + 1];
 
-    var T1_hi = sum64_5_hi(
+    var T1_hi = sum64_5_hi$3(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
       c3_hi, c3_lo,
       c4_hi, c4_lo);
-    var T1_lo = sum64_5_lo(
+    var T1_lo = sum64_5_lo$3(
       c0_hi, c0_lo,
       c1_hi, c1_lo,
       c2_hi, c2_lo,
       c3_hi, c3_lo,
       c4_hi, c4_lo);
 
-    c0_hi = s0_512_hi(ah, al);
-    c0_lo = s0_512_lo(ah, al);
-    c1_hi = maj64_hi(ah, al, bh, bl, ch);
-    c1_lo = maj64_lo(ah, al, bh, bl, ch, cl);
+    c0_hi = s0_512_hi$2(ah, al);
+    c0_lo = s0_512_lo$2(ah, al);
+    c1_hi = maj64_hi$2(ah, al, bh, bl, ch);
+    c1_lo = maj64_lo$2(ah, al, bh, bl, ch, cl);
 
-    var T2_hi = sum64_hi(c0_hi, c0_lo, c1_hi, c1_lo);
-    var T2_lo = sum64_lo(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_hi = sum64_hi$3(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_lo = sum64_lo$3(c0_hi, c0_lo, c1_hi, c1_lo);
 
     hh = gh;
     hl = gl;
@@ -43610,8 +43610,8 @@ SHA512$1.prototype._update = function _update(msg, start) {
     fh = eh;
     fl = el;
 
-    eh = sum64_hi(dh, dl, T1_hi, T1_lo);
-    el = sum64_lo(dl, dl, T1_hi, T1_lo);
+    eh = sum64_hi$3(dh, dl, T1_hi, T1_lo);
+    el = sum64_lo$3(dl, dl, T1_hi, T1_lo);
 
     dh = ch;
     dl = cl;
@@ -43622,59 +43622,59 @@ SHA512$1.prototype._update = function _update(msg, start) {
     bh = ah;
     bl = al;
 
-    ah = sum64_hi(T1_hi, T1_lo, T2_hi, T2_lo);
-    al = sum64_lo(T1_hi, T1_lo, T2_hi, T2_lo);
+    ah = sum64_hi$3(T1_hi, T1_lo, T2_hi, T2_lo);
+    al = sum64_lo$3(T1_hi, T1_lo, T2_hi, T2_lo);
   }
 
-  sum64(this.h, 0, ah, al);
-  sum64(this.h, 2, bh, bl);
-  sum64(this.h, 4, ch, cl);
-  sum64(this.h, 6, dh, dl);
-  sum64(this.h, 8, eh, el);
-  sum64(this.h, 10, fh, fl);
-  sum64(this.h, 12, gh, gl);
-  sum64(this.h, 14, hh, hl);
+  sum64$3(this.h, 0, ah, al);
+  sum64$3(this.h, 2, bh, bl);
+  sum64$3(this.h, 4, ch, cl);
+  sum64$3(this.h, 6, dh, dl);
+  sum64$3(this.h, 8, eh, el);
+  sum64$3(this.h, 10, fh, fl);
+  sum64$3(this.h, 12, gh, gl);
+  sum64$3(this.h, 14, hh, hl);
 };
 
-SHA512$1.prototype._digest = function digest(enc) {
+SHA512$1$2.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$3.toHex32(this.h, 'big');
+    return utils$3$2.toHex32(this.h, 'big');
   else
-    return utils$3.split32(this.h, 'big');
+    return utils$3$2.split32(this.h, 'big');
 };
 
-function ch64_hi(xh, xl, yh, yl, zh) {
+function ch64_hi$2(xh, xl, yh, yl, zh) {
   var r = (xh & yh) ^ ((~xh) & zh);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function ch64_lo(xh, xl, yh, yl, zh, zl) {
+function ch64_lo$2(xh, xl, yh, yl, zh, zl) {
   var r = (xl & yl) ^ ((~xl) & zl);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function maj64_hi(xh, xl, yh, yl, zh) {
+function maj64_hi$2(xh, xl, yh, yl, zh) {
   var r = (xh & yh) ^ (xh & zh) ^ (yh & zh);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function maj64_lo(xh, xl, yh, yl, zh, zl) {
+function maj64_lo$2(xh, xl, yh, yl, zh, zl) {
   var r = (xl & yl) ^ (xl & zl) ^ (yl & zl);
   if (r < 0)
     r += 0x100000000;
   return r;
 }
 
-function s0_512_hi(xh, xl) {
-  var c0_hi = rotr64_hi(xh, xl, 28);
-  var c1_hi = rotr64_hi(xl, xh, 2);  // 34
-  var c2_hi = rotr64_hi(xl, xh, 7);  // 39
+function s0_512_hi$2(xh, xl) {
+  var c0_hi = rotr64_hi$3(xh, xl, 28);
+  var c1_hi = rotr64_hi$3(xl, xh, 2);  // 34
+  var c2_hi = rotr64_hi$3(xl, xh, 7);  // 39
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -43682,10 +43682,10 @@ function s0_512_hi(xh, xl) {
   return r;
 }
 
-function s0_512_lo(xh, xl) {
-  var c0_lo = rotr64_lo(xh, xl, 28);
-  var c1_lo = rotr64_lo(xl, xh, 2);  // 34
-  var c2_lo = rotr64_lo(xl, xh, 7);  // 39
+function s0_512_lo$2(xh, xl) {
+  var c0_lo = rotr64_lo$3(xh, xl, 28);
+  var c1_lo = rotr64_lo$3(xl, xh, 2);  // 34
+  var c2_lo = rotr64_lo$3(xl, xh, 7);  // 39
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -43693,10 +43693,10 @@ function s0_512_lo(xh, xl) {
   return r;
 }
 
-function s1_512_hi(xh, xl) {
-  var c0_hi = rotr64_hi(xh, xl, 14);
-  var c1_hi = rotr64_hi(xh, xl, 18);
-  var c2_hi = rotr64_hi(xl, xh, 9);  // 41
+function s1_512_hi$2(xh, xl) {
+  var c0_hi = rotr64_hi$3(xh, xl, 14);
+  var c1_hi = rotr64_hi$3(xh, xl, 18);
+  var c2_hi = rotr64_hi$3(xl, xh, 9);  // 41
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -43704,10 +43704,10 @@ function s1_512_hi(xh, xl) {
   return r;
 }
 
-function s1_512_lo(xh, xl) {
-  var c0_lo = rotr64_lo(xh, xl, 14);
-  var c1_lo = rotr64_lo(xh, xl, 18);
-  var c2_lo = rotr64_lo(xl, xh, 9);  // 41
+function s1_512_lo$2(xh, xl) {
+  var c0_lo = rotr64_lo$3(xh, xl, 14);
+  var c1_lo = rotr64_lo$3(xh, xl, 18);
+  var c2_lo = rotr64_lo$3(xl, xh, 9);  // 41
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -43715,10 +43715,10 @@ function s1_512_lo(xh, xl) {
   return r;
 }
 
-function g0_512_hi(xh, xl) {
-  var c0_hi = rotr64_hi(xh, xl, 1);
-  var c1_hi = rotr64_hi(xh, xl, 8);
-  var c2_hi = shr64_hi(xh, xl, 7);
+function g0_512_hi$2(xh, xl) {
+  var c0_hi = rotr64_hi$3(xh, xl, 1);
+  var c1_hi = rotr64_hi$3(xh, xl, 8);
+  var c2_hi = shr64_hi$3(xh, xl, 7);
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -43726,10 +43726,10 @@ function g0_512_hi(xh, xl) {
   return r;
 }
 
-function g0_512_lo(xh, xl) {
-  var c0_lo = rotr64_lo(xh, xl, 1);
-  var c1_lo = rotr64_lo(xh, xl, 8);
-  var c2_lo = shr64_lo(xh, xl, 7);
+function g0_512_lo$2(xh, xl) {
+  var c0_lo = rotr64_lo$3(xh, xl, 1);
+  var c1_lo = rotr64_lo$3(xh, xl, 8);
+  var c2_lo = shr64_lo$3(xh, xl, 7);
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -43737,10 +43737,10 @@ function g0_512_lo(xh, xl) {
   return r;
 }
 
-function g1_512_hi(xh, xl) {
-  var c0_hi = rotr64_hi(xh, xl, 19);
-  var c1_hi = rotr64_hi(xl, xh, 29);  // 61
-  var c2_hi = shr64_hi(xh, xl, 6);
+function g1_512_hi$2(xh, xl) {
+  var c0_hi = rotr64_hi$3(xh, xl, 19);
+  var c1_hi = rotr64_hi$3(xl, xh, 29);  // 61
+  var c2_hi = shr64_hi$3(xh, xl, 6);
 
   var r = c0_hi ^ c1_hi ^ c2_hi;
   if (r < 0)
@@ -43748,10 +43748,10 @@ function g1_512_hi(xh, xl) {
   return r;
 }
 
-function g1_512_lo(xh, xl) {
-  var c0_lo = rotr64_lo(xh, xl, 19);
-  var c1_lo = rotr64_lo(xl, xh, 29);  // 61
-  var c2_lo = shr64_lo(xh, xl, 6);
+function g1_512_lo$2(xh, xl) {
+  var c0_lo = rotr64_lo$3(xh, xl, 19);
+  var c1_lo = rotr64_lo$3(xl, xh, 29);  // 61
+  var c2_lo = shr64_lo$3(xh, xl, 6);
 
   var r = c0_lo ^ c1_lo ^ c2_lo;
   if (r < 0)
@@ -43759,15 +43759,15 @@ function g1_512_lo(xh, xl) {
   return r;
 }
 
-var utils$2 = utils$9;
+var utils$2$2 = utils$9$2;
 
-var SHA512 = _512;
+var SHA512$3 = _512$2;
 
-function SHA384() {
-  if (!(this instanceof SHA384))
-    return new SHA384();
+function SHA384$2() {
+  if (!(this instanceof SHA384$2))
+    return new SHA384$2();
 
-  SHA512.call(this);
+  SHA512$3.call(this);
   this.h = [
     0xcbbb9d5d, 0xc1059ed8,
     0x629a292a, 0x367cd507,
@@ -43778,56 +43778,56 @@ function SHA384() {
     0xdb0c2e0d, 0x64f98fa7,
     0x47b5481d, 0xbefa4fa4 ];
 }
-utils$2.inherits(SHA384, SHA512);
-var _384 = SHA384;
+utils$2$2.inherits(SHA384$2, SHA512$3);
+var _384$2 = SHA384$2;
 
-SHA384.blockSize = 1024;
-SHA384.outSize = 384;
-SHA384.hmacStrength = 192;
-SHA384.padLength = 128;
+SHA384$2.blockSize = 1024;
+SHA384$2.outSize = 384;
+SHA384$2.hmacStrength = 192;
+SHA384$2.padLength = 128;
 
-SHA384.prototype._digest = function digest(enc) {
+SHA384$2.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$2.toHex32(this.h.slice(0, 12), 'big');
+    return utils$2$2.toHex32(this.h.slice(0, 12), 'big');
   else
-    return utils$2.split32(this.h.slice(0, 12), 'big');
+    return utils$2$2.split32(this.h.slice(0, 12), 'big');
 };
 
-sha.sha1 = _1;
-sha.sha224 = _224;
-sha.sha256 = _256;
-sha.sha384 = _384;
-sha.sha512 = _512;
+sha$2.sha1 = _1$2;
+sha$2.sha224 = _224$2;
+sha$2.sha256 = _256$2;
+sha$2.sha384 = _384$2;
+sha$2.sha512 = _512$2;
 
-var ripemd = {};
+var ripemd$2 = {};
 
-var utils$1 = utils$9;
-var common = common$5;
+var utils$1$2 = utils$9$2;
+var common$7 = common$5$2;
 
-var rotl32 = utils$1.rotl32;
-var sum32 = utils$1.sum32;
-var sum32_3 = utils$1.sum32_3;
-var sum32_4 = utils$1.sum32_4;
-var BlockHash = common.BlockHash;
+var rotl32$4 = utils$1$2.rotl32;
+var sum32$5 = utils$1$2.sum32;
+var sum32_3$3 = utils$1$2.sum32_3;
+var sum32_4$4 = utils$1$2.sum32_4;
+var BlockHash$6 = common$7.BlockHash;
 
-function RIPEMD160() {
-  if (!(this instanceof RIPEMD160))
-    return new RIPEMD160();
+function RIPEMD160$2() {
+  if (!(this instanceof RIPEMD160$2))
+    return new RIPEMD160$2();
 
-  BlockHash.call(this);
+  BlockHash$6.call(this);
 
   this.h = [ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 ];
   this.endian = 'little';
 }
-utils$1.inherits(RIPEMD160, BlockHash);
-ripemd.ripemd160 = RIPEMD160;
+utils$1$2.inherits(RIPEMD160$2, BlockHash$6);
+ripemd$2.ripemd160 = RIPEMD160$2;
 
-RIPEMD160.blockSize = 512;
-RIPEMD160.outSize = 160;
-RIPEMD160.hmacStrength = 192;
-RIPEMD160.padLength = 64;
+RIPEMD160$2.blockSize = 512;
+RIPEMD160$2.outSize = 160;
+RIPEMD160$2.hmacStrength = 192;
+RIPEMD160$2.padLength = 64;
 
-RIPEMD160.prototype._update = function update(msg, start) {
+RIPEMD160$2.prototype._update = function update(msg, start) {
   var A = this.h[0];
   var B = this.h[1];
   var C = this.h[2];
@@ -43839,43 +43839,43 @@ RIPEMD160.prototype._update = function update(msg, start) {
   var Dh = D;
   var Eh = E;
   for (var j = 0; j < 80; j++) {
-    var T = sum32(
-      rotl32(
-        sum32_4(A, f(j, B, C, D), msg[r[j] + start], K(j)),
-        s[j]),
+    var T = sum32$5(
+      rotl32$4(
+        sum32_4$4(A, f$2(j, B, C, D), msg[r$2[j] + start], K$2(j)),
+        s$2[j]),
       E);
     A = E;
     E = D;
-    D = rotl32(C, 10);
+    D = rotl32$4(C, 10);
     C = B;
     B = T;
-    T = sum32(
-      rotl32(
-        sum32_4(Ah, f(79 - j, Bh, Ch, Dh), msg[rh[j] + start], Kh(j)),
-        sh[j]),
+    T = sum32$5(
+      rotl32$4(
+        sum32_4$4(Ah, f$2(79 - j, Bh, Ch, Dh), msg[rh$2[j] + start], Kh$2(j)),
+        sh$2[j]),
       Eh);
     Ah = Eh;
     Eh = Dh;
-    Dh = rotl32(Ch, 10);
+    Dh = rotl32$4(Ch, 10);
     Ch = Bh;
     Bh = T;
   }
-  T = sum32_3(this.h[1], C, Dh);
-  this.h[1] = sum32_3(this.h[2], D, Eh);
-  this.h[2] = sum32_3(this.h[3], E, Ah);
-  this.h[3] = sum32_3(this.h[4], A, Bh);
-  this.h[4] = sum32_3(this.h[0], B, Ch);
+  T = sum32_3$3(this.h[1], C, Dh);
+  this.h[1] = sum32_3$3(this.h[2], D, Eh);
+  this.h[2] = sum32_3$3(this.h[3], E, Ah);
+  this.h[3] = sum32_3$3(this.h[4], A, Bh);
+  this.h[4] = sum32_3$3(this.h[0], B, Ch);
   this.h[0] = T;
 };
 
-RIPEMD160.prototype._digest = function digest(enc) {
+RIPEMD160$2.prototype._digest = function digest(enc) {
   if (enc === 'hex')
-    return utils$1.toHex32(this.h, 'little');
+    return utils$1$2.toHex32(this.h, 'little');
   else
-    return utils$1.split32(this.h, 'little');
+    return utils$1$2.split32(this.h, 'little');
 };
 
-function f(j, x, y, z) {
+function f$2(j, x, y, z) {
   if (j <= 15)
     return x ^ y ^ z;
   else if (j <= 31)
@@ -43888,7 +43888,7 @@ function f(j, x, y, z) {
     return x ^ (y | (~z));
 }
 
-function K(j) {
+function K$2(j) {
   if (j <= 15)
     return 0x00000000;
   else if (j <= 31)
@@ -43901,7 +43901,7 @@ function K(j) {
     return 0xa953fd4e;
 }
 
-function Kh(j) {
+function Kh$2(j) {
   if (j <= 15)
     return 0x50a28be6;
   else if (j <= 31)
@@ -43914,7 +43914,7 @@ function Kh(j) {
     return 0x00000000;
 }
 
-var r = [
+var r$2 = [
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
   7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
   3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
@@ -43922,7 +43922,7 @@ var r = [
   4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13
 ];
 
-var rh = [
+var rh$2 = [
   5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
   6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
   15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
@@ -43930,7 +43930,7 @@ var rh = [
   12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11
 ];
 
-var s = [
+var s$2 = [
   11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
   7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
   11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
@@ -43938,7 +43938,7 @@ var s = [
   9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6
 ];
 
-var sh = [
+var sh$2 = [
   8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
   9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
   9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
@@ -43946,27 +43946,27 @@ var sh = [
   8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
 ];
 
-var utils = utils$9;
-var assert$1 = minimalisticAssert;
+var utils$b = utils$9$2;
+var assert$1$2 = minimalisticAssert$2;
 
-function Hmac(hash, key, enc) {
-  if (!(this instanceof Hmac))
-    return new Hmac(hash, key, enc);
+function Hmac$2(hash, key, enc) {
+  if (!(this instanceof Hmac$2))
+    return new Hmac$2(hash, key, enc);
   this.Hash = hash;
   this.blockSize = hash.blockSize / 8;
   this.outSize = hash.outSize / 8;
   this.inner = null;
   this.outer = null;
 
-  this._init(utils.toArray(key, enc));
+  this._init(utils$b.toArray(key, enc));
 }
-var hmac = Hmac;
+var hmac$2 = Hmac$2;
 
-Hmac.prototype._init = function init(key) {
+Hmac$2.prototype._init = function init(key) {
   // Shorten key, if needed
   if (key.length > this.blockSize)
     key = new this.Hash().update(key).digest();
-  assert$1(key.length <= this.blockSize);
+  assert$1$2(key.length <= this.blockSize);
 
   // Add padding to key
   for (var i = key.length; i < this.blockSize; i++)
@@ -43982,12 +43982,12 @@ Hmac.prototype._init = function init(key) {
   this.outer = new this.Hash().update(key);
 };
 
-Hmac.prototype.update = function update(msg, enc) {
+Hmac$2.prototype.update = function update(msg, enc) {
   this.inner.update(msg, enc);
   return this;
 };
 
-Hmac.prototype.digest = function digest(enc) {
+Hmac$2.prototype.digest = function digest(enc) {
   this.outer.update(this.inner.digest());
   return this.outer.digest(enc);
 };
@@ -43995,11 +43995,11 @@ Hmac.prototype.digest = function digest(enc) {
 (function (exports) {
 	var hash = exports;
 
-	hash.utils = utils$9;
-	hash.common = common$5;
-	hash.sha = sha;
-	hash.ripemd = ripemd;
-	hash.hmac = hmac;
+	hash.utils = utils$9$2;
+	hash.common = common$5$2;
+	hash.sha = sha$2;
+	hash.ripemd = ripemd$2;
+	hash.hmac = hmac$2;
 
 	// Proxy hash functions to the main object
 	hash.sha1 = hash.sha.sha1;
@@ -44008,18 +44008,18 @@ Hmac.prototype.digest = function digest(enc) {
 	hash.sha384 = hash.sha.sha384;
 	hash.sha512 = hash.sha.sha512;
 	hash.ripemd160 = hash.ripemd.ripemd160;
-} (hash$1));
+} (hash$1$2));
 
-var hash = hash$1;
+var hash$3 = hash$1$2;
 
-const version$2 = "logger/5.6.0";
+const version$2$2 = "logger/5.6.0";
 
-let _permanentCensorErrors = false;
-let _censorErrors = false;
-const LogLevels = { debug: 1, "default": 2, info: 2, warning: 3, error: 4, off: 5 };
-let _logLevel = LogLevels["default"];
-let _globalLogger = null;
-function _checkNormalize() {
+let _permanentCensorErrors$2 = false;
+let _censorErrors$2 = false;
+const LogLevels$2 = { debug: 1, "default": 2, info: 2, warning: 3, error: 4, off: 5 };
+let _logLevel$2 = LogLevels$2["default"];
+let _globalLogger$2 = null;
+function _checkNormalize$2() {
     try {
         const missing = [];
         // Make sure all forms of normalization are supported
@@ -44046,16 +44046,16 @@ function _checkNormalize() {
     }
     return null;
 }
-const _normalizeError = _checkNormalize();
-var LogLevel;
+const _normalizeError$2 = _checkNormalize$2();
+var LogLevel$2;
 (function (LogLevel) {
     LogLevel["DEBUG"] = "DEBUG";
     LogLevel["INFO"] = "INFO";
     LogLevel["WARNING"] = "WARNING";
     LogLevel["ERROR"] = "ERROR";
     LogLevel["OFF"] = "OFF";
-})(LogLevel || (LogLevel = {}));
-var ErrorCode;
+})(LogLevel$2 || (LogLevel$2 = {}));
+var ErrorCode$2;
 (function (ErrorCode) {
     ///////////////////
     // Generic Errors
@@ -44128,9 +44128,9 @@ var ErrorCode;
     //   - replacement: the full TransactionsResponse for the replacement
     //   - receipt: the receipt of the replacement
     ErrorCode["TRANSACTION_REPLACED"] = "TRANSACTION_REPLACED";
-})(ErrorCode || (ErrorCode = {}));
-const HEX = "0123456789abcdef";
-class Logger {
+})(ErrorCode$2 || (ErrorCode$2 = {}));
+const HEX$2 = "0123456789abcdef";
+class Logger$2 {
     constructor(version) {
         Object.defineProperty(this, "version", {
             enumerable: true,
@@ -44140,30 +44140,30 @@ class Logger {
     }
     _log(logLevel, args) {
         const level = logLevel.toLowerCase();
-        if (LogLevels[level] == null) {
+        if (LogLevels$2[level] == null) {
             this.throwArgumentError("invalid log level name", "logLevel", logLevel);
         }
-        if (_logLevel > LogLevels[level]) {
+        if (_logLevel$2 > LogLevels$2[level]) {
             return;
         }
         console.log.apply(console, args);
     }
     debug(...args) {
-        this._log(Logger.levels.DEBUG, args);
+        this._log(Logger$2.levels.DEBUG, args);
     }
     info(...args) {
-        this._log(Logger.levels.INFO, args);
+        this._log(Logger$2.levels.INFO, args);
     }
     warn(...args) {
-        this._log(Logger.levels.WARNING, args);
+        this._log(Logger$2.levels.WARNING, args);
     }
     makeError(message, code, params) {
         // Errors are being censored
-        if (_censorErrors) {
+        if (_censorErrors$2) {
             return this.makeError("censored error", code, {});
         }
         if (!code) {
-            code = Logger.errors.UNKNOWN_ERROR;
+            code = Logger$2.errors.UNKNOWN_ERROR;
         }
         if (!params) {
             params = {};
@@ -44175,8 +44175,8 @@ class Logger {
                 if (value instanceof Uint8Array) {
                     let hex = "";
                     for (let i = 0; i < value.length; i++) {
-                        hex += HEX[value[i] >> 4];
-                        hex += HEX[value[i] & 0x0f];
+                        hex += HEX$2[value[i] >> 4];
+                        hex += HEX$2[value[i] & 0x0f];
                     }
                     messageDetails.push(key + "=Uint8Array(0x" + hex + ")");
                 }
@@ -44193,7 +44193,7 @@ class Logger {
         const reason = message;
         let url = "";
         switch (code) {
-            case ErrorCode.NUMERIC_FAULT: {
+            case ErrorCode$2.NUMERIC_FAULT: {
                 url = "NUMERIC_FAULT";
                 const fault = message;
                 switch (fault) {
@@ -44212,13 +44212,13 @@ class Logger {
                 }
                 break;
             }
-            case ErrorCode.CALL_EXCEPTION:
-            case ErrorCode.INSUFFICIENT_FUNDS:
-            case ErrorCode.MISSING_NEW:
-            case ErrorCode.NONCE_EXPIRED:
-            case ErrorCode.REPLACEMENT_UNDERPRICED:
-            case ErrorCode.TRANSACTION_REPLACED:
-            case ErrorCode.UNPREDICTABLE_GAS_LIMIT:
+            case ErrorCode$2.CALL_EXCEPTION:
+            case ErrorCode$2.INSUFFICIENT_FUNDS:
+            case ErrorCode$2.MISSING_NEW:
+            case ErrorCode$2.NONCE_EXPIRED:
+            case ErrorCode$2.REPLACEMENT_UNDERPRICED:
+            case ErrorCode$2.TRANSACTION_REPLACED:
+            case ErrorCode$2.UNPREDICTABLE_GAS_LIMIT:
                 url = code;
                 break;
         }
@@ -44241,7 +44241,7 @@ class Logger {
         throw this.makeError(message, code, params);
     }
     throwArgumentError(message, name, value) {
-        return this.throwError(message, Logger.errors.INVALID_ARGUMENT, {
+        return this.throwError(message, Logger$2.errors.INVALID_ARGUMENT, {
             argument: name,
             value: value
         });
@@ -44259,9 +44259,9 @@ class Logger {
         this.throwArgumentError(message, name, value);
     }
     checkNormalize(message) {
-        if (_normalizeError) {
-            this.throwError("platform missing String.prototype.normalize", Logger.errors.UNSUPPORTED_OPERATION, {
-                operation: "String.prototype.normalize", form: _normalizeError
+        if (_normalizeError$2) {
+            this.throwError("platform missing String.prototype.normalize", Logger$2.errors.UNSUPPORTED_OPERATION, {
+                operation: "String.prototype.normalize", form: _normalizeError$2
             });
         }
     }
@@ -44273,14 +44273,14 @@ class Logger {
             message = "value not safe";
         }
         if (value < 0 || value >= 0x1fffffffffffff) {
-            this.throwError(message, Logger.errors.NUMERIC_FAULT, {
+            this.throwError(message, Logger$2.errors.NUMERIC_FAULT, {
                 operation: "checkSafeInteger",
                 fault: "out-of-safe-range",
                 value: value
             });
         }
         if (value % 1) {
-            this.throwError(message, Logger.errors.NUMERIC_FAULT, {
+            this.throwError(message, Logger$2.errors.NUMERIC_FAULT, {
                 operation: "checkSafeInteger",
                 fault: "non-integer",
                 value: value
@@ -44295,13 +44295,13 @@ class Logger {
             message = "";
         }
         if (count < expectedCount) {
-            this.throwError("missing argument" + message, Logger.errors.MISSING_ARGUMENT, {
+            this.throwError("missing argument" + message, Logger$2.errors.MISSING_ARGUMENT, {
                 count: count,
                 expectedCount: expectedCount
             });
         }
         if (count > expectedCount) {
-            this.throwError("too many arguments" + message, Logger.errors.UNEXPECTED_ARGUMENT, {
+            this.throwError("too many arguments" + message, Logger$2.errors.UNEXPECTED_ARGUMENT, {
                 count: count,
                 expectedCount: expectedCount
             });
@@ -44309,76 +44309,76 @@ class Logger {
     }
     checkNew(target, kind) {
         if (target === Object || target == null) {
-            this.throwError("missing new", Logger.errors.MISSING_NEW, { name: kind.name });
+            this.throwError("missing new", Logger$2.errors.MISSING_NEW, { name: kind.name });
         }
     }
     checkAbstract(target, kind) {
         if (target === kind) {
-            this.throwError("cannot instantiate abstract class " + JSON.stringify(kind.name) + " directly; use a sub-class", Logger.errors.UNSUPPORTED_OPERATION, { name: target.name, operation: "new" });
+            this.throwError("cannot instantiate abstract class " + JSON.stringify(kind.name) + " directly; use a sub-class", Logger$2.errors.UNSUPPORTED_OPERATION, { name: target.name, operation: "new" });
         }
         else if (target === Object || target == null) {
-            this.throwError("missing new", Logger.errors.MISSING_NEW, { name: kind.name });
+            this.throwError("missing new", Logger$2.errors.MISSING_NEW, { name: kind.name });
         }
     }
     static globalLogger() {
-        if (!_globalLogger) {
-            _globalLogger = new Logger(version$2);
+        if (!_globalLogger$2) {
+            _globalLogger$2 = new Logger$2(version$2$2);
         }
-        return _globalLogger;
+        return _globalLogger$2;
     }
     static setCensorship(censorship, permanent) {
         if (!censorship && permanent) {
-            this.globalLogger().throwError("cannot permanently disable censorship", Logger.errors.UNSUPPORTED_OPERATION, {
+            this.globalLogger().throwError("cannot permanently disable censorship", Logger$2.errors.UNSUPPORTED_OPERATION, {
                 operation: "setCensorship"
             });
         }
-        if (_permanentCensorErrors) {
+        if (_permanentCensorErrors$2) {
             if (!censorship) {
                 return;
             }
-            this.globalLogger().throwError("error censorship permanent", Logger.errors.UNSUPPORTED_OPERATION, {
+            this.globalLogger().throwError("error censorship permanent", Logger$2.errors.UNSUPPORTED_OPERATION, {
                 operation: "setCensorship"
             });
         }
-        _censorErrors = !!censorship;
-        _permanentCensorErrors = !!permanent;
+        _censorErrors$2 = !!censorship;
+        _permanentCensorErrors$2 = !!permanent;
     }
     static setLogLevel(logLevel) {
-        const level = LogLevels[logLevel.toLowerCase()];
+        const level = LogLevels$2[logLevel.toLowerCase()];
         if (level == null) {
-            Logger.globalLogger().warn("invalid log level - " + logLevel);
+            Logger$2.globalLogger().warn("invalid log level - " + logLevel);
             return;
         }
-        _logLevel = level;
+        _logLevel$2 = level;
     }
     static from(version) {
-        return new Logger(version);
+        return new Logger$2(version);
     }
 }
-Logger.errors = ErrorCode;
-Logger.levels = LogLevel;
+Logger$2.errors = ErrorCode$2;
+Logger$2.levels = LogLevel$2;
 
-const version$1 = "bytes/5.6.0";
+const version$1$2 = "bytes/5.6.0";
 
-const logger = new Logger(version$1);
+const logger$2 = new Logger$2(version$1$2);
 ///////////////////////////////
-function isHexable(value) {
+function isHexable$2(value) {
     return !!(value.toHexString);
 }
-function addSlice(array) {
+function addSlice$2(array) {
     if (array.slice) {
         return array;
     }
     array.slice = function () {
         const args = Array.prototype.slice.call(arguments);
-        return addSlice(new Uint8Array(Array.prototype.slice.apply(array, args)));
+        return addSlice$2(new Uint8Array(Array.prototype.slice.apply(array, args)));
     };
     return array;
 }
-function isInteger(value) {
+function isInteger$2(value) {
     return (typeof (value) === "number" && value == value && (value % 1) === 0);
 }
-function isBytes(value) {
+function isBytes$2(value) {
     if (value == null) {
         return false;
     }
@@ -44388,23 +44388,23 @@ function isBytes(value) {
     if (typeof (value) === "string") {
         return false;
     }
-    if (!isInteger(value.length) || value.length < 0) {
+    if (!isInteger$2(value.length) || value.length < 0) {
         return false;
     }
     for (let i = 0; i < value.length; i++) {
         const v = value[i];
-        if (!isInteger(v) || v < 0 || v >= 256) {
+        if (!isInteger$2(v) || v < 0 || v >= 256) {
             return false;
         }
     }
     return true;
 }
-function arrayify(value, options) {
+function arrayify$2(value, options) {
     if (!options) {
         options = {};
     }
     if (typeof (value) === "number") {
-        logger.checkSafeUint53(value, "invalid arrayify value");
+        logger$2.checkSafeUint53(value, "invalid arrayify value");
         const result = [];
         while (value) {
             result.unshift(value & 0xff);
@@ -44413,15 +44413,15 @@ function arrayify(value, options) {
         if (result.length === 0) {
             result.push(0);
         }
-        return addSlice(new Uint8Array(result));
+        return addSlice$2(new Uint8Array(result));
     }
     if (options.allowMissingPrefix && typeof (value) === "string" && value.substring(0, 2) !== "0x") {
         value = "0x" + value;
     }
-    if (isHexable(value)) {
+    if (isHexable$2(value)) {
         value = value.toHexString();
     }
-    if (isHexString(value)) {
+    if (isHexString$2(value)) {
         let hex = value.substring(2);
         if (hex.length % 2) {
             if (options.hexPad === "left") {
@@ -44431,21 +44431,21 @@ function arrayify(value, options) {
                 hex += "0";
             }
             else {
-                logger.throwArgumentError("hex data is odd-length", "value", value);
+                logger$2.throwArgumentError("hex data is odd-length", "value", value);
             }
         }
         const result = [];
         for (let i = 0; i < hex.length; i += 2) {
             result.push(parseInt(hex.substring(i, i + 2), 16));
         }
-        return addSlice(new Uint8Array(result));
+        return addSlice$2(new Uint8Array(result));
     }
-    if (isBytes(value)) {
-        return addSlice(new Uint8Array(value));
+    if (isBytes$2(value)) {
+        return addSlice$2(new Uint8Array(value));
     }
-    return logger.throwArgumentError("invalid arrayify value", "value", value);
+    return logger$2.throwArgumentError("invalid arrayify value", "value", value);
 }
-function isHexString(value, length) {
+function isHexString$2(value, length) {
     if (typeof (value) !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
         return false;
     }
@@ -44455,34 +44455,34 @@ function isHexString(value, length) {
     return true;
 }
 
-const version = "sha2/5.6.0";
+const version$4 = "sha2/5.6.0";
 
-new Logger(version);
-function sha256(data) {
-    return "0x" + (hash.sha256().update(arrayify(data)).digest("hex"));
+new Logger$2(version$4);
+function sha256$2(data) {
+    return "0x" + (hash$3.sha256().update(arrayify$2(data)).digest("hex"));
 }
 
-class Struct {
+class Struct$2 {
   constructor(properties) {
     Object.assign(this, properties);
   }
 
   encode() {
-    return Buffer$1.from(serialize_1(SOLANA_SCHEMA, this));
+    return Buffer$2.from(serialize_1(SOLANA_SCHEMA$2, this));
   }
 
   static decode(data) {
-    return deserialize_1(SOLANA_SCHEMA, this, data);
+    return deserialize_1(SOLANA_SCHEMA$2, this, data);
   }
 
   static decodeUnchecked(data) {
-    return deserializeUnchecked_1(SOLANA_SCHEMA, this, data);
+    return deserializeUnchecked_1(SOLANA_SCHEMA$2, this, data);
   }
 
 } // Class representing a Rust-compatible enum, since enums are only strings or
 // numbers in pure JS
 
-class Enum extends Struct {
+class Enum extends Struct$2 {
   constructor(properties) {
     super(properties);
     this.enum = '';
@@ -44497,18 +44497,18 @@ class Enum extends Struct {
   }
 
 }
-const SOLANA_SCHEMA = new Map();
+const SOLANA_SCHEMA$2 = new Map();
 
 /**
  * Maximum length of derived pubkey seed
  */
 
-const MAX_SEED_LENGTH = 32;
+const MAX_SEED_LENGTH$2 = 32;
 /**
  * Value to be converted into public key
  */
 
-function isPublicKeyData(value) {
+function isPublicKeyData$2(value) {
   return value._bn !== undefined;
 }
 /**
@@ -44516,7 +44516,7 @@ function isPublicKeyData(value) {
  */
 
 
-class PublicKey extends Struct {
+class PublicKey$2 extends Struct$2 {
   /** @internal */
 
   /**
@@ -44527,7 +44527,7 @@ class PublicKey extends Struct {
     super({});
     this._bn = void 0;
 
-    if (isPublicKeyData(value)) {
+    if (isPublicKeyData$2(value)) {
       this._bn = value._bn;
     } else {
       if (typeof value === 'string') {
@@ -44585,13 +44585,13 @@ class PublicKey extends Struct {
 
 
   toBuffer() {
-    const b = this._bn.toArrayLike(Buffer$1);
+    const b = this._bn.toArrayLike(Buffer$2);
 
     if (b.length === 32) {
       return b;
     }
 
-    const zeroPad = Buffer$1.alloc(32);
+    const zeroPad = Buffer$2.alloc(32);
     b.copy(zeroPad, 32 - b.length);
     return zeroPad;
   }
@@ -44613,9 +44613,9 @@ class PublicKey extends Struct {
 
 
   static async createWithSeed(fromPublicKey, seed, programId) {
-    const buffer = Buffer$1.concat([fromPublicKey.toBuffer(), Buffer$1.from(seed), programId.toBuffer()]);
-    const hash = sha256(new Uint8Array(buffer)).slice(2);
-    return new PublicKey(Buffer$1.from(hash, 'hex'));
+    const buffer = Buffer$2.concat([fromPublicKey.toBuffer(), Buffer$2.from(seed), programId.toBuffer()]);
+    const hash = sha256$2(new Uint8Array(buffer)).slice(2);
+    return new PublicKey$2(Buffer$2.from(hash, 'hex'));
   }
   /**
    * Derive a program address from seeds and a program ID.
@@ -44625,23 +44625,23 @@ class PublicKey extends Struct {
 
 
   static createProgramAddressSync(seeds, programId) {
-    let buffer = Buffer$1.alloc(0);
+    let buffer = Buffer$2.alloc(0);
     seeds.forEach(function (seed) {
-      if (seed.length > MAX_SEED_LENGTH) {
+      if (seed.length > MAX_SEED_LENGTH$2) {
         throw new TypeError(`Max seed length exceeded`);
       }
 
-      buffer = Buffer$1.concat([buffer, toBuffer(seed)]);
+      buffer = Buffer$2.concat([buffer, toBuffer$2(seed)]);
     });
-    buffer = Buffer$1.concat([buffer, programId.toBuffer(), Buffer$1.from('ProgramDerivedAddress')]);
-    let hash = sha256(new Uint8Array(buffer)).slice(2);
+    buffer = Buffer$2.concat([buffer, programId.toBuffer(), Buffer$2.from('ProgramDerivedAddress')]);
+    let hash = sha256$2(new Uint8Array(buffer)).slice(2);
     let publicKeyBytes = new BN$a(hash, 16).toArray(undefined, 32);
 
-    if (is_on_curve(publicKeyBytes)) {
+    if (is_on_curve$2(publicKeyBytes)) {
       throw new Error(`Invalid seeds, address must fall off the curve`);
     }
 
-    return new PublicKey(publicKeyBytes);
+    return new PublicKey$2(publicKeyBytes);
   }
   /**
    * Async version of createProgramAddressSync
@@ -44669,7 +44669,7 @@ class PublicKey extends Struct {
 
     while (nonce != 0) {
       try {
-        const seedsWithNonce = seeds.concat(Buffer$1.from([nonce]));
+        const seedsWithNonce = seeds.concat(Buffer$2.from([nonce]));
         address = this.createProgramAddressSync(seedsWithNonce, programId);
       } catch (err) {
         if (err instanceof TypeError) {
@@ -44700,64 +44700,64 @@ class PublicKey extends Struct {
 
 
   static isOnCurve(pubkeyData) {
-    const pubkey = new PublicKey(pubkeyData);
-    return is_on_curve(pubkey.toBytes()) == 1;
+    const pubkey = new PublicKey$2(pubkeyData);
+    return is_on_curve$2(pubkey.toBytes()) == 1;
   }
 
 }
-PublicKey.default = new PublicKey('11111111111111111111111111111111');
-SOLANA_SCHEMA.set(PublicKey, {
+PublicKey$2.default = new PublicKey$2('11111111111111111111111111111111');
+SOLANA_SCHEMA$2.set(PublicKey$2, {
   kind: 'struct',
   fields: [['_bn', 'u256']]
 }); // @ts-ignore
 
-let naclLowLevel = nacl.lowlevel; // Check that a pubkey is on the curve.
+let naclLowLevel$2 = nacl.lowlevel; // Check that a pubkey is on the curve.
 // This function and its dependents were sourced from:
 // https://github.com/dchest/tweetnacl-js/blob/f1ec050ceae0861f34280e62498b1d3ed9c350c6/nacl.js#L792
 
-function is_on_curve(p) {
-  var r = [naclLowLevel.gf(), naclLowLevel.gf(), naclLowLevel.gf(), naclLowLevel.gf()];
-  var t = naclLowLevel.gf(),
-      chk = naclLowLevel.gf(),
-      num = naclLowLevel.gf(),
-      den = naclLowLevel.gf(),
-      den2 = naclLowLevel.gf(),
-      den4 = naclLowLevel.gf(),
-      den6 = naclLowLevel.gf();
-  naclLowLevel.set25519(r[2], gf1);
-  naclLowLevel.unpack25519(r[1], p);
-  naclLowLevel.S(num, r[1]);
-  naclLowLevel.M(den, num, naclLowLevel.D);
-  naclLowLevel.Z(num, num, r[2]);
-  naclLowLevel.A(den, r[2], den);
-  naclLowLevel.S(den2, den);
-  naclLowLevel.S(den4, den2);
-  naclLowLevel.M(den6, den4, den2);
-  naclLowLevel.M(t, den6, num);
-  naclLowLevel.M(t, t, den);
-  naclLowLevel.pow2523(t, t);
-  naclLowLevel.M(t, t, num);
-  naclLowLevel.M(t, t, den);
-  naclLowLevel.M(t, t, den);
-  naclLowLevel.M(r[0], t, den);
-  naclLowLevel.S(chk, r[0]);
-  naclLowLevel.M(chk, chk, den);
-  if (neq25519(chk, num)) naclLowLevel.M(r[0], r[0], I);
-  naclLowLevel.S(chk, r[0]);
-  naclLowLevel.M(chk, chk, den);
-  if (neq25519(chk, num)) return 0;
+function is_on_curve$2(p) {
+  var r = [naclLowLevel$2.gf(), naclLowLevel$2.gf(), naclLowLevel$2.gf(), naclLowLevel$2.gf()];
+  var t = naclLowLevel$2.gf(),
+      chk = naclLowLevel$2.gf(),
+      num = naclLowLevel$2.gf(),
+      den = naclLowLevel$2.gf(),
+      den2 = naclLowLevel$2.gf(),
+      den4 = naclLowLevel$2.gf(),
+      den6 = naclLowLevel$2.gf();
+  naclLowLevel$2.set25519(r[2], gf1$2);
+  naclLowLevel$2.unpack25519(r[1], p);
+  naclLowLevel$2.S(num, r[1]);
+  naclLowLevel$2.M(den, num, naclLowLevel$2.D);
+  naclLowLevel$2.Z(num, num, r[2]);
+  naclLowLevel$2.A(den, r[2], den);
+  naclLowLevel$2.S(den2, den);
+  naclLowLevel$2.S(den4, den2);
+  naclLowLevel$2.M(den6, den4, den2);
+  naclLowLevel$2.M(t, den6, num);
+  naclLowLevel$2.M(t, t, den);
+  naclLowLevel$2.pow2523(t, t);
+  naclLowLevel$2.M(t, t, num);
+  naclLowLevel$2.M(t, t, den);
+  naclLowLevel$2.M(t, t, den);
+  naclLowLevel$2.M(r[0], t, den);
+  naclLowLevel$2.S(chk, r[0]);
+  naclLowLevel$2.M(chk, chk, den);
+  if (neq25519$2(chk, num)) naclLowLevel$2.M(r[0], r[0], I$2);
+  naclLowLevel$2.S(chk, r[0]);
+  naclLowLevel$2.M(chk, chk, den);
+  if (neq25519$2(chk, num)) return 0;
   return 1;
 }
 
-let gf1 = naclLowLevel.gf([1]);
-let I = naclLowLevel.gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
+let gf1$2 = naclLowLevel$2.gf([1]);
+let I$2 = naclLowLevel$2.gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
 
-function neq25519(a, b) {
+function neq25519$2(a, b) {
   var c = new Uint8Array(32),
       d = new Uint8Array(32);
-  naclLowLevel.pack25519(c, a);
-  naclLowLevel.pack25519(d, b);
-  return naclLowLevel.crypto_verify_32(c, 0, d, 0);
+  naclLowLevel$2.pack25519(c, a);
+  naclLowLevel$2.pack25519(d, b);
+  return naclLowLevel$2.crypto_verify_32(c, 0, d, 0);
 }
 
 /**
@@ -44781,7 +44781,7 @@ class Account {
     this._keypair = void 0;
 
     if (secretKey) {
-      this._keypair = nacl.sign.keyPair.fromSecretKey(toBuffer(secretKey));
+      this._keypair = nacl.sign.keyPair.fromSecretKey(toBuffer$2(secretKey));
     } else {
       this._keypair = nacl.sign.keyPair();
     }
@@ -44792,7 +44792,7 @@ class Account {
 
 
   get publicKey() {
-    return new PublicKey(this._keypair.publicKey);
+    return new PublicKey$2(this._keypair.publicKey);
   }
   /**
    * The **unencrypted** secret key for this account
@@ -44800,12 +44800,12 @@ class Account {
 
 
   get secretKey() {
-    return toBuffer(this._keypair.secretKey);
+    return toBuffer$2(this._keypair.secretKey);
   }
 
 }
 
-const BPF_LOADER_DEPRECATED_PROGRAM_ID = new PublicKey('BPFLoader1111111111111111111111111111111111');
+const BPF_LOADER_DEPRECATED_PROGRAM_ID = new PublicKey$2('BPFLoader1111111111111111111111111111111111');
 
 /**
  * Maximum over-the-wire size of a Transaction
@@ -44815,20 +44815,20 @@ const BPF_LOADER_DEPRECATED_PROGRAM_ID = new PublicKey('BPFLoader111111111111111
  * 8 bytes is the size of the fragment header
  */
 const PACKET_DATA_SIZE = 1280 - 40 - 8;
-const SIGNATURE_LENGTH_IN_BYTES = 64;
+const SIGNATURE_LENGTH_IN_BYTES$2 = 64;
 
 /**
  * Layout for a public key
  */
 
-const publicKey = (property = 'publicKey') => {
+const publicKey$3 = (property = 'publicKey') => {
   return blob(32, property);
 };
 
 /**
  * Layout for a Rust String type
  */
-const rustString = (property = 'string') => {
+const rustString$2 = (property = 'string') => {
   const rsl = struct([u32('length'), u32('lengthPadding'), blob(offset(u32(), -8), 'chars')], property);
 
   const _decode = rsl.decode.bind(rsl);
@@ -44845,13 +44845,13 @@ const rustString = (property = 'string') => {
 
   rslShim.encode = (str, b, offset) => {
     const data = {
-      chars: Buffer$1.from(str, 'utf8')
+      chars: Buffer$2.from(str, 'utf8')
     };
     return _encode(data, b, offset);
   };
 
   rslShim.alloc = str => {
-    return u32().span + u32().span + Buffer$1.from(str, 'utf8').length;
+    return u32().span + u32().span + Buffer$2.from(str, 'utf8').length;
   };
 
   return rslShim;
@@ -44860,22 +44860,22 @@ const rustString = (property = 'string') => {
  * Layout for an Authorized object
  */
 
-const authorized = (property = 'authorized') => {
-  return struct([publicKey('staker'), publicKey('withdrawer')], property);
+const authorized$2 = (property = 'authorized') => {
+  return struct([publicKey$3('staker'), publicKey$3('withdrawer')], property);
 };
 /**
  * Layout for a Lockup object
  */
 
-const lockup = (property = 'lockup') => {
-  return struct([ns64('unixTimestamp'), ns64('epoch'), publicKey('custodian')], property);
+const lockup$2 = (property = 'lockup') => {
+  return struct([ns64('unixTimestamp'), ns64('epoch'), publicKey$3('custodian')], property);
 };
 /**
  *  Layout for a VoteInit object
  */
 
-const voteInit = (property = 'voteInit') => {
-  return struct([publicKey('nodePubkey'), publicKey('authorizedVoter'), publicKey('authorizedWithdrawer'), u8('commission')], property);
+const voteInit$2 = (property = 'voteInit') => {
+  return struct([publicKey$3('nodePubkey'), publicKey$3('authorizedVoter'), publicKey$3('authorizedWithdrawer'), u8('commission')], property);
 };
 function getAlloc(type, fields) {
   let alloc = 0;
@@ -44939,7 +44939,7 @@ class Message {
     this.instructions = void 0;
     this.indexToProgramIds = new Map();
     this.header = args.header;
-    this.accountKeys = args.accountKeys.map(account => new PublicKey(account));
+    this.accountKeys = args.accountKeys.map(account => new PublicKey$2(account));
     this.recentBlockhash = args.recentBlockhash;
     this.instructions = args.instructions;
     this.instructions.forEach(ix => this.indexToProgramIds.set(ix.programIdIndex, this.accountKeys[ix.programIdIndex]));
@@ -44981,16 +44981,16 @@ class Message {
       encodeLength(dataCount, data.length);
       return {
         programIdIndex,
-        keyIndicesCount: Buffer$1.from(keyIndicesCount),
+        keyIndicesCount: Buffer$2.from(keyIndicesCount),
         keyIndices: accounts,
-        dataLength: Buffer$1.from(dataCount),
+        dataLength: Buffer$2.from(dataCount),
         data
       };
     });
     let instructionCount = [];
     encodeLength(instructionCount, instructions.length);
-    let instructionBuffer = Buffer$1.alloc(PACKET_DATA_SIZE);
-    Buffer$1.from(instructionCount).copy(instructionBuffer);
+    let instructionBuffer = Buffer$2.alloc(PACKET_DATA_SIZE);
+    Buffer$2.from(instructionCount).copy(instructionBuffer);
     let instructionBufferLength = instructionCount.length;
     instructions.forEach(instruction => {
       const instructionLayout = struct([u8('programIdIndex'), blob(instruction.keyIndicesCount.length, 'keyIndicesCount'), seq(u8('keyIndex'), instruction.keyIndices.length, 'keyIndices'), blob(instruction.dataLength.length, 'dataLength'), seq(u8('userdatum'), instruction.data.length, 'data')]);
@@ -44998,16 +44998,16 @@ class Message {
       instructionBufferLength += length;
     });
     instructionBuffer = instructionBuffer.slice(0, instructionBufferLength);
-    const signDataLayout = struct([blob(1, 'numRequiredSignatures'), blob(1, 'numReadonlySignedAccounts'), blob(1, 'numReadonlyUnsignedAccounts'), blob(keyCount.length, 'keyCount'), seq(publicKey('key'), numKeys, 'keys'), publicKey('recentBlockhash')]);
+    const signDataLayout = struct([blob(1, 'numRequiredSignatures'), blob(1, 'numReadonlySignedAccounts'), blob(1, 'numReadonlyUnsignedAccounts'), blob(keyCount.length, 'keyCount'), seq(publicKey$3('key'), numKeys, 'keys'), publicKey$3('recentBlockhash')]);
     const transaction = {
-      numRequiredSignatures: Buffer$1.from([this.header.numRequiredSignatures]),
-      numReadonlySignedAccounts: Buffer$1.from([this.header.numReadonlySignedAccounts]),
-      numReadonlyUnsignedAccounts: Buffer$1.from([this.header.numReadonlyUnsignedAccounts]),
-      keyCount: Buffer$1.from(keyCount),
-      keys: this.accountKeys.map(key => toBuffer(key.toBytes())),
+      numRequiredSignatures: Buffer$2.from([this.header.numRequiredSignatures]),
+      numReadonlySignedAccounts: Buffer$2.from([this.header.numReadonlySignedAccounts]),
+      numReadonlyUnsignedAccounts: Buffer$2.from([this.header.numReadonlyUnsignedAccounts]),
+      keyCount: Buffer$2.from(keyCount),
+      keys: this.accountKeys.map(key => toBuffer$2(key.toBytes())),
       recentBlockhash: bs58$1.decode(this.recentBlockhash)
     };
-    let signData = Buffer$1.alloc(2048);
+    let signData = Buffer$2.alloc(2048);
     const length = signDataLayout.encode(transaction, signData);
     instructionBuffer.copy(signData, length);
     return signData.slice(0, length + instructionBuffer.length);
@@ -45029,7 +45029,7 @@ class Message {
     for (let i = 0; i < accountCount; i++) {
       const account = byteArray.slice(0, PUBKEY_LENGTH);
       byteArray = byteArray.slice(PUBKEY_LENGTH);
-      accountKeys.push(bs58$1.encode(Buffer$1.from(account)));
+      accountKeys.push(bs58$1.encode(Buffer$2.from(account)));
     }
 
     const recentBlockhash = byteArray.slice(0, PUBKEY_LENGTH);
@@ -45044,7 +45044,7 @@ class Message {
       byteArray = byteArray.slice(accountCount);
       const dataLength = decodeLength(byteArray);
       const dataSlice = byteArray.slice(0, dataLength);
-      const data = bs58$1.encode(Buffer$1.from(dataSlice));
+      const data = bs58$1.encode(Buffer$2.from(dataSlice));
       byteArray = byteArray.slice(dataLength);
       instructions.push({
         programIdIndex,
@@ -45059,7 +45059,7 @@ class Message {
         numReadonlySignedAccounts,
         numReadonlyUnsignedAccounts
       },
-      recentBlockhash: bs58$1.encode(Buffer$1.from(recentBlockhash)),
+      recentBlockhash: bs58$1.encode(Buffer$2.from(recentBlockhash)),
       accountKeys,
       instructions
     };
@@ -45074,7 +45074,7 @@ function assert (condition, message) {
   }
 }
 
-let TransactionStatus;
+let TransactionStatus$2;
 /**
  * Default (empty) signature
  */
@@ -45083,9 +45083,9 @@ let TransactionStatus;
   TransactionStatus[TransactionStatus["BLOCKHEIGHT_EXCEEDED"] = 0] = "BLOCKHEIGHT_EXCEEDED";
   TransactionStatus[TransactionStatus["PROCESSED"] = 1] = "PROCESSED";
   TransactionStatus[TransactionStatus["TIMED_OUT"] = 2] = "TIMED_OUT";
-})(TransactionStatus || (TransactionStatus = {}));
+})(TransactionStatus$2 || (TransactionStatus$2 = {}));
 
-const DEFAULT_SIGNATURE = Buffer$1.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
+const DEFAULT_SIGNATURE = Buffer$2.alloc(SIGNATURE_LENGTH_IN_BYTES$2).fill(0);
 /**
  * Account metadata used to define instructions
  */
@@ -45109,7 +45109,7 @@ class TransactionInstruction {
   constructor(opts) {
     this.keys = void 0;
     this.programId = void 0;
-    this.data = Buffer$1.alloc(0);
+    this.data = Buffer$2.alloc(0);
     this.programId = opts.programId;
     this.keys = opts.keys;
 
@@ -45321,7 +45321,7 @@ class Transaction {
 
     programIds.forEach(programId => {
       accountMetas.push({
-        pubkey: new PublicKey(programId),
+        pubkey: new PublicKey$2(programId),
         isSigner: false,
         isWritable: false
       });
@@ -45601,7 +45601,7 @@ class Transaction {
     signers.forEach(signer => {
       const signature = nacl.sign.detached(signData, signer.secretKey);
 
-      this._addSignature(signer.publicKey, toBuffer(signature));
+      this._addSignature(signer.publicKey, toBuffer$2(signature));
     });
   }
   /**
@@ -45630,7 +45630,7 @@ class Transaction {
       throw new Error(`unknown signer: ${pubkey.toString()}`);
     }
 
-    this.signatures[index].signature = Buffer$1.from(signature);
+    this.signatures[index].signature = Buffer$2.from(signature);
   }
   /**
    * Verify signatures of a complete, signed Transaction
@@ -45696,15 +45696,15 @@ class Transaction {
     const signatureCount = [];
     encodeLength(signatureCount, signatures.length);
     const transactionLength = signatureCount.length + signatures.length * 64 + signData.length;
-    const wireTransaction = Buffer$1.alloc(transactionLength);
+    const wireTransaction = Buffer$2.alloc(transactionLength);
     assert(signatures.length < 256);
-    Buffer$1.from(signatureCount).copy(wireTransaction, 0);
+    Buffer$2.from(signatureCount).copy(wireTransaction, 0);
     signatures.forEach(({
       signature
     }, index) => {
       if (signature !== null) {
         assert(signature.length === 64, `signature has invalid length`);
-        Buffer$1.from(signature).copy(wireTransaction, signatureCount.length + index * 64);
+        Buffer$2.from(signature).copy(wireTransaction, signatureCount.length + index * 64);
       }
     });
     signData.copy(wireTransaction, signatureCount.length + signatures.length * 64);
@@ -45753,9 +45753,9 @@ class Transaction {
     let signatures = [];
 
     for (let i = 0; i < signatureCount; i++) {
-      const signature = byteArray.slice(0, SIGNATURE_LENGTH_IN_BYTES);
-      byteArray = byteArray.slice(SIGNATURE_LENGTH_IN_BYTES);
-      signatures.push(bs58$1.encode(Buffer$1.from(signature)));
+      const signature = byteArray.slice(0, SIGNATURE_LENGTH_IN_BYTES$2);
+      byteArray = byteArray.slice(SIGNATURE_LENGTH_IN_BYTES$2);
+      signatures.push(bs58$1.encode(Buffer$2.from(signature)));
     }
 
     return Transaction.populate(Message.from(byteArray), signatures);
@@ -45802,15 +45802,15 @@ class Transaction {
 
 }
 
-const SYSVAR_CLOCK_PUBKEY = new PublicKey('SysvarC1ock11111111111111111111111111111111');
-const SYSVAR_EPOCH_SCHEDULE_PUBKEY = new PublicKey('SysvarEpochSchedu1e111111111111111111111111');
-const SYSVAR_INSTRUCTIONS_PUBKEY = new PublicKey('Sysvar1nstructions1111111111111111111111111');
-const SYSVAR_RECENT_BLOCKHASHES_PUBKEY = new PublicKey('SysvarRecentB1ockHashes11111111111111111111');
-const SYSVAR_RENT_PUBKEY = new PublicKey('SysvarRent111111111111111111111111111111111');
-const SYSVAR_REWARDS_PUBKEY = new PublicKey('SysvarRewards111111111111111111111111111111');
-const SYSVAR_SLOT_HASHES_PUBKEY = new PublicKey('SysvarS1otHashes111111111111111111111111111');
-const SYSVAR_SLOT_HISTORY_PUBKEY = new PublicKey('SysvarS1otHistory11111111111111111111111111');
-const SYSVAR_STAKE_HISTORY_PUBKEY = new PublicKey('SysvarStakeHistory1111111111111111111111111');
+const SYSVAR_CLOCK_PUBKEY = new PublicKey$2('SysvarC1ock11111111111111111111111111111111');
+const SYSVAR_EPOCH_SCHEDULE_PUBKEY = new PublicKey$2('SysvarEpochSchedu1e111111111111111111111111');
+const SYSVAR_INSTRUCTIONS_PUBKEY = new PublicKey$2('Sysvar1nstructions1111111111111111111111111');
+const SYSVAR_RECENT_BLOCKHASHES_PUBKEY = new PublicKey$2('SysvarRecentB1ockHashes11111111111111111111');
+const SYSVAR_RENT_PUBKEY = new PublicKey$2('SysvarRent111111111111111111111111111111111');
+const SYSVAR_REWARDS_PUBKEY = new PublicKey$2('SysvarRewards111111111111111111111111111111');
+const SYSVAR_SLOT_HASHES_PUBKEY = new PublicKey$2('SysvarS1otHashes111111111111111111111111111');
+const SYSVAR_SLOT_HISTORY_PUBKEY = new PublicKey$2('SysvarS1otHistory11111111111111111111111111');
+const SYSVAR_STAKE_HISTORY_PUBKEY = new PublicKey$2('SysvarStakeHistory1111111111111111111111111');
 
 /**
  * Sign, send and confirm a transaction.
@@ -45855,7 +45855,7 @@ function sleep(ms) {
  */
 function encodeData(type, fields) {
   const allocLength = type.layout.span >= 0 ? type.layout.span : getAlloc(type, fields);
-  const data = Buffer$1.alloc(allocLength);
+  const data = Buffer$2.alloc(allocLength);
   const layoutFields = Object.assign({
     instruction: type.index
   }, fields);
@@ -45889,7 +45889,7 @@ function decodeData(type, buffer) {
  * @internal
  */
 
-const FeeCalculatorLayout = nu64('lamportsPerSignature');
+const FeeCalculatorLayout$2 = nu64('lamportsPerSignature');
 /**
  * Calculator for transaction fees.
  */
@@ -45900,8 +45900,8 @@ const FeeCalculatorLayout = nu64('lamportsPerSignature');
  * @internal
  */
 
-const NonceAccountLayout = struct([u32('version'), u32('state'), publicKey('authorizedPubkey'), publicKey('nonce'), struct([FeeCalculatorLayout], 'feeCalculator')]);
-const NONCE_ACCOUNT_LENGTH = NonceAccountLayout.span;
+const NonceAccountLayout$2 = struct([u32('version'), u32('state'), publicKey$3('authorizedPubkey'), publicKey$3('nonce'), struct([FeeCalculatorLayout$2], 'feeCalculator')]);
+const NONCE_ACCOUNT_LENGTH = NonceAccountLayout$2.span;
 
 /**
  * NonceAccount class
@@ -45927,17 +45927,17 @@ class NonceAccount {
 
 
   static fromAccountData(buffer) {
-    const nonceAccount = NonceAccountLayout.decode(toBuffer(buffer), 0);
+    const nonceAccount = NonceAccountLayout$2.decode(toBuffer$2(buffer), 0);
     return new NonceAccount({
-      authorizedPubkey: new PublicKey(nonceAccount.authorizedPubkey),
-      nonce: new PublicKey(nonceAccount.nonce).toString(),
+      authorizedPubkey: new PublicKey$2(nonceAccount.authorizedPubkey),
+      nonce: new PublicKey$2(nonceAccount.nonce).toString(),
       feeCalculator: nonceAccount.feeCalculator
     });
   }
 
 }
 
-const encodeDecode = layout => {
+const encodeDecode$3 = layout => {
   const decode = layout.decode.bind(layout);
   const encode = layout.encode.bind(layout);
   return {
@@ -45946,17 +45946,17 @@ const encodeDecode = layout => {
   };
 };
 
-const bigInt = length => property => {
+const bigInt$3 = length => property => {
   const layout = blob(length, property);
   const {
     encode,
     decode
-  } = encodeDecode(layout);
+  } = encodeDecode$3(layout);
   const bigIntLayout = layout;
 
   bigIntLayout.decode = (buffer, offset) => {
     const src = decode(buffer, offset);
-    return toBigIntLE_1(Buffer$1.from(src));
+    return toBigIntLE_1(Buffer$2.from(src));
   };
 
   bigIntLayout.encode = (bigInt, buffer, offset) => {
@@ -45967,7 +45967,7 @@ const bigInt = length => property => {
   return bigIntLayout;
 };
 
-const u64 = bigInt(8);
+const u64$3 = bigInt$3(8);
 
 /**
  * Create account system transaction params
@@ -46023,7 +46023,7 @@ class SystemInstruction {
       newAccountPubkey: instruction.keys[1].pubkey,
       lamports,
       space,
-      programId: new PublicKey(programId)
+      programId: new PublicKey$2(programId)
     };
   }
   /**
@@ -46062,7 +46062,7 @@ class SystemInstruction {
       toPubkey: instruction.keys[2].pubkey,
       lamports,
       seed,
-      programId: new PublicKey(programId)
+      programId: new PublicKey$2(programId)
     };
   }
   /**
@@ -46097,10 +46097,10 @@ class SystemInstruction {
     } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AllocateWithSeed, instruction.data);
     return {
       accountPubkey: instruction.keys[0].pubkey,
-      basePubkey: new PublicKey(base),
+      basePubkey: new PublicKey$2(base),
       seed,
       space,
-      programId: new PublicKey(programId)
+      programId: new PublicKey$2(programId)
     };
   }
   /**
@@ -46116,7 +46116,7 @@ class SystemInstruction {
     } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.Assign, instruction.data);
     return {
       accountPubkey: instruction.keys[0].pubkey,
-      programId: new PublicKey(programId)
+      programId: new PublicKey$2(programId)
     };
   }
   /**
@@ -46134,9 +46134,9 @@ class SystemInstruction {
     } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.AssignWithSeed, instruction.data);
     return {
       accountPubkey: instruction.keys[0].pubkey,
-      basePubkey: new PublicKey(base),
+      basePubkey: new PublicKey$2(base),
       seed,
-      programId: new PublicKey(programId)
+      programId: new PublicKey$2(programId)
     };
   }
   /**
@@ -46157,11 +46157,11 @@ class SystemInstruction {
     return {
       fromPubkey: instruction.keys[0].pubkey,
       newAccountPubkey: instruction.keys[1].pubkey,
-      basePubkey: new PublicKey(base),
+      basePubkey: new PublicKey$2(base),
       seed,
       lamports,
       space,
-      programId: new PublicKey(programId)
+      programId: new PublicKey$2(programId)
     };
   }
   /**
@@ -46177,7 +46177,7 @@ class SystemInstruction {
     } = decodeData(SYSTEM_INSTRUCTION_LAYOUTS.InitializeNonceAccount, instruction.data);
     return {
       noncePubkey: instruction.keys[0].pubkey,
-      authorizedPubkey: new PublicKey(authorized)
+      authorizedPubkey: new PublicKey$2(authorized)
     };
   }
   /**
@@ -46226,7 +46226,7 @@ class SystemInstruction {
     return {
       noncePubkey: instruction.keys[0].pubkey,
       authorizedPubkey: instruction.keys[1].pubkey,
-      newAuthorizedPubkey: new PublicKey(authorized)
+      newAuthorizedPubkey: new PublicKey$2(authorized)
     };
   }
   /**
@@ -46262,19 +46262,19 @@ class SystemInstruction {
 const SYSTEM_INSTRUCTION_LAYOUTS = Object.freeze({
   Create: {
     index: 0,
-    layout: struct([u32('instruction'), ns64('lamports'), ns64('space'), publicKey('programId')])
+    layout: struct([u32('instruction'), ns64('lamports'), ns64('space'), publicKey$3('programId')])
   },
   Assign: {
     index: 1,
-    layout: struct([u32('instruction'), publicKey('programId')])
+    layout: struct([u32('instruction'), publicKey$3('programId')])
   },
   Transfer: {
     index: 2,
-    layout: struct([u32('instruction'), u64('lamports')])
+    layout: struct([u32('instruction'), u64$3('lamports')])
   },
   CreateWithSeed: {
     index: 3,
-    layout: struct([u32('instruction'), publicKey('base'), rustString('seed'), ns64('lamports'), ns64('space'), publicKey('programId')])
+    layout: struct([u32('instruction'), publicKey$3('base'), rustString$2('seed'), ns64('lamports'), ns64('space'), publicKey$3('programId')])
   },
   AdvanceNonceAccount: {
     index: 4,
@@ -46286,11 +46286,11 @@ const SYSTEM_INSTRUCTION_LAYOUTS = Object.freeze({
   },
   InitializeNonceAccount: {
     index: 6,
-    layout: struct([u32('instruction'), publicKey('authorized')])
+    layout: struct([u32('instruction'), publicKey$3('authorized')])
   },
   AuthorizeNonceAccount: {
     index: 7,
-    layout: struct([u32('instruction'), publicKey('authorized')])
+    layout: struct([u32('instruction'), publicKey$3('authorized')])
   },
   Allocate: {
     index: 8,
@@ -46298,15 +46298,15 @@ const SYSTEM_INSTRUCTION_LAYOUTS = Object.freeze({
   },
   AllocateWithSeed: {
     index: 9,
-    layout: struct([u32('instruction'), publicKey('base'), rustString('seed'), ns64('space'), publicKey('programId')])
+    layout: struct([u32('instruction'), publicKey$3('base'), rustString$2('seed'), ns64('space'), publicKey$3('programId')])
   },
   AssignWithSeed: {
     index: 10,
-    layout: struct([u32('instruction'), publicKey('base'), rustString('seed'), publicKey('programId')])
+    layout: struct([u32('instruction'), publicKey$3('base'), rustString$2('seed'), publicKey$3('programId')])
   },
   TransferWithSeed: {
     index: 11,
-    layout: struct([u32('instruction'), u64('lamports'), rustString('seed'), publicKey('programId')])
+    layout: struct([u32('instruction'), u64$3('lamports'), rustString$2('seed'), publicKey$3('programId')])
   },
   UpgradeNonceAccount: {
     index: 12,
@@ -46335,7 +46335,7 @@ class SystemProgram {
     const data = encodeData(type, {
       lamports: params.lamports,
       space: params.space,
-      programId: toBuffer(params.programId.toBuffer())
+      programId: toBuffer$2(params.programId.toBuffer())
     });
     return new TransactionInstruction({
       keys: [{
@@ -46365,7 +46365,7 @@ class SystemProgram {
       data = encodeData(type, {
         lamports: BigInt(params.lamports),
         seed: params.seed,
-        programId: toBuffer(params.programId.toBuffer())
+        programId: toBuffer$2(params.programId.toBuffer())
       });
       keys = [{
         pubkey: params.fromPubkey,
@@ -46414,9 +46414,9 @@ class SystemProgram {
     if ('basePubkey' in params) {
       const type = SYSTEM_INSTRUCTION_LAYOUTS.AssignWithSeed;
       data = encodeData(type, {
-        base: toBuffer(params.basePubkey.toBuffer()),
+        base: toBuffer$2(params.basePubkey.toBuffer()),
         seed: params.seed,
-        programId: toBuffer(params.programId.toBuffer())
+        programId: toBuffer$2(params.programId.toBuffer())
       });
       keys = [{
         pubkey: params.accountPubkey,
@@ -46430,7 +46430,7 @@ class SystemProgram {
     } else {
       const type = SYSTEM_INSTRUCTION_LAYOUTS.Assign;
       data = encodeData(type, {
-        programId: toBuffer(params.programId.toBuffer())
+        programId: toBuffer$2(params.programId.toBuffer())
       });
       keys = [{
         pubkey: params.accountPubkey,
@@ -46454,11 +46454,11 @@ class SystemProgram {
   static createAccountWithSeed(params) {
     const type = SYSTEM_INSTRUCTION_LAYOUTS.CreateWithSeed;
     const data = encodeData(type, {
-      base: toBuffer(params.basePubkey.toBuffer()),
+      base: toBuffer$2(params.basePubkey.toBuffer()),
       seed: params.seed,
       lamports: params.lamports,
       space: params.space,
-      programId: toBuffer(params.programId.toBuffer())
+      programId: toBuffer$2(params.programId.toBuffer())
     });
     let keys = [{
       pubkey: params.fromPubkey,
@@ -46527,7 +46527,7 @@ class SystemProgram {
   static nonceInitialize(params) {
     const type = SYSTEM_INSTRUCTION_LAYOUTS.InitializeNonceAccount;
     const data = encodeData(type, {
-      authorized: toBuffer(params.authorizedPubkey.toBuffer())
+      authorized: toBuffer$2(params.authorizedPubkey.toBuffer())
     });
     const instructionData = {
       keys: [{
@@ -46620,7 +46620,7 @@ class SystemProgram {
   static nonceAuthorize(params) {
     const type = SYSTEM_INSTRUCTION_LAYOUTS.AuthorizeNonceAccount;
     const data = encodeData(type, {
-      authorized: toBuffer(params.newAuthorizedPubkey.toBuffer())
+      authorized: toBuffer$2(params.newAuthorizedPubkey.toBuffer())
     });
     return new TransactionInstruction({
       keys: [{
@@ -46648,10 +46648,10 @@ class SystemProgram {
     if ('basePubkey' in params) {
       const type = SYSTEM_INSTRUCTION_LAYOUTS.AllocateWithSeed;
       data = encodeData(type, {
-        base: toBuffer(params.basePubkey.toBuffer()),
+        base: toBuffer$2(params.basePubkey.toBuffer()),
         seed: params.seed,
         space: params.space,
-        programId: toBuffer(params.programId.toBuffer())
+        programId: toBuffer$2(params.programId.toBuffer())
       });
       keys = [{
         pubkey: params.accountPubkey,
@@ -46682,7 +46682,7 @@ class SystemProgram {
   }
 
 }
-SystemProgram.programId = new PublicKey('11111111111111111111111111111111');
+SystemProgram.programId = new PublicKey$2('11111111111111111111111111111111');
 
 // rest of the Transaction fields
 //
@@ -46791,7 +46791,7 @@ class Loader {
 
     while (array.length > 0) {
       const bytes = array.slice(0, chunkSize);
-      const data = Buffer$1.alloc(chunkSize + 16);
+      const data = Buffer$2.alloc(chunkSize + 16);
       dataLayout.encode({
         instruction: 0,
         // Load instruction
@@ -46826,7 +46826,7 @@ class Loader {
 
     {
       const dataLayout = struct([u32('instruction')]);
-      const data = Buffer$1.alloc(dataLayout.span);
+      const data = Buffer$2.alloc(dataLayout.span);
       dataLayout.encode({
         instruction: 1 // Finalize instruction
 
@@ -46855,7 +46855,7 @@ class Loader {
 }
 Loader.chunkSize = CHUNK_SIZE;
 
-const BPF_LOADER_PROGRAM_ID = new PublicKey('BPFLoader2111111111111111111111111111111111');
+const BPF_LOADER_PROGRAM_ID = new PublicKey$2('BPFLoader2111111111111111111111111111111111');
 /**
  * Factory class for transactions to interact with a program loader
  */
@@ -47014,7 +47014,7 @@ const COMPUTE_BUDGET_INSTRUCTION_LAYOUTS = Object.freeze({
   },
   SetComputeUnitPrice: {
     index: 3,
-    layout: struct([u8('instruction'), u64('microLamports')])
+    layout: struct([u8('instruction'), u64$3('microLamports')])
   }
 });
 /**
@@ -47074,7 +47074,7 @@ class ComputeBudgetProgram {
   }
 
 }
-ComputeBudgetProgram.programId = new PublicKey('ComputeBudget111111111111111111111111111111');
+ComputeBudgetProgram.programId = new PublicKey$2('ComputeBudget111111111111111111111111111111');
 
 var objToString = Object.prototype.toString;
 var objKeys = Object.keys || function(obj) {
@@ -47359,9 +47359,9 @@ function makeWebsocketUrl(endpoint) {
 }
 
 var _process$env$npm_pack;
-const PublicKeyFromString = coerce(instance(PublicKey), string(), value => new PublicKey(value));
-const RawAccountDataResult = tuple([string(), literal('base64')]);
-const BufferFromRawAccountData = coerce(instance(Buffer$1), RawAccountDataResult, value => Buffer$1.from(value[0], 'base64'));
+const PublicKeyFromString$2 = coerce(instance(PublicKey$2), string(), value => new PublicKey$2(value));
+const RawAccountDataResult$2 = tuple([string(), literal('base64')]);
+const BufferFromRawAccountData$2 = coerce(instance(Buffer$2), RawAccountDataResult$2, value => Buffer$2.from(value[0], 'base64'));
 /**
  * Attempt to use a recent blockhash for up to 30 seconds
  * @internal
@@ -47401,7 +47401,7 @@ function extractCommitmentFromConfig(commitmentOrConfig) {
  */
 
 
-function createRpcResult(result) {
+function createRpcResult$2(result) {
   return union([type$1({
     jsonrpc: literal('2.0'),
     id: string(),
@@ -47417,13 +47417,13 @@ function createRpcResult(result) {
   })]);
 }
 
-const UnknownRpcResult = createRpcResult(unknown());
+const UnknownRpcResult$2 = createRpcResult$2(unknown());
 /**
  * @internal
  */
 
-function jsonRpcResult(schema) {
-  return coerce(createRpcResult(schema), UnknownRpcResult, value => {
+function jsonRpcResult$2(schema) {
+  return coerce(createRpcResult$2(schema), UnknownRpcResult$2, value => {
     if ('error' in value) {
       return value;
     } else {
@@ -47438,8 +47438,8 @@ function jsonRpcResult(schema) {
  */
 
 
-function jsonRpcResultAndContext(value) {
-  return jsonRpcResult(type$1({
+function jsonRpcResultAndContext$2(value) {
+  return jsonRpcResult$2(type$1({
     context: type$1({
       slot: number()
     }),
@@ -47451,7 +47451,7 @@ function jsonRpcResultAndContext(value) {
  */
 
 
-function notificationResultAndContext(value) {
+function notificationResultAndContext$2(value) {
   return type$1({
     context: type$1({
       slot: number()
@@ -47469,7 +47469,7 @@ function notificationResultAndContext(value) {
  */
 
 
-const GetInflationGovernorResult = type$1({
+const GetInflationGovernorResult$2 = type$1({
   foundation: number(),
   foundationTerm: number(),
   initial: number(),
@@ -47483,7 +47483,7 @@ const GetInflationGovernorResult = type$1({
 /**
  * Expected JSON RPC response for the "getInflationReward" message
  */
-const GetInflationRewardResult = jsonRpcResult(array(nullable(type$1({
+const GetInflationRewardResult = jsonRpcResult$2(array(nullable(type$1({
   epoch: number(),
   effectiveSlot: number(),
   amount: number(),
@@ -47493,7 +47493,7 @@ const GetInflationRewardResult = jsonRpcResult(array(nullable(type$1({
  * Information about the current epoch
  */
 
-const GetEpochInfoResult = type$1({
+const GetEpochInfoResult$2 = type$1({
   epoch: number(),
   slotIndex: number(),
   slotsInEpoch: number(),
@@ -47501,7 +47501,7 @@ const GetEpochInfoResult = type$1({
   blockHeight: optional(number()),
   transactionCount: optional(number())
 });
-const GetEpochScheduleResult = type$1({
+const GetEpochScheduleResult$2 = type$1({
   slotsPerEpoch: number(),
   leaderScheduleSlotOffset: number(),
   warmup: boolean(),
@@ -47513,24 +47513,24 @@ const GetEpochScheduleResult = type$1({
  * (see https://docs.solana.com/terminology#leader-schedule)
  */
 
-const GetLeaderScheduleResult = record(string(), array(number()));
+const GetLeaderScheduleResult$2 = record(string(), array(number()));
 /**
  * Transaction error or null
  */
 
-const TransactionErrorResult = nullable(union([type$1({}), string()]));
+const TransactionErrorResult$2 = nullable(union([type$1({}), string()]));
 /**
  * Signature status for a transaction
  */
 
-const SignatureStatusResult = type$1({
-  err: TransactionErrorResult
+const SignatureStatusResult$2 = type$1({
+  err: TransactionErrorResult$2
 });
 /**
  * Transaction signature received notification
  */
 
-const SignatureReceivedResult = literal('receivedSignature');
+const SignatureReceivedResult$2 = literal('receivedSignature');
 /**
  * Version info for a node
  */
@@ -47539,7 +47539,7 @@ const VersionResult = type$1({
   'solana-core': string(),
   'feature-set': optional(number())
 });
-const SimulatedTransactionResponseStruct = jsonRpcResultAndContext(type$1({
+const SimulatedTransactionResponseStruct = jsonRpcResultAndContext$2(type$1({
   err: nullable(union([type$1({}), string()])),
   logs: nullable(array(string())),
   accounts: optional(nullable(array(nullable(type$1({
@@ -47555,7 +47555,7 @@ const SimulatedTransactionResponseStruct = jsonRpcResultAndContext(type$1({
 /**
  * Expected JSON RPC response for the "getBlockProduction" message
  */
-const BlockProductionResponseStruct = jsonRpcResultAndContext(type$1({
+const BlockProductionResponseStruct = jsonRpcResultAndContext$2(type$1({
   byIdentity: record(string(), array(number())),
   range: type$1({
     firstSlot: number(),
@@ -47682,27 +47682,27 @@ function createRpcBatchRequest(client) {
  */
 
 
-const GetInflationGovernorRpcResult = jsonRpcResult(GetInflationGovernorResult);
+const GetInflationGovernorRpcResult = jsonRpcResult$2(GetInflationGovernorResult$2);
 /**
  * Expected JSON RPC response for the "getEpochInfo" message
  */
 
-const GetEpochInfoRpcResult = jsonRpcResult(GetEpochInfoResult);
+const GetEpochInfoRpcResult = jsonRpcResult$2(GetEpochInfoResult$2);
 /**
  * Expected JSON RPC response for the "getEpochSchedule" message
  */
 
-const GetEpochScheduleRpcResult = jsonRpcResult(GetEpochScheduleResult);
+const GetEpochScheduleRpcResult = jsonRpcResult$2(GetEpochScheduleResult$2);
 /**
  * Expected JSON RPC response for the "getLeaderSchedule" message
  */
 
-const GetLeaderScheduleRpcResult = jsonRpcResult(GetLeaderScheduleResult);
+const GetLeaderScheduleRpcResult = jsonRpcResult$2(GetLeaderScheduleResult$2);
 /**
  * Expected JSON RPC response for the "minimumLedgerSlot" and "getFirstAvailableBlock" messages
  */
 
-const SlotRpcResult = jsonRpcResult(number());
+const SlotRpcResult = jsonRpcResult$2(number());
 /**
  * Supply
  */
@@ -47710,11 +47710,11 @@ const SlotRpcResult = jsonRpcResult(number());
 /**
  * Expected JSON RPC response for the "getSupply" message
  */
-const GetSupplyRpcResult = jsonRpcResultAndContext(type$1({
+const GetSupplyRpcResult = jsonRpcResultAndContext$2(type$1({
   total: number(),
   circulating: number(),
   nonCirculating: number(),
-  nonCirculatingAccounts: array(PublicKeyFromString)
+  nonCirculatingAccounts: array(PublicKeyFromString$2)
 }));
 /**
  * Token amount object which returns a token amount in different formats
@@ -47724,7 +47724,7 @@ const GetSupplyRpcResult = jsonRpcResultAndContext(type$1({
 /**
  * Expected JSON RPC structure for token amounts
  */
-const TokenAmountResult = type$1({
+const TokenAmountResult$2 = type$1({
   amount: string(),
   uiAmount: nullable(number()),
   decimals: number(),
@@ -47737,8 +47737,8 @@ const TokenAmountResult = type$1({
 /**
  * Expected JSON RPC response for the "getTokenLargestAccounts" message
  */
-const GetTokenLargestAccountsResult = jsonRpcResultAndContext(array(type$1({
-  address: PublicKeyFromString,
+const GetTokenLargestAccountsResult = jsonRpcResultAndContext$2(array(type$1({
+  address: PublicKeyFromString$2,
   amount: string(),
   uiAmount: nullable(number()),
   decimals: number(),
@@ -47748,17 +47748,17 @@ const GetTokenLargestAccountsResult = jsonRpcResultAndContext(array(type$1({
  * Expected JSON RPC response for the "getTokenAccountsByOwner" message
  */
 
-const GetTokenAccountsByOwner = jsonRpcResultAndContext(array(type$1({
-  pubkey: PublicKeyFromString,
+const GetTokenAccountsByOwner = jsonRpcResultAndContext$2(array(type$1({
+  pubkey: PublicKeyFromString$2,
   account: type$1({
     executable: boolean(),
-    owner: PublicKeyFromString,
+    owner: PublicKeyFromString$2,
     lamports: number(),
-    data: BufferFromRawAccountData,
+    data: BufferFromRawAccountData$2,
     rentEpoch: number()
   })
 })));
-const ParsedAccountDataResult = type$1({
+const ParsedAccountDataResult$2 = type$1({
   program: string(),
   parsed: unknown(),
   space: number()
@@ -47767,13 +47767,13 @@ const ParsedAccountDataResult = type$1({
  * Expected JSON RPC response for the "getTokenAccountsByOwner" message with parsed data
  */
 
-const GetParsedTokenAccountsByOwner = jsonRpcResultAndContext(array(type$1({
-  pubkey: PublicKeyFromString,
+const GetParsedTokenAccountsByOwner = jsonRpcResultAndContext$2(array(type$1({
+  pubkey: PublicKeyFromString$2,
   account: type$1({
     executable: boolean(),
-    owner: PublicKeyFromString,
+    owner: PublicKeyFromString$2,
     lamports: number(),
-    data: ParsedAccountDataResult,
+    data: ParsedAccountDataResult$2,
     rentEpoch: number()
   })
 })));
@@ -47784,19 +47784,19 @@ const GetParsedTokenAccountsByOwner = jsonRpcResultAndContext(array(type$1({
 /**
  * Expected JSON RPC response for the "getLargestAccounts" message
  */
-const GetLargestAccountsRpcResult = jsonRpcResultAndContext(array(type$1({
+const GetLargestAccountsRpcResult = jsonRpcResultAndContext$2(array(type$1({
   lamports: number(),
-  address: PublicKeyFromString
+  address: PublicKeyFromString$2
 })));
 /**
  * @internal
  */
 
-const AccountInfoResult = type$1({
+const AccountInfoResult$2 = type$1({
   executable: boolean(),
-  owner: PublicKeyFromString,
+  owner: PublicKeyFromString$2,
   lamports: number(),
-  data: BufferFromRawAccountData,
+  data: BufferFromRawAccountData$2,
   rentEpoch: number()
 });
 /**
@@ -47804,12 +47804,12 @@ const AccountInfoResult = type$1({
  */
 
 const KeyedAccountInfoResult = type$1({
-  pubkey: PublicKeyFromString,
-  account: AccountInfoResult
+  pubkey: PublicKeyFromString$2,
+  account: AccountInfoResult$2
 });
-const ParsedOrRawAccountData = coerce(union([instance(Buffer$1), ParsedAccountDataResult]), union([RawAccountDataResult, ParsedAccountDataResult]), value => {
+const ParsedOrRawAccountData$2 = coerce(union([instance(Buffer$2), ParsedAccountDataResult$2]), union([RawAccountDataResult$2, ParsedAccountDataResult$2]), value => {
   if (Array.isArray(value)) {
-    return create(value, BufferFromRawAccountData);
+    return create(value, BufferFromRawAccountData$2);
   } else {
     return value;
   }
@@ -47818,16 +47818,16 @@ const ParsedOrRawAccountData = coerce(union([instance(Buffer$1), ParsedAccountDa
  * @internal
  */
 
-const ParsedAccountInfoResult = type$1({
+const ParsedAccountInfoResult$2 = type$1({
   executable: boolean(),
-  owner: PublicKeyFromString,
+  owner: PublicKeyFromString$2,
   lamports: number(),
-  data: ParsedOrRawAccountData,
+  data: ParsedOrRawAccountData$2,
   rentEpoch: number()
 });
 const KeyedParsedAccountInfoResult = type$1({
-  pubkey: PublicKeyFromString,
-  account: ParsedAccountInfoResult
+  pubkey: PublicKeyFromString$2,
+  account: ParsedAccountInfoResult$2
 });
 /**
  * @internal
@@ -47842,10 +47842,10 @@ const StakeActivationResult = type$1({
  * Expected JSON RPC response for the "getConfirmedSignaturesForAddress2" message
  */
 
-const GetConfirmedSignaturesForAddress2RpcResult = jsonRpcResult(array(type$1({
+const GetConfirmedSignaturesForAddress2RpcResult = jsonRpcResult$2(array(type$1({
   signature: string(),
   slot: number(),
-  err: TransactionErrorResult,
+  err: TransactionErrorResult$2,
   memo: nullable(string()),
   blockTime: optional(nullable(number()))
 })));
@@ -47853,10 +47853,10 @@ const GetConfirmedSignaturesForAddress2RpcResult = jsonRpcResult(array(type$1({
  * Expected JSON RPC response for the "getSignaturesForAddress" message
  */
 
-const GetSignaturesForAddressRpcResult = jsonRpcResult(array(type$1({
+const GetSignaturesForAddressRpcResult = jsonRpcResult$2(array(type$1({
   signature: string(),
   slot: number(),
-  err: TransactionErrorResult,
+  err: TransactionErrorResult$2,
   memo: nullable(string()),
   blockTime: optional(nullable(number()))
 })));
@@ -47866,15 +47866,15 @@ const GetSignaturesForAddressRpcResult = jsonRpcResult(array(type$1({
 
 const AccountNotificationResult = type$1({
   subscription: number(),
-  result: notificationResultAndContext(AccountInfoResult)
+  result: notificationResultAndContext$2(AccountInfoResult$2)
 });
 /**
  * @internal
  */
 
-const ProgramAccountInfoResult = type$1({
-  pubkey: PublicKeyFromString,
-  account: AccountInfoResult
+const ProgramAccountInfoResult$2 = type$1({
+  pubkey: PublicKeyFromString$2,
+  account: AccountInfoResult$2
 });
 /***
  * Expected JSON RPC response for the "programNotification" message
@@ -47882,13 +47882,13 @@ const ProgramAccountInfoResult = type$1({
 
 const ProgramAccountNotificationResult = type$1({
   subscription: number(),
-  result: notificationResultAndContext(ProgramAccountInfoResult)
+  result: notificationResultAndContext$2(ProgramAccountInfoResult$2)
 });
 /**
  * @internal
  */
 
-const SlotInfoResult = type$1({
+const SlotInfoResult$2 = type$1({
   parent: number(),
   slot: number(),
   root: number()
@@ -47899,7 +47899,7 @@ const SlotInfoResult = type$1({
 
 const SlotNotificationResult = type$1({
   subscription: number(),
-  result: SlotInfoResult
+  result: SlotInfoResult$2
 });
 /**
  * Slot updates which can be used for tracking the live progress of a cluster.
@@ -47919,7 +47919,7 @@ const SlotNotificationResult = type$1({
 /**
  * @internal
  */
-const SlotUpdateResult = union([type$1({
+const SlotUpdateResult$2 = union([type$1({
   type: union([literal('firstShredReceived'), literal('completed'), literal('optimisticConfirmation'), literal('root')]),
   slot: number(),
   timestamp: number()
@@ -47950,7 +47950,7 @@ const SlotUpdateResult = union([type$1({
 
 const SlotUpdateNotificationResult = type$1({
   subscription: number(),
-  result: SlotUpdateResult
+  result: SlotUpdateResult$2
 });
 /**
  * Expected JSON RPC response for the "signatureNotification" message
@@ -47958,7 +47958,7 @@ const SlotUpdateNotificationResult = type$1({
 
 const SignatureNotificationResult = type$1({
   subscription: number(),
-  result: notificationResultAndContext(union([SignatureStatusResult, SignatureReceivedResult]))
+  result: notificationResultAndContext$2(union([SignatureStatusResult$2, SignatureReceivedResult$2]))
 });
 /**
  * Expected JSON RPC response for the "rootNotification" message
@@ -47975,7 +47975,7 @@ const ContactInfoResult = type$1({
   rpc: nullable(string()),
   version: nullable(string())
 });
-const VoteAccountInfoResult = type$1({
+const VoteAccountInfoResult$2 = type$1({
   votePubkey: string(),
   nodePubkey: string(),
   activatedStake: number(),
@@ -47989,28 +47989,28 @@ const VoteAccountInfoResult = type$1({
  * Expected JSON RPC response for the "getVoteAccounts" message
  */
 
-const GetVoteAccounts = jsonRpcResult(type$1({
-  current: array(VoteAccountInfoResult),
-  delinquent: array(VoteAccountInfoResult)
+const GetVoteAccounts = jsonRpcResult$2(type$1({
+  current: array(VoteAccountInfoResult$2),
+  delinquent: array(VoteAccountInfoResult$2)
 }));
-const ConfirmationStatus = union([literal('processed'), literal('confirmed'), literal('finalized')]);
-const SignatureStatusResponse = type$1({
+const ConfirmationStatus$2 = union([literal('processed'), literal('confirmed'), literal('finalized')]);
+const SignatureStatusResponse$2 = type$1({
   slot: number(),
   confirmations: nullable(number()),
-  err: TransactionErrorResult,
-  confirmationStatus: optional(ConfirmationStatus)
+  err: TransactionErrorResult$2,
+  confirmationStatus: optional(ConfirmationStatus$2)
 });
 /**
  * Expected JSON RPC response for the "getSignatureStatuses" message
  */
 
-const GetSignatureStatusesRpcResult = jsonRpcResultAndContext(array(nullable(SignatureStatusResponse)));
+const GetSignatureStatusesRpcResult = jsonRpcResultAndContext$2(array(nullable(SignatureStatusResponse$2)));
 /**
  * Expected JSON RPC response for the "getMinimumBalanceForRentExemption" message
  */
 
-const GetMinimumBalanceForRentExemptionRpcResult = jsonRpcResult(number());
-const ConfirmedTransactionResult = type$1({
+const GetMinimumBalanceForRentExemptionRpcResult = jsonRpcResult$2(number());
+const ConfirmedTransactionResult$2 = type$1({
   signatures: array(string()),
   message: type$1({
     accountKeys: array(string()),
@@ -48027,18 +48027,18 @@ const ConfirmedTransactionResult = type$1({
     recentBlockhash: string()
   })
 });
-const ParsedInstructionResult = type$1({
+const ParsedInstructionResult$2 = type$1({
   parsed: unknown(),
   program: string(),
-  programId: PublicKeyFromString
+  programId: PublicKeyFromString$2
 });
-const RawInstructionResult = type$1({
-  accounts: array(PublicKeyFromString),
+const RawInstructionResult$2 = type$1({
+  accounts: array(PublicKeyFromString$2),
   data: string(),
-  programId: PublicKeyFromString
+  programId: PublicKeyFromString$2
 });
-const InstructionResult = union([RawInstructionResult, ParsedInstructionResult]);
-const UnknownInstructionResult = union([type$1({
+const InstructionResult$2 = union([RawInstructionResult$2, ParsedInstructionResult$2]);
+const UnknownInstructionResult$2 = union([type$1({
   parsed: unknown(),
   program: string(),
   programId: string()
@@ -48047,41 +48047,41 @@ const UnknownInstructionResult = union([type$1({
   data: string(),
   programId: string()
 })]);
-const ParsedOrRawInstruction = coerce(InstructionResult, UnknownInstructionResult, value => {
+const ParsedOrRawInstruction$2 = coerce(InstructionResult$2, UnknownInstructionResult$2, value => {
   if ('accounts' in value) {
-    return create(value, RawInstructionResult);
+    return create(value, RawInstructionResult$2);
   } else {
-    return create(value, ParsedInstructionResult);
+    return create(value, ParsedInstructionResult$2);
   }
 });
 /**
  * @internal
  */
 
-const ParsedConfirmedTransactionResult = type$1({
+const ParsedConfirmedTransactionResult$2 = type$1({
   signatures: array(string()),
   message: type$1({
     accountKeys: array(type$1({
-      pubkey: PublicKeyFromString,
+      pubkey: PublicKeyFromString$2,
       signer: boolean(),
       writable: boolean()
     })),
-    instructions: array(ParsedOrRawInstruction),
+    instructions: array(ParsedOrRawInstruction$2),
     recentBlockhash: string()
   })
 });
-const TokenBalanceResult = type$1({
+const TokenBalanceResult$2 = type$1({
   accountIndex: number(),
   mint: string(),
   owner: optional(string()),
-  uiTokenAmount: TokenAmountResult
+  uiTokenAmount: TokenAmountResult$2
 });
 /**
  * @internal
  */
 
-const ConfirmedTransactionMetaResult = type$1({
-  err: TransactionErrorResult,
+const ConfirmedTransactionMetaResult$2 = type$1({
+  err: TransactionErrorResult$2,
   fee: number(),
   innerInstructions: optional(nullable(array(type$1({
     index: number(),
@@ -48094,37 +48094,37 @@ const ConfirmedTransactionMetaResult = type$1({
   preBalances: array(number()),
   postBalances: array(number()),
   logMessages: optional(nullable(array(string()))),
-  preTokenBalances: optional(nullable(array(TokenBalanceResult))),
-  postTokenBalances: optional(nullable(array(TokenBalanceResult)))
+  preTokenBalances: optional(nullable(array(TokenBalanceResult$2))),
+  postTokenBalances: optional(nullable(array(TokenBalanceResult$2)))
 });
 /**
  * @internal
  */
 
-const ParsedConfirmedTransactionMetaResult = type$1({
-  err: TransactionErrorResult,
+const ParsedConfirmedTransactionMetaResult$2 = type$1({
+  err: TransactionErrorResult$2,
   fee: number(),
   innerInstructions: optional(nullable(array(type$1({
     index: number(),
-    instructions: array(ParsedOrRawInstruction)
+    instructions: array(ParsedOrRawInstruction$2)
   })))),
   preBalances: array(number()),
   postBalances: array(number()),
   logMessages: optional(nullable(array(string()))),
-  preTokenBalances: optional(nullable(array(TokenBalanceResult))),
-  postTokenBalances: optional(nullable(array(TokenBalanceResult)))
+  preTokenBalances: optional(nullable(array(TokenBalanceResult$2))),
+  postTokenBalances: optional(nullable(array(TokenBalanceResult$2)))
 });
 /**
  * Expected JSON RPC response for the "getBlock" message
  */
 
-const GetBlockRpcResult = jsonRpcResult(nullable(type$1({
+const GetBlockRpcResult = jsonRpcResult$2(nullable(type$1({
   blockhash: string(),
   previousBlockhash: string(),
   parentSlot: number(),
   transactions: array(type$1({
-    transaction: ConfirmedTransactionResult,
-    meta: nullable(ConfirmedTransactionMetaResult)
+    transaction: ConfirmedTransactionResult$2,
+    meta: nullable(ConfirmedTransactionMetaResult$2)
   })),
   rewards: optional(array(type$1({
     pubkey: string(),
@@ -48141,13 +48141,13 @@ const GetBlockRpcResult = jsonRpcResult(nullable(type$1({
  * @deprecated Deprecated since Solana v1.8.0. Please use {@link GetBlockRpcResult} instead.
  */
 
-const GetConfirmedBlockRpcResult = jsonRpcResult(nullable(type$1({
+const GetConfirmedBlockRpcResult = jsonRpcResult$2(nullable(type$1({
   blockhash: string(),
   previousBlockhash: string(),
   parentSlot: number(),
   transactions: array(type$1({
-    transaction: ConfirmedTransactionResult,
-    meta: nullable(ConfirmedTransactionMetaResult)
+    transaction: ConfirmedTransactionResult$2,
+    meta: nullable(ConfirmedTransactionMetaResult$2)
   })),
   rewards: optional(array(type$1({
     pubkey: string(),
@@ -48161,7 +48161,7 @@ const GetConfirmedBlockRpcResult = jsonRpcResult(nullable(type$1({
  * Expected JSON RPC response for the "getBlock" message
  */
 
-const GetBlockSignaturesRpcResult = jsonRpcResult(nullable(type$1({
+const GetBlockSignaturesRpcResult = jsonRpcResult$2(nullable(type$1({
   blockhash: string(),
   previousBlockhash: string(),
   parentSlot: number(),
@@ -48172,20 +48172,20 @@ const GetBlockSignaturesRpcResult = jsonRpcResult(nullable(type$1({
  * Expected JSON RPC response for the "getTransaction" message
  */
 
-const GetTransactionRpcResult = jsonRpcResult(nullable(type$1({
+const GetTransactionRpcResult = jsonRpcResult$2(nullable(type$1({
   slot: number(),
-  meta: ConfirmedTransactionMetaResult,
+  meta: ConfirmedTransactionMetaResult$2,
   blockTime: optional(nullable(number())),
-  transaction: ConfirmedTransactionResult
+  transaction: ConfirmedTransactionResult$2
 })));
 /**
  * Expected parsed JSON RPC response for the "getTransaction" message
  */
 
-const GetParsedTransactionRpcResult = jsonRpcResult(nullable(type$1({
+const GetParsedTransactionRpcResult = jsonRpcResult$2(nullable(type$1({
   slot: number(),
-  transaction: ParsedConfirmedTransactionResult,
-  meta: nullable(ParsedConfirmedTransactionMetaResult),
+  transaction: ParsedConfirmedTransactionResult$2,
+  meta: nullable(ParsedConfirmedTransactionMetaResult$2),
   blockTime: optional(nullable(number()))
 })));
 /**
@@ -48194,7 +48194,7 @@ const GetParsedTransactionRpcResult = jsonRpcResult(nullable(type$1({
  * @deprecated Deprecated since Solana v1.8.0. Please use {@link GetLatestBlockhashRpcResult} instead.
  */
 
-const GetRecentBlockhashAndContextRpcResult = jsonRpcResultAndContext(type$1({
+const GetRecentBlockhashAndContextRpcResult = jsonRpcResultAndContext$2(type$1({
   blockhash: string(),
   feeCalculator: type$1({
     lamportsPerSignature: number()
@@ -48204,11 +48204,11 @@ const GetRecentBlockhashAndContextRpcResult = jsonRpcResultAndContext(type$1({
  * Expected JSON RPC response for the "getLatestBlockhash" message
  */
 
-const GetLatestBlockhashRpcResult = jsonRpcResultAndContext(type$1({
+const GetLatestBlockhashRpcResult = jsonRpcResultAndContext$2(type$1({
   blockhash: string(),
   lastValidBlockHeight: number()
 }));
-const PerfSampleResult = type$1({
+const PerfSampleResult$2 = type$1({
   slot: number(),
   numTransactions: number(),
   numSlots: number(),
@@ -48218,12 +48218,12 @@ const PerfSampleResult = type$1({
  * Expected JSON RPC response for "getRecentPerformanceSamples" message
  */
 
-const GetRecentPerformanceSamplesRpcResult = jsonRpcResult(array(PerfSampleResult));
+const GetRecentPerformanceSamplesRpcResult = jsonRpcResult$2(array(PerfSampleResult$2));
 /**
  * Expected JSON RPC response for the "getFeeCalculatorForBlockhash" message
  */
 
-const GetFeeCalculatorRpcResult = jsonRpcResultAndContext(nullable(type$1({
+const GetFeeCalculatorRpcResult = jsonRpcResultAndContext$2(nullable(type$1({
   feeCalculator: type$1({
     lamportsPerSignature: number()
   })
@@ -48232,12 +48232,12 @@ const GetFeeCalculatorRpcResult = jsonRpcResultAndContext(nullable(type$1({
  * Expected JSON RPC response for the "requestAirdrop" message
  */
 
-const RequestAirdropRpcResult = jsonRpcResult(string());
+const RequestAirdropRpcResult = jsonRpcResult$2(string());
 /**
  * Expected JSON RPC response for the "sendTransaction" message
  */
 
-const SendTransactionRpcResult = jsonRpcResult(string());
+const SendTransactionRpcResult = jsonRpcResult$2(string());
 /**
  * Information about the latest slot being processed by a node
  */
@@ -48245,8 +48245,8 @@ const SendTransactionRpcResult = jsonRpcResult(string());
 /**
  * @internal
  */
-const LogsResult = type$1({
-  err: TransactionErrorResult,
+const LogsResult$2 = type$1({
+  err: TransactionErrorResult$2,
   logs: array(string()),
   signature: string()
 });
@@ -48258,7 +48258,7 @@ const LogsResult = type$1({
  * Expected JSON RPC response for the "logsNotification" message.
  */
 const LogsNotificationResult = type$1({
-  result: notificationResultAndContext(LogsResult),
+  result: notificationResultAndContext$2(LogsResult$2),
   subscription: number()
 });
 /**
@@ -48449,7 +48449,7 @@ class Connection {
     , config);
 
     const unsafeRes = await this._rpcRequest('getBalance', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(number()));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(number()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get balance for ${publicKey.toBase58()}`);
@@ -48474,7 +48474,7 @@ class Connection {
 
   async getBlockTime(slot) {
     const unsafeRes = await this._rpcRequest('getBlockTime', [slot]);
-    const res = create(unsafeRes, jsonRpcResult(nullable(number())));
+    const res = create(unsafeRes, jsonRpcResult$2(nullable(number())));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get block time for slot ${slot}`);
@@ -48490,7 +48490,7 @@ class Connection {
 
   async getMinimumLedgerSlot() {
     const unsafeRes = await this._rpcRequest('minimumLedgerSlot', []);
-    const res = create(unsafeRes, jsonRpcResult(number()));
+    const res = create(unsafeRes, jsonRpcResult$2(number()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get minimum ledger slot');
@@ -48553,7 +48553,7 @@ class Connection {
     const args = this._buildArgs([tokenMintAddress.toBase58()], commitment);
 
     const unsafeRes = await this._rpcRequest('getTokenSupply', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(TokenAmountResult));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(TokenAmountResult$2));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get token supply');
@@ -48570,7 +48570,7 @@ class Connection {
     const args = this._buildArgs([tokenAddress.toBase58()], commitment);
 
     const unsafeRes = await this._rpcRequest('getTokenAccountBalance', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(TokenAmountResult));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(TokenAmountResult$2));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get token account balance');
@@ -48695,7 +48695,7 @@ class Connection {
     const args = this._buildArgs([publicKey.toBase58()], commitment, 'base64', config);
 
     const unsafeRes = await this._rpcRequest('getAccountInfo', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(nullable(AccountInfoResult)));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(nullable(AccountInfoResult$2)));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get info about account ${publicKey.toBase58()}`);
@@ -48712,7 +48712,7 @@ class Connection {
     const args = this._buildArgs([publicKey.toBase58()], commitment, 'jsonParsed');
 
     const unsafeRes = await this._rpcRequest('getAccountInfo', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(nullable(ParsedAccountInfoResult)));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(nullable(ParsedAccountInfoResult$2)));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get info about account ${publicKey.toBase58()}`);
@@ -48748,7 +48748,7 @@ class Connection {
     const args = this._buildArgs([keys], commitment, 'base64', config);
 
     const unsafeRes = await this._rpcRequest('getMultipleAccounts', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(array(nullable(AccountInfoResult))));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(array(nullable(AccountInfoResult$2))));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get info for accounts ${keys}`);
@@ -48783,7 +48783,7 @@ class Connection {
     });
 
     const unsafeRes = await this._rpcRequest('getStakeActivation', args);
-    const res = create(unsafeRes, jsonRpcResult(StakeActivationResult));
+    const res = create(unsafeRes, jsonRpcResult$2(StakeActivationResult));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get Stake Activation ${publicKey.toBase58()}`);
@@ -48811,7 +48811,7 @@ class Connection {
     const args = this._buildArgs([programId.toBase58()], commitment, encoding || 'base64', configWithoutEncoding);
 
     const unsafeRes = await this._rpcRequest('getProgramAccounts', args);
-    const res = create(unsafeRes, jsonRpcResult(array(KeyedAccountInfoResult)));
+    const res = create(unsafeRes, jsonRpcResult$2(array(KeyedAccountInfoResult)));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get accounts owned by program ${programId.toBase58()}`);
@@ -48835,7 +48835,7 @@ class Connection {
     const args = this._buildArgs([programId.toBase58()], commitment, 'jsonParsed', config);
 
     const unsafeRes = await this._rpcRequest('getProgramAccounts', args);
-    const res = create(unsafeRes, jsonRpcResult(array(KeyedParsedAccountInfoResult)));
+    const res = create(unsafeRes, jsonRpcResult$2(array(KeyedParsedAccountInfoResult)));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, `failed to get accounts owned by program ${programId.toBase58()}`);
@@ -48878,7 +48878,7 @@ class Connection {
           };
           done = true;
           resolve({
-            __type: TransactionStatus.PROCESSED,
+            __type: TransactionStatus$2.PROCESSED,
             response
           });
         }, subscriptionCommitment);
@@ -48903,7 +48903,7 @@ class Connection {
         }
 
         timeoutId = setTimeout(() => resolve({
-          __type: TransactionStatus.TIMED_OUT,
+          __type: TransactionStatus$2.TIMED_OUT,
           timeoutMs
         }), timeoutMs);
       } else {
@@ -48930,7 +48930,7 @@ class Connection {
           }
 
           resolve({
-            __type: TransactionStatus.BLOCKHEIGHT_EXCEEDED
+            __type: TransactionStatus$2.BLOCKHEIGHT_EXCEEDED
           });
         })();
       }
@@ -48941,14 +48941,14 @@ class Connection {
       const outcome = await Promise.race([confirmationPromise, expiryPromise]);
 
       switch (outcome.__type) {
-        case TransactionStatus.BLOCKHEIGHT_EXCEEDED:
+        case TransactionStatus$2.BLOCKHEIGHT_EXCEEDED:
           throw new TransactionExpiredBlockheightExceededError(rawSignature);
 
-        case TransactionStatus.PROCESSED:
+        case TransactionStatus$2.PROCESSED:
           result = outcome.response;
           break;
 
-        case TransactionStatus.TIMED_OUT:
+        case TransactionStatus$2.TIMED_OUT:
           throw new TransactionExpiredTimeoutError(rawSignature, outcome.timeoutMs / 1000);
       }
     } finally {
@@ -48968,7 +48968,7 @@ class Connection {
 
   async getClusterNodes() {
     const unsafeRes = await this._rpcRequest('getClusterNodes', []);
-    const res = create(unsafeRes, jsonRpcResult(array(ContactInfoResult)));
+    const res = create(unsafeRes, jsonRpcResult$2(array(ContactInfoResult)));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get cluster nodes');
@@ -49009,7 +49009,7 @@ class Connection {
     , config);
 
     const unsafeRes = await this._rpcRequest('getSlot', args);
-    const res = create(unsafeRes, jsonRpcResult(number()));
+    const res = create(unsafeRes, jsonRpcResult$2(number()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get slot');
@@ -49033,7 +49033,7 @@ class Connection {
     , config);
 
     const unsafeRes = await this._rpcRequest('getSlotLeader', args);
-    const res = create(unsafeRes, jsonRpcResult(string()));
+    const res = create(unsafeRes, jsonRpcResult$2(string()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get slot leader');
@@ -49052,7 +49052,7 @@ class Connection {
   async getSlotLeaders(startSlot, limit) {
     const args = [startSlot, limit];
     const unsafeRes = await this._rpcRequest('getSlotLeaders', args);
-    const res = create(unsafeRes, jsonRpcResult(array(PublicKeyFromString)));
+    const res = create(unsafeRes, jsonRpcResult$2(array(PublicKeyFromString$2)));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get slot leaders');
@@ -49114,7 +49114,7 @@ class Connection {
     , config);
 
     const unsafeRes = await this._rpcRequest('getTransactionCount', args);
-    const res = create(unsafeRes, jsonRpcResult(number()));
+    const res = create(unsafeRes, jsonRpcResult$2(number()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get transaction count');
@@ -49327,7 +49327,7 @@ class Connection {
     const args = this._buildArgs([wireMessage], commitment);
 
     const unsafeRes = await this._rpcRequest('getFeeForMessage', args);
-    const res = create(unsafeRes, jsonRpcResultAndContext(nullable(number())));
+    const res = create(unsafeRes, jsonRpcResultAndContext$2(nullable(number())));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get slot');
@@ -49401,7 +49401,7 @@ class Connection {
 
   async getVersion() {
     const unsafeRes = await this._rpcRequest('getVersion', []);
-    const res = create(unsafeRes, jsonRpcResult(VersionResult));
+    const res = create(unsafeRes, jsonRpcResult$2(VersionResult));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get version');
@@ -49416,7 +49416,7 @@ class Connection {
 
   async getGenesisHash() {
     const unsafeRes = await this._rpcRequest('getGenesisHash', []);
-    const res = create(unsafeRes, jsonRpcResult(string()));
+    const res = create(unsafeRes, jsonRpcResult$2(string()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get genesis hash');
@@ -49472,7 +49472,7 @@ class Connection {
     , config);
 
     const unsafeRes = await this._rpcRequest('getBlockHeight', args);
-    const res = create(unsafeRes, jsonRpcResult(number()));
+    const res = create(unsafeRes, jsonRpcResult$2(number()));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get block height information');
@@ -49669,7 +49669,7 @@ class Connection {
     const args = this._buildArgsAtLeastConfirmed(endSlot !== undefined ? [startSlot, endSlot] : [startSlot], commitment);
 
     const unsafeRes = await this._rpcRequest('getBlocks', args);
-    const res = create(unsafeRes, jsonRpcResult(array(number())));
+    const res = create(unsafeRes, jsonRpcResult$2(array(number())));
 
     if ('error' in res) {
       throw new SolanaJSONRPCError(res.error, 'failed to get blocks');
@@ -50177,7 +50177,7 @@ class Connection {
 
 
   async sendRawTransaction(rawTransaction, options) {
-    const encodedTransaction = toBuffer(rawTransaction).toString('base64');
+    const encodedTransaction = toBuffer$2(rawTransaction).toString('base64');
     const result = await this.sendEncodedTransaction(encodedTransaction, options);
     return result;
   }
@@ -51042,7 +51042,7 @@ class Keypair {
 
 
   get publicKey() {
-    return new PublicKey(this._keypair.publicKey);
+    return new PublicKey$2(this._keypair.publicKey);
   }
   /**
    * The raw secret key for this keypair
@@ -51091,7 +51091,7 @@ class Ed25519Program {
     const signatureOffset = publicKeyOffset + publicKey.length;
     const messageDataOffset = signatureOffset + signature.length;
     const numSignatures = 1;
-    const instructionData = Buffer$1.alloc(messageDataOffset + message.length);
+    const instructionData = Buffer$2.alloc(messageDataOffset + message.length);
     const index = instructionIndex == null ? 0xffff // An index of `u16::MAX` makes it default to the current instruction.
     : instructionIndex;
     ED25519_INSTRUCTION_LAYOUT.encode({
@@ -51144,14 +51144,14 @@ class Ed25519Program {
   }
 
 }
-Ed25519Program.programId = new PublicKey('Ed25519SigVerify111111111111111111111111111');
+Ed25519Program.programId = new PublicKey$2('Ed25519SigVerify111111111111111111111111111');
 
 /**
  * Address of the stake config account which configures the rate
  * of stake warmup and cooldown as well as the slashing penalty.
  */
 
-const STAKE_CONFIG_ID = new PublicKey('StakeConfig11111111111111111111111111111111');
+const STAKE_CONFIG_ID = new PublicKey$2('StakeConfig11111111111111111111111111111111');
 /**
  * Stake account authority info
  */
@@ -51178,7 +51178,7 @@ class Authorized {
 /**
  * Stake account lockup info
  */
-class Lockup {
+class Lockup$2 {
   /** Unix timestamp of lockup expiration */
 
   /** Epoch of lockup expiration */
@@ -51202,7 +51202,7 @@ class Lockup {
 
 
 }
-Lockup.default = new Lockup(0, 0, PublicKey.default);
+Lockup$2.default = new Lockup$2(0, 0, PublicKey$2.default);
 
 /**
  * Stake Instruction class
@@ -51250,8 +51250,8 @@ class StakeInstruction {
     } = decodeData(STAKE_INSTRUCTION_LAYOUTS.Initialize, instruction.data);
     return {
       stakePubkey: instruction.keys[0].pubkey,
-      authorized: new Authorized(new PublicKey(authorized.staker), new PublicKey(authorized.withdrawer)),
-      lockup: new Lockup(lockup.unixTimestamp, lockup.epoch, new PublicKey(lockup.custodian))
+      authorized: new Authorized(new PublicKey$2(authorized.staker), new PublicKey$2(authorized.withdrawer)),
+      lockup: new Lockup$2(lockup.unixTimestamp, lockup.epoch, new PublicKey$2(lockup.custodian))
     };
   }
   /**
@@ -51284,7 +51284,7 @@ class StakeInstruction {
     const o = {
       stakePubkey: instruction.keys[0].pubkey,
       authorizedPubkey: instruction.keys[2].pubkey,
-      newAuthorizedPubkey: new PublicKey(newAuthorized),
+      newAuthorizedPubkey: new PublicKey$2(newAuthorized),
       stakeAuthorizationType: {
         index: stakeAuthorizationType
       }
@@ -51314,8 +51314,8 @@ class StakeInstruction {
       stakePubkey: instruction.keys[0].pubkey,
       authorityBase: instruction.keys[1].pubkey,
       authoritySeed: authoritySeed,
-      authorityOwner: new PublicKey(authorityOwner),
-      newAuthorizedPubkey: new PublicKey(newAuthorized),
+      authorityOwner: new PublicKey$2(authorityOwner),
+      newAuthorizedPubkey: new PublicKey$2(newAuthorized),
       stakeAuthorizationType: {
         index: stakeAuthorizationType
       }
@@ -51431,11 +51431,11 @@ class StakeInstruction {
 const STAKE_INSTRUCTION_LAYOUTS = Object.freeze({
   Initialize: {
     index: 0,
-    layout: struct([u32('instruction'), authorized(), lockup()])
+    layout: struct([u32('instruction'), authorized$2(), lockup$2()])
   },
   Authorize: {
     index: 1,
-    layout: struct([u32('instruction'), publicKey('newAuthorized'), u32('stakeAuthorizationType')])
+    layout: struct([u32('instruction'), publicKey$3('newAuthorized'), u32('stakeAuthorizationType')])
   },
   Delegate: {
     index: 2,
@@ -51459,7 +51459,7 @@ const STAKE_INSTRUCTION_LAYOUTS = Object.freeze({
   },
   AuthorizeWithSeed: {
     index: 8,
-    layout: struct([u32('instruction'), publicKey('newAuthorized'), u32('stakeAuthorizationType'), rustString('authoritySeed'), publicKey('authorityOwner')])
+    layout: struct([u32('instruction'), publicKey$3('newAuthorized'), u32('stakeAuthorizationType'), rustString$2('authoritySeed'), publicKey$3('authorityOwner')])
   }
 });
 /**
@@ -51500,17 +51500,17 @@ class StakeProgram {
       authorized,
       lockup: maybeLockup
     } = params;
-    const lockup = maybeLockup || Lockup.default;
+    const lockup = maybeLockup || Lockup$2.default;
     const type = STAKE_INSTRUCTION_LAYOUTS.Initialize;
     const data = encodeData(type, {
       authorized: {
-        staker: toBuffer(authorized.staker.toBuffer()),
-        withdrawer: toBuffer(authorized.withdrawer.toBuffer())
+        staker: toBuffer$2(authorized.staker.toBuffer()),
+        withdrawer: toBuffer$2(authorized.withdrawer.toBuffer())
       },
       lockup: {
         unixTimestamp: lockup.unixTimestamp,
         epoch: lockup.epoch,
-        custodian: toBuffer(lockup.custodian.toBuffer())
+        custodian: toBuffer$2(lockup.custodian.toBuffer())
       }
     });
     const instructionData = {
@@ -51642,7 +51642,7 @@ class StakeProgram {
     } = params;
     const type = STAKE_INSTRUCTION_LAYOUTS.Authorize;
     const data = encodeData(type, {
-      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
+      newAuthorized: toBuffer$2(newAuthorizedPubkey.toBuffer()),
       stakeAuthorizationType: stakeAuthorizationType.index
     });
     const keys = [{
@@ -51691,10 +51691,10 @@ class StakeProgram {
     } = params;
     const type = STAKE_INSTRUCTION_LAYOUTS.AuthorizeWithSeed;
     const data = encodeData(type, {
-      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
+      newAuthorized: toBuffer$2(newAuthorizedPubkey.toBuffer()),
       stakeAuthorizationType: stakeAuthorizationType.index,
       authoritySeed: authoritySeed,
-      authorityOwner: toBuffer(authorityOwner.toBuffer())
+      authorityOwner: toBuffer$2(authorityOwner.toBuffer())
     });
     const keys = [{
       pubkey: stakePubkey,
@@ -51928,7 +51928,7 @@ class StakeProgram {
   }
 
 }
-StakeProgram.programId = new PublicKey('Stake11111111111111111111111111111111111111');
+StakeProgram.programId = new PublicKey$2('Stake11111111111111111111111111111111111111');
 StakeProgram.space = 200;
 
 const {
@@ -51962,7 +51962,7 @@ class Secp256k1Program {
     assert(publicKey.length === PUBLIC_KEY_BYTES, `Public key must be ${PUBLIC_KEY_BYTES} bytes but received ${publicKey.length} bytes`);
 
     try {
-      return Buffer$1.from(sha3.keccak_256.update(toBuffer(publicKey)).digest()).slice(-ETHEREUM_ADDRESS_BYTES);
+      return Buffer$2.from(sha3.keccak_256.update(toBuffer$2(publicKey)).digest()).slice(-ETHEREUM_ADDRESS_BYTES);
     } catch (error) {
       throw new Error(`Error constructing Ethereum address: ${error}`);
     }
@@ -52007,9 +52007,9 @@ class Secp256k1Program {
 
     if (typeof rawAddress === 'string') {
       if (rawAddress.startsWith('0x')) {
-        ethAddress = Buffer$1.from(rawAddress.substr(2), 'hex');
+        ethAddress = Buffer$2.from(rawAddress.substr(2), 'hex');
       } else {
-        ethAddress = Buffer$1.from(rawAddress, 'hex');
+        ethAddress = Buffer$2.from(rawAddress, 'hex');
       }
     } else {
       ethAddress = rawAddress;
@@ -52021,7 +52021,7 @@ class Secp256k1Program {
     const signatureOffset = dataStart + ethAddress.length;
     const messageDataOffset = signatureOffset + signature.length + 1;
     const numSignatures = 1;
-    const instructionData = Buffer$1.alloc(SECP256K1_INSTRUCTION_LAYOUT.span + message.length);
+    const instructionData = Buffer$2.alloc(SECP256K1_INSTRUCTION_LAYOUT.span + message.length);
     SECP256K1_INSTRUCTION_LAYOUT.encode({
       numSignatures,
       signatureOffset,
@@ -52031,11 +52031,11 @@ class Secp256k1Program {
       messageDataOffset,
       messageDataSize: message.length,
       messageInstructionIndex: instructionIndex,
-      signature: toBuffer(signature),
-      ethAddress: toBuffer(ethAddress),
+      signature: toBuffer$2(signature),
+      ethAddress: toBuffer$2(ethAddress),
       recoveryId
     }, instructionData);
-    instructionData.fill(toBuffer(message), SECP256K1_INSTRUCTION_LAYOUT.span);
+    instructionData.fill(toBuffer$2(message), SECP256K1_INSTRUCTION_LAYOUT.span);
     return new TransactionInstruction({
       keys: [],
       programId: Secp256k1Program.programId,
@@ -52057,10 +52057,10 @@ class Secp256k1Program {
     assert(pkey.length === PRIVATE_KEY_BYTES, `Private key must be ${PRIVATE_KEY_BYTES} bytes but received ${pkey.length} bytes`);
 
     try {
-      const privateKey = toBuffer(pkey);
+      const privateKey = toBuffer$2(pkey);
       const publicKey = publicKeyCreate(privateKey, false).slice(1); // throw away leading byte
 
-      const messageHash = Buffer$1.from(sha3.keccak_256.update(toBuffer(message)).digest());
+      const messageHash = Buffer$2.from(sha3.keccak_256.update(toBuffer$2(message)).digest());
       const {
         signature,
         recid: recoveryId
@@ -52078,9 +52078,9 @@ class Secp256k1Program {
   }
 
 }
-Secp256k1Program.programId = new PublicKey('KeccakSecp256k11111111111111111111111111111');
+Secp256k1Program.programId = new PublicKey$2('KeccakSecp256k11111111111111111111111111111');
 
-const VALIDATOR_INFO_KEY = new PublicKey('Va1idator1nfo111111111111111111111111111111');
+const VALIDATOR_INFO_KEY = new PublicKey$2('Va1idator1nfo111111111111111111111111111111');
 /**
  * @internal
  */
@@ -52133,7 +52133,7 @@ class ValidatorInfo {
     const configKeys = [];
 
     for (let i = 0; i < 2; i++) {
-      const publicKey = new PublicKey(byteArray.slice(0, PUBKEY_LENGTH));
+      const publicKey = new PublicKey$2(byteArray.slice(0, PUBKEY_LENGTH));
       byteArray = byteArray.slice(PUBKEY_LENGTH);
       const isSigner = byteArray.slice(0, 1)[0] === 1;
       byteArray = byteArray.slice(1);
@@ -52145,7 +52145,7 @@ class ValidatorInfo {
 
     if (configKeys[0].publicKey.equals(VALIDATOR_INFO_KEY)) {
       if (configKeys[1].isSigner) {
-        const rawInfo = rustString().decode(Buffer$1.from(byteArray));
+        const rawInfo = rustString$2().decode(Buffer$2.from(byteArray));
         const info = JSON.parse(rawInfo);
         assert$p(info, InfoString);
         return new ValidatorInfo(configKeys[1].publicKey, info);
@@ -52157,16 +52157,16 @@ class ValidatorInfo {
 
 }
 
-const VOTE_PROGRAM_ID = new PublicKey('Vote111111111111111111111111111111111111111');
+const VOTE_PROGRAM_ID = new PublicKey$2('Vote111111111111111111111111111111111111111');
 
 /**
  * See https://github.com/solana-labs/solana/blob/8a12ed029cfa38d4a45400916c2463fb82bbec8c/programs/vote_api/src/vote_state.rs#L68-L88
  *
  * @internal
  */
-const VoteAccountLayout = struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
+const VoteAccountLayout = struct([publicKey$3('nodePubkey'), publicKey$3('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
 seq(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
-seq(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
+seq(struct([nu64('epoch'), publicKey$3('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey$3('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
 seq(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
 
 /**
@@ -52206,7 +52206,7 @@ class VoteAccount {
 
   static fromAccountData(buffer) {
     const versionOffset = 4;
-    const va = VoteAccountLayout.decode(toBuffer(buffer), versionOffset);
+    const va = VoteAccountLayout.decode(toBuffer$2(buffer), versionOffset);
     let rootSlot = va.rootSlot;
 
     if (!va.rootSlotValid) {
@@ -52214,8 +52214,8 @@ class VoteAccount {
     }
 
     return new VoteAccount({
-      nodePubkey: new PublicKey(va.nodePubkey),
-      authorizedWithdrawer: new PublicKey(va.authorizedWithdrawer),
+      nodePubkey: new PublicKey$2(va.nodePubkey),
+      authorizedWithdrawer: new PublicKey$2(va.authorizedWithdrawer),
       commission: va.commission,
       votes: va.votes,
       rootSlot,
@@ -52234,7 +52234,7 @@ function parseAuthorizedVoter({
 }) {
   return {
     epoch,
-    authorizedVoter: new PublicKey(authorizedVoter)
+    authorizedVoter: new PublicKey$2(authorizedVoter)
   };
 }
 
@@ -52244,7 +52244,7 @@ function parsePriorVoters({
   targetEpoch
 }) {
   return {
-    authorizedPubkey: new PublicKey(authorizedPubkey),
+    authorizedPubkey: new PublicKey$2(authorizedPubkey),
     epochOfLastAuthorizedSwitch,
     targetEpoch
   };
@@ -52330,7 +52330,7 @@ class VoteInstruction {
     return {
       votePubkey: instruction.keys[0].pubkey,
       nodePubkey: instruction.keys[3].pubkey,
-      voteInit: new VoteInit(new PublicKey(voteInit.nodePubkey), new PublicKey(voteInit.authorizedVoter), new PublicKey(voteInit.authorizedWithdrawer), voteInit.commission)
+      voteInit: new VoteInit(new PublicKey$2(voteInit.nodePubkey), new PublicKey$2(voteInit.authorizedVoter), new PublicKey$2(voteInit.authorizedWithdrawer), voteInit.commission)
     };
   }
   /**
@@ -52348,7 +52348,7 @@ class VoteInstruction {
     return {
       votePubkey: instruction.keys[0].pubkey,
       authorizedPubkey: instruction.keys[2].pubkey,
-      newAuthorizedPubkey: new PublicKey(newAuthorized),
+      newAuthorizedPubkey: new PublicKey$2(newAuthorized),
       voteAuthorizationType: {
         index: voteAuthorizationType
       }
@@ -52401,11 +52401,11 @@ class VoteInstruction {
 const VOTE_INSTRUCTION_LAYOUTS = Object.freeze({
   InitializeAccount: {
     index: 0,
-    layout: struct([u32('instruction'), voteInit()])
+    layout: struct([u32('instruction'), voteInit$2()])
   },
   Authorize: {
     index: 1,
-    layout: struct([u32('instruction'), publicKey('newAuthorized'), u32('voteAuthorizationType')])
+    layout: struct([u32('instruction'), publicKey$3('newAuthorized'), u32('voteAuthorizationType')])
   },
   Withdraw: {
     index: 3,
@@ -52453,9 +52453,9 @@ class VoteProgram {
     const type = VOTE_INSTRUCTION_LAYOUTS.InitializeAccount;
     const data = encodeData(type, {
       voteInit: {
-        nodePubkey: toBuffer(voteInit.nodePubkey.toBuffer()),
-        authorizedVoter: toBuffer(voteInit.authorizedVoter.toBuffer()),
-        authorizedWithdrawer: toBuffer(voteInit.authorizedWithdrawer.toBuffer()),
+        nodePubkey: toBuffer$2(voteInit.nodePubkey.toBuffer()),
+        authorizedVoter: toBuffer$2(voteInit.authorizedVoter.toBuffer()),
+        authorizedWithdrawer: toBuffer$2(voteInit.authorizedWithdrawer.toBuffer()),
         commission: voteInit.commission
       }
     });
@@ -52516,7 +52516,7 @@ class VoteProgram {
     } = params;
     const type = VOTE_INSTRUCTION_LAYOUTS.Authorize;
     const data = encodeData(type, {
-      newAuthorized: toBuffer(newAuthorizedPubkey.toBuffer()),
+      newAuthorized: toBuffer$2(newAuthorizedPubkey.toBuffer()),
       voteAuthorizationType: voteAuthorizationType.index
     });
     const keys = [{
@@ -52575,7 +52575,7 @@ class VoteProgram {
   }
 
 }
-VoteProgram.programId = new PublicKey('Vote111111111111111111111111111111111111111');
+VoteProgram.programId = new PublicKey$2('Vote111111111111111111111111111111111111111');
 VoteProgram.space = 3731;
 
 /**
@@ -52677,19 +52677,19 @@ var index_browser_esm = /*#__PURE__*/Object.freeze({
 	Ed25519Program: Ed25519Program,
 	Enum: Enum,
 	EpochSchedule: EpochSchedule,
-	FeeCalculatorLayout: FeeCalculatorLayout,
+	FeeCalculatorLayout: FeeCalculatorLayout$2,
 	Keypair: Keypair,
 	LAMPORTS_PER_SOL: LAMPORTS_PER_SOL,
 	Loader: Loader,
-	Lockup: Lockup,
-	MAX_SEED_LENGTH: MAX_SEED_LENGTH,
+	Lockup: Lockup$2,
+	MAX_SEED_LENGTH: MAX_SEED_LENGTH$2,
 	Message: Message,
 	NONCE_ACCOUNT_LENGTH: NONCE_ACCOUNT_LENGTH,
 	NonceAccount: NonceAccount,
 	PACKET_DATA_SIZE: PACKET_DATA_SIZE,
-	PublicKey: PublicKey,
-	SIGNATURE_LENGTH_IN_BYTES: SIGNATURE_LENGTH_IN_BYTES,
-	SOLANA_SCHEMA: SOLANA_SCHEMA,
+	PublicKey: PublicKey$2,
+	SIGNATURE_LENGTH_IN_BYTES: SIGNATURE_LENGTH_IN_BYTES$2,
+	SOLANA_SCHEMA: SOLANA_SCHEMA$2,
 	STAKE_CONFIG_ID: STAKE_CONFIG_ID,
 	STAKE_INSTRUCTION_LAYOUTS: STAKE_INSTRUCTION_LAYOUTS,
 	SYSTEM_INSTRUCTION_LAYOUTS: SYSTEM_INSTRUCTION_LAYOUTS,
@@ -52709,14 +52709,14 @@ var index_browser_esm = /*#__PURE__*/Object.freeze({
 	StakeAuthorizationLayout: StakeAuthorizationLayout,
 	StakeInstruction: StakeInstruction,
 	StakeProgram: StakeProgram,
-	Struct: Struct,
+	Struct: Struct$2,
 	SystemInstruction: SystemInstruction,
 	SystemProgram: SystemProgram,
 	Transaction: Transaction,
 	TransactionExpiredBlockheightExceededError: TransactionExpiredBlockheightExceededError,
 	TransactionExpiredTimeoutError: TransactionExpiredTimeoutError,
 	TransactionInstruction: TransactionInstruction,
-	get TransactionStatus () { return TransactionStatus; },
+	get TransactionStatus () { return TransactionStatus$2; },
 	VALIDATOR_INFO_KEY: VALIDATOR_INFO_KEY,
 	VOTE_PROGRAM_ID: VOTE_PROGRAM_ID,
 	ValidatorInfo: ValidatorInfo,
@@ -54358,7 +54358,7 @@ class Union extends Layout {
    */
   getVariant(vb, offset) {
     let variant = vb;
-    if (Buffer$1.isBuffer(vb)) {
+    if (Buffer$2.isBuffer(vb)) {
       if (undefined === offset) {
         offset = 0;
       }
@@ -54918,7 +54918,7 @@ class Blob extends Layout {
     if (this.length instanceof ExternalLayout) {
       span = src.length;
     }
-    if (!(Buffer$1.isBuffer(src)
+    if (!(Buffer$2.isBuffer(src)
           && (span === src.length))) {
       throw new TypeError(nameWithProperty('Blob.encode', this)
                           + ' requires (length ' + span + ') Buffer as src');
@@ -54954,7 +54954,7 @@ class CString extends Layout {
 
   /** @override */
   getSpan(b, offset) {
-    if (!Buffer$1.isBuffer(b)) {
+    if (!Buffer$2.isBuffer(b)) {
       throw new TypeError('b must be a Buffer');
     }
     if (undefined === offset) {
@@ -54987,7 +54987,7 @@ class CString extends Layout {
     if ('string' !== typeof src) {
       src = src.toString();
     }
-    const srcb = new Buffer$1(src, 'utf8');
+    const srcb = new Buffer$2(src, 'utf8');
     const span = srcb.length;
     if ((offset + span) > b.length) {
       throw new RangeError('encoding overruns Buffer');
@@ -55045,7 +55045,7 @@ class UTF8 extends Layout {
 
   /** @override */
   getSpan(b, offset) {
-    if (!Buffer$1.isBuffer(b)) {
+    if (!Buffer$2.isBuffer(b)) {
       throw new TypeError('b must be a Buffer');
     }
     if (undefined === offset) {
@@ -55078,7 +55078,7 @@ class UTF8 extends Layout {
     if ('string' !== typeof src) {
       src = src.toString();
     }
-    const srcb = new Buffer$1(src, 'utf8');
+    const srcb = new Buffer$2(src, 'utf8');
     const span = srcb.length;
     if ((0 <= this.maxSpan)
         && (this.maxSpan < span)) {
@@ -58704,7 +58704,7 @@ var bn = {exports: {}};
 	        if (this.signed) {
 	            src = src.toTwos(this.span * 8);
 	        }
-	        return this.blob.encode(src.toArrayLike(Buffer$1, 'le', this.span), b, offset);
+	        return this.blob.encode(src.toArrayLike(Buffer$2, 'le', this.span), b, offset);
 	    }
 	}
 	function u64(property) {
@@ -58834,7 +58834,7 @@ var bn = {exports: {}};
 	}
 	exports.vecU8 = vecU8;
 	function str(property) {
-	    return new WrappedLayout(vecU8(), data => data.toString('utf-8'), s => Buffer$1.from(s, 'utf-8'), property);
+	    return new WrappedLayout(vecU8(), data => data.toString('utf-8'), s => Buffer$2.from(s, 'utf-8'), property);
 	}
 	exports.str = str;
 	function rustEnum(variants, property, discriminant) {
@@ -58884,7 +58884,6432 @@ var bn = {exports: {}};
 	
 } (lib));
 
-const Buffer = require$$0$7.Buffer;
+const encodeDecode$2 = (layout) => {
+    const decode = layout.decode.bind(layout);
+    const encode = layout.encode.bind(layout);
+    return { decode, encode };
+};
+
+const bigInt$2 = (length) => (property) => {
+    const layout = blob(length, property);
+    const { encode, decode } = encodeDecode$2(layout);
+    const bigIntLayout = layout;
+    bigIntLayout.decode = (buffer, offset) => {
+        const src = decode(buffer, offset);
+        return toBigIntLE_1(Buffer.from(src));
+    };
+    bigIntLayout.encode = (bigInt, buffer, offset) => {
+        const src = toBufferLE_1(bigInt, length);
+        return encode(src, buffer, offset);
+    };
+    return bigIntLayout;
+};
+const u64$2 = bigInt$2(8);
+
+const toBuffer$1 = arr => {
+  if (Buffer$2.isBuffer(arr)) {
+    return arr;
+  } else if (arr instanceof Uint8Array) {
+    return Buffer$2.from(arr.buffer, arr.byteOffset, arr.byteLength);
+  } else {
+    return Buffer$2.from(arr);
+  }
+};
+
+var hash$1$1 = {};
+
+var utils$9$1 = {};
+
+var minimalisticAssert$1 = assert$6$1;
+
+function assert$6$1(val, msg) {
+  if (!val)
+    throw new Error(msg || 'Assertion failed');
+}
+
+assert$6$1.equal = function assertEqual(l, r, msg) {
+  if (l != r)
+    throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
+};
+
+var inherits_browser$1 = {exports: {}};
+
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  inherits_browser$1.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor;
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      });
+    }
+  };
+} else {
+  // old school shim for old browsers
+  inherits_browser$1.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor;
+      var TempCtor = function () {};
+      TempCtor.prototype = superCtor.prototype;
+      ctor.prototype = new TempCtor();
+      ctor.prototype.constructor = ctor;
+    }
+  };
+}
+
+var assert$5$1 = minimalisticAssert$1;
+var inherits$1 = inherits_browser$1.exports;
+
+utils$9$1.inherits = inherits$1;
+
+function isSurrogatePair$1(msg, i) {
+  if ((msg.charCodeAt(i) & 0xFC00) !== 0xD800) {
+    return false;
+  }
+  if (i < 0 || i + 1 >= msg.length) {
+    return false;
+  }
+  return (msg.charCodeAt(i + 1) & 0xFC00) === 0xDC00;
+}
+
+function toArray$1(msg, enc) {
+  if (Array.isArray(msg))
+    return msg.slice();
+  if (!msg)
+    return [];
+  var res = [];
+  if (typeof msg === 'string') {
+    if (!enc) {
+      // Inspired by stringToUtf8ByteArray() in closure-library by Google
+      // https://github.com/google/closure-library/blob/8598d87242af59aac233270742c8984e2b2bdbe0/closure/goog/crypt/crypt.js#L117-L143
+      // Apache License 2.0
+      // https://github.com/google/closure-library/blob/master/LICENSE
+      var p = 0;
+      for (var i = 0; i < msg.length; i++) {
+        var c = msg.charCodeAt(i);
+        if (c < 128) {
+          res[p++] = c;
+        } else if (c < 2048) {
+          res[p++] = (c >> 6) | 192;
+          res[p++] = (c & 63) | 128;
+        } else if (isSurrogatePair$1(msg, i)) {
+          c = 0x10000 + ((c & 0x03FF) << 10) + (msg.charCodeAt(++i) & 0x03FF);
+          res[p++] = (c >> 18) | 240;
+          res[p++] = ((c >> 12) & 63) | 128;
+          res[p++] = ((c >> 6) & 63) | 128;
+          res[p++] = (c & 63) | 128;
+        } else {
+          res[p++] = (c >> 12) | 224;
+          res[p++] = ((c >> 6) & 63) | 128;
+          res[p++] = (c & 63) | 128;
+        }
+      }
+    } else if (enc === 'hex') {
+      msg = msg.replace(/[^a-z0-9]+/ig, '');
+      if (msg.length % 2 !== 0)
+        msg = '0' + msg;
+      for (i = 0; i < msg.length; i += 2)
+        res.push(parseInt(msg[i] + msg[i + 1], 16));
+    }
+  } else {
+    for (i = 0; i < msg.length; i++)
+      res[i] = msg[i] | 0;
+  }
+  return res;
+}
+utils$9$1.toArray = toArray$1;
+
+function toHex$1(msg) {
+  var res = '';
+  for (var i = 0; i < msg.length; i++)
+    res += zero2$1(msg[i].toString(16));
+  return res;
+}
+utils$9$1.toHex = toHex$1;
+
+function htonl$1(w) {
+  var res = (w >>> 24) |
+            ((w >>> 8) & 0xff00) |
+            ((w << 8) & 0xff0000) |
+            ((w & 0xff) << 24);
+  return res >>> 0;
+}
+utils$9$1.htonl = htonl$1;
+
+function toHex32$1(msg, endian) {
+  var res = '';
+  for (var i = 0; i < msg.length; i++) {
+    var w = msg[i];
+    if (endian === 'little')
+      w = htonl$1(w);
+    res += zero8$1(w.toString(16));
+  }
+  return res;
+}
+utils$9$1.toHex32 = toHex32$1;
+
+function zero2$1(word) {
+  if (word.length === 1)
+    return '0' + word;
+  else
+    return word;
+}
+utils$9$1.zero2 = zero2$1;
+
+function zero8$1(word) {
+  if (word.length === 7)
+    return '0' + word;
+  else if (word.length === 6)
+    return '00' + word;
+  else if (word.length === 5)
+    return '000' + word;
+  else if (word.length === 4)
+    return '0000' + word;
+  else if (word.length === 3)
+    return '00000' + word;
+  else if (word.length === 2)
+    return '000000' + word;
+  else if (word.length === 1)
+    return '0000000' + word;
+  else
+    return word;
+}
+utils$9$1.zero8 = zero8$1;
+
+function join32$1(msg, start, end, endian) {
+  var len = end - start;
+  assert$5$1(len % 4 === 0);
+  var res = new Array(len / 4);
+  for (var i = 0, k = start; i < res.length; i++, k += 4) {
+    var w;
+    if (endian === 'big')
+      w = (msg[k] << 24) | (msg[k + 1] << 16) | (msg[k + 2] << 8) | msg[k + 3];
+    else
+      w = (msg[k + 3] << 24) | (msg[k + 2] << 16) | (msg[k + 1] << 8) | msg[k];
+    res[i] = w >>> 0;
+  }
+  return res;
+}
+utils$9$1.join32 = join32$1;
+
+function split32$1(msg, endian) {
+  var res = new Array(msg.length * 4);
+  for (var i = 0, k = 0; i < msg.length; i++, k += 4) {
+    var m = msg[i];
+    if (endian === 'big') {
+      res[k] = m >>> 24;
+      res[k + 1] = (m >>> 16) & 0xff;
+      res[k + 2] = (m >>> 8) & 0xff;
+      res[k + 3] = m & 0xff;
+    } else {
+      res[k + 3] = m >>> 24;
+      res[k + 2] = (m >>> 16) & 0xff;
+      res[k + 1] = (m >>> 8) & 0xff;
+      res[k] = m & 0xff;
+    }
+  }
+  return res;
+}
+utils$9$1.split32 = split32$1;
+
+function rotr32$1$1(w, b) {
+  return (w >>> b) | (w << (32 - b));
+}
+utils$9$1.rotr32 = rotr32$1$1;
+
+function rotl32$2$1(w, b) {
+  return (w << b) | (w >>> (32 - b));
+}
+utils$9$1.rotl32 = rotl32$2$1;
+
+function sum32$3$1(a, b) {
+  return (a + b) >>> 0;
+}
+utils$9$1.sum32 = sum32$3$1;
+
+function sum32_3$1$1(a, b, c) {
+  return (a + b + c) >>> 0;
+}
+utils$9$1.sum32_3 = sum32_3$1$1;
+
+function sum32_4$2$1(a, b, c, d) {
+  return (a + b + c + d) >>> 0;
+}
+utils$9$1.sum32_4 = sum32_4$2$1;
+
+function sum32_5$2$1(a, b, c, d, e) {
+  return (a + b + c + d + e) >>> 0;
+}
+utils$9$1.sum32_5 = sum32_5$2$1;
+
+function sum64$1$1(buf, pos, ah, al) {
+  var bh = buf[pos];
+  var bl = buf[pos + 1];
+
+  var lo = (al + bl) >>> 0;
+  var hi = (lo < al ? 1 : 0) + ah + bh;
+  buf[pos] = hi >>> 0;
+  buf[pos + 1] = lo;
+}
+utils$9$1.sum64 = sum64$1$1;
+
+function sum64_hi$1$1(ah, al, bh, bl) {
+  var lo = (al + bl) >>> 0;
+  var hi = (lo < al ? 1 : 0) + ah + bh;
+  return hi >>> 0;
+}
+utils$9$1.sum64_hi = sum64_hi$1$1;
+
+function sum64_lo$1$1(ah, al, bh, bl) {
+  var lo = al + bl;
+  return lo >>> 0;
+}
+utils$9$1.sum64_lo = sum64_lo$1$1;
+
+function sum64_4_hi$1$1(ah, al, bh, bl, ch, cl, dh, dl) {
+  var carry = 0;
+  var lo = al;
+  lo = (lo + bl) >>> 0;
+  carry += lo < al ? 1 : 0;
+  lo = (lo + cl) >>> 0;
+  carry += lo < cl ? 1 : 0;
+  lo = (lo + dl) >>> 0;
+  carry += lo < dl ? 1 : 0;
+
+  var hi = ah + bh + ch + dh + carry;
+  return hi >>> 0;
+}
+utils$9$1.sum64_4_hi = sum64_4_hi$1$1;
+
+function sum64_4_lo$1$1(ah, al, bh, bl, ch, cl, dh, dl) {
+  var lo = al + bl + cl + dl;
+  return lo >>> 0;
+}
+utils$9$1.sum64_4_lo = sum64_4_lo$1$1;
+
+function sum64_5_hi$1$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+  var carry = 0;
+  var lo = al;
+  lo = (lo + bl) >>> 0;
+  carry += lo < al ? 1 : 0;
+  lo = (lo + cl) >>> 0;
+  carry += lo < cl ? 1 : 0;
+  lo = (lo + dl) >>> 0;
+  carry += lo < dl ? 1 : 0;
+  lo = (lo + el) >>> 0;
+  carry += lo < el ? 1 : 0;
+
+  var hi = ah + bh + ch + dh + eh + carry;
+  return hi >>> 0;
+}
+utils$9$1.sum64_5_hi = sum64_5_hi$1$1;
+
+function sum64_5_lo$1$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+  var lo = al + bl + cl + dl + el;
+
+  return lo >>> 0;
+}
+utils$9$1.sum64_5_lo = sum64_5_lo$1$1;
+
+function rotr64_hi$1$1(ah, al, num) {
+  var r = (al << (32 - num)) | (ah >>> num);
+  return r >>> 0;
+}
+utils$9$1.rotr64_hi = rotr64_hi$1$1;
+
+function rotr64_lo$1$1(ah, al, num) {
+  var r = (ah << (32 - num)) | (al >>> num);
+  return r >>> 0;
+}
+utils$9$1.rotr64_lo = rotr64_lo$1$1;
+
+function shr64_hi$1$1(ah, al, num) {
+  return ah >>> num;
+}
+utils$9$1.shr64_hi = shr64_hi$1$1;
+
+function shr64_lo$1$1(ah, al, num) {
+  var r = (ah << (32 - num)) | (al >>> num);
+  return r >>> 0;
+}
+utils$9$1.shr64_lo = shr64_lo$1$1;
+
+var common$5$1 = {};
+
+var utils$8$1 = utils$9$1;
+var assert$4$1 = minimalisticAssert$1;
+
+function BlockHash$4$1() {
+  this.pending = null;
+  this.pendingTotal = 0;
+  this.blockSize = this.constructor.blockSize;
+  this.outSize = this.constructor.outSize;
+  this.hmacStrength = this.constructor.hmacStrength;
+  this.padLength = this.constructor.padLength / 8;
+  this.endian = 'big';
+
+  this._delta8 = this.blockSize / 8;
+  this._delta32 = this.blockSize / 32;
+}
+common$5$1.BlockHash = BlockHash$4$1;
+
+BlockHash$4$1.prototype.update = function update(msg, enc) {
+  // Convert message to array, pad it, and join into 32bit blocks
+  msg = utils$8$1.toArray(msg, enc);
+  if (!this.pending)
+    this.pending = msg;
+  else
+    this.pending = this.pending.concat(msg);
+  this.pendingTotal += msg.length;
+
+  // Enough data, try updating
+  if (this.pending.length >= this._delta8) {
+    msg = this.pending;
+
+    // Process pending data in blocks
+    var r = msg.length % this._delta8;
+    this.pending = msg.slice(msg.length - r, msg.length);
+    if (this.pending.length === 0)
+      this.pending = null;
+
+    msg = utils$8$1.join32(msg, 0, msg.length - r, this.endian);
+    for (var i = 0; i < msg.length; i += this._delta32)
+      this._update(msg, i, i + this._delta32);
+  }
+
+  return this;
+};
+
+BlockHash$4$1.prototype.digest = function digest(enc) {
+  this.update(this._pad());
+  assert$4$1(this.pending === null);
+
+  return this._digest(enc);
+};
+
+BlockHash$4$1.prototype._pad = function pad() {
+  var len = this.pendingTotal;
+  var bytes = this._delta8;
+  var k = bytes - ((len + this.padLength) % bytes);
+  var res = new Array(k + this.padLength);
+  res[0] = 0x80;
+  for (var i = 1; i < k; i++)
+    res[i] = 0;
+
+  // Append length
+  len <<= 3;
+  if (this.endian === 'big') {
+    for (var t = 8; t < this.padLength; t++)
+      res[i++] = 0;
+
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = (len >>> 24) & 0xff;
+    res[i++] = (len >>> 16) & 0xff;
+    res[i++] = (len >>> 8) & 0xff;
+    res[i++] = len & 0xff;
+  } else {
+    res[i++] = len & 0xff;
+    res[i++] = (len >>> 8) & 0xff;
+    res[i++] = (len >>> 16) & 0xff;
+    res[i++] = (len >>> 24) & 0xff;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+
+    for (t = 8; t < this.padLength; t++)
+      res[i++] = 0;
+  }
+
+  return res;
+};
+
+var sha$1 = {};
+
+var common$4$1 = {};
+
+var utils$7$1 = utils$9$1;
+var rotr32$2 = utils$7$1.rotr32;
+
+function ft_1$1$1(s, x, y, z) {
+  if (s === 0)
+    return ch32$1$1(x, y, z);
+  if (s === 1 || s === 3)
+    return p32$1(x, y, z);
+  if (s === 2)
+    return maj32$1$1(x, y, z);
+}
+common$4$1.ft_1 = ft_1$1$1;
+
+function ch32$1$1(x, y, z) {
+  return (x & y) ^ ((~x) & z);
+}
+common$4$1.ch32 = ch32$1$1;
+
+function maj32$1$1(x, y, z) {
+  return (x & y) ^ (x & z) ^ (y & z);
+}
+common$4$1.maj32 = maj32$1$1;
+
+function p32$1(x, y, z) {
+  return x ^ y ^ z;
+}
+common$4$1.p32 = p32$1;
+
+function s0_256$1$1(x) {
+  return rotr32$2(x, 2) ^ rotr32$2(x, 13) ^ rotr32$2(x, 22);
+}
+common$4$1.s0_256 = s0_256$1$1;
+
+function s1_256$1$1(x) {
+  return rotr32$2(x, 6) ^ rotr32$2(x, 11) ^ rotr32$2(x, 25);
+}
+common$4$1.s1_256 = s1_256$1$1;
+
+function g0_256$1$1(x) {
+  return rotr32$2(x, 7) ^ rotr32$2(x, 18) ^ (x >>> 3);
+}
+common$4$1.g0_256 = g0_256$1$1;
+
+function g1_256$1$1(x) {
+  return rotr32$2(x, 17) ^ rotr32$2(x, 19) ^ (x >>> 10);
+}
+common$4$1.g1_256 = g1_256$1$1;
+
+var utils$6$1 = utils$9$1;
+var common$3$1 = common$5$1;
+var shaCommon$1$1 = common$4$1;
+
+var rotl32$1$1 = utils$6$1.rotl32;
+var sum32$2$1 = utils$6$1.sum32;
+var sum32_5$1$1 = utils$6$1.sum32_5;
+var ft_1$2 = shaCommon$1$1.ft_1;
+var BlockHash$3$1 = common$3$1.BlockHash;
+
+var sha1_K$1 = [
+  0x5A827999, 0x6ED9EBA1,
+  0x8F1BBCDC, 0xCA62C1D6
+];
+
+function SHA1$1() {
+  if (!(this instanceof SHA1$1))
+    return new SHA1$1();
+
+  BlockHash$3$1.call(this);
+  this.h = [
+    0x67452301, 0xefcdab89, 0x98badcfe,
+    0x10325476, 0xc3d2e1f0 ];
+  this.W = new Array(80);
+}
+
+utils$6$1.inherits(SHA1$1, BlockHash$3$1);
+var _1$1 = SHA1$1;
+
+SHA1$1.blockSize = 512;
+SHA1$1.outSize = 160;
+SHA1$1.hmacStrength = 80;
+SHA1$1.padLength = 64;
+
+SHA1$1.prototype._update = function _update(msg, start) {
+  var W = this.W;
+
+  for (var i = 0; i < 16; i++)
+    W[i] = msg[start + i];
+
+  for(; i < W.length; i++)
+    W[i] = rotl32$1$1(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+
+  var a = this.h[0];
+  var b = this.h[1];
+  var c = this.h[2];
+  var d = this.h[3];
+  var e = this.h[4];
+
+  for (i = 0; i < W.length; i++) {
+    var s = ~~(i / 20);
+    var t = sum32_5$1$1(rotl32$1$1(a, 5), ft_1$2(s, b, c, d), e, W[i], sha1_K$1[s]);
+    e = d;
+    d = c;
+    c = rotl32$1$1(b, 30);
+    b = a;
+    a = t;
+  }
+
+  this.h[0] = sum32$2$1(this.h[0], a);
+  this.h[1] = sum32$2$1(this.h[1], b);
+  this.h[2] = sum32$2$1(this.h[2], c);
+  this.h[3] = sum32$2$1(this.h[3], d);
+  this.h[4] = sum32$2$1(this.h[4], e);
+};
+
+SHA1$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$6$1.toHex32(this.h, 'big');
+  else
+    return utils$6$1.split32(this.h, 'big');
+};
+
+var utils$5$1 = utils$9$1;
+var common$2$1 = common$5$1;
+var shaCommon$2 = common$4$1;
+var assert$3$1 = minimalisticAssert$1;
+
+var sum32$1$1 = utils$5$1.sum32;
+var sum32_4$1$1 = utils$5$1.sum32_4;
+var sum32_5$3 = utils$5$1.sum32_5;
+var ch32$2 = shaCommon$2.ch32;
+var maj32$2 = shaCommon$2.maj32;
+var s0_256$2 = shaCommon$2.s0_256;
+var s1_256$2 = shaCommon$2.s1_256;
+var g0_256$2 = shaCommon$2.g0_256;
+var g1_256$2 = shaCommon$2.g1_256;
+
+var BlockHash$2$1 = common$2$1.BlockHash;
+
+var sha256_K$1 = [
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+  0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+  0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+  0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+  0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+  0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+  0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+  0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+];
+
+function SHA256$1$1() {
+  if (!(this instanceof SHA256$1$1))
+    return new SHA256$1$1();
+
+  BlockHash$2$1.call(this);
+  this.h = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+  ];
+  this.k = sha256_K$1;
+  this.W = new Array(64);
+}
+utils$5$1.inherits(SHA256$1$1, BlockHash$2$1);
+var _256$1 = SHA256$1$1;
+
+SHA256$1$1.blockSize = 512;
+SHA256$1$1.outSize = 256;
+SHA256$1$1.hmacStrength = 192;
+SHA256$1$1.padLength = 64;
+
+SHA256$1$1.prototype._update = function _update(msg, start) {
+  var W = this.W;
+
+  for (var i = 0; i < 16; i++)
+    W[i] = msg[start + i];
+  for (; i < W.length; i++)
+    W[i] = sum32_4$1$1(g1_256$2(W[i - 2]), W[i - 7], g0_256$2(W[i - 15]), W[i - 16]);
+
+  var a = this.h[0];
+  var b = this.h[1];
+  var c = this.h[2];
+  var d = this.h[3];
+  var e = this.h[4];
+  var f = this.h[5];
+  var g = this.h[6];
+  var h = this.h[7];
+
+  assert$3$1(this.k.length === W.length);
+  for (i = 0; i < W.length; i++) {
+    var T1 = sum32_5$3(h, s1_256$2(e), ch32$2(e, f, g), this.k[i], W[i]);
+    var T2 = sum32$1$1(s0_256$2(a), maj32$2(a, b, c));
+    h = g;
+    g = f;
+    f = e;
+    e = sum32$1$1(d, T1);
+    d = c;
+    c = b;
+    b = a;
+    a = sum32$1$1(T1, T2);
+  }
+
+  this.h[0] = sum32$1$1(this.h[0], a);
+  this.h[1] = sum32$1$1(this.h[1], b);
+  this.h[2] = sum32$1$1(this.h[2], c);
+  this.h[3] = sum32$1$1(this.h[3], d);
+  this.h[4] = sum32$1$1(this.h[4], e);
+  this.h[5] = sum32$1$1(this.h[5], f);
+  this.h[6] = sum32$1$1(this.h[6], g);
+  this.h[7] = sum32$1$1(this.h[7], h);
+};
+
+SHA256$1$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$5$1.toHex32(this.h, 'big');
+  else
+    return utils$5$1.split32(this.h, 'big');
+};
+
+var utils$4$1 = utils$9$1;
+var SHA256$2 = _256$1;
+
+function SHA224$1() {
+  if (!(this instanceof SHA224$1))
+    return new SHA224$1();
+
+  SHA256$2.call(this);
+  this.h = [
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
+    0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 ];
+}
+utils$4$1.inherits(SHA224$1, SHA256$2);
+var _224$1 = SHA224$1;
+
+SHA224$1.blockSize = 512;
+SHA224$1.outSize = 224;
+SHA224$1.hmacStrength = 192;
+SHA224$1.padLength = 64;
+
+SHA224$1.prototype._digest = function digest(enc) {
+  // Just truncate output
+  if (enc === 'hex')
+    return utils$4$1.toHex32(this.h.slice(0, 7), 'big');
+  else
+    return utils$4$1.split32(this.h.slice(0, 7), 'big');
+};
+
+var utils$3$1 = utils$9$1;
+var common$1$1 = common$5$1;
+var assert$2$1 = minimalisticAssert$1;
+
+var rotr64_hi$2 = utils$3$1.rotr64_hi;
+var rotr64_lo$2 = utils$3$1.rotr64_lo;
+var shr64_hi$2 = utils$3$1.shr64_hi;
+var shr64_lo$2 = utils$3$1.shr64_lo;
+var sum64$2 = utils$3$1.sum64;
+var sum64_hi$2 = utils$3$1.sum64_hi;
+var sum64_lo$2 = utils$3$1.sum64_lo;
+var sum64_4_hi$2 = utils$3$1.sum64_4_hi;
+var sum64_4_lo$2 = utils$3$1.sum64_4_lo;
+var sum64_5_hi$2 = utils$3$1.sum64_5_hi;
+var sum64_5_lo$2 = utils$3$1.sum64_5_lo;
+
+var BlockHash$1$1 = common$1$1.BlockHash;
+
+var sha512_K$1 = [
+  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
+  0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+  0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
+  0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+  0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
+  0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+  0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
+  0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+  0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
+  0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+  0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
+  0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+  0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
+  0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+  0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
+  0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+  0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
+  0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+  0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
+  0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+  0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
+  0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+  0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
+  0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+  0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
+  0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+  0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
+  0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+  0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
+  0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+  0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
+  0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+  0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
+  0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+  0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
+  0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+  0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
+  0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+  0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
+  0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+];
+
+function SHA512$1$1() {
+  if (!(this instanceof SHA512$1$1))
+    return new SHA512$1$1();
+
+  BlockHash$1$1.call(this);
+  this.h = [
+    0x6a09e667, 0xf3bcc908,
+    0xbb67ae85, 0x84caa73b,
+    0x3c6ef372, 0xfe94f82b,
+    0xa54ff53a, 0x5f1d36f1,
+    0x510e527f, 0xade682d1,
+    0x9b05688c, 0x2b3e6c1f,
+    0x1f83d9ab, 0xfb41bd6b,
+    0x5be0cd19, 0x137e2179 ];
+  this.k = sha512_K$1;
+  this.W = new Array(160);
+}
+utils$3$1.inherits(SHA512$1$1, BlockHash$1$1);
+var _512$1 = SHA512$1$1;
+
+SHA512$1$1.blockSize = 1024;
+SHA512$1$1.outSize = 512;
+SHA512$1$1.hmacStrength = 192;
+SHA512$1$1.padLength = 128;
+
+SHA512$1$1.prototype._prepareBlock = function _prepareBlock(msg, start) {
+  var W = this.W;
+
+  // 32 x 32bit words
+  for (var i = 0; i < 32; i++)
+    W[i] = msg[start + i];
+  for (; i < W.length; i += 2) {
+    var c0_hi = g1_512_hi$1(W[i - 4], W[i - 3]);  // i - 2
+    var c0_lo = g1_512_lo$1(W[i - 4], W[i - 3]);
+    var c1_hi = W[i - 14];  // i - 7
+    var c1_lo = W[i - 13];
+    var c2_hi = g0_512_hi$1(W[i - 30], W[i - 29]);  // i - 15
+    var c2_lo = g0_512_lo$1(W[i - 30], W[i - 29]);
+    var c3_hi = W[i - 32];  // i - 16
+    var c3_lo = W[i - 31];
+
+    W[i] = sum64_4_hi$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo);
+    W[i + 1] = sum64_4_lo$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo);
+  }
+};
+
+SHA512$1$1.prototype._update = function _update(msg, start) {
+  this._prepareBlock(msg, start);
+
+  var W = this.W;
+
+  var ah = this.h[0];
+  var al = this.h[1];
+  var bh = this.h[2];
+  var bl = this.h[3];
+  var ch = this.h[4];
+  var cl = this.h[5];
+  var dh = this.h[6];
+  var dl = this.h[7];
+  var eh = this.h[8];
+  var el = this.h[9];
+  var fh = this.h[10];
+  var fl = this.h[11];
+  var gh = this.h[12];
+  var gl = this.h[13];
+  var hh = this.h[14];
+  var hl = this.h[15];
+
+  assert$2$1(this.k.length === W.length);
+  for (var i = 0; i < W.length; i += 2) {
+    var c0_hi = hh;
+    var c0_lo = hl;
+    var c1_hi = s1_512_hi$1(eh, el);
+    var c1_lo = s1_512_lo$1(eh, el);
+    var c2_hi = ch64_hi$1(eh, el, fh, fl, gh);
+    var c2_lo = ch64_lo$1(eh, el, fh, fl, gh, gl);
+    var c3_hi = this.k[i];
+    var c3_lo = this.k[i + 1];
+    var c4_hi = W[i];
+    var c4_lo = W[i + 1];
+
+    var T1_hi = sum64_5_hi$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo,
+      c4_hi, c4_lo);
+    var T1_lo = sum64_5_lo$2(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo,
+      c4_hi, c4_lo);
+
+    c0_hi = s0_512_hi$1(ah, al);
+    c0_lo = s0_512_lo$1(ah, al);
+    c1_hi = maj64_hi$1(ah, al, bh, bl, ch);
+    c1_lo = maj64_lo$1(ah, al, bh, bl, ch, cl);
+
+    var T2_hi = sum64_hi$2(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_lo = sum64_lo$2(c0_hi, c0_lo, c1_hi, c1_lo);
+
+    hh = gh;
+    hl = gl;
+
+    gh = fh;
+    gl = fl;
+
+    fh = eh;
+    fl = el;
+
+    eh = sum64_hi$2(dh, dl, T1_hi, T1_lo);
+    el = sum64_lo$2(dl, dl, T1_hi, T1_lo);
+
+    dh = ch;
+    dl = cl;
+
+    ch = bh;
+    cl = bl;
+
+    bh = ah;
+    bl = al;
+
+    ah = sum64_hi$2(T1_hi, T1_lo, T2_hi, T2_lo);
+    al = sum64_lo$2(T1_hi, T1_lo, T2_hi, T2_lo);
+  }
+
+  sum64$2(this.h, 0, ah, al);
+  sum64$2(this.h, 2, bh, bl);
+  sum64$2(this.h, 4, ch, cl);
+  sum64$2(this.h, 6, dh, dl);
+  sum64$2(this.h, 8, eh, el);
+  sum64$2(this.h, 10, fh, fl);
+  sum64$2(this.h, 12, gh, gl);
+  sum64$2(this.h, 14, hh, hl);
+};
+
+SHA512$1$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$3$1.toHex32(this.h, 'big');
+  else
+    return utils$3$1.split32(this.h, 'big');
+};
+
+function ch64_hi$1(xh, xl, yh, yl, zh) {
+  var r = (xh & yh) ^ ((~xh) & zh);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function ch64_lo$1(xh, xl, yh, yl, zh, zl) {
+  var r = (xl & yl) ^ ((~xl) & zl);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function maj64_hi$1(xh, xl, yh, yl, zh) {
+  var r = (xh & yh) ^ (xh & zh) ^ (yh & zh);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function maj64_lo$1(xh, xl, yh, yl, zh, zl) {
+  var r = (xl & yl) ^ (xl & zl) ^ (yl & zl);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s0_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 28);
+  var c1_hi = rotr64_hi$2(xl, xh, 2);  // 34
+  var c2_hi = rotr64_hi$2(xl, xh, 7);  // 39
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s0_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 28);
+  var c1_lo = rotr64_lo$2(xl, xh, 2);  // 34
+  var c2_lo = rotr64_lo$2(xl, xh, 7);  // 39
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s1_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 14);
+  var c1_hi = rotr64_hi$2(xh, xl, 18);
+  var c2_hi = rotr64_hi$2(xl, xh, 9);  // 41
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s1_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 14);
+  var c1_lo = rotr64_lo$2(xh, xl, 18);
+  var c2_lo = rotr64_lo$2(xl, xh, 9);  // 41
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g0_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 1);
+  var c1_hi = rotr64_hi$2(xh, xl, 8);
+  var c2_hi = shr64_hi$2(xh, xl, 7);
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g0_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 1);
+  var c1_lo = rotr64_lo$2(xh, xl, 8);
+  var c2_lo = shr64_lo$2(xh, xl, 7);
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g1_512_hi$1(xh, xl) {
+  var c0_hi = rotr64_hi$2(xh, xl, 19);
+  var c1_hi = rotr64_hi$2(xl, xh, 29);  // 61
+  var c2_hi = shr64_hi$2(xh, xl, 6);
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g1_512_lo$1(xh, xl) {
+  var c0_lo = rotr64_lo$2(xh, xl, 19);
+  var c1_lo = rotr64_lo$2(xl, xh, 29);  // 61
+  var c2_lo = shr64_lo$2(xh, xl, 6);
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+var utils$2$1 = utils$9$1;
+
+var SHA512$2 = _512$1;
+
+function SHA384$1() {
+  if (!(this instanceof SHA384$1))
+    return new SHA384$1();
+
+  SHA512$2.call(this);
+  this.h = [
+    0xcbbb9d5d, 0xc1059ed8,
+    0x629a292a, 0x367cd507,
+    0x9159015a, 0x3070dd17,
+    0x152fecd8, 0xf70e5939,
+    0x67332667, 0xffc00b31,
+    0x8eb44a87, 0x68581511,
+    0xdb0c2e0d, 0x64f98fa7,
+    0x47b5481d, 0xbefa4fa4 ];
+}
+utils$2$1.inherits(SHA384$1, SHA512$2);
+var _384$1 = SHA384$1;
+
+SHA384$1.blockSize = 1024;
+SHA384$1.outSize = 384;
+SHA384$1.hmacStrength = 192;
+SHA384$1.padLength = 128;
+
+SHA384$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$2$1.toHex32(this.h.slice(0, 12), 'big');
+  else
+    return utils$2$1.split32(this.h.slice(0, 12), 'big');
+};
+
+sha$1.sha1 = _1$1;
+sha$1.sha224 = _224$1;
+sha$1.sha256 = _256$1;
+sha$1.sha384 = _384$1;
+sha$1.sha512 = _512$1;
+
+var ripemd$1 = {};
+
+var utils$1$1 = utils$9$1;
+var common$6 = common$5$1;
+
+var rotl32$3 = utils$1$1.rotl32;
+var sum32$4 = utils$1$1.sum32;
+var sum32_3$2 = utils$1$1.sum32_3;
+var sum32_4$3 = utils$1$1.sum32_4;
+var BlockHash$5 = common$6.BlockHash;
+
+function RIPEMD160$1() {
+  if (!(this instanceof RIPEMD160$1))
+    return new RIPEMD160$1();
+
+  BlockHash$5.call(this);
+
+  this.h = [ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 ];
+  this.endian = 'little';
+}
+utils$1$1.inherits(RIPEMD160$1, BlockHash$5);
+ripemd$1.ripemd160 = RIPEMD160$1;
+
+RIPEMD160$1.blockSize = 512;
+RIPEMD160$1.outSize = 160;
+RIPEMD160$1.hmacStrength = 192;
+RIPEMD160$1.padLength = 64;
+
+RIPEMD160$1.prototype._update = function update(msg, start) {
+  var A = this.h[0];
+  var B = this.h[1];
+  var C = this.h[2];
+  var D = this.h[3];
+  var E = this.h[4];
+  var Ah = A;
+  var Bh = B;
+  var Ch = C;
+  var Dh = D;
+  var Eh = E;
+  for (var j = 0; j < 80; j++) {
+    var T = sum32$4(
+      rotl32$3(
+        sum32_4$3(A, f$1(j, B, C, D), msg[r$1[j] + start], K$1(j)),
+        s$1[j]),
+      E);
+    A = E;
+    E = D;
+    D = rotl32$3(C, 10);
+    C = B;
+    B = T;
+    T = sum32$4(
+      rotl32$3(
+        sum32_4$3(Ah, f$1(79 - j, Bh, Ch, Dh), msg[rh$1[j] + start], Kh$1(j)),
+        sh$1[j]),
+      Eh);
+    Ah = Eh;
+    Eh = Dh;
+    Dh = rotl32$3(Ch, 10);
+    Ch = Bh;
+    Bh = T;
+  }
+  T = sum32_3$2(this.h[1], C, Dh);
+  this.h[1] = sum32_3$2(this.h[2], D, Eh);
+  this.h[2] = sum32_3$2(this.h[3], E, Ah);
+  this.h[3] = sum32_3$2(this.h[4], A, Bh);
+  this.h[4] = sum32_3$2(this.h[0], B, Ch);
+  this.h[0] = T;
+};
+
+RIPEMD160$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$1$1.toHex32(this.h, 'little');
+  else
+    return utils$1$1.split32(this.h, 'little');
+};
+
+function f$1(j, x, y, z) {
+  if (j <= 15)
+    return x ^ y ^ z;
+  else if (j <= 31)
+    return (x & y) | ((~x) & z);
+  else if (j <= 47)
+    return (x | (~y)) ^ z;
+  else if (j <= 63)
+    return (x & z) | (y & (~z));
+  else
+    return x ^ (y | (~z));
+}
+
+function K$1(j) {
+  if (j <= 15)
+    return 0x00000000;
+  else if (j <= 31)
+    return 0x5a827999;
+  else if (j <= 47)
+    return 0x6ed9eba1;
+  else if (j <= 63)
+    return 0x8f1bbcdc;
+  else
+    return 0xa953fd4e;
+}
+
+function Kh$1(j) {
+  if (j <= 15)
+    return 0x50a28be6;
+  else if (j <= 31)
+    return 0x5c4dd124;
+  else if (j <= 47)
+    return 0x6d703ef3;
+  else if (j <= 63)
+    return 0x7a6d76e9;
+  else
+    return 0x00000000;
+}
+
+var r$1 = [
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
+  3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
+  1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2,
+  4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13
+];
+
+var rh$1 = [
+  5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
+  6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
+  15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
+  8, 6, 4, 1, 3, 11, 15, 0, 5, 12, 2, 13, 9, 7, 10, 14,
+  12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11
+];
+
+var s$1 = [
+  11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
+  7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
+  11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
+  11, 12, 14, 15, 14, 15, 9, 8, 9, 14, 5, 6, 8, 6, 5, 12,
+  9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6
+];
+
+var sh$1 = [
+  8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
+  9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
+  9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
+  15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
+  8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
+];
+
+var utils$a = utils$9$1;
+var assert$1$1 = minimalisticAssert$1;
+
+function Hmac$1(hash, key, enc) {
+  if (!(this instanceof Hmac$1))
+    return new Hmac$1(hash, key, enc);
+  this.Hash = hash;
+  this.blockSize = hash.blockSize / 8;
+  this.outSize = hash.outSize / 8;
+  this.inner = null;
+  this.outer = null;
+
+  this._init(utils$a.toArray(key, enc));
+}
+var hmac$1 = Hmac$1;
+
+Hmac$1.prototype._init = function init(key) {
+  // Shorten key, if needed
+  if (key.length > this.blockSize)
+    key = new this.Hash().update(key).digest();
+  assert$1$1(key.length <= this.blockSize);
+
+  // Add padding to key
+  for (var i = key.length; i < this.blockSize; i++)
+    key.push(0);
+
+  for (i = 0; i < key.length; i++)
+    key[i] ^= 0x36;
+  this.inner = new this.Hash().update(key);
+
+  // 0x36 ^ 0x5c = 0x6a
+  for (i = 0; i < key.length; i++)
+    key[i] ^= 0x6a;
+  this.outer = new this.Hash().update(key);
+};
+
+Hmac$1.prototype.update = function update(msg, enc) {
+  this.inner.update(msg, enc);
+  return this;
+};
+
+Hmac$1.prototype.digest = function digest(enc) {
+  this.outer.update(this.inner.digest());
+  return this.outer.digest(enc);
+};
+
+(function (exports) {
+	var hash = exports;
+
+	hash.utils = utils$9$1;
+	hash.common = common$5$1;
+	hash.sha = sha$1;
+	hash.ripemd = ripemd$1;
+	hash.hmac = hmac$1;
+
+	// Proxy hash functions to the main object
+	hash.sha1 = hash.sha.sha1;
+	hash.sha256 = hash.sha.sha256;
+	hash.sha224 = hash.sha.sha224;
+	hash.sha384 = hash.sha.sha384;
+	hash.sha512 = hash.sha.sha512;
+	hash.ripemd160 = hash.ripemd.ripemd160;
+} (hash$1$1));
+
+var hash$2 = hash$1$1;
+
+const version$2$1 = "logger/5.6.0";
+
+let _permanentCensorErrors$1 = false;
+let _censorErrors$1 = false;
+const LogLevels$1 = { debug: 1, "default": 2, info: 2, warning: 3, error: 4, off: 5 };
+let _logLevel$1 = LogLevels$1["default"];
+let _globalLogger$1 = null;
+function _checkNormalize$1() {
+    try {
+        const missing = [];
+        // Make sure all forms of normalization are supported
+        ["NFD", "NFC", "NFKD", "NFKC"].forEach((form) => {
+            try {
+                if ("test".normalize(form) !== "test") {
+                    throw new Error("bad normalize");
+                }
+                ;
+            }
+            catch (error) {
+                missing.push(form);
+            }
+        });
+        if (missing.length) {
+            throw new Error("missing " + missing.join(", "));
+        }
+        if (String.fromCharCode(0xe9).normalize("NFD") !== String.fromCharCode(0x65, 0x0301)) {
+            throw new Error("broken implementation");
+        }
+    }
+    catch (error) {
+        return error.message;
+    }
+    return null;
+}
+const _normalizeError$1 = _checkNormalize$1();
+var LogLevel$1;
+(function (LogLevel) {
+    LogLevel["DEBUG"] = "DEBUG";
+    LogLevel["INFO"] = "INFO";
+    LogLevel["WARNING"] = "WARNING";
+    LogLevel["ERROR"] = "ERROR";
+    LogLevel["OFF"] = "OFF";
+})(LogLevel$1 || (LogLevel$1 = {}));
+var ErrorCode$1;
+(function (ErrorCode) {
+    ///////////////////
+    // Generic Errors
+    // Unknown Error
+    ErrorCode["UNKNOWN_ERROR"] = "UNKNOWN_ERROR";
+    // Not Implemented
+    ErrorCode["NOT_IMPLEMENTED"] = "NOT_IMPLEMENTED";
+    // Unsupported Operation
+    //   - operation
+    ErrorCode["UNSUPPORTED_OPERATION"] = "UNSUPPORTED_OPERATION";
+    // Network Error (i.e. Ethereum Network, such as an invalid chain ID)
+    //   - event ("noNetwork" is not re-thrown in provider.ready; otherwise thrown)
+    ErrorCode["NETWORK_ERROR"] = "NETWORK_ERROR";
+    // Some sort of bad response from the server
+    ErrorCode["SERVER_ERROR"] = "SERVER_ERROR";
+    // Timeout
+    ErrorCode["TIMEOUT"] = "TIMEOUT";
+    ///////////////////
+    // Operational  Errors
+    // Buffer Overrun
+    ErrorCode["BUFFER_OVERRUN"] = "BUFFER_OVERRUN";
+    // Numeric Fault
+    //   - operation: the operation being executed
+    //   - fault: the reason this faulted
+    ErrorCode["NUMERIC_FAULT"] = "NUMERIC_FAULT";
+    ///////////////////
+    // Argument Errors
+    // Missing new operator to an object
+    //  - name: The name of the class
+    ErrorCode["MISSING_NEW"] = "MISSING_NEW";
+    // Invalid argument (e.g. value is incompatible with type) to a function:
+    //   - argument: The argument name that was invalid
+    //   - value: The value of the argument
+    ErrorCode["INVALID_ARGUMENT"] = "INVALID_ARGUMENT";
+    // Missing argument to a function:
+    //   - count: The number of arguments received
+    //   - expectedCount: The number of arguments expected
+    ErrorCode["MISSING_ARGUMENT"] = "MISSING_ARGUMENT";
+    // Too many arguments
+    //   - count: The number of arguments received
+    //   - expectedCount: The number of arguments expected
+    ErrorCode["UNEXPECTED_ARGUMENT"] = "UNEXPECTED_ARGUMENT";
+    ///////////////////
+    // Blockchain Errors
+    // Call exception
+    //  - transaction: the transaction
+    //  - address?: the contract address
+    //  - args?: The arguments passed into the function
+    //  - method?: The Solidity method signature
+    //  - errorSignature?: The EIP848 error signature
+    //  - errorArgs?: The EIP848 error parameters
+    //  - reason: The reason (only for EIP848 "Error(string)")
+    ErrorCode["CALL_EXCEPTION"] = "CALL_EXCEPTION";
+    // Insufficient funds (< value + gasLimit * gasPrice)
+    //   - transaction: the transaction attempted
+    ErrorCode["INSUFFICIENT_FUNDS"] = "INSUFFICIENT_FUNDS";
+    // Nonce has already been used
+    //   - transaction: the transaction attempted
+    ErrorCode["NONCE_EXPIRED"] = "NONCE_EXPIRED";
+    // The replacement fee for the transaction is too low
+    //   - transaction: the transaction attempted
+    ErrorCode["REPLACEMENT_UNDERPRICED"] = "REPLACEMENT_UNDERPRICED";
+    // The gas limit could not be estimated
+    //   - transaction: the transaction passed to estimateGas
+    ErrorCode["UNPREDICTABLE_GAS_LIMIT"] = "UNPREDICTABLE_GAS_LIMIT";
+    // The transaction was replaced by one with a higher gas price
+    //   - reason: "cancelled", "replaced" or "repriced"
+    //   - cancelled: true if reason == "cancelled" or reason == "replaced")
+    //   - hash: original transaction hash
+    //   - replacement: the full TransactionsResponse for the replacement
+    //   - receipt: the receipt of the replacement
+    ErrorCode["TRANSACTION_REPLACED"] = "TRANSACTION_REPLACED";
+})(ErrorCode$1 || (ErrorCode$1 = {}));
+const HEX$1 = "0123456789abcdef";
+class Logger$1 {
+    constructor(version) {
+        Object.defineProperty(this, "version", {
+            enumerable: true,
+            value: version,
+            writable: false
+        });
+    }
+    _log(logLevel, args) {
+        const level = logLevel.toLowerCase();
+        if (LogLevels$1[level] == null) {
+            this.throwArgumentError("invalid log level name", "logLevel", logLevel);
+        }
+        if (_logLevel$1 > LogLevels$1[level]) {
+            return;
+        }
+        console.log.apply(console, args);
+    }
+    debug(...args) {
+        this._log(Logger$1.levels.DEBUG, args);
+    }
+    info(...args) {
+        this._log(Logger$1.levels.INFO, args);
+    }
+    warn(...args) {
+        this._log(Logger$1.levels.WARNING, args);
+    }
+    makeError(message, code, params) {
+        // Errors are being censored
+        if (_censorErrors$1) {
+            return this.makeError("censored error", code, {});
+        }
+        if (!code) {
+            code = Logger$1.errors.UNKNOWN_ERROR;
+        }
+        if (!params) {
+            params = {};
+        }
+        const messageDetails = [];
+        Object.keys(params).forEach((key) => {
+            const value = params[key];
+            try {
+                if (value instanceof Uint8Array) {
+                    let hex = "";
+                    for (let i = 0; i < value.length; i++) {
+                        hex += HEX$1[value[i] >> 4];
+                        hex += HEX$1[value[i] & 0x0f];
+                    }
+                    messageDetails.push(key + "=Uint8Array(0x" + hex + ")");
+                }
+                else {
+                    messageDetails.push(key + "=" + JSON.stringify(value));
+                }
+            }
+            catch (error) {
+                messageDetails.push(key + "=" + JSON.stringify(params[key].toString()));
+            }
+        });
+        messageDetails.push(`code=${code}`);
+        messageDetails.push(`version=${this.version}`);
+        const reason = message;
+        let url = "";
+        switch (code) {
+            case ErrorCode$1.NUMERIC_FAULT: {
+                url = "NUMERIC_FAULT";
+                const fault = message;
+                switch (fault) {
+                    case "overflow":
+                    case "underflow":
+                    case "division-by-zero":
+                        url += "-" + fault;
+                        break;
+                    case "negative-power":
+                    case "negative-width":
+                        url += "-unsupported";
+                        break;
+                    case "unbound-bitwise-result":
+                        url += "-unbound-result";
+                        break;
+                }
+                break;
+            }
+            case ErrorCode$1.CALL_EXCEPTION:
+            case ErrorCode$1.INSUFFICIENT_FUNDS:
+            case ErrorCode$1.MISSING_NEW:
+            case ErrorCode$1.NONCE_EXPIRED:
+            case ErrorCode$1.REPLACEMENT_UNDERPRICED:
+            case ErrorCode$1.TRANSACTION_REPLACED:
+            case ErrorCode$1.UNPREDICTABLE_GAS_LIMIT:
+                url = code;
+                break;
+        }
+        if (url) {
+            message += " [ See: https:/\/links.ethers.org/v5-errors-" + url + " ]";
+        }
+        if (messageDetails.length) {
+            message += " (" + messageDetails.join(", ") + ")";
+        }
+        // @TODO: Any??
+        const error = new Error(message);
+        error.reason = reason;
+        error.code = code;
+        Object.keys(params).forEach(function (key) {
+            error[key] = params[key];
+        });
+        return error;
+    }
+    throwError(message, code, params) {
+        throw this.makeError(message, code, params);
+    }
+    throwArgumentError(message, name, value) {
+        return this.throwError(message, Logger$1.errors.INVALID_ARGUMENT, {
+            argument: name,
+            value: value
+        });
+    }
+    assert(condition, message, code, params) {
+        if (!!condition) {
+            return;
+        }
+        this.throwError(message, code, params);
+    }
+    assertArgument(condition, message, name, value) {
+        if (!!condition) {
+            return;
+        }
+        this.throwArgumentError(message, name, value);
+    }
+    checkNormalize(message) {
+        if (_normalizeError$1) {
+            this.throwError("platform missing String.prototype.normalize", Logger$1.errors.UNSUPPORTED_OPERATION, {
+                operation: "String.prototype.normalize", form: _normalizeError$1
+            });
+        }
+    }
+    checkSafeUint53(value, message) {
+        if (typeof (value) !== "number") {
+            return;
+        }
+        if (message == null) {
+            message = "value not safe";
+        }
+        if (value < 0 || value >= 0x1fffffffffffff) {
+            this.throwError(message, Logger$1.errors.NUMERIC_FAULT, {
+                operation: "checkSafeInteger",
+                fault: "out-of-safe-range",
+                value: value
+            });
+        }
+        if (value % 1) {
+            this.throwError(message, Logger$1.errors.NUMERIC_FAULT, {
+                operation: "checkSafeInteger",
+                fault: "non-integer",
+                value: value
+            });
+        }
+    }
+    checkArgumentCount(count, expectedCount, message) {
+        if (message) {
+            message = ": " + message;
+        }
+        else {
+            message = "";
+        }
+        if (count < expectedCount) {
+            this.throwError("missing argument" + message, Logger$1.errors.MISSING_ARGUMENT, {
+                count: count,
+                expectedCount: expectedCount
+            });
+        }
+        if (count > expectedCount) {
+            this.throwError("too many arguments" + message, Logger$1.errors.UNEXPECTED_ARGUMENT, {
+                count: count,
+                expectedCount: expectedCount
+            });
+        }
+    }
+    checkNew(target, kind) {
+        if (target === Object || target == null) {
+            this.throwError("missing new", Logger$1.errors.MISSING_NEW, { name: kind.name });
+        }
+    }
+    checkAbstract(target, kind) {
+        if (target === kind) {
+            this.throwError("cannot instantiate abstract class " + JSON.stringify(kind.name) + " directly; use a sub-class", Logger$1.errors.UNSUPPORTED_OPERATION, { name: target.name, operation: "new" });
+        }
+        else if (target === Object || target == null) {
+            this.throwError("missing new", Logger$1.errors.MISSING_NEW, { name: kind.name });
+        }
+    }
+    static globalLogger() {
+        if (!_globalLogger$1) {
+            _globalLogger$1 = new Logger$1(version$2$1);
+        }
+        return _globalLogger$1;
+    }
+    static setCensorship(censorship, permanent) {
+        if (!censorship && permanent) {
+            this.globalLogger().throwError("cannot permanently disable censorship", Logger$1.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
+        if (_permanentCensorErrors$1) {
+            if (!censorship) {
+                return;
+            }
+            this.globalLogger().throwError("error censorship permanent", Logger$1.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
+        _censorErrors$1 = !!censorship;
+        _permanentCensorErrors$1 = !!permanent;
+    }
+    static setLogLevel(logLevel) {
+        const level = LogLevels$1[logLevel.toLowerCase()];
+        if (level == null) {
+            Logger$1.globalLogger().warn("invalid log level - " + logLevel);
+            return;
+        }
+        _logLevel$1 = level;
+    }
+    static from(version) {
+        return new Logger$1(version);
+    }
+}
+Logger$1.errors = ErrorCode$1;
+Logger$1.levels = LogLevel$1;
+
+const version$1$1 = "bytes/5.6.0";
+
+const logger$1 = new Logger$1(version$1$1);
+///////////////////////////////
+function isHexable$1(value) {
+    return !!(value.toHexString);
+}
+function addSlice$1(array) {
+    if (array.slice) {
+        return array;
+    }
+    array.slice = function () {
+        const args = Array.prototype.slice.call(arguments);
+        return addSlice$1(new Uint8Array(Array.prototype.slice.apply(array, args)));
+    };
+    return array;
+}
+function isInteger$1(value) {
+    return (typeof (value) === "number" && value == value && (value % 1) === 0);
+}
+function isBytes$1(value) {
+    if (value == null) {
+        return false;
+    }
+    if (value.constructor === Uint8Array) {
+        return true;
+    }
+    if (typeof (value) === "string") {
+        return false;
+    }
+    if (!isInteger$1(value.length) || value.length < 0) {
+        return false;
+    }
+    for (let i = 0; i < value.length; i++) {
+        const v = value[i];
+        if (!isInteger$1(v) || v < 0 || v >= 256) {
+            return false;
+        }
+    }
+    return true;
+}
+function arrayify$1(value, options) {
+    if (!options) {
+        options = {};
+    }
+    if (typeof (value) === "number") {
+        logger$1.checkSafeUint53(value, "invalid arrayify value");
+        const result = [];
+        while (value) {
+            result.unshift(value & 0xff);
+            value = parseInt(String(value / 256));
+        }
+        if (result.length === 0) {
+            result.push(0);
+        }
+        return addSlice$1(new Uint8Array(result));
+    }
+    if (options.allowMissingPrefix && typeof (value) === "string" && value.substring(0, 2) !== "0x") {
+        value = "0x" + value;
+    }
+    if (isHexable$1(value)) {
+        value = value.toHexString();
+    }
+    if (isHexString$1(value)) {
+        let hex = value.substring(2);
+        if (hex.length % 2) {
+            if (options.hexPad === "left") {
+                hex = "0x0" + hex.substring(2);
+            }
+            else if (options.hexPad === "right") {
+                hex += "0";
+            }
+            else {
+                logger$1.throwArgumentError("hex data is odd-length", "value", value);
+            }
+        }
+        const result = [];
+        for (let i = 0; i < hex.length; i += 2) {
+            result.push(parseInt(hex.substring(i, i + 2), 16));
+        }
+        return addSlice$1(new Uint8Array(result));
+    }
+    if (isBytes$1(value)) {
+        return addSlice$1(new Uint8Array(value));
+    }
+    return logger$1.throwArgumentError("invalid arrayify value", "value", value);
+}
+function isHexString$1(value, length) {
+    if (typeof (value) !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
+        return false;
+    }
+    if (length && value.length !== 2 + 2 * length) {
+        return false;
+    }
+    return true;
+}
+
+const version$3 = "sha2/5.6.0";
+
+new Logger$1(version$3);
+function sha256$1(data) {
+    return "0x" + (hash$2.sha256().update(arrayify$1(data)).digest("hex"));
+}
+
+class Struct$1 {
+  constructor(properties) {
+    Object.assign(this, properties);
+  }
+
+  encode() {
+    return Buffer$2.from(serialize_1(SOLANA_SCHEMA$1, this));
+  }
+
+  static decode(data) {
+    return deserialize_1(SOLANA_SCHEMA$1, this, data);
+  }
+
+  static decodeUnchecked(data) {
+    return deserializeUnchecked_1(SOLANA_SCHEMA$1, this, data);
+  }
+
+} // Class representing a Rust-compatible enum, since enums are only strings or
+const SOLANA_SCHEMA$1 = new Map();
+
+/**
+ * Maximum length of derived pubkey seed
+ */
+
+const MAX_SEED_LENGTH$1 = 32;
+/**
+ * Value to be converted into public key
+ */
+
+function isPublicKeyData$1(value) {
+  return value._bn !== undefined;
+}
+/**
+ * A public key
+ */
+
+
+class PublicKey$1 extends Struct$1 {
+  /** @internal */
+
+  /**
+   * Create a new PublicKey object
+   * @param value ed25519 public key as buffer or base-58 encoded string
+   */
+  constructor(value) {
+    super({});
+    this._bn = void 0;
+
+    if (isPublicKeyData$1(value)) {
+      this._bn = value._bn;
+    } else {
+      if (typeof value === 'string') {
+        // assume base 58 encoding by default
+        const decoded = bs58$1.decode(value);
+
+        if (decoded.length != 32) {
+          throw new Error(`Invalid public key input`);
+        }
+
+        this._bn = new BN$a(decoded);
+      } else {
+        this._bn = new BN$a(value);
+      }
+
+      if (this._bn.byteLength() > 32) {
+        throw new Error(`Invalid public key input`);
+      }
+    }
+  }
+  /**
+   * Default public key value. (All zeros)
+   */
+
+
+  /**
+   * Checks if two publicKeys are equal
+   */
+  equals(publicKey) {
+    return this._bn.eq(publicKey._bn);
+  }
+  /**
+   * Return the base-58 representation of the public key
+   */
+
+
+  toBase58() {
+    return bs58$1.encode(this.toBytes());
+  }
+
+  toJSON() {
+    return this.toBase58();
+  }
+  /**
+   * Return the byte array representation of the public key
+   */
+
+
+  toBytes() {
+    return this.toBuffer();
+  }
+  /**
+   * Return the Buffer representation of the public key
+   */
+
+
+  toBuffer() {
+    const b = this._bn.toArrayLike(Buffer$2);
+
+    if (b.length === 32) {
+      return b;
+    }
+
+    const zeroPad = Buffer$2.alloc(32);
+    b.copy(zeroPad, 32 - b.length);
+    return zeroPad;
+  }
+  /**
+   * Return the base-58 representation of the public key
+   */
+
+
+  toString() {
+    return this.toBase58();
+  }
+  /**
+   * Derive a public key from another key, a seed, and a program ID.
+   * The program ID will also serve as the owner of the public key, giving
+   * it permission to write data to the account.
+   */
+
+  /* eslint-disable require-await */
+
+
+  static async createWithSeed(fromPublicKey, seed, programId) {
+    const buffer = Buffer$2.concat([fromPublicKey.toBuffer(), Buffer$2.from(seed), programId.toBuffer()]);
+    const hash = sha256$1(new Uint8Array(buffer)).slice(2);
+    return new PublicKey$1(Buffer$2.from(hash, 'hex'));
+  }
+  /**
+   * Derive a program address from seeds and a program ID.
+   */
+
+  /* eslint-disable require-await */
+
+
+  static createProgramAddressSync(seeds, programId) {
+    let buffer = Buffer$2.alloc(0);
+    seeds.forEach(function (seed) {
+      if (seed.length > MAX_SEED_LENGTH$1) {
+        throw new TypeError(`Max seed length exceeded`);
+      }
+
+      buffer = Buffer$2.concat([buffer, toBuffer$1(seed)]);
+    });
+    buffer = Buffer$2.concat([buffer, programId.toBuffer(), Buffer$2.from('ProgramDerivedAddress')]);
+    let hash = sha256$1(new Uint8Array(buffer)).slice(2);
+    let publicKeyBytes = new BN$a(hash, 16).toArray(undefined, 32);
+
+    if (is_on_curve$1(publicKeyBytes)) {
+      throw new Error(`Invalid seeds, address must fall off the curve`);
+    }
+
+    return new PublicKey$1(publicKeyBytes);
+  }
+  /**
+   * Async version of createProgramAddressSync
+   * For backwards compatibility
+   */
+
+  /* eslint-disable require-await */
+
+
+  static async createProgramAddress(seeds, programId) {
+    return this.createProgramAddressSync(seeds, programId);
+  }
+  /**
+   * Find a valid program address
+   *
+   * Valid program addresses must fall off the ed25519 curve.  This function
+   * iterates a nonce until it finds one that when combined with the seeds
+   * results in a valid program address.
+   */
+
+
+  static findProgramAddressSync(seeds, programId) {
+    let nonce = 255;
+    let address;
+
+    while (nonce != 0) {
+      try {
+        const seedsWithNonce = seeds.concat(Buffer$2.from([nonce]));
+        address = this.createProgramAddressSync(seedsWithNonce, programId);
+      } catch (err) {
+        if (err instanceof TypeError) {
+          throw err;
+        }
+
+        nonce--;
+        continue;
+      }
+
+      return [address, nonce];
+    }
+
+    throw new Error(`Unable to find a viable program address nonce`);
+  }
+  /**
+   * Async version of findProgramAddressSync
+   * For backwards compatibility
+   */
+
+
+  static async findProgramAddress(seeds, programId) {
+    return this.findProgramAddressSync(seeds, programId);
+  }
+  /**
+   * Check that a pubkey is on the ed25519 curve.
+   */
+
+
+  static isOnCurve(pubkeyData) {
+    const pubkey = new PublicKey$1(pubkeyData);
+    return is_on_curve$1(pubkey.toBytes()) == 1;
+  }
+
+}
+PublicKey$1.default = new PublicKey$1('11111111111111111111111111111111');
+SOLANA_SCHEMA$1.set(PublicKey$1, {
+  kind: 'struct',
+  fields: [['_bn', 'u256']]
+}); // @ts-ignore
+
+let naclLowLevel$1 = nacl.lowlevel; // Check that a pubkey is on the curve.
+// This function and its dependents were sourced from:
+// https://github.com/dchest/tweetnacl-js/blob/f1ec050ceae0861f34280e62498b1d3ed9c350c6/nacl.js#L792
+
+function is_on_curve$1(p) {
+  var r = [naclLowLevel$1.gf(), naclLowLevel$1.gf(), naclLowLevel$1.gf(), naclLowLevel$1.gf()];
+  var t = naclLowLevel$1.gf(),
+      chk = naclLowLevel$1.gf(),
+      num = naclLowLevel$1.gf(),
+      den = naclLowLevel$1.gf(),
+      den2 = naclLowLevel$1.gf(),
+      den4 = naclLowLevel$1.gf(),
+      den6 = naclLowLevel$1.gf();
+  naclLowLevel$1.set25519(r[2], gf1$1);
+  naclLowLevel$1.unpack25519(r[1], p);
+  naclLowLevel$1.S(num, r[1]);
+  naclLowLevel$1.M(den, num, naclLowLevel$1.D);
+  naclLowLevel$1.Z(num, num, r[2]);
+  naclLowLevel$1.A(den, r[2], den);
+  naclLowLevel$1.S(den2, den);
+  naclLowLevel$1.S(den4, den2);
+  naclLowLevel$1.M(den6, den4, den2);
+  naclLowLevel$1.M(t, den6, num);
+  naclLowLevel$1.M(t, t, den);
+  naclLowLevel$1.pow2523(t, t);
+  naclLowLevel$1.M(t, t, num);
+  naclLowLevel$1.M(t, t, den);
+  naclLowLevel$1.M(t, t, den);
+  naclLowLevel$1.M(r[0], t, den);
+  naclLowLevel$1.S(chk, r[0]);
+  naclLowLevel$1.M(chk, chk, den);
+  if (neq25519$1(chk, num)) naclLowLevel$1.M(r[0], r[0], I$1);
+  naclLowLevel$1.S(chk, r[0]);
+  naclLowLevel$1.M(chk, chk, den);
+  if (neq25519$1(chk, num)) return 0;
+  return 1;
+}
+
+let gf1$1 = naclLowLevel$1.gf([1]);
+let I$1 = naclLowLevel$1.gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
+
+function neq25519$1(a, b) {
+  var c = new Uint8Array(32),
+      d = new Uint8Array(32);
+  naclLowLevel$1.pack25519(c, a);
+  naclLowLevel$1.pack25519(d, b);
+  return naclLowLevel$1.crypto_verify_32(c, 0, d, 0);
+}
+
+new PublicKey$1('BPFLoader1111111111111111111111111111111111');
+const SIGNATURE_LENGTH_IN_BYTES$1 = 64;
+
+/**
+ * Layout for a public key
+ */
+
+const publicKey$2 = (property = 'publicKey') => {
+  return blob(32, property);
+};
+
+/**
+ * Layout for a Rust String type
+ */
+const rustString$1 = (property = 'string') => {
+  const rsl = struct([u32('length'), u32('lengthPadding'), blob(offset(u32(), -8), 'chars')], property);
+
+  const _decode = rsl.decode.bind(rsl);
+
+  const _encode = rsl.encode.bind(rsl);
+
+  const rslShim = rsl;
+
+  rslShim.decode = (b, offset) => {
+    const data = _decode(b, offset);
+
+    return data['chars'].toString();
+  };
+
+  rslShim.encode = (str, b, offset) => {
+    const data = {
+      chars: Buffer$2.from(str, 'utf8')
+    };
+    return _encode(data, b, offset);
+  };
+
+  rslShim.alloc = str => {
+    return u32().span + u32().span + Buffer$2.from(str, 'utf8').length;
+  };
+
+  return rslShim;
+};
+/**
+ * Layout for an Authorized object
+ */
+
+const authorized$1 = (property = 'authorized') => {
+  return struct([publicKey$2('staker'), publicKey$2('withdrawer')], property);
+};
+/**
+ * Layout for a Lockup object
+ */
+
+const lockup$1 = (property = 'lockup') => {
+  return struct([ns64('unixTimestamp'), ns64('epoch'), publicKey$2('custodian')], property);
+};
+/**
+ *  Layout for a VoteInit object
+ */
+
+const voteInit$1 = (property = 'voteInit') => {
+  return struct([publicKey$2('nodePubkey'), publicKey$2('authorizedVoter'), publicKey$2('authorizedWithdrawer'), u8('commission')], property);
+};
+
+let TransactionStatus$1;
+/**
+ * Default (empty) signature
+ */
+
+(function (TransactionStatus) {
+  TransactionStatus[TransactionStatus["BLOCKHEIGHT_EXCEEDED"] = 0] = "BLOCKHEIGHT_EXCEEDED";
+  TransactionStatus[TransactionStatus["PROCESSED"] = 1] = "PROCESSED";
+  TransactionStatus[TransactionStatus["TIMED_OUT"] = 2] = "TIMED_OUT";
+})(TransactionStatus$1 || (TransactionStatus$1 = {}));
+
+Buffer$2.alloc(SIGNATURE_LENGTH_IN_BYTES$1).fill(0);
+
+new PublicKey$1('SysvarC1ock11111111111111111111111111111111');
+new PublicKey$1('SysvarEpochSchedu1e111111111111111111111111');
+new PublicKey$1('Sysvar1nstructions1111111111111111111111111');
+new PublicKey$1('SysvarRecentB1ockHashes11111111111111111111');
+new PublicKey$1('SysvarRent111111111111111111111111111111111');
+new PublicKey$1('SysvarRewards111111111111111111111111111111');
+new PublicKey$1('SysvarS1otHashes111111111111111111111111111');
+new PublicKey$1('SysvarS1otHistory11111111111111111111111111');
+new PublicKey$1('SysvarStakeHistory1111111111111111111111111');
+
+/**
+ * https://github.com/solana-labs/solana/blob/90bedd7e067b5b8f3ddbb45da00a4e9cabb22c62/sdk/src/fee_calculator.rs#L7-L11
+ *
+ * @internal
+ */
+
+const FeeCalculatorLayout$1 = nu64('lamportsPerSignature');
+/**
+ * Calculator for transaction fees.
+ */
+
+/**
+ * See https://github.com/solana-labs/solana/blob/0ea2843ec9cdc517572b8e62c959f41b55cf4453/sdk/src/nonce_state.rs#L29-L32
+ *
+ * @internal
+ */
+
+const NonceAccountLayout$1 = struct([u32('version'), u32('state'), publicKey$2('authorizedPubkey'), publicKey$2('nonce'), struct([FeeCalculatorLayout$1], 'feeCalculator')]);
+NonceAccountLayout$1.span;
+
+const encodeDecode$1 = layout => {
+  const decode = layout.decode.bind(layout);
+  const encode = layout.encode.bind(layout);
+  return {
+    decode,
+    encode
+  };
+};
+
+const bigInt$1 = length => property => {
+  const layout = blob(length, property);
+  const {
+    encode,
+    decode
+  } = encodeDecode$1(layout);
+  const bigIntLayout = layout;
+
+  bigIntLayout.decode = (buffer, offset) => {
+    const src = decode(buffer, offset);
+    return toBigIntLE_1(Buffer$2.from(src));
+  };
+
+  bigIntLayout.encode = (bigInt, buffer, offset) => {
+    const src = toBufferLE_1(bigInt, length);
+    return encode(src, buffer, offset);
+  };
+
+  return bigIntLayout;
+};
+
+const u64$1 = bigInt$1(8);
+/**
+ * An enumeration of valid SystemInstructionType's
+ */
+
+/**
+ * An enumeration of valid system InstructionType's
+ * @internal
+ */
+Object.freeze({
+  Create: {
+    index: 0,
+    layout: struct([u32('instruction'), ns64('lamports'), ns64('space'), publicKey$2('programId')])
+  },
+  Assign: {
+    index: 1,
+    layout: struct([u32('instruction'), publicKey$2('programId')])
+  },
+  Transfer: {
+    index: 2,
+    layout: struct([u32('instruction'), u64$1('lamports')])
+  },
+  CreateWithSeed: {
+    index: 3,
+    layout: struct([u32('instruction'), publicKey$2('base'), rustString$1('seed'), ns64('lamports'), ns64('space'), publicKey$2('programId')])
+  },
+  AdvanceNonceAccount: {
+    index: 4,
+    layout: struct([u32('instruction')])
+  },
+  WithdrawNonceAccount: {
+    index: 5,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  },
+  InitializeNonceAccount: {
+    index: 6,
+    layout: struct([u32('instruction'), publicKey$2('authorized')])
+  },
+  AuthorizeNonceAccount: {
+    index: 7,
+    layout: struct([u32('instruction'), publicKey$2('authorized')])
+  },
+  Allocate: {
+    index: 8,
+    layout: struct([u32('instruction'), ns64('space')])
+  },
+  AllocateWithSeed: {
+    index: 9,
+    layout: struct([u32('instruction'), publicKey$2('base'), rustString$1('seed'), ns64('space'), publicKey$2('programId')])
+  },
+  AssignWithSeed: {
+    index: 10,
+    layout: struct([u32('instruction'), publicKey$2('base'), rustString$1('seed'), publicKey$2('programId')])
+  },
+  TransferWithSeed: {
+    index: 11,
+    layout: struct([u32('instruction'), u64$1('lamports'), rustString$1('seed'), publicKey$2('programId')])
+  },
+  UpgradeNonceAccount: {
+    index: 12,
+    layout: struct([u32('instruction')])
+  }
+});
+new PublicKey$1('11111111111111111111111111111111');
+
+new PublicKey$1('BPFLoader2111111111111111111111111111111111');
+/**
+ * An enumeration of valid ComputeBudgetInstructionType's
+ */
+
+/**
+ * An enumeration of valid ComputeBudget InstructionType's
+ * @internal
+ */
+Object.freeze({
+  RequestUnits: {
+    index: 0,
+    layout: struct([u8('instruction'), u32('units'), u32('additionalFee')])
+  },
+  RequestHeapFrame: {
+    index: 1,
+    layout: struct([u8('instruction'), u32('bytes')])
+  },
+  SetComputeUnitLimit: {
+    index: 2,
+    layout: struct([u8('instruction'), u32('units')])
+  },
+  SetComputeUnitPrice: {
+    index: 3,
+    layout: struct([u8('instruction'), u64$1('microLamports')])
+  }
+});
+new PublicKey$1('ComputeBudget111111111111111111111111111111');
+const PublicKeyFromString$1 = coerce(instance(PublicKey$1), string(), value => new PublicKey$1(value));
+const RawAccountDataResult$1 = tuple([string(), literal('base64')]);
+const BufferFromRawAccountData$1 = coerce(instance(Buffer$2), RawAccountDataResult$1, value => Buffer$2.from(value[0], 'base64'));
+/**
+ * @internal
+ */
+
+
+function createRpcResult$1(result) {
+  return union([type$1({
+    jsonrpc: literal('2.0'),
+    id: string(),
+    result
+  }), type$1({
+    jsonrpc: literal('2.0'),
+    id: string(),
+    error: type$1({
+      code: unknown(),
+      message: string(),
+      data: optional(any())
+    })
+  })]);
+}
+
+const UnknownRpcResult$1 = createRpcResult$1(unknown());
+/**
+ * @internal
+ */
+
+function jsonRpcResult$1(schema) {
+  return coerce(createRpcResult$1(schema), UnknownRpcResult$1, value => {
+    if ('error' in value) {
+      return value;
+    } else {
+      return { ...value,
+        result: create(value.result, schema)
+      };
+    }
+  });
+}
+/**
+ * @internal
+ */
+
+
+function jsonRpcResultAndContext$1(value) {
+  return jsonRpcResult$1(type$1({
+    context: type$1({
+      slot: number()
+    }),
+    value
+  }));
+}
+/**
+ * @internal
+ */
+
+
+function notificationResultAndContext$1(value) {
+  return type$1({
+    context: type$1({
+      slot: number()
+    }),
+    value
+  });
+}
+/**
+ * The level of commitment desired when querying state
+ * <pre>
+ *   'processed': Query the most recent block which has reached 1 confirmation by the connected node
+ *   'confirmed': Query the most recent block which has reached 1 confirmation by the cluster
+ *   'finalized': Query the most recent block which has been finalized by the cluster
+ * </pre>
+ */
+
+
+const GetInflationGovernorResult$1 = type$1({
+  foundation: number(),
+  foundationTerm: number(),
+  initial: number(),
+  taper: number(),
+  terminal: number()
+});
+/**
+ * The inflation reward for an epoch
+ */
+
+/**
+ * Expected JSON RPC response for the "getInflationReward" message
+ */
+jsonRpcResult$1(array(nullable(type$1({
+  epoch: number(),
+  effectiveSlot: number(),
+  amount: number(),
+  postBalance: number()
+}))));
+/**
+ * Information about the current epoch
+ */
+
+const GetEpochInfoResult$1 = type$1({
+  epoch: number(),
+  slotIndex: number(),
+  slotsInEpoch: number(),
+  absoluteSlot: number(),
+  blockHeight: optional(number()),
+  transactionCount: optional(number())
+});
+const GetEpochScheduleResult$1 = type$1({
+  slotsPerEpoch: number(),
+  leaderScheduleSlotOffset: number(),
+  warmup: boolean(),
+  firstNormalEpoch: number(),
+  firstNormalSlot: number()
+});
+/**
+ * Leader schedule
+ * (see https://docs.solana.com/terminology#leader-schedule)
+ */
+
+const GetLeaderScheduleResult$1 = record(string(), array(number()));
+/**
+ * Transaction error or null
+ */
+
+const TransactionErrorResult$1 = nullable(union([type$1({}), string()]));
+/**
+ * Signature status for a transaction
+ */
+
+const SignatureStatusResult$1 = type$1({
+  err: TransactionErrorResult$1
+});
+/**
+ * Transaction signature received notification
+ */
+
+const SignatureReceivedResult$1 = literal('receivedSignature');
+/**
+ * Version info for a node
+ */
+
+type$1({
+  'solana-core': string(),
+  'feature-set': optional(number())
+});
+jsonRpcResultAndContext$1(type$1({
+  err: nullable(union([type$1({}), string()])),
+  logs: nullable(array(string())),
+  accounts: optional(nullable(array(nullable(type$1({
+    executable: boolean(),
+    owner: string(),
+    lamports: number(),
+    data: array(string()),
+    rentEpoch: optional(number())
+  }))))),
+  unitsConsumed: optional(number()),
+  returnData: optional(nullable(type$1({
+    programId: string(),
+    data: tuple([string(), literal('base64')])
+  })))
+}));
+
+/**
+ * Expected JSON RPC response for the "getBlockProduction" message
+ */
+jsonRpcResultAndContext$1(type$1({
+  byIdentity: record(string(), array(number())),
+  range: type$1({
+    firstSlot: number(),
+    lastSlot: number()
+  })
+}));
+/**
+ * Expected JSON RPC response for the "getInflationGovernor" message
+ */
+
+
+jsonRpcResult$1(GetInflationGovernorResult$1);
+/**
+ * Expected JSON RPC response for the "getEpochInfo" message
+ */
+
+jsonRpcResult$1(GetEpochInfoResult$1);
+/**
+ * Expected JSON RPC response for the "getEpochSchedule" message
+ */
+
+jsonRpcResult$1(GetEpochScheduleResult$1);
+/**
+ * Expected JSON RPC response for the "getLeaderSchedule" message
+ */
+
+jsonRpcResult$1(GetLeaderScheduleResult$1);
+/**
+ * Expected JSON RPC response for the "minimumLedgerSlot" and "getFirstAvailableBlock" messages
+ */
+
+jsonRpcResult$1(number());
+/**
+ * Supply
+ */
+
+/**
+ * Expected JSON RPC response for the "getSupply" message
+ */
+jsonRpcResultAndContext$1(type$1({
+  total: number(),
+  circulating: number(),
+  nonCirculating: number(),
+  nonCirculatingAccounts: array(PublicKeyFromString$1)
+}));
+/**
+ * Token amount object which returns a token amount in different formats
+ * for various client use cases.
+ */
+
+/**
+ * Expected JSON RPC structure for token amounts
+ */
+const TokenAmountResult$1 = type$1({
+  amount: string(),
+  uiAmount: nullable(number()),
+  decimals: number(),
+  uiAmountString: optional(string())
+});
+/**
+ * Token address and balance.
+ */
+
+/**
+ * Expected JSON RPC response for the "getTokenLargestAccounts" message
+ */
+jsonRpcResultAndContext$1(array(type$1({
+  address: PublicKeyFromString$1,
+  amount: string(),
+  uiAmount: nullable(number()),
+  decimals: number(),
+  uiAmountString: optional(string())
+})));
+/**
+ * Expected JSON RPC response for the "getTokenAccountsByOwner" message
+ */
+
+jsonRpcResultAndContext$1(array(type$1({
+  pubkey: PublicKeyFromString$1,
+  account: type$1({
+    executable: boolean(),
+    owner: PublicKeyFromString$1,
+    lamports: number(),
+    data: BufferFromRawAccountData$1,
+    rentEpoch: number()
+  })
+})));
+const ParsedAccountDataResult$1 = type$1({
+  program: string(),
+  parsed: unknown(),
+  space: number()
+});
+/**
+ * Expected JSON RPC response for the "getTokenAccountsByOwner" message with parsed data
+ */
+
+jsonRpcResultAndContext$1(array(type$1({
+  pubkey: PublicKeyFromString$1,
+  account: type$1({
+    executable: boolean(),
+    owner: PublicKeyFromString$1,
+    lamports: number(),
+    data: ParsedAccountDataResult$1,
+    rentEpoch: number()
+  })
+})));
+/**
+ * Pair of an account address and its balance
+ */
+
+/**
+ * Expected JSON RPC response for the "getLargestAccounts" message
+ */
+jsonRpcResultAndContext$1(array(type$1({
+  lamports: number(),
+  address: PublicKeyFromString$1
+})));
+/**
+ * @internal
+ */
+
+const AccountInfoResult$1 = type$1({
+  executable: boolean(),
+  owner: PublicKeyFromString$1,
+  lamports: number(),
+  data: BufferFromRawAccountData$1,
+  rentEpoch: number()
+});
+/**
+ * @internal
+ */
+
+type$1({
+  pubkey: PublicKeyFromString$1,
+  account: AccountInfoResult$1
+});
+const ParsedOrRawAccountData$1 = coerce(union([instance(Buffer$2), ParsedAccountDataResult$1]), union([RawAccountDataResult$1, ParsedAccountDataResult$1]), value => {
+  if (Array.isArray(value)) {
+    return create(value, BufferFromRawAccountData$1);
+  } else {
+    return value;
+  }
+});
+/**
+ * @internal
+ */
+
+const ParsedAccountInfoResult$1 = type$1({
+  executable: boolean(),
+  owner: PublicKeyFromString$1,
+  lamports: number(),
+  data: ParsedOrRawAccountData$1,
+  rentEpoch: number()
+});
+type$1({
+  pubkey: PublicKeyFromString$1,
+  account: ParsedAccountInfoResult$1
+});
+/**
+ * @internal
+ */
+
+type$1({
+  state: union([literal('active'), literal('inactive'), literal('activating'), literal('deactivating')]),
+  active: number(),
+  inactive: number()
+});
+/**
+ * Expected JSON RPC response for the "getConfirmedSignaturesForAddress2" message
+ */
+
+jsonRpcResult$1(array(type$1({
+  signature: string(),
+  slot: number(),
+  err: TransactionErrorResult$1,
+  memo: nullable(string()),
+  blockTime: optional(nullable(number()))
+})));
+/**
+ * Expected JSON RPC response for the "getSignaturesForAddress" message
+ */
+
+jsonRpcResult$1(array(type$1({
+  signature: string(),
+  slot: number(),
+  err: TransactionErrorResult$1,
+  memo: nullable(string()),
+  blockTime: optional(nullable(number()))
+})));
+/***
+ * Expected JSON RPC response for the "accountNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: notificationResultAndContext$1(AccountInfoResult$1)
+});
+/**
+ * @internal
+ */
+
+const ProgramAccountInfoResult$1 = type$1({
+  pubkey: PublicKeyFromString$1,
+  account: AccountInfoResult$1
+});
+/***
+ * Expected JSON RPC response for the "programNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: notificationResultAndContext$1(ProgramAccountInfoResult$1)
+});
+/**
+ * @internal
+ */
+
+const SlotInfoResult$1 = type$1({
+  parent: number(),
+  slot: number(),
+  root: number()
+});
+/**
+ * Expected JSON RPC response for the "slotNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: SlotInfoResult$1
+});
+/**
+ * Slot updates which can be used for tracking the live progress of a cluster.
+ * - `"firstShredReceived"`: connected node received the first shred of a block.
+ * Indicates that a new block that is being produced.
+ * - `"completed"`: connected node has received all shreds of a block. Indicates
+ * a block was recently produced.
+ * - `"optimisticConfirmation"`: block was optimistically confirmed by the
+ * cluster. It is not guaranteed that an optimistic confirmation notification
+ * will be sent for every finalized blocks.
+ * - `"root"`: the connected node rooted this block.
+ * - `"createdBank"`: the connected node has started validating this block.
+ * - `"frozen"`: the connected node has validated this block.
+ * - `"dead"`: the connected node failed to validate this block.
+ */
+
+/**
+ * @internal
+ */
+const SlotUpdateResult$1 = union([type$1({
+  type: union([literal('firstShredReceived'), literal('completed'), literal('optimisticConfirmation'), literal('root')]),
+  slot: number(),
+  timestamp: number()
+}), type$1({
+  type: literal('createdBank'),
+  parent: number(),
+  slot: number(),
+  timestamp: number()
+}), type$1({
+  type: literal('frozen'),
+  slot: number(),
+  timestamp: number(),
+  stats: type$1({
+    numTransactionEntries: number(),
+    numSuccessfulTransactions: number(),
+    numFailedTransactions: number(),
+    maxTransactionsPerEntry: number()
+  })
+}), type$1({
+  type: literal('dead'),
+  slot: number(),
+  timestamp: number(),
+  err: string()
+})]);
+/**
+ * Expected JSON RPC response for the "slotsUpdatesNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: SlotUpdateResult$1
+});
+/**
+ * Expected JSON RPC response for the "signatureNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: notificationResultAndContext$1(union([SignatureStatusResult$1, SignatureReceivedResult$1]))
+});
+/**
+ * Expected JSON RPC response for the "rootNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: number()
+});
+type$1({
+  pubkey: string(),
+  gossip: nullable(string()),
+  tpu: nullable(string()),
+  rpc: nullable(string()),
+  version: nullable(string())
+});
+const VoteAccountInfoResult$1 = type$1({
+  votePubkey: string(),
+  nodePubkey: string(),
+  activatedStake: number(),
+  epochVoteAccount: boolean(),
+  epochCredits: array(tuple([number(), number(), number()])),
+  commission: number(),
+  lastVote: number(),
+  rootSlot: nullable(number())
+});
+/**
+ * Expected JSON RPC response for the "getVoteAccounts" message
+ */
+
+jsonRpcResult$1(type$1({
+  current: array(VoteAccountInfoResult$1),
+  delinquent: array(VoteAccountInfoResult$1)
+}));
+const ConfirmationStatus$1 = union([literal('processed'), literal('confirmed'), literal('finalized')]);
+const SignatureStatusResponse$1 = type$1({
+  slot: number(),
+  confirmations: nullable(number()),
+  err: TransactionErrorResult$1,
+  confirmationStatus: optional(ConfirmationStatus$1)
+});
+/**
+ * Expected JSON RPC response for the "getSignatureStatuses" message
+ */
+
+jsonRpcResultAndContext$1(array(nullable(SignatureStatusResponse$1)));
+/**
+ * Expected JSON RPC response for the "getMinimumBalanceForRentExemption" message
+ */
+
+jsonRpcResult$1(number());
+const ConfirmedTransactionResult$1 = type$1({
+  signatures: array(string()),
+  message: type$1({
+    accountKeys: array(string()),
+    header: type$1({
+      numRequiredSignatures: number(),
+      numReadonlySignedAccounts: number(),
+      numReadonlyUnsignedAccounts: number()
+    }),
+    instructions: array(type$1({
+      accounts: array(number()),
+      data: string(),
+      programIdIndex: number()
+    })),
+    recentBlockhash: string()
+  })
+});
+const ParsedInstructionResult$1 = type$1({
+  parsed: unknown(),
+  program: string(),
+  programId: PublicKeyFromString$1
+});
+const RawInstructionResult$1 = type$1({
+  accounts: array(PublicKeyFromString$1),
+  data: string(),
+  programId: PublicKeyFromString$1
+});
+const InstructionResult$1 = union([RawInstructionResult$1, ParsedInstructionResult$1]);
+const UnknownInstructionResult$1 = union([type$1({
+  parsed: unknown(),
+  program: string(),
+  programId: string()
+}), type$1({
+  accounts: array(string()),
+  data: string(),
+  programId: string()
+})]);
+const ParsedOrRawInstruction$1 = coerce(InstructionResult$1, UnknownInstructionResult$1, value => {
+  if ('accounts' in value) {
+    return create(value, RawInstructionResult$1);
+  } else {
+    return create(value, ParsedInstructionResult$1);
+  }
+});
+/**
+ * @internal
+ */
+
+const ParsedConfirmedTransactionResult$1 = type$1({
+  signatures: array(string()),
+  message: type$1({
+    accountKeys: array(type$1({
+      pubkey: PublicKeyFromString$1,
+      signer: boolean(),
+      writable: boolean()
+    })),
+    instructions: array(ParsedOrRawInstruction$1),
+    recentBlockhash: string()
+  })
+});
+const TokenBalanceResult$1 = type$1({
+  accountIndex: number(),
+  mint: string(),
+  owner: optional(string()),
+  uiTokenAmount: TokenAmountResult$1
+});
+/**
+ * @internal
+ */
+
+const ConfirmedTransactionMetaResult$1 = type$1({
+  err: TransactionErrorResult$1,
+  fee: number(),
+  innerInstructions: optional(nullable(array(type$1({
+    index: number(),
+    instructions: array(type$1({
+      accounts: array(number()),
+      data: string(),
+      programIdIndex: number()
+    }))
+  })))),
+  preBalances: array(number()),
+  postBalances: array(number()),
+  logMessages: optional(nullable(array(string()))),
+  preTokenBalances: optional(nullable(array(TokenBalanceResult$1))),
+  postTokenBalances: optional(nullable(array(TokenBalanceResult$1)))
+});
+/**
+ * @internal
+ */
+
+const ParsedConfirmedTransactionMetaResult$1 = type$1({
+  err: TransactionErrorResult$1,
+  fee: number(),
+  innerInstructions: optional(nullable(array(type$1({
+    index: number(),
+    instructions: array(ParsedOrRawInstruction$1)
+  })))),
+  preBalances: array(number()),
+  postBalances: array(number()),
+  logMessages: optional(nullable(array(string()))),
+  preTokenBalances: optional(nullable(array(TokenBalanceResult$1))),
+  postTokenBalances: optional(nullable(array(TokenBalanceResult$1)))
+});
+/**
+ * Expected JSON RPC response for the "getBlock" message
+ */
+
+jsonRpcResult$1(nullable(type$1({
+  blockhash: string(),
+  previousBlockhash: string(),
+  parentSlot: number(),
+  transactions: array(type$1({
+    transaction: ConfirmedTransactionResult$1,
+    meta: nullable(ConfirmedTransactionMetaResult$1)
+  })),
+  rewards: optional(array(type$1({
+    pubkey: string(),
+    lamports: number(),
+    postBalance: nullable(number()),
+    rewardType: nullable(string())
+  }))),
+  blockTime: nullable(number()),
+  blockHeight: nullable(number())
+})));
+/**
+ * Expected JSON RPC response for the "getConfirmedBlock" message
+ *
+ * @deprecated Deprecated since Solana v1.8.0. Please use {@link GetBlockRpcResult} instead.
+ */
+
+jsonRpcResult$1(nullable(type$1({
+  blockhash: string(),
+  previousBlockhash: string(),
+  parentSlot: number(),
+  transactions: array(type$1({
+    transaction: ConfirmedTransactionResult$1,
+    meta: nullable(ConfirmedTransactionMetaResult$1)
+  })),
+  rewards: optional(array(type$1({
+    pubkey: string(),
+    lamports: number(),
+    postBalance: nullable(number()),
+    rewardType: nullable(string())
+  }))),
+  blockTime: nullable(number())
+})));
+/**
+ * Expected JSON RPC response for the "getBlock" message
+ */
+
+jsonRpcResult$1(nullable(type$1({
+  blockhash: string(),
+  previousBlockhash: string(),
+  parentSlot: number(),
+  signatures: array(string()),
+  blockTime: nullable(number())
+})));
+/**
+ * Expected JSON RPC response for the "getTransaction" message
+ */
+
+jsonRpcResult$1(nullable(type$1({
+  slot: number(),
+  meta: ConfirmedTransactionMetaResult$1,
+  blockTime: optional(nullable(number())),
+  transaction: ConfirmedTransactionResult$1
+})));
+/**
+ * Expected parsed JSON RPC response for the "getTransaction" message
+ */
+
+jsonRpcResult$1(nullable(type$1({
+  slot: number(),
+  transaction: ParsedConfirmedTransactionResult$1,
+  meta: nullable(ParsedConfirmedTransactionMetaResult$1),
+  blockTime: optional(nullable(number()))
+})));
+/**
+ * Expected JSON RPC response for the "getRecentBlockhash" message
+ *
+ * @deprecated Deprecated since Solana v1.8.0. Please use {@link GetLatestBlockhashRpcResult} instead.
+ */
+
+jsonRpcResultAndContext$1(type$1({
+  blockhash: string(),
+  feeCalculator: type$1({
+    lamportsPerSignature: number()
+  })
+}));
+/**
+ * Expected JSON RPC response for the "getLatestBlockhash" message
+ */
+
+jsonRpcResultAndContext$1(type$1({
+  blockhash: string(),
+  lastValidBlockHeight: number()
+}));
+const PerfSampleResult$1 = type$1({
+  slot: number(),
+  numTransactions: number(),
+  numSlots: number(),
+  samplePeriodSecs: number()
+});
+/*
+ * Expected JSON RPC response for "getRecentPerformanceSamples" message
+ */
+
+jsonRpcResult$1(array(PerfSampleResult$1));
+/**
+ * Expected JSON RPC response for the "getFeeCalculatorForBlockhash" message
+ */
+
+jsonRpcResultAndContext$1(nullable(type$1({
+  feeCalculator: type$1({
+    lamportsPerSignature: number()
+  })
+})));
+/**
+ * Expected JSON RPC response for the "requestAirdrop" message
+ */
+
+jsonRpcResult$1(string());
+/**
+ * Expected JSON RPC response for the "sendTransaction" message
+ */
+
+jsonRpcResult$1(string());
+/**
+ * Information about the latest slot being processed by a node
+ */
+
+/**
+ * @internal
+ */
+const LogsResult$1 = type$1({
+  err: TransactionErrorResult$1,
+  logs: array(string()),
+  signature: string()
+});
+/**
+ * Logs result.
+ */
+
+/**
+ * Expected JSON RPC response for the "logsNotification" message.
+ */
+type$1({
+  result: notificationResultAndContext$1(LogsResult$1),
+  subscription: number()
+});
+/**
+ * Params for creating an ed25519 instruction using a public key
+ */
+
+struct([u8('numSignatures'), u8('padding'), u16('signatureOffset'), u16('signatureInstructionIndex'), u16('publicKeyOffset'), u16('publicKeyInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u16('messageInstructionIndex')]);
+new PublicKey$1('Ed25519SigVerify111111111111111111111111111');
+
+/**
+ * Address of the stake config account which configures the rate
+ * of stake warmup and cooldown as well as the slashing penalty.
+ */
+
+new PublicKey$1('StakeConfig11111111111111111111111111111111');
+
+/**
+ * Stake account lockup info
+ */
+class Lockup$1 {
+  /** Unix timestamp of lockup expiration */
+
+  /** Epoch of lockup expiration */
+
+  /** Lockup custodian authority */
+
+  /**
+   * Create a new Lockup object
+   */
+  constructor(unixTimestamp, epoch, custodian) {
+    this.unixTimestamp = void 0;
+    this.epoch = void 0;
+    this.custodian = void 0;
+    this.unixTimestamp = unixTimestamp;
+    this.epoch = epoch;
+    this.custodian = custodian;
+  }
+  /**
+   * Default, inactive Lockup value
+   */
+
+
+}
+Lockup$1.default = new Lockup$1(0, 0, PublicKey$1.default);
+/**
+ * An enumeration of valid StakeInstructionType's
+ */
+
+/**
+ * An enumeration of valid stake InstructionType's
+ * @internal
+ */
+Object.freeze({
+  Initialize: {
+    index: 0,
+    layout: struct([u32('instruction'), authorized$1(), lockup$1()])
+  },
+  Authorize: {
+    index: 1,
+    layout: struct([u32('instruction'), publicKey$2('newAuthorized'), u32('stakeAuthorizationType')])
+  },
+  Delegate: {
+    index: 2,
+    layout: struct([u32('instruction')])
+  },
+  Split: {
+    index: 3,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  },
+  Withdraw: {
+    index: 4,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  },
+  Deactivate: {
+    index: 5,
+    layout: struct([u32('instruction')])
+  },
+  Merge: {
+    index: 7,
+    layout: struct([u32('instruction')])
+  },
+  AuthorizeWithSeed: {
+    index: 8,
+    layout: struct([u32('instruction'), publicKey$2('newAuthorized'), u32('stakeAuthorizationType'), rustString$1('authoritySeed'), publicKey$2('authorityOwner')])
+  }
+});
+/**
+ * Stake authorization type
+ */
+
+/**
+ * An enumeration of valid StakeAuthorizationLayout's
+ */
+Object.freeze({
+  Staker: {
+    index: 0
+  },
+  Withdrawer: {
+    index: 1
+  }
+});
+new PublicKey$1('Stake11111111111111111111111111111111111111');
+/**
+ * Params for creating an secp256k1 instruction using a public key
+ */
+
+struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
+new PublicKey$1('KeccakSecp256k11111111111111111111111111111');
+
+new PublicKey$1('Va1idator1nfo111111111111111111111111111111');
+/**
+ * @internal
+ */
+
+type$1({
+  name: string(),
+  website: optional(string()),
+  details: optional(string()),
+  keybaseUsername: optional(string())
+});
+
+new PublicKey$1('Vote111111111111111111111111111111111111111');
+
+/**
+ * See https://github.com/solana-labs/solana/blob/8a12ed029cfa38d4a45400916c2463fb82bbec8c/programs/vote_api/src/vote_state.rs#L68-L88
+ *
+ * @internal
+ */
+struct([publicKey$2('nodePubkey'), publicKey$2('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
+seq(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
+seq(struct([nu64('epoch'), publicKey$2('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey$2('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
+seq(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
+/**
+ * An enumeration of valid VoteInstructionType's
+ */
+
+Object.freeze({
+  InitializeAccount: {
+    index: 0,
+    layout: struct([u32('instruction'), voteInit$1()])
+  },
+  Authorize: {
+    index: 1,
+    layout: struct([u32('instruction'), publicKey$2('newAuthorized'), u32('voteAuthorizationType')])
+  },
+  Withdraw: {
+    index: 3,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  }
+});
+/**
+ * VoteAuthorize type
+ */
+
+/**
+ * An enumeration of valid VoteAuthorization layouts.
+ */
+Object.freeze({
+  Voter: {
+    index: 0
+  },
+  Withdrawer: {
+    index: 1
+  }
+});
+new PublicKey$1('Vote111111111111111111111111111111111111111');
+
+const publicKey$1 = (property) => {
+    const layout = blob(32, property);
+    const { encode, decode } = encodeDecode$2(layout);
+    const publicKeyLayout = layout;
+    publicKeyLayout.decode = (buffer, offset) => {
+        const src = decode(buffer, offset);
+        return new PublicKey$1(src);
+    };
+    publicKeyLayout.encode = (publicKey, buffer, offset) => {
+        const src = publicKey.toBuffer();
+        return encode(src, buffer, offset);
+    };
+    return publicKeyLayout;
+};
+
+const toBuffer = arr => {
+  if (Buffer$2.isBuffer(arr)) {
+    return arr;
+  } else if (arr instanceof Uint8Array) {
+    return Buffer$2.from(arr.buffer, arr.byteOffset, arr.byteLength);
+  } else {
+    return Buffer$2.from(arr);
+  }
+};
+
+var hash$1 = {};
+
+var utils$9 = {};
+
+var minimalisticAssert = assert$6;
+
+function assert$6(val, msg) {
+  if (!val)
+    throw new Error(msg || 'Assertion failed');
+}
+
+assert$6.equal = function assertEqual(l, r, msg) {
+  if (l != r)
+    throw new Error(msg || ('Assertion failed: ' + l + ' != ' + r));
+};
+
+var inherits_browser = {exports: {}};
+
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  inherits_browser.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor;
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      });
+    }
+  };
+} else {
+  // old school shim for old browsers
+  inherits_browser.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor;
+      var TempCtor = function () {};
+      TempCtor.prototype = superCtor.prototype;
+      ctor.prototype = new TempCtor();
+      ctor.prototype.constructor = ctor;
+    }
+  };
+}
+
+var assert$5 = minimalisticAssert;
+var inherits = inherits_browser.exports;
+
+utils$9.inherits = inherits;
+
+function isSurrogatePair(msg, i) {
+  if ((msg.charCodeAt(i) & 0xFC00) !== 0xD800) {
+    return false;
+  }
+  if (i < 0 || i + 1 >= msg.length) {
+    return false;
+  }
+  return (msg.charCodeAt(i + 1) & 0xFC00) === 0xDC00;
+}
+
+function toArray(msg, enc) {
+  if (Array.isArray(msg))
+    return msg.slice();
+  if (!msg)
+    return [];
+  var res = [];
+  if (typeof msg === 'string') {
+    if (!enc) {
+      // Inspired by stringToUtf8ByteArray() in closure-library by Google
+      // https://github.com/google/closure-library/blob/8598d87242af59aac233270742c8984e2b2bdbe0/closure/goog/crypt/crypt.js#L117-L143
+      // Apache License 2.0
+      // https://github.com/google/closure-library/blob/master/LICENSE
+      var p = 0;
+      for (var i = 0; i < msg.length; i++) {
+        var c = msg.charCodeAt(i);
+        if (c < 128) {
+          res[p++] = c;
+        } else if (c < 2048) {
+          res[p++] = (c >> 6) | 192;
+          res[p++] = (c & 63) | 128;
+        } else if (isSurrogatePair(msg, i)) {
+          c = 0x10000 + ((c & 0x03FF) << 10) + (msg.charCodeAt(++i) & 0x03FF);
+          res[p++] = (c >> 18) | 240;
+          res[p++] = ((c >> 12) & 63) | 128;
+          res[p++] = ((c >> 6) & 63) | 128;
+          res[p++] = (c & 63) | 128;
+        } else {
+          res[p++] = (c >> 12) | 224;
+          res[p++] = ((c >> 6) & 63) | 128;
+          res[p++] = (c & 63) | 128;
+        }
+      }
+    } else if (enc === 'hex') {
+      msg = msg.replace(/[^a-z0-9]+/ig, '');
+      if (msg.length % 2 !== 0)
+        msg = '0' + msg;
+      for (i = 0; i < msg.length; i += 2)
+        res.push(parseInt(msg[i] + msg[i + 1], 16));
+    }
+  } else {
+    for (i = 0; i < msg.length; i++)
+      res[i] = msg[i] | 0;
+  }
+  return res;
+}
+utils$9.toArray = toArray;
+
+function toHex(msg) {
+  var res = '';
+  for (var i = 0; i < msg.length; i++)
+    res += zero2(msg[i].toString(16));
+  return res;
+}
+utils$9.toHex = toHex;
+
+function htonl(w) {
+  var res = (w >>> 24) |
+            ((w >>> 8) & 0xff00) |
+            ((w << 8) & 0xff0000) |
+            ((w & 0xff) << 24);
+  return res >>> 0;
+}
+utils$9.htonl = htonl;
+
+function toHex32(msg, endian) {
+  var res = '';
+  for (var i = 0; i < msg.length; i++) {
+    var w = msg[i];
+    if (endian === 'little')
+      w = htonl(w);
+    res += zero8(w.toString(16));
+  }
+  return res;
+}
+utils$9.toHex32 = toHex32;
+
+function zero2(word) {
+  if (word.length === 1)
+    return '0' + word;
+  else
+    return word;
+}
+utils$9.zero2 = zero2;
+
+function zero8(word) {
+  if (word.length === 7)
+    return '0' + word;
+  else if (word.length === 6)
+    return '00' + word;
+  else if (word.length === 5)
+    return '000' + word;
+  else if (word.length === 4)
+    return '0000' + word;
+  else if (word.length === 3)
+    return '00000' + word;
+  else if (word.length === 2)
+    return '000000' + word;
+  else if (word.length === 1)
+    return '0000000' + word;
+  else
+    return word;
+}
+utils$9.zero8 = zero8;
+
+function join32(msg, start, end, endian) {
+  var len = end - start;
+  assert$5(len % 4 === 0);
+  var res = new Array(len / 4);
+  for (var i = 0, k = start; i < res.length; i++, k += 4) {
+    var w;
+    if (endian === 'big')
+      w = (msg[k] << 24) | (msg[k + 1] << 16) | (msg[k + 2] << 8) | msg[k + 3];
+    else
+      w = (msg[k + 3] << 24) | (msg[k + 2] << 16) | (msg[k + 1] << 8) | msg[k];
+    res[i] = w >>> 0;
+  }
+  return res;
+}
+utils$9.join32 = join32;
+
+function split32(msg, endian) {
+  var res = new Array(msg.length * 4);
+  for (var i = 0, k = 0; i < msg.length; i++, k += 4) {
+    var m = msg[i];
+    if (endian === 'big') {
+      res[k] = m >>> 24;
+      res[k + 1] = (m >>> 16) & 0xff;
+      res[k + 2] = (m >>> 8) & 0xff;
+      res[k + 3] = m & 0xff;
+    } else {
+      res[k + 3] = m >>> 24;
+      res[k + 2] = (m >>> 16) & 0xff;
+      res[k + 1] = (m >>> 8) & 0xff;
+      res[k] = m & 0xff;
+    }
+  }
+  return res;
+}
+utils$9.split32 = split32;
+
+function rotr32$1(w, b) {
+  return (w >>> b) | (w << (32 - b));
+}
+utils$9.rotr32 = rotr32$1;
+
+function rotl32$2(w, b) {
+  return (w << b) | (w >>> (32 - b));
+}
+utils$9.rotl32 = rotl32$2;
+
+function sum32$3(a, b) {
+  return (a + b) >>> 0;
+}
+utils$9.sum32 = sum32$3;
+
+function sum32_3$1(a, b, c) {
+  return (a + b + c) >>> 0;
+}
+utils$9.sum32_3 = sum32_3$1;
+
+function sum32_4$2(a, b, c, d) {
+  return (a + b + c + d) >>> 0;
+}
+utils$9.sum32_4 = sum32_4$2;
+
+function sum32_5$2(a, b, c, d, e) {
+  return (a + b + c + d + e) >>> 0;
+}
+utils$9.sum32_5 = sum32_5$2;
+
+function sum64$1(buf, pos, ah, al) {
+  var bh = buf[pos];
+  var bl = buf[pos + 1];
+
+  var lo = (al + bl) >>> 0;
+  var hi = (lo < al ? 1 : 0) + ah + bh;
+  buf[pos] = hi >>> 0;
+  buf[pos + 1] = lo;
+}
+utils$9.sum64 = sum64$1;
+
+function sum64_hi$1(ah, al, bh, bl) {
+  var lo = (al + bl) >>> 0;
+  var hi = (lo < al ? 1 : 0) + ah + bh;
+  return hi >>> 0;
+}
+utils$9.sum64_hi = sum64_hi$1;
+
+function sum64_lo$1(ah, al, bh, bl) {
+  var lo = al + bl;
+  return lo >>> 0;
+}
+utils$9.sum64_lo = sum64_lo$1;
+
+function sum64_4_hi$1(ah, al, bh, bl, ch, cl, dh, dl) {
+  var carry = 0;
+  var lo = al;
+  lo = (lo + bl) >>> 0;
+  carry += lo < al ? 1 : 0;
+  lo = (lo + cl) >>> 0;
+  carry += lo < cl ? 1 : 0;
+  lo = (lo + dl) >>> 0;
+  carry += lo < dl ? 1 : 0;
+
+  var hi = ah + bh + ch + dh + carry;
+  return hi >>> 0;
+}
+utils$9.sum64_4_hi = sum64_4_hi$1;
+
+function sum64_4_lo$1(ah, al, bh, bl, ch, cl, dh, dl) {
+  var lo = al + bl + cl + dl;
+  return lo >>> 0;
+}
+utils$9.sum64_4_lo = sum64_4_lo$1;
+
+function sum64_5_hi$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+  var carry = 0;
+  var lo = al;
+  lo = (lo + bl) >>> 0;
+  carry += lo < al ? 1 : 0;
+  lo = (lo + cl) >>> 0;
+  carry += lo < cl ? 1 : 0;
+  lo = (lo + dl) >>> 0;
+  carry += lo < dl ? 1 : 0;
+  lo = (lo + el) >>> 0;
+  carry += lo < el ? 1 : 0;
+
+  var hi = ah + bh + ch + dh + eh + carry;
+  return hi >>> 0;
+}
+utils$9.sum64_5_hi = sum64_5_hi$1;
+
+function sum64_5_lo$1(ah, al, bh, bl, ch, cl, dh, dl, eh, el) {
+  var lo = al + bl + cl + dl + el;
+
+  return lo >>> 0;
+}
+utils$9.sum64_5_lo = sum64_5_lo$1;
+
+function rotr64_hi$1(ah, al, num) {
+  var r = (al << (32 - num)) | (ah >>> num);
+  return r >>> 0;
+}
+utils$9.rotr64_hi = rotr64_hi$1;
+
+function rotr64_lo$1(ah, al, num) {
+  var r = (ah << (32 - num)) | (al >>> num);
+  return r >>> 0;
+}
+utils$9.rotr64_lo = rotr64_lo$1;
+
+function shr64_hi$1(ah, al, num) {
+  return ah >>> num;
+}
+utils$9.shr64_hi = shr64_hi$1;
+
+function shr64_lo$1(ah, al, num) {
+  var r = (ah << (32 - num)) | (al >>> num);
+  return r >>> 0;
+}
+utils$9.shr64_lo = shr64_lo$1;
+
+var common$5 = {};
+
+var utils$8 = utils$9;
+var assert$4 = minimalisticAssert;
+
+function BlockHash$4() {
+  this.pending = null;
+  this.pendingTotal = 0;
+  this.blockSize = this.constructor.blockSize;
+  this.outSize = this.constructor.outSize;
+  this.hmacStrength = this.constructor.hmacStrength;
+  this.padLength = this.constructor.padLength / 8;
+  this.endian = 'big';
+
+  this._delta8 = this.blockSize / 8;
+  this._delta32 = this.blockSize / 32;
+}
+common$5.BlockHash = BlockHash$4;
+
+BlockHash$4.prototype.update = function update(msg, enc) {
+  // Convert message to array, pad it, and join into 32bit blocks
+  msg = utils$8.toArray(msg, enc);
+  if (!this.pending)
+    this.pending = msg;
+  else
+    this.pending = this.pending.concat(msg);
+  this.pendingTotal += msg.length;
+
+  // Enough data, try updating
+  if (this.pending.length >= this._delta8) {
+    msg = this.pending;
+
+    // Process pending data in blocks
+    var r = msg.length % this._delta8;
+    this.pending = msg.slice(msg.length - r, msg.length);
+    if (this.pending.length === 0)
+      this.pending = null;
+
+    msg = utils$8.join32(msg, 0, msg.length - r, this.endian);
+    for (var i = 0; i < msg.length; i += this._delta32)
+      this._update(msg, i, i + this._delta32);
+  }
+
+  return this;
+};
+
+BlockHash$4.prototype.digest = function digest(enc) {
+  this.update(this._pad());
+  assert$4(this.pending === null);
+
+  return this._digest(enc);
+};
+
+BlockHash$4.prototype._pad = function pad() {
+  var len = this.pendingTotal;
+  var bytes = this._delta8;
+  var k = bytes - ((len + this.padLength) % bytes);
+  var res = new Array(k + this.padLength);
+  res[0] = 0x80;
+  for (var i = 1; i < k; i++)
+    res[i] = 0;
+
+  // Append length
+  len <<= 3;
+  if (this.endian === 'big') {
+    for (var t = 8; t < this.padLength; t++)
+      res[i++] = 0;
+
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = (len >>> 24) & 0xff;
+    res[i++] = (len >>> 16) & 0xff;
+    res[i++] = (len >>> 8) & 0xff;
+    res[i++] = len & 0xff;
+  } else {
+    res[i++] = len & 0xff;
+    res[i++] = (len >>> 8) & 0xff;
+    res[i++] = (len >>> 16) & 0xff;
+    res[i++] = (len >>> 24) & 0xff;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+    res[i++] = 0;
+
+    for (t = 8; t < this.padLength; t++)
+      res[i++] = 0;
+  }
+
+  return res;
+};
+
+var sha = {};
+
+var common$4 = {};
+
+var utils$7 = utils$9;
+var rotr32 = utils$7.rotr32;
+
+function ft_1$1(s, x, y, z) {
+  if (s === 0)
+    return ch32$1(x, y, z);
+  if (s === 1 || s === 3)
+    return p32(x, y, z);
+  if (s === 2)
+    return maj32$1(x, y, z);
+}
+common$4.ft_1 = ft_1$1;
+
+function ch32$1(x, y, z) {
+  return (x & y) ^ ((~x) & z);
+}
+common$4.ch32 = ch32$1;
+
+function maj32$1(x, y, z) {
+  return (x & y) ^ (x & z) ^ (y & z);
+}
+common$4.maj32 = maj32$1;
+
+function p32(x, y, z) {
+  return x ^ y ^ z;
+}
+common$4.p32 = p32;
+
+function s0_256$1(x) {
+  return rotr32(x, 2) ^ rotr32(x, 13) ^ rotr32(x, 22);
+}
+common$4.s0_256 = s0_256$1;
+
+function s1_256$1(x) {
+  return rotr32(x, 6) ^ rotr32(x, 11) ^ rotr32(x, 25);
+}
+common$4.s1_256 = s1_256$1;
+
+function g0_256$1(x) {
+  return rotr32(x, 7) ^ rotr32(x, 18) ^ (x >>> 3);
+}
+common$4.g0_256 = g0_256$1;
+
+function g1_256$1(x) {
+  return rotr32(x, 17) ^ rotr32(x, 19) ^ (x >>> 10);
+}
+common$4.g1_256 = g1_256$1;
+
+var utils$6 = utils$9;
+var common$3 = common$5;
+var shaCommon$1 = common$4;
+
+var rotl32$1 = utils$6.rotl32;
+var sum32$2 = utils$6.sum32;
+var sum32_5$1 = utils$6.sum32_5;
+var ft_1 = shaCommon$1.ft_1;
+var BlockHash$3 = common$3.BlockHash;
+
+var sha1_K = [
+  0x5A827999, 0x6ED9EBA1,
+  0x8F1BBCDC, 0xCA62C1D6
+];
+
+function SHA1() {
+  if (!(this instanceof SHA1))
+    return new SHA1();
+
+  BlockHash$3.call(this);
+  this.h = [
+    0x67452301, 0xefcdab89, 0x98badcfe,
+    0x10325476, 0xc3d2e1f0 ];
+  this.W = new Array(80);
+}
+
+utils$6.inherits(SHA1, BlockHash$3);
+var _1 = SHA1;
+
+SHA1.blockSize = 512;
+SHA1.outSize = 160;
+SHA1.hmacStrength = 80;
+SHA1.padLength = 64;
+
+SHA1.prototype._update = function _update(msg, start) {
+  var W = this.W;
+
+  for (var i = 0; i < 16; i++)
+    W[i] = msg[start + i];
+
+  for(; i < W.length; i++)
+    W[i] = rotl32$1(W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16], 1);
+
+  var a = this.h[0];
+  var b = this.h[1];
+  var c = this.h[2];
+  var d = this.h[3];
+  var e = this.h[4];
+
+  for (i = 0; i < W.length; i++) {
+    var s = ~~(i / 20);
+    var t = sum32_5$1(rotl32$1(a, 5), ft_1(s, b, c, d), e, W[i], sha1_K[s]);
+    e = d;
+    d = c;
+    c = rotl32$1(b, 30);
+    b = a;
+    a = t;
+  }
+
+  this.h[0] = sum32$2(this.h[0], a);
+  this.h[1] = sum32$2(this.h[1], b);
+  this.h[2] = sum32$2(this.h[2], c);
+  this.h[3] = sum32$2(this.h[3], d);
+  this.h[4] = sum32$2(this.h[4], e);
+};
+
+SHA1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$6.toHex32(this.h, 'big');
+  else
+    return utils$6.split32(this.h, 'big');
+};
+
+var utils$5 = utils$9;
+var common$2 = common$5;
+var shaCommon = common$4;
+var assert$3 = minimalisticAssert;
+
+var sum32$1 = utils$5.sum32;
+var sum32_4$1 = utils$5.sum32_4;
+var sum32_5 = utils$5.sum32_5;
+var ch32 = shaCommon.ch32;
+var maj32 = shaCommon.maj32;
+var s0_256 = shaCommon.s0_256;
+var s1_256 = shaCommon.s1_256;
+var g0_256 = shaCommon.g0_256;
+var g1_256 = shaCommon.g1_256;
+
+var BlockHash$2 = common$2.BlockHash;
+
+var sha256_K = [
+  0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+  0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+  0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+  0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+  0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+  0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+  0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+  0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+  0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+  0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+  0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+  0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+  0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+  0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+  0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+  0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+];
+
+function SHA256$1() {
+  if (!(this instanceof SHA256$1))
+    return new SHA256$1();
+
+  BlockHash$2.call(this);
+  this.h = [
+    0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+  ];
+  this.k = sha256_K;
+  this.W = new Array(64);
+}
+utils$5.inherits(SHA256$1, BlockHash$2);
+var _256 = SHA256$1;
+
+SHA256$1.blockSize = 512;
+SHA256$1.outSize = 256;
+SHA256$1.hmacStrength = 192;
+SHA256$1.padLength = 64;
+
+SHA256$1.prototype._update = function _update(msg, start) {
+  var W = this.W;
+
+  for (var i = 0; i < 16; i++)
+    W[i] = msg[start + i];
+  for (; i < W.length; i++)
+    W[i] = sum32_4$1(g1_256(W[i - 2]), W[i - 7], g0_256(W[i - 15]), W[i - 16]);
+
+  var a = this.h[0];
+  var b = this.h[1];
+  var c = this.h[2];
+  var d = this.h[3];
+  var e = this.h[4];
+  var f = this.h[5];
+  var g = this.h[6];
+  var h = this.h[7];
+
+  assert$3(this.k.length === W.length);
+  for (i = 0; i < W.length; i++) {
+    var T1 = sum32_5(h, s1_256(e), ch32(e, f, g), this.k[i], W[i]);
+    var T2 = sum32$1(s0_256(a), maj32(a, b, c));
+    h = g;
+    g = f;
+    f = e;
+    e = sum32$1(d, T1);
+    d = c;
+    c = b;
+    b = a;
+    a = sum32$1(T1, T2);
+  }
+
+  this.h[0] = sum32$1(this.h[0], a);
+  this.h[1] = sum32$1(this.h[1], b);
+  this.h[2] = sum32$1(this.h[2], c);
+  this.h[3] = sum32$1(this.h[3], d);
+  this.h[4] = sum32$1(this.h[4], e);
+  this.h[5] = sum32$1(this.h[5], f);
+  this.h[6] = sum32$1(this.h[6], g);
+  this.h[7] = sum32$1(this.h[7], h);
+};
+
+SHA256$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$5.toHex32(this.h, 'big');
+  else
+    return utils$5.split32(this.h, 'big');
+};
+
+var utils$4 = utils$9;
+var SHA256 = _256;
+
+function SHA224() {
+  if (!(this instanceof SHA224))
+    return new SHA224();
+
+  SHA256.call(this);
+  this.h = [
+    0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
+    0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4 ];
+}
+utils$4.inherits(SHA224, SHA256);
+var _224 = SHA224;
+
+SHA224.blockSize = 512;
+SHA224.outSize = 224;
+SHA224.hmacStrength = 192;
+SHA224.padLength = 64;
+
+SHA224.prototype._digest = function digest(enc) {
+  // Just truncate output
+  if (enc === 'hex')
+    return utils$4.toHex32(this.h.slice(0, 7), 'big');
+  else
+    return utils$4.split32(this.h.slice(0, 7), 'big');
+};
+
+var utils$3 = utils$9;
+var common$1 = common$5;
+var assert$2 = minimalisticAssert;
+
+var rotr64_hi = utils$3.rotr64_hi;
+var rotr64_lo = utils$3.rotr64_lo;
+var shr64_hi = utils$3.shr64_hi;
+var shr64_lo = utils$3.shr64_lo;
+var sum64 = utils$3.sum64;
+var sum64_hi = utils$3.sum64_hi;
+var sum64_lo = utils$3.sum64_lo;
+var sum64_4_hi = utils$3.sum64_4_hi;
+var sum64_4_lo = utils$3.sum64_4_lo;
+var sum64_5_hi = utils$3.sum64_5_hi;
+var sum64_5_lo = utils$3.sum64_5_lo;
+
+var BlockHash$1 = common$1.BlockHash;
+
+var sha512_K = [
+  0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd,
+  0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc,
+  0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019,
+  0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118,
+  0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe,
+  0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2,
+  0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1,
+  0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694,
+  0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3,
+  0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65,
+  0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483,
+  0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5,
+  0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210,
+  0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4,
+  0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725,
+  0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70,
+  0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926,
+  0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df,
+  0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8,
+  0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b,
+  0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001,
+  0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30,
+  0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910,
+  0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8,
+  0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53,
+  0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8,
+  0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb,
+  0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3,
+  0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60,
+  0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec,
+  0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9,
+  0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b,
+  0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207,
+  0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
+  0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6,
+  0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
+  0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493,
+  0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
+  0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a,
+  0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+];
+
+function SHA512$1() {
+  if (!(this instanceof SHA512$1))
+    return new SHA512$1();
+
+  BlockHash$1.call(this);
+  this.h = [
+    0x6a09e667, 0xf3bcc908,
+    0xbb67ae85, 0x84caa73b,
+    0x3c6ef372, 0xfe94f82b,
+    0xa54ff53a, 0x5f1d36f1,
+    0x510e527f, 0xade682d1,
+    0x9b05688c, 0x2b3e6c1f,
+    0x1f83d9ab, 0xfb41bd6b,
+    0x5be0cd19, 0x137e2179 ];
+  this.k = sha512_K;
+  this.W = new Array(160);
+}
+utils$3.inherits(SHA512$1, BlockHash$1);
+var _512 = SHA512$1;
+
+SHA512$1.blockSize = 1024;
+SHA512$1.outSize = 512;
+SHA512$1.hmacStrength = 192;
+SHA512$1.padLength = 128;
+
+SHA512$1.prototype._prepareBlock = function _prepareBlock(msg, start) {
+  var W = this.W;
+
+  // 32 x 32bit words
+  for (var i = 0; i < 32; i++)
+    W[i] = msg[start + i];
+  for (; i < W.length; i += 2) {
+    var c0_hi = g1_512_hi(W[i - 4], W[i - 3]);  // i - 2
+    var c0_lo = g1_512_lo(W[i - 4], W[i - 3]);
+    var c1_hi = W[i - 14];  // i - 7
+    var c1_lo = W[i - 13];
+    var c2_hi = g0_512_hi(W[i - 30], W[i - 29]);  // i - 15
+    var c2_lo = g0_512_lo(W[i - 30], W[i - 29]);
+    var c3_hi = W[i - 32];  // i - 16
+    var c3_lo = W[i - 31];
+
+    W[i] = sum64_4_hi(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo);
+    W[i + 1] = sum64_4_lo(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo);
+  }
+};
+
+SHA512$1.prototype._update = function _update(msg, start) {
+  this._prepareBlock(msg, start);
+
+  var W = this.W;
+
+  var ah = this.h[0];
+  var al = this.h[1];
+  var bh = this.h[2];
+  var bl = this.h[3];
+  var ch = this.h[4];
+  var cl = this.h[5];
+  var dh = this.h[6];
+  var dl = this.h[7];
+  var eh = this.h[8];
+  var el = this.h[9];
+  var fh = this.h[10];
+  var fl = this.h[11];
+  var gh = this.h[12];
+  var gl = this.h[13];
+  var hh = this.h[14];
+  var hl = this.h[15];
+
+  assert$2(this.k.length === W.length);
+  for (var i = 0; i < W.length; i += 2) {
+    var c0_hi = hh;
+    var c0_lo = hl;
+    var c1_hi = s1_512_hi(eh, el);
+    var c1_lo = s1_512_lo(eh, el);
+    var c2_hi = ch64_hi(eh, el, fh, fl, gh);
+    var c2_lo = ch64_lo(eh, el, fh, fl, gh, gl);
+    var c3_hi = this.k[i];
+    var c3_lo = this.k[i + 1];
+    var c4_hi = W[i];
+    var c4_lo = W[i + 1];
+
+    var T1_hi = sum64_5_hi(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo,
+      c4_hi, c4_lo);
+    var T1_lo = sum64_5_lo(
+      c0_hi, c0_lo,
+      c1_hi, c1_lo,
+      c2_hi, c2_lo,
+      c3_hi, c3_lo,
+      c4_hi, c4_lo);
+
+    c0_hi = s0_512_hi(ah, al);
+    c0_lo = s0_512_lo(ah, al);
+    c1_hi = maj64_hi(ah, al, bh, bl, ch);
+    c1_lo = maj64_lo(ah, al, bh, bl, ch, cl);
+
+    var T2_hi = sum64_hi(c0_hi, c0_lo, c1_hi, c1_lo);
+    var T2_lo = sum64_lo(c0_hi, c0_lo, c1_hi, c1_lo);
+
+    hh = gh;
+    hl = gl;
+
+    gh = fh;
+    gl = fl;
+
+    fh = eh;
+    fl = el;
+
+    eh = sum64_hi(dh, dl, T1_hi, T1_lo);
+    el = sum64_lo(dl, dl, T1_hi, T1_lo);
+
+    dh = ch;
+    dl = cl;
+
+    ch = bh;
+    cl = bl;
+
+    bh = ah;
+    bl = al;
+
+    ah = sum64_hi(T1_hi, T1_lo, T2_hi, T2_lo);
+    al = sum64_lo(T1_hi, T1_lo, T2_hi, T2_lo);
+  }
+
+  sum64(this.h, 0, ah, al);
+  sum64(this.h, 2, bh, bl);
+  sum64(this.h, 4, ch, cl);
+  sum64(this.h, 6, dh, dl);
+  sum64(this.h, 8, eh, el);
+  sum64(this.h, 10, fh, fl);
+  sum64(this.h, 12, gh, gl);
+  sum64(this.h, 14, hh, hl);
+};
+
+SHA512$1.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$3.toHex32(this.h, 'big');
+  else
+    return utils$3.split32(this.h, 'big');
+};
+
+function ch64_hi(xh, xl, yh, yl, zh) {
+  var r = (xh & yh) ^ ((~xh) & zh);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function ch64_lo(xh, xl, yh, yl, zh, zl) {
+  var r = (xl & yl) ^ ((~xl) & zl);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function maj64_hi(xh, xl, yh, yl, zh) {
+  var r = (xh & yh) ^ (xh & zh) ^ (yh & zh);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function maj64_lo(xh, xl, yh, yl, zh, zl) {
+  var r = (xl & yl) ^ (xl & zl) ^ (yl & zl);
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s0_512_hi(xh, xl) {
+  var c0_hi = rotr64_hi(xh, xl, 28);
+  var c1_hi = rotr64_hi(xl, xh, 2);  // 34
+  var c2_hi = rotr64_hi(xl, xh, 7);  // 39
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s0_512_lo(xh, xl) {
+  var c0_lo = rotr64_lo(xh, xl, 28);
+  var c1_lo = rotr64_lo(xl, xh, 2);  // 34
+  var c2_lo = rotr64_lo(xl, xh, 7);  // 39
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s1_512_hi(xh, xl) {
+  var c0_hi = rotr64_hi(xh, xl, 14);
+  var c1_hi = rotr64_hi(xh, xl, 18);
+  var c2_hi = rotr64_hi(xl, xh, 9);  // 41
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function s1_512_lo(xh, xl) {
+  var c0_lo = rotr64_lo(xh, xl, 14);
+  var c1_lo = rotr64_lo(xh, xl, 18);
+  var c2_lo = rotr64_lo(xl, xh, 9);  // 41
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g0_512_hi(xh, xl) {
+  var c0_hi = rotr64_hi(xh, xl, 1);
+  var c1_hi = rotr64_hi(xh, xl, 8);
+  var c2_hi = shr64_hi(xh, xl, 7);
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g0_512_lo(xh, xl) {
+  var c0_lo = rotr64_lo(xh, xl, 1);
+  var c1_lo = rotr64_lo(xh, xl, 8);
+  var c2_lo = shr64_lo(xh, xl, 7);
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g1_512_hi(xh, xl) {
+  var c0_hi = rotr64_hi(xh, xl, 19);
+  var c1_hi = rotr64_hi(xl, xh, 29);  // 61
+  var c2_hi = shr64_hi(xh, xl, 6);
+
+  var r = c0_hi ^ c1_hi ^ c2_hi;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+function g1_512_lo(xh, xl) {
+  var c0_lo = rotr64_lo(xh, xl, 19);
+  var c1_lo = rotr64_lo(xl, xh, 29);  // 61
+  var c2_lo = shr64_lo(xh, xl, 6);
+
+  var r = c0_lo ^ c1_lo ^ c2_lo;
+  if (r < 0)
+    r += 0x100000000;
+  return r;
+}
+
+var utils$2 = utils$9;
+
+var SHA512 = _512;
+
+function SHA384() {
+  if (!(this instanceof SHA384))
+    return new SHA384();
+
+  SHA512.call(this);
+  this.h = [
+    0xcbbb9d5d, 0xc1059ed8,
+    0x629a292a, 0x367cd507,
+    0x9159015a, 0x3070dd17,
+    0x152fecd8, 0xf70e5939,
+    0x67332667, 0xffc00b31,
+    0x8eb44a87, 0x68581511,
+    0xdb0c2e0d, 0x64f98fa7,
+    0x47b5481d, 0xbefa4fa4 ];
+}
+utils$2.inherits(SHA384, SHA512);
+var _384 = SHA384;
+
+SHA384.blockSize = 1024;
+SHA384.outSize = 384;
+SHA384.hmacStrength = 192;
+SHA384.padLength = 128;
+
+SHA384.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$2.toHex32(this.h.slice(0, 12), 'big');
+  else
+    return utils$2.split32(this.h.slice(0, 12), 'big');
+};
+
+sha.sha1 = _1;
+sha.sha224 = _224;
+sha.sha256 = _256;
+sha.sha384 = _384;
+sha.sha512 = _512;
+
+var ripemd = {};
+
+var utils$1 = utils$9;
+var common = common$5;
+
+var rotl32 = utils$1.rotl32;
+var sum32 = utils$1.sum32;
+var sum32_3 = utils$1.sum32_3;
+var sum32_4 = utils$1.sum32_4;
+var BlockHash = common.BlockHash;
+
+function RIPEMD160() {
+  if (!(this instanceof RIPEMD160))
+    return new RIPEMD160();
+
+  BlockHash.call(this);
+
+  this.h = [ 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 ];
+  this.endian = 'little';
+}
+utils$1.inherits(RIPEMD160, BlockHash);
+ripemd.ripemd160 = RIPEMD160;
+
+RIPEMD160.blockSize = 512;
+RIPEMD160.outSize = 160;
+RIPEMD160.hmacStrength = 192;
+RIPEMD160.padLength = 64;
+
+RIPEMD160.prototype._update = function update(msg, start) {
+  var A = this.h[0];
+  var B = this.h[1];
+  var C = this.h[2];
+  var D = this.h[3];
+  var E = this.h[4];
+  var Ah = A;
+  var Bh = B;
+  var Ch = C;
+  var Dh = D;
+  var Eh = E;
+  for (var j = 0; j < 80; j++) {
+    var T = sum32(
+      rotl32(
+        sum32_4(A, f(j, B, C, D), msg[r[j] + start], K(j)),
+        s[j]),
+      E);
+    A = E;
+    E = D;
+    D = rotl32(C, 10);
+    C = B;
+    B = T;
+    T = sum32(
+      rotl32(
+        sum32_4(Ah, f(79 - j, Bh, Ch, Dh), msg[rh[j] + start], Kh(j)),
+        sh[j]),
+      Eh);
+    Ah = Eh;
+    Eh = Dh;
+    Dh = rotl32(Ch, 10);
+    Ch = Bh;
+    Bh = T;
+  }
+  T = sum32_3(this.h[1], C, Dh);
+  this.h[1] = sum32_3(this.h[2], D, Eh);
+  this.h[2] = sum32_3(this.h[3], E, Ah);
+  this.h[3] = sum32_3(this.h[4], A, Bh);
+  this.h[4] = sum32_3(this.h[0], B, Ch);
+  this.h[0] = T;
+};
+
+RIPEMD160.prototype._digest = function digest(enc) {
+  if (enc === 'hex')
+    return utils$1.toHex32(this.h, 'little');
+  else
+    return utils$1.split32(this.h, 'little');
+};
+
+function f(j, x, y, z) {
+  if (j <= 15)
+    return x ^ y ^ z;
+  else if (j <= 31)
+    return (x & y) | ((~x) & z);
+  else if (j <= 47)
+    return (x | (~y)) ^ z;
+  else if (j <= 63)
+    return (x & z) | (y & (~z));
+  else
+    return x ^ (y | (~z));
+}
+
+function K(j) {
+  if (j <= 15)
+    return 0x00000000;
+  else if (j <= 31)
+    return 0x5a827999;
+  else if (j <= 47)
+    return 0x6ed9eba1;
+  else if (j <= 63)
+    return 0x8f1bbcdc;
+  else
+    return 0xa953fd4e;
+}
+
+function Kh(j) {
+  if (j <= 15)
+    return 0x50a28be6;
+  else if (j <= 31)
+    return 0x5c4dd124;
+  else if (j <= 47)
+    return 0x6d703ef3;
+  else if (j <= 63)
+    return 0x7a6d76e9;
+  else
+    return 0x00000000;
+}
+
+var r = [
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  7, 4, 13, 1, 10, 6, 15, 3, 12, 0, 9, 5, 2, 14, 11, 8,
+  3, 10, 14, 4, 9, 15, 8, 1, 2, 7, 0, 6, 13, 11, 5, 12,
+  1, 9, 11, 10, 0, 8, 12, 4, 13, 3, 7, 15, 14, 5, 6, 2,
+  4, 0, 5, 9, 7, 12, 2, 10, 14, 1, 3, 8, 11, 6, 15, 13
+];
+
+var rh = [
+  5, 14, 7, 0, 9, 2, 11, 4, 13, 6, 15, 8, 1, 10, 3, 12,
+  6, 11, 3, 7, 0, 13, 5, 10, 14, 15, 8, 12, 4, 9, 1, 2,
+  15, 5, 1, 3, 7, 14, 6, 9, 11, 8, 12, 2, 10, 0, 4, 13,
+  8, 6, 4, 1, 3, 11, 15, 0, 5, 12, 2, 13, 9, 7, 10, 14,
+  12, 15, 10, 4, 1, 5, 8, 7, 6, 2, 13, 14, 0, 3, 9, 11
+];
+
+var s = [
+  11, 14, 15, 12, 5, 8, 7, 9, 11, 13, 14, 15, 6, 7, 9, 8,
+  7, 6, 8, 13, 11, 9, 7, 15, 7, 12, 15, 9, 11, 7, 13, 12,
+  11, 13, 6, 7, 14, 9, 13, 15, 14, 8, 13, 6, 5, 12, 7, 5,
+  11, 12, 14, 15, 14, 15, 9, 8, 9, 14, 5, 6, 8, 6, 5, 12,
+  9, 15, 5, 11, 6, 8, 13, 12, 5, 12, 13, 14, 11, 8, 5, 6
+];
+
+var sh = [
+  8, 9, 9, 11, 13, 15, 15, 5, 7, 7, 8, 11, 14, 14, 12, 6,
+  9, 13, 15, 7, 12, 8, 9, 11, 7, 7, 12, 7, 6, 15, 13, 11,
+  9, 7, 15, 11, 8, 6, 6, 14, 12, 13, 5, 14, 13, 13, 7, 5,
+  15, 5, 8, 11, 14, 14, 6, 14, 6, 9, 12, 9, 12, 5, 15, 8,
+  8, 5, 12, 9, 12, 5, 14, 6, 8, 13, 6, 5, 15, 13, 11, 11
+];
+
+var utils = utils$9;
+var assert$1 = minimalisticAssert;
+
+function Hmac(hash, key, enc) {
+  if (!(this instanceof Hmac))
+    return new Hmac(hash, key, enc);
+  this.Hash = hash;
+  this.blockSize = hash.blockSize / 8;
+  this.outSize = hash.outSize / 8;
+  this.inner = null;
+  this.outer = null;
+
+  this._init(utils.toArray(key, enc));
+}
+var hmac = Hmac;
+
+Hmac.prototype._init = function init(key) {
+  // Shorten key, if needed
+  if (key.length > this.blockSize)
+    key = new this.Hash().update(key).digest();
+  assert$1(key.length <= this.blockSize);
+
+  // Add padding to key
+  for (var i = key.length; i < this.blockSize; i++)
+    key.push(0);
+
+  for (i = 0; i < key.length; i++)
+    key[i] ^= 0x36;
+  this.inner = new this.Hash().update(key);
+
+  // 0x36 ^ 0x5c = 0x6a
+  for (i = 0; i < key.length; i++)
+    key[i] ^= 0x6a;
+  this.outer = new this.Hash().update(key);
+};
+
+Hmac.prototype.update = function update(msg, enc) {
+  this.inner.update(msg, enc);
+  return this;
+};
+
+Hmac.prototype.digest = function digest(enc) {
+  this.outer.update(this.inner.digest());
+  return this.outer.digest(enc);
+};
+
+(function (exports) {
+	var hash = exports;
+
+	hash.utils = utils$9;
+	hash.common = common$5;
+	hash.sha = sha;
+	hash.ripemd = ripemd;
+	hash.hmac = hmac;
+
+	// Proxy hash functions to the main object
+	hash.sha1 = hash.sha.sha1;
+	hash.sha256 = hash.sha.sha256;
+	hash.sha224 = hash.sha.sha224;
+	hash.sha384 = hash.sha.sha384;
+	hash.sha512 = hash.sha.sha512;
+	hash.ripemd160 = hash.ripemd.ripemd160;
+} (hash$1));
+
+var hash = hash$1;
+
+const version$2 = "logger/5.6.0";
+
+let _permanentCensorErrors = false;
+let _censorErrors = false;
+const LogLevels = { debug: 1, "default": 2, info: 2, warning: 3, error: 4, off: 5 };
+let _logLevel = LogLevels["default"];
+let _globalLogger = null;
+function _checkNormalize() {
+    try {
+        const missing = [];
+        // Make sure all forms of normalization are supported
+        ["NFD", "NFC", "NFKD", "NFKC"].forEach((form) => {
+            try {
+                if ("test".normalize(form) !== "test") {
+                    throw new Error("bad normalize");
+                }
+                ;
+            }
+            catch (error) {
+                missing.push(form);
+            }
+        });
+        if (missing.length) {
+            throw new Error("missing " + missing.join(", "));
+        }
+        if (String.fromCharCode(0xe9).normalize("NFD") !== String.fromCharCode(0x65, 0x0301)) {
+            throw new Error("broken implementation");
+        }
+    }
+    catch (error) {
+        return error.message;
+    }
+    return null;
+}
+const _normalizeError = _checkNormalize();
+var LogLevel;
+(function (LogLevel) {
+    LogLevel["DEBUG"] = "DEBUG";
+    LogLevel["INFO"] = "INFO";
+    LogLevel["WARNING"] = "WARNING";
+    LogLevel["ERROR"] = "ERROR";
+    LogLevel["OFF"] = "OFF";
+})(LogLevel || (LogLevel = {}));
+var ErrorCode;
+(function (ErrorCode) {
+    ///////////////////
+    // Generic Errors
+    // Unknown Error
+    ErrorCode["UNKNOWN_ERROR"] = "UNKNOWN_ERROR";
+    // Not Implemented
+    ErrorCode["NOT_IMPLEMENTED"] = "NOT_IMPLEMENTED";
+    // Unsupported Operation
+    //   - operation
+    ErrorCode["UNSUPPORTED_OPERATION"] = "UNSUPPORTED_OPERATION";
+    // Network Error (i.e. Ethereum Network, such as an invalid chain ID)
+    //   - event ("noNetwork" is not re-thrown in provider.ready; otherwise thrown)
+    ErrorCode["NETWORK_ERROR"] = "NETWORK_ERROR";
+    // Some sort of bad response from the server
+    ErrorCode["SERVER_ERROR"] = "SERVER_ERROR";
+    // Timeout
+    ErrorCode["TIMEOUT"] = "TIMEOUT";
+    ///////////////////
+    // Operational  Errors
+    // Buffer Overrun
+    ErrorCode["BUFFER_OVERRUN"] = "BUFFER_OVERRUN";
+    // Numeric Fault
+    //   - operation: the operation being executed
+    //   - fault: the reason this faulted
+    ErrorCode["NUMERIC_FAULT"] = "NUMERIC_FAULT";
+    ///////////////////
+    // Argument Errors
+    // Missing new operator to an object
+    //  - name: The name of the class
+    ErrorCode["MISSING_NEW"] = "MISSING_NEW";
+    // Invalid argument (e.g. value is incompatible with type) to a function:
+    //   - argument: The argument name that was invalid
+    //   - value: The value of the argument
+    ErrorCode["INVALID_ARGUMENT"] = "INVALID_ARGUMENT";
+    // Missing argument to a function:
+    //   - count: The number of arguments received
+    //   - expectedCount: The number of arguments expected
+    ErrorCode["MISSING_ARGUMENT"] = "MISSING_ARGUMENT";
+    // Too many arguments
+    //   - count: The number of arguments received
+    //   - expectedCount: The number of arguments expected
+    ErrorCode["UNEXPECTED_ARGUMENT"] = "UNEXPECTED_ARGUMENT";
+    ///////////////////
+    // Blockchain Errors
+    // Call exception
+    //  - transaction: the transaction
+    //  - address?: the contract address
+    //  - args?: The arguments passed into the function
+    //  - method?: The Solidity method signature
+    //  - errorSignature?: The EIP848 error signature
+    //  - errorArgs?: The EIP848 error parameters
+    //  - reason: The reason (only for EIP848 "Error(string)")
+    ErrorCode["CALL_EXCEPTION"] = "CALL_EXCEPTION";
+    // Insufficient funds (< value + gasLimit * gasPrice)
+    //   - transaction: the transaction attempted
+    ErrorCode["INSUFFICIENT_FUNDS"] = "INSUFFICIENT_FUNDS";
+    // Nonce has already been used
+    //   - transaction: the transaction attempted
+    ErrorCode["NONCE_EXPIRED"] = "NONCE_EXPIRED";
+    // The replacement fee for the transaction is too low
+    //   - transaction: the transaction attempted
+    ErrorCode["REPLACEMENT_UNDERPRICED"] = "REPLACEMENT_UNDERPRICED";
+    // The gas limit could not be estimated
+    //   - transaction: the transaction passed to estimateGas
+    ErrorCode["UNPREDICTABLE_GAS_LIMIT"] = "UNPREDICTABLE_GAS_LIMIT";
+    // The transaction was replaced by one with a higher gas price
+    //   - reason: "cancelled", "replaced" or "repriced"
+    //   - cancelled: true if reason == "cancelled" or reason == "replaced")
+    //   - hash: original transaction hash
+    //   - replacement: the full TransactionsResponse for the replacement
+    //   - receipt: the receipt of the replacement
+    ErrorCode["TRANSACTION_REPLACED"] = "TRANSACTION_REPLACED";
+})(ErrorCode || (ErrorCode = {}));
+const HEX = "0123456789abcdef";
+class Logger {
+    constructor(version) {
+        Object.defineProperty(this, "version", {
+            enumerable: true,
+            value: version,
+            writable: false
+        });
+    }
+    _log(logLevel, args) {
+        const level = logLevel.toLowerCase();
+        if (LogLevels[level] == null) {
+            this.throwArgumentError("invalid log level name", "logLevel", logLevel);
+        }
+        if (_logLevel > LogLevels[level]) {
+            return;
+        }
+        console.log.apply(console, args);
+    }
+    debug(...args) {
+        this._log(Logger.levels.DEBUG, args);
+    }
+    info(...args) {
+        this._log(Logger.levels.INFO, args);
+    }
+    warn(...args) {
+        this._log(Logger.levels.WARNING, args);
+    }
+    makeError(message, code, params) {
+        // Errors are being censored
+        if (_censorErrors) {
+            return this.makeError("censored error", code, {});
+        }
+        if (!code) {
+            code = Logger.errors.UNKNOWN_ERROR;
+        }
+        if (!params) {
+            params = {};
+        }
+        const messageDetails = [];
+        Object.keys(params).forEach((key) => {
+            const value = params[key];
+            try {
+                if (value instanceof Uint8Array) {
+                    let hex = "";
+                    for (let i = 0; i < value.length; i++) {
+                        hex += HEX[value[i] >> 4];
+                        hex += HEX[value[i] & 0x0f];
+                    }
+                    messageDetails.push(key + "=Uint8Array(0x" + hex + ")");
+                }
+                else {
+                    messageDetails.push(key + "=" + JSON.stringify(value));
+                }
+            }
+            catch (error) {
+                messageDetails.push(key + "=" + JSON.stringify(params[key].toString()));
+            }
+        });
+        messageDetails.push(`code=${code}`);
+        messageDetails.push(`version=${this.version}`);
+        const reason = message;
+        let url = "";
+        switch (code) {
+            case ErrorCode.NUMERIC_FAULT: {
+                url = "NUMERIC_FAULT";
+                const fault = message;
+                switch (fault) {
+                    case "overflow":
+                    case "underflow":
+                    case "division-by-zero":
+                        url += "-" + fault;
+                        break;
+                    case "negative-power":
+                    case "negative-width":
+                        url += "-unsupported";
+                        break;
+                    case "unbound-bitwise-result":
+                        url += "-unbound-result";
+                        break;
+                }
+                break;
+            }
+            case ErrorCode.CALL_EXCEPTION:
+            case ErrorCode.INSUFFICIENT_FUNDS:
+            case ErrorCode.MISSING_NEW:
+            case ErrorCode.NONCE_EXPIRED:
+            case ErrorCode.REPLACEMENT_UNDERPRICED:
+            case ErrorCode.TRANSACTION_REPLACED:
+            case ErrorCode.UNPREDICTABLE_GAS_LIMIT:
+                url = code;
+                break;
+        }
+        if (url) {
+            message += " [ See: https:/\/links.ethers.org/v5-errors-" + url + " ]";
+        }
+        if (messageDetails.length) {
+            message += " (" + messageDetails.join(", ") + ")";
+        }
+        // @TODO: Any??
+        const error = new Error(message);
+        error.reason = reason;
+        error.code = code;
+        Object.keys(params).forEach(function (key) {
+            error[key] = params[key];
+        });
+        return error;
+    }
+    throwError(message, code, params) {
+        throw this.makeError(message, code, params);
+    }
+    throwArgumentError(message, name, value) {
+        return this.throwError(message, Logger.errors.INVALID_ARGUMENT, {
+            argument: name,
+            value: value
+        });
+    }
+    assert(condition, message, code, params) {
+        if (!!condition) {
+            return;
+        }
+        this.throwError(message, code, params);
+    }
+    assertArgument(condition, message, name, value) {
+        if (!!condition) {
+            return;
+        }
+        this.throwArgumentError(message, name, value);
+    }
+    checkNormalize(message) {
+        if (_normalizeError) {
+            this.throwError("platform missing String.prototype.normalize", Logger.errors.UNSUPPORTED_OPERATION, {
+                operation: "String.prototype.normalize", form: _normalizeError
+            });
+        }
+    }
+    checkSafeUint53(value, message) {
+        if (typeof (value) !== "number") {
+            return;
+        }
+        if (message == null) {
+            message = "value not safe";
+        }
+        if (value < 0 || value >= 0x1fffffffffffff) {
+            this.throwError(message, Logger.errors.NUMERIC_FAULT, {
+                operation: "checkSafeInteger",
+                fault: "out-of-safe-range",
+                value: value
+            });
+        }
+        if (value % 1) {
+            this.throwError(message, Logger.errors.NUMERIC_FAULT, {
+                operation: "checkSafeInteger",
+                fault: "non-integer",
+                value: value
+            });
+        }
+    }
+    checkArgumentCount(count, expectedCount, message) {
+        if (message) {
+            message = ": " + message;
+        }
+        else {
+            message = "";
+        }
+        if (count < expectedCount) {
+            this.throwError("missing argument" + message, Logger.errors.MISSING_ARGUMENT, {
+                count: count,
+                expectedCount: expectedCount
+            });
+        }
+        if (count > expectedCount) {
+            this.throwError("too many arguments" + message, Logger.errors.UNEXPECTED_ARGUMENT, {
+                count: count,
+                expectedCount: expectedCount
+            });
+        }
+    }
+    checkNew(target, kind) {
+        if (target === Object || target == null) {
+            this.throwError("missing new", Logger.errors.MISSING_NEW, { name: kind.name });
+        }
+    }
+    checkAbstract(target, kind) {
+        if (target === kind) {
+            this.throwError("cannot instantiate abstract class " + JSON.stringify(kind.name) + " directly; use a sub-class", Logger.errors.UNSUPPORTED_OPERATION, { name: target.name, operation: "new" });
+        }
+        else if (target === Object || target == null) {
+            this.throwError("missing new", Logger.errors.MISSING_NEW, { name: kind.name });
+        }
+    }
+    static globalLogger() {
+        if (!_globalLogger) {
+            _globalLogger = new Logger(version$2);
+        }
+        return _globalLogger;
+    }
+    static setCensorship(censorship, permanent) {
+        if (!censorship && permanent) {
+            this.globalLogger().throwError("cannot permanently disable censorship", Logger.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
+        if (_permanentCensorErrors) {
+            if (!censorship) {
+                return;
+            }
+            this.globalLogger().throwError("error censorship permanent", Logger.errors.UNSUPPORTED_OPERATION, {
+                operation: "setCensorship"
+            });
+        }
+        _censorErrors = !!censorship;
+        _permanentCensorErrors = !!permanent;
+    }
+    static setLogLevel(logLevel) {
+        const level = LogLevels[logLevel.toLowerCase()];
+        if (level == null) {
+            Logger.globalLogger().warn("invalid log level - " + logLevel);
+            return;
+        }
+        _logLevel = level;
+    }
+    static from(version) {
+        return new Logger(version);
+    }
+}
+Logger.errors = ErrorCode;
+Logger.levels = LogLevel;
+
+const version$1 = "bytes/5.6.0";
+
+const logger = new Logger(version$1);
+///////////////////////////////
+function isHexable(value) {
+    return !!(value.toHexString);
+}
+function addSlice(array) {
+    if (array.slice) {
+        return array;
+    }
+    array.slice = function () {
+        const args = Array.prototype.slice.call(arguments);
+        return addSlice(new Uint8Array(Array.prototype.slice.apply(array, args)));
+    };
+    return array;
+}
+function isInteger(value) {
+    return (typeof (value) === "number" && value == value && (value % 1) === 0);
+}
+function isBytes(value) {
+    if (value == null) {
+        return false;
+    }
+    if (value.constructor === Uint8Array) {
+        return true;
+    }
+    if (typeof (value) === "string") {
+        return false;
+    }
+    if (!isInteger(value.length) || value.length < 0) {
+        return false;
+    }
+    for (let i = 0; i < value.length; i++) {
+        const v = value[i];
+        if (!isInteger(v) || v < 0 || v >= 256) {
+            return false;
+        }
+    }
+    return true;
+}
+function arrayify(value, options) {
+    if (!options) {
+        options = {};
+    }
+    if (typeof (value) === "number") {
+        logger.checkSafeUint53(value, "invalid arrayify value");
+        const result = [];
+        while (value) {
+            result.unshift(value & 0xff);
+            value = parseInt(String(value / 256));
+        }
+        if (result.length === 0) {
+            result.push(0);
+        }
+        return addSlice(new Uint8Array(result));
+    }
+    if (options.allowMissingPrefix && typeof (value) === "string" && value.substring(0, 2) !== "0x") {
+        value = "0x" + value;
+    }
+    if (isHexable(value)) {
+        value = value.toHexString();
+    }
+    if (isHexString(value)) {
+        let hex = value.substring(2);
+        if (hex.length % 2) {
+            if (options.hexPad === "left") {
+                hex = "0x0" + hex.substring(2);
+            }
+            else if (options.hexPad === "right") {
+                hex += "0";
+            }
+            else {
+                logger.throwArgumentError("hex data is odd-length", "value", value);
+            }
+        }
+        const result = [];
+        for (let i = 0; i < hex.length; i += 2) {
+            result.push(parseInt(hex.substring(i, i + 2), 16));
+        }
+        return addSlice(new Uint8Array(result));
+    }
+    if (isBytes(value)) {
+        return addSlice(new Uint8Array(value));
+    }
+    return logger.throwArgumentError("invalid arrayify value", "value", value);
+}
+function isHexString(value, length) {
+    if (typeof (value) !== "string" || !value.match(/^0x[0-9A-Fa-f]*$/)) {
+        return false;
+    }
+    if (length && value.length !== 2 + 2 * length) {
+        return false;
+    }
+    return true;
+}
+
+const version = "sha2/5.6.0";
+
+new Logger(version);
+function sha256(data) {
+    return "0x" + (hash.sha256().update(arrayify(data)).digest("hex"));
+}
+
+class Struct {
+  constructor(properties) {
+    Object.assign(this, properties);
+  }
+
+  encode() {
+    return Buffer$2.from(serialize_1(SOLANA_SCHEMA, this));
+  }
+
+  static decode(data) {
+    return deserialize_1(SOLANA_SCHEMA, this, data);
+  }
+
+  static decodeUnchecked(data) {
+    return deserializeUnchecked_1(SOLANA_SCHEMA, this, data);
+  }
+
+} // Class representing a Rust-compatible enum, since enums are only strings or
+const SOLANA_SCHEMA = new Map();
+
+/**
+ * Maximum length of derived pubkey seed
+ */
+
+const MAX_SEED_LENGTH = 32;
+/**
+ * Value to be converted into public key
+ */
+
+function isPublicKeyData(value) {
+  return value._bn !== undefined;
+}
+/**
+ * A public key
+ */
+
+
+class PublicKey extends Struct {
+  /** @internal */
+
+  /**
+   * Create a new PublicKey object
+   * @param value ed25519 public key as buffer or base-58 encoded string
+   */
+  constructor(value) {
+    super({});
+    this._bn = void 0;
+
+    if (isPublicKeyData(value)) {
+      this._bn = value._bn;
+    } else {
+      if (typeof value === 'string') {
+        // assume base 58 encoding by default
+        const decoded = bs58$1.decode(value);
+
+        if (decoded.length != 32) {
+          throw new Error(`Invalid public key input`);
+        }
+
+        this._bn = new BN$a(decoded);
+      } else {
+        this._bn = new BN$a(value);
+      }
+
+      if (this._bn.byteLength() > 32) {
+        throw new Error(`Invalid public key input`);
+      }
+    }
+  }
+  /**
+   * Default public key value. (All zeros)
+   */
+
+
+  /**
+   * Checks if two publicKeys are equal
+   */
+  equals(publicKey) {
+    return this._bn.eq(publicKey._bn);
+  }
+  /**
+   * Return the base-58 representation of the public key
+   */
+
+
+  toBase58() {
+    return bs58$1.encode(this.toBytes());
+  }
+
+  toJSON() {
+    return this.toBase58();
+  }
+  /**
+   * Return the byte array representation of the public key
+   */
+
+
+  toBytes() {
+    return this.toBuffer();
+  }
+  /**
+   * Return the Buffer representation of the public key
+   */
+
+
+  toBuffer() {
+    const b = this._bn.toArrayLike(Buffer$2);
+
+    if (b.length === 32) {
+      return b;
+    }
+
+    const zeroPad = Buffer$2.alloc(32);
+    b.copy(zeroPad, 32 - b.length);
+    return zeroPad;
+  }
+  /**
+   * Return the base-58 representation of the public key
+   */
+
+
+  toString() {
+    return this.toBase58();
+  }
+  /**
+   * Derive a public key from another key, a seed, and a program ID.
+   * The program ID will also serve as the owner of the public key, giving
+   * it permission to write data to the account.
+   */
+
+  /* eslint-disable require-await */
+
+
+  static async createWithSeed(fromPublicKey, seed, programId) {
+    const buffer = Buffer$2.concat([fromPublicKey.toBuffer(), Buffer$2.from(seed), programId.toBuffer()]);
+    const hash = sha256(new Uint8Array(buffer)).slice(2);
+    return new PublicKey(Buffer$2.from(hash, 'hex'));
+  }
+  /**
+   * Derive a program address from seeds and a program ID.
+   */
+
+  /* eslint-disable require-await */
+
+
+  static createProgramAddressSync(seeds, programId) {
+    let buffer = Buffer$2.alloc(0);
+    seeds.forEach(function (seed) {
+      if (seed.length > MAX_SEED_LENGTH) {
+        throw new TypeError(`Max seed length exceeded`);
+      }
+
+      buffer = Buffer$2.concat([buffer, toBuffer(seed)]);
+    });
+    buffer = Buffer$2.concat([buffer, programId.toBuffer(), Buffer$2.from('ProgramDerivedAddress')]);
+    let hash = sha256(new Uint8Array(buffer)).slice(2);
+    let publicKeyBytes = new BN$a(hash, 16).toArray(undefined, 32);
+
+    if (is_on_curve(publicKeyBytes)) {
+      throw new Error(`Invalid seeds, address must fall off the curve`);
+    }
+
+    return new PublicKey(publicKeyBytes);
+  }
+  /**
+   * Async version of createProgramAddressSync
+   * For backwards compatibility
+   */
+
+  /* eslint-disable require-await */
+
+
+  static async createProgramAddress(seeds, programId) {
+    return this.createProgramAddressSync(seeds, programId);
+  }
+  /**
+   * Find a valid program address
+   *
+   * Valid program addresses must fall off the ed25519 curve.  This function
+   * iterates a nonce until it finds one that when combined with the seeds
+   * results in a valid program address.
+   */
+
+
+  static findProgramAddressSync(seeds, programId) {
+    let nonce = 255;
+    let address;
+
+    while (nonce != 0) {
+      try {
+        const seedsWithNonce = seeds.concat(Buffer$2.from([nonce]));
+        address = this.createProgramAddressSync(seedsWithNonce, programId);
+      } catch (err) {
+        if (err instanceof TypeError) {
+          throw err;
+        }
+
+        nonce--;
+        continue;
+      }
+
+      return [address, nonce];
+    }
+
+    throw new Error(`Unable to find a viable program address nonce`);
+  }
+  /**
+   * Async version of findProgramAddressSync
+   * For backwards compatibility
+   */
+
+
+  static async findProgramAddress(seeds, programId) {
+    return this.findProgramAddressSync(seeds, programId);
+  }
+  /**
+   * Check that a pubkey is on the ed25519 curve.
+   */
+
+
+  static isOnCurve(pubkeyData) {
+    const pubkey = new PublicKey(pubkeyData);
+    return is_on_curve(pubkey.toBytes()) == 1;
+  }
+
+}
+PublicKey.default = new PublicKey('11111111111111111111111111111111');
+SOLANA_SCHEMA.set(PublicKey, {
+  kind: 'struct',
+  fields: [['_bn', 'u256']]
+}); // @ts-ignore
+
+let naclLowLevel = nacl.lowlevel; // Check that a pubkey is on the curve.
+// This function and its dependents were sourced from:
+// https://github.com/dchest/tweetnacl-js/blob/f1ec050ceae0861f34280e62498b1d3ed9c350c6/nacl.js#L792
+
+function is_on_curve(p) {
+  var r = [naclLowLevel.gf(), naclLowLevel.gf(), naclLowLevel.gf(), naclLowLevel.gf()];
+  var t = naclLowLevel.gf(),
+      chk = naclLowLevel.gf(),
+      num = naclLowLevel.gf(),
+      den = naclLowLevel.gf(),
+      den2 = naclLowLevel.gf(),
+      den4 = naclLowLevel.gf(),
+      den6 = naclLowLevel.gf();
+  naclLowLevel.set25519(r[2], gf1);
+  naclLowLevel.unpack25519(r[1], p);
+  naclLowLevel.S(num, r[1]);
+  naclLowLevel.M(den, num, naclLowLevel.D);
+  naclLowLevel.Z(num, num, r[2]);
+  naclLowLevel.A(den, r[2], den);
+  naclLowLevel.S(den2, den);
+  naclLowLevel.S(den4, den2);
+  naclLowLevel.M(den6, den4, den2);
+  naclLowLevel.M(t, den6, num);
+  naclLowLevel.M(t, t, den);
+  naclLowLevel.pow2523(t, t);
+  naclLowLevel.M(t, t, num);
+  naclLowLevel.M(t, t, den);
+  naclLowLevel.M(t, t, den);
+  naclLowLevel.M(r[0], t, den);
+  naclLowLevel.S(chk, r[0]);
+  naclLowLevel.M(chk, chk, den);
+  if (neq25519(chk, num)) naclLowLevel.M(r[0], r[0], I);
+  naclLowLevel.S(chk, r[0]);
+  naclLowLevel.M(chk, chk, den);
+  if (neq25519(chk, num)) return 0;
+  return 1;
+}
+
+let gf1 = naclLowLevel.gf([1]);
+let I = naclLowLevel.gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
+
+function neq25519(a, b) {
+  var c = new Uint8Array(32),
+      d = new Uint8Array(32);
+  naclLowLevel.pack25519(c, a);
+  naclLowLevel.pack25519(d, b);
+  return naclLowLevel.crypto_verify_32(c, 0, d, 0);
+}
+
+new PublicKey('BPFLoader1111111111111111111111111111111111');
+const SIGNATURE_LENGTH_IN_BYTES = 64;
+
+/**
+ * Layout for a public key
+ */
+
+const publicKey = (property = 'publicKey') => {
+  return blob(32, property);
+};
+
+/**
+ * Layout for a Rust String type
+ */
+const rustString = (property = 'string') => {
+  const rsl = struct([u32('length'), u32('lengthPadding'), blob(offset(u32(), -8), 'chars')], property);
+
+  const _decode = rsl.decode.bind(rsl);
+
+  const _encode = rsl.encode.bind(rsl);
+
+  const rslShim = rsl;
+
+  rslShim.decode = (b, offset) => {
+    const data = _decode(b, offset);
+
+    return data['chars'].toString();
+  };
+
+  rslShim.encode = (str, b, offset) => {
+    const data = {
+      chars: Buffer$2.from(str, 'utf8')
+    };
+    return _encode(data, b, offset);
+  };
+
+  rslShim.alloc = str => {
+    return u32().span + u32().span + Buffer$2.from(str, 'utf8').length;
+  };
+
+  return rslShim;
+};
+/**
+ * Layout for an Authorized object
+ */
+
+const authorized = (property = 'authorized') => {
+  return struct([publicKey('staker'), publicKey('withdrawer')], property);
+};
+/**
+ * Layout for a Lockup object
+ */
+
+const lockup = (property = 'lockup') => {
+  return struct([ns64('unixTimestamp'), ns64('epoch'), publicKey('custodian')], property);
+};
+/**
+ *  Layout for a VoteInit object
+ */
+
+const voteInit = (property = 'voteInit') => {
+  return struct([publicKey('nodePubkey'), publicKey('authorizedVoter'), publicKey('authorizedWithdrawer'), u8('commission')], property);
+};
+
+let TransactionStatus;
+/**
+ * Default (empty) signature
+ */
+
+(function (TransactionStatus) {
+  TransactionStatus[TransactionStatus["BLOCKHEIGHT_EXCEEDED"] = 0] = "BLOCKHEIGHT_EXCEEDED";
+  TransactionStatus[TransactionStatus["PROCESSED"] = 1] = "PROCESSED";
+  TransactionStatus[TransactionStatus["TIMED_OUT"] = 2] = "TIMED_OUT";
+})(TransactionStatus || (TransactionStatus = {}));
+
+Buffer$2.alloc(SIGNATURE_LENGTH_IN_BYTES).fill(0);
+
+new PublicKey('SysvarC1ock11111111111111111111111111111111');
+new PublicKey('SysvarEpochSchedu1e111111111111111111111111');
+new PublicKey('Sysvar1nstructions1111111111111111111111111');
+new PublicKey('SysvarRecentB1ockHashes11111111111111111111');
+new PublicKey('SysvarRent111111111111111111111111111111111');
+new PublicKey('SysvarRewards111111111111111111111111111111');
+new PublicKey('SysvarS1otHashes111111111111111111111111111');
+new PublicKey('SysvarS1otHistory11111111111111111111111111');
+new PublicKey('SysvarStakeHistory1111111111111111111111111');
+
+/**
+ * https://github.com/solana-labs/solana/blob/90bedd7e067b5b8f3ddbb45da00a4e9cabb22c62/sdk/src/fee_calculator.rs#L7-L11
+ *
+ * @internal
+ */
+
+const FeeCalculatorLayout = nu64('lamportsPerSignature');
+/**
+ * Calculator for transaction fees.
+ */
+
+/**
+ * See https://github.com/solana-labs/solana/blob/0ea2843ec9cdc517572b8e62c959f41b55cf4453/sdk/src/nonce_state.rs#L29-L32
+ *
+ * @internal
+ */
+
+const NonceAccountLayout = struct([u32('version'), u32('state'), publicKey('authorizedPubkey'), publicKey('nonce'), struct([FeeCalculatorLayout], 'feeCalculator')]);
+NonceAccountLayout.span;
+
+const encodeDecode = layout => {
+  const decode = layout.decode.bind(layout);
+  const encode = layout.encode.bind(layout);
+  return {
+    decode,
+    encode
+  };
+};
+
+const bigInt = length => property => {
+  const layout = blob(length, property);
+  const {
+    encode,
+    decode
+  } = encodeDecode(layout);
+  const bigIntLayout = layout;
+
+  bigIntLayout.decode = (buffer, offset) => {
+    const src = decode(buffer, offset);
+    return toBigIntLE_1(Buffer$2.from(src));
+  };
+
+  bigIntLayout.encode = (bigInt, buffer, offset) => {
+    const src = toBufferLE_1(bigInt, length);
+    return encode(src, buffer, offset);
+  };
+
+  return bigIntLayout;
+};
+
+const u64 = bigInt(8);
+/**
+ * An enumeration of valid SystemInstructionType's
+ */
+
+/**
+ * An enumeration of valid system InstructionType's
+ * @internal
+ */
+Object.freeze({
+  Create: {
+    index: 0,
+    layout: struct([u32('instruction'), ns64('lamports'), ns64('space'), publicKey('programId')])
+  },
+  Assign: {
+    index: 1,
+    layout: struct([u32('instruction'), publicKey('programId')])
+  },
+  Transfer: {
+    index: 2,
+    layout: struct([u32('instruction'), u64('lamports')])
+  },
+  CreateWithSeed: {
+    index: 3,
+    layout: struct([u32('instruction'), publicKey('base'), rustString('seed'), ns64('lamports'), ns64('space'), publicKey('programId')])
+  },
+  AdvanceNonceAccount: {
+    index: 4,
+    layout: struct([u32('instruction')])
+  },
+  WithdrawNonceAccount: {
+    index: 5,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  },
+  InitializeNonceAccount: {
+    index: 6,
+    layout: struct([u32('instruction'), publicKey('authorized')])
+  },
+  AuthorizeNonceAccount: {
+    index: 7,
+    layout: struct([u32('instruction'), publicKey('authorized')])
+  },
+  Allocate: {
+    index: 8,
+    layout: struct([u32('instruction'), ns64('space')])
+  },
+  AllocateWithSeed: {
+    index: 9,
+    layout: struct([u32('instruction'), publicKey('base'), rustString('seed'), ns64('space'), publicKey('programId')])
+  },
+  AssignWithSeed: {
+    index: 10,
+    layout: struct([u32('instruction'), publicKey('base'), rustString('seed'), publicKey('programId')])
+  },
+  TransferWithSeed: {
+    index: 11,
+    layout: struct([u32('instruction'), u64('lamports'), rustString('seed'), publicKey('programId')])
+  },
+  UpgradeNonceAccount: {
+    index: 12,
+    layout: struct([u32('instruction')])
+  }
+});
+new PublicKey('11111111111111111111111111111111');
+
+new PublicKey('BPFLoader2111111111111111111111111111111111');
+/**
+ * An enumeration of valid ComputeBudgetInstructionType's
+ */
+
+/**
+ * An enumeration of valid ComputeBudget InstructionType's
+ * @internal
+ */
+Object.freeze({
+  RequestUnits: {
+    index: 0,
+    layout: struct([u8('instruction'), u32('units'), u32('additionalFee')])
+  },
+  RequestHeapFrame: {
+    index: 1,
+    layout: struct([u8('instruction'), u32('bytes')])
+  },
+  SetComputeUnitLimit: {
+    index: 2,
+    layout: struct([u8('instruction'), u32('units')])
+  },
+  SetComputeUnitPrice: {
+    index: 3,
+    layout: struct([u8('instruction'), u64('microLamports')])
+  }
+});
+new PublicKey('ComputeBudget111111111111111111111111111111');
+const PublicKeyFromString = coerce(instance(PublicKey), string(), value => new PublicKey(value));
+const RawAccountDataResult = tuple([string(), literal('base64')]);
+const BufferFromRawAccountData = coerce(instance(Buffer$2), RawAccountDataResult, value => Buffer$2.from(value[0], 'base64'));
+/**
+ * @internal
+ */
+
+
+function createRpcResult(result) {
+  return union([type$1({
+    jsonrpc: literal('2.0'),
+    id: string(),
+    result
+  }), type$1({
+    jsonrpc: literal('2.0'),
+    id: string(),
+    error: type$1({
+      code: unknown(),
+      message: string(),
+      data: optional(any())
+    })
+  })]);
+}
+
+const UnknownRpcResult = createRpcResult(unknown());
+/**
+ * @internal
+ */
+
+function jsonRpcResult(schema) {
+  return coerce(createRpcResult(schema), UnknownRpcResult, value => {
+    if ('error' in value) {
+      return value;
+    } else {
+      return { ...value,
+        result: create(value.result, schema)
+      };
+    }
+  });
+}
+/**
+ * @internal
+ */
+
+
+function jsonRpcResultAndContext(value) {
+  return jsonRpcResult(type$1({
+    context: type$1({
+      slot: number()
+    }),
+    value
+  }));
+}
+/**
+ * @internal
+ */
+
+
+function notificationResultAndContext(value) {
+  return type$1({
+    context: type$1({
+      slot: number()
+    }),
+    value
+  });
+}
+/**
+ * The level of commitment desired when querying state
+ * <pre>
+ *   'processed': Query the most recent block which has reached 1 confirmation by the connected node
+ *   'confirmed': Query the most recent block which has reached 1 confirmation by the cluster
+ *   'finalized': Query the most recent block which has been finalized by the cluster
+ * </pre>
+ */
+
+
+const GetInflationGovernorResult = type$1({
+  foundation: number(),
+  foundationTerm: number(),
+  initial: number(),
+  taper: number(),
+  terminal: number()
+});
+/**
+ * The inflation reward for an epoch
+ */
+
+/**
+ * Expected JSON RPC response for the "getInflationReward" message
+ */
+jsonRpcResult(array(nullable(type$1({
+  epoch: number(),
+  effectiveSlot: number(),
+  amount: number(),
+  postBalance: number()
+}))));
+/**
+ * Information about the current epoch
+ */
+
+const GetEpochInfoResult = type$1({
+  epoch: number(),
+  slotIndex: number(),
+  slotsInEpoch: number(),
+  absoluteSlot: number(),
+  blockHeight: optional(number()),
+  transactionCount: optional(number())
+});
+const GetEpochScheduleResult = type$1({
+  slotsPerEpoch: number(),
+  leaderScheduleSlotOffset: number(),
+  warmup: boolean(),
+  firstNormalEpoch: number(),
+  firstNormalSlot: number()
+});
+/**
+ * Leader schedule
+ * (see https://docs.solana.com/terminology#leader-schedule)
+ */
+
+const GetLeaderScheduleResult = record(string(), array(number()));
+/**
+ * Transaction error or null
+ */
+
+const TransactionErrorResult = nullable(union([type$1({}), string()]));
+/**
+ * Signature status for a transaction
+ */
+
+const SignatureStatusResult = type$1({
+  err: TransactionErrorResult
+});
+/**
+ * Transaction signature received notification
+ */
+
+const SignatureReceivedResult = literal('receivedSignature');
+/**
+ * Version info for a node
+ */
+
+type$1({
+  'solana-core': string(),
+  'feature-set': optional(number())
+});
+jsonRpcResultAndContext(type$1({
+  err: nullable(union([type$1({}), string()])),
+  logs: nullable(array(string())),
+  accounts: optional(nullable(array(nullable(type$1({
+    executable: boolean(),
+    owner: string(),
+    lamports: number(),
+    data: array(string()),
+    rentEpoch: optional(number())
+  }))))),
+  unitsConsumed: optional(number()),
+  returnData: optional(nullable(type$1({
+    programId: string(),
+    data: tuple([string(), literal('base64')])
+  })))
+}));
+
+/**
+ * Expected JSON RPC response for the "getBlockProduction" message
+ */
+jsonRpcResultAndContext(type$1({
+  byIdentity: record(string(), array(number())),
+  range: type$1({
+    firstSlot: number(),
+    lastSlot: number()
+  })
+}));
+/**
+ * Expected JSON RPC response for the "getInflationGovernor" message
+ */
+
+
+jsonRpcResult(GetInflationGovernorResult);
+/**
+ * Expected JSON RPC response for the "getEpochInfo" message
+ */
+
+jsonRpcResult(GetEpochInfoResult);
+/**
+ * Expected JSON RPC response for the "getEpochSchedule" message
+ */
+
+jsonRpcResult(GetEpochScheduleResult);
+/**
+ * Expected JSON RPC response for the "getLeaderSchedule" message
+ */
+
+jsonRpcResult(GetLeaderScheduleResult);
+/**
+ * Expected JSON RPC response for the "minimumLedgerSlot" and "getFirstAvailableBlock" messages
+ */
+
+jsonRpcResult(number());
+/**
+ * Supply
+ */
+
+/**
+ * Expected JSON RPC response for the "getSupply" message
+ */
+jsonRpcResultAndContext(type$1({
+  total: number(),
+  circulating: number(),
+  nonCirculating: number(),
+  nonCirculatingAccounts: array(PublicKeyFromString)
+}));
+/**
+ * Token amount object which returns a token amount in different formats
+ * for various client use cases.
+ */
+
+/**
+ * Expected JSON RPC structure for token amounts
+ */
+const TokenAmountResult = type$1({
+  amount: string(),
+  uiAmount: nullable(number()),
+  decimals: number(),
+  uiAmountString: optional(string())
+});
+/**
+ * Token address and balance.
+ */
+
+/**
+ * Expected JSON RPC response for the "getTokenLargestAccounts" message
+ */
+jsonRpcResultAndContext(array(type$1({
+  address: PublicKeyFromString,
+  amount: string(),
+  uiAmount: nullable(number()),
+  decimals: number(),
+  uiAmountString: optional(string())
+})));
+/**
+ * Expected JSON RPC response for the "getTokenAccountsByOwner" message
+ */
+
+jsonRpcResultAndContext(array(type$1({
+  pubkey: PublicKeyFromString,
+  account: type$1({
+    executable: boolean(),
+    owner: PublicKeyFromString,
+    lamports: number(),
+    data: BufferFromRawAccountData,
+    rentEpoch: number()
+  })
+})));
+const ParsedAccountDataResult = type$1({
+  program: string(),
+  parsed: unknown(),
+  space: number()
+});
+/**
+ * Expected JSON RPC response for the "getTokenAccountsByOwner" message with parsed data
+ */
+
+jsonRpcResultAndContext(array(type$1({
+  pubkey: PublicKeyFromString,
+  account: type$1({
+    executable: boolean(),
+    owner: PublicKeyFromString,
+    lamports: number(),
+    data: ParsedAccountDataResult,
+    rentEpoch: number()
+  })
+})));
+/**
+ * Pair of an account address and its balance
+ */
+
+/**
+ * Expected JSON RPC response for the "getLargestAccounts" message
+ */
+jsonRpcResultAndContext(array(type$1({
+  lamports: number(),
+  address: PublicKeyFromString
+})));
+/**
+ * @internal
+ */
+
+const AccountInfoResult = type$1({
+  executable: boolean(),
+  owner: PublicKeyFromString,
+  lamports: number(),
+  data: BufferFromRawAccountData,
+  rentEpoch: number()
+});
+/**
+ * @internal
+ */
+
+type$1({
+  pubkey: PublicKeyFromString,
+  account: AccountInfoResult
+});
+const ParsedOrRawAccountData = coerce(union([instance(Buffer$2), ParsedAccountDataResult]), union([RawAccountDataResult, ParsedAccountDataResult]), value => {
+  if (Array.isArray(value)) {
+    return create(value, BufferFromRawAccountData);
+  } else {
+    return value;
+  }
+});
+/**
+ * @internal
+ */
+
+const ParsedAccountInfoResult = type$1({
+  executable: boolean(),
+  owner: PublicKeyFromString,
+  lamports: number(),
+  data: ParsedOrRawAccountData,
+  rentEpoch: number()
+});
+type$1({
+  pubkey: PublicKeyFromString,
+  account: ParsedAccountInfoResult
+});
+/**
+ * @internal
+ */
+
+type$1({
+  state: union([literal('active'), literal('inactive'), literal('activating'), literal('deactivating')]),
+  active: number(),
+  inactive: number()
+});
+/**
+ * Expected JSON RPC response for the "getConfirmedSignaturesForAddress2" message
+ */
+
+jsonRpcResult(array(type$1({
+  signature: string(),
+  slot: number(),
+  err: TransactionErrorResult,
+  memo: nullable(string()),
+  blockTime: optional(nullable(number()))
+})));
+/**
+ * Expected JSON RPC response for the "getSignaturesForAddress" message
+ */
+
+jsonRpcResult(array(type$1({
+  signature: string(),
+  slot: number(),
+  err: TransactionErrorResult,
+  memo: nullable(string()),
+  blockTime: optional(nullable(number()))
+})));
+/***
+ * Expected JSON RPC response for the "accountNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: notificationResultAndContext(AccountInfoResult)
+});
+/**
+ * @internal
+ */
+
+const ProgramAccountInfoResult = type$1({
+  pubkey: PublicKeyFromString,
+  account: AccountInfoResult
+});
+/***
+ * Expected JSON RPC response for the "programNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: notificationResultAndContext(ProgramAccountInfoResult)
+});
+/**
+ * @internal
+ */
+
+const SlotInfoResult = type$1({
+  parent: number(),
+  slot: number(),
+  root: number()
+});
+/**
+ * Expected JSON RPC response for the "slotNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: SlotInfoResult
+});
+/**
+ * Slot updates which can be used for tracking the live progress of a cluster.
+ * - `"firstShredReceived"`: connected node received the first shred of a block.
+ * Indicates that a new block that is being produced.
+ * - `"completed"`: connected node has received all shreds of a block. Indicates
+ * a block was recently produced.
+ * - `"optimisticConfirmation"`: block was optimistically confirmed by the
+ * cluster. It is not guaranteed that an optimistic confirmation notification
+ * will be sent for every finalized blocks.
+ * - `"root"`: the connected node rooted this block.
+ * - `"createdBank"`: the connected node has started validating this block.
+ * - `"frozen"`: the connected node has validated this block.
+ * - `"dead"`: the connected node failed to validate this block.
+ */
+
+/**
+ * @internal
+ */
+const SlotUpdateResult = union([type$1({
+  type: union([literal('firstShredReceived'), literal('completed'), literal('optimisticConfirmation'), literal('root')]),
+  slot: number(),
+  timestamp: number()
+}), type$1({
+  type: literal('createdBank'),
+  parent: number(),
+  slot: number(),
+  timestamp: number()
+}), type$1({
+  type: literal('frozen'),
+  slot: number(),
+  timestamp: number(),
+  stats: type$1({
+    numTransactionEntries: number(),
+    numSuccessfulTransactions: number(),
+    numFailedTransactions: number(),
+    maxTransactionsPerEntry: number()
+  })
+}), type$1({
+  type: literal('dead'),
+  slot: number(),
+  timestamp: number(),
+  err: string()
+})]);
+/**
+ * Expected JSON RPC response for the "slotsUpdatesNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: SlotUpdateResult
+});
+/**
+ * Expected JSON RPC response for the "signatureNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: notificationResultAndContext(union([SignatureStatusResult, SignatureReceivedResult]))
+});
+/**
+ * Expected JSON RPC response for the "rootNotification" message
+ */
+
+type$1({
+  subscription: number(),
+  result: number()
+});
+type$1({
+  pubkey: string(),
+  gossip: nullable(string()),
+  tpu: nullable(string()),
+  rpc: nullable(string()),
+  version: nullable(string())
+});
+const VoteAccountInfoResult = type$1({
+  votePubkey: string(),
+  nodePubkey: string(),
+  activatedStake: number(),
+  epochVoteAccount: boolean(),
+  epochCredits: array(tuple([number(), number(), number()])),
+  commission: number(),
+  lastVote: number(),
+  rootSlot: nullable(number())
+});
+/**
+ * Expected JSON RPC response for the "getVoteAccounts" message
+ */
+
+jsonRpcResult(type$1({
+  current: array(VoteAccountInfoResult),
+  delinquent: array(VoteAccountInfoResult)
+}));
+const ConfirmationStatus = union([literal('processed'), literal('confirmed'), literal('finalized')]);
+const SignatureStatusResponse = type$1({
+  slot: number(),
+  confirmations: nullable(number()),
+  err: TransactionErrorResult,
+  confirmationStatus: optional(ConfirmationStatus)
+});
+/**
+ * Expected JSON RPC response for the "getSignatureStatuses" message
+ */
+
+jsonRpcResultAndContext(array(nullable(SignatureStatusResponse)));
+/**
+ * Expected JSON RPC response for the "getMinimumBalanceForRentExemption" message
+ */
+
+jsonRpcResult(number());
+const ConfirmedTransactionResult = type$1({
+  signatures: array(string()),
+  message: type$1({
+    accountKeys: array(string()),
+    header: type$1({
+      numRequiredSignatures: number(),
+      numReadonlySignedAccounts: number(),
+      numReadonlyUnsignedAccounts: number()
+    }),
+    instructions: array(type$1({
+      accounts: array(number()),
+      data: string(),
+      programIdIndex: number()
+    })),
+    recentBlockhash: string()
+  })
+});
+const ParsedInstructionResult = type$1({
+  parsed: unknown(),
+  program: string(),
+  programId: PublicKeyFromString
+});
+const RawInstructionResult = type$1({
+  accounts: array(PublicKeyFromString),
+  data: string(),
+  programId: PublicKeyFromString
+});
+const InstructionResult = union([RawInstructionResult, ParsedInstructionResult]);
+const UnknownInstructionResult = union([type$1({
+  parsed: unknown(),
+  program: string(),
+  programId: string()
+}), type$1({
+  accounts: array(string()),
+  data: string(),
+  programId: string()
+})]);
+const ParsedOrRawInstruction = coerce(InstructionResult, UnknownInstructionResult, value => {
+  if ('accounts' in value) {
+    return create(value, RawInstructionResult);
+  } else {
+    return create(value, ParsedInstructionResult);
+  }
+});
+/**
+ * @internal
+ */
+
+const ParsedConfirmedTransactionResult = type$1({
+  signatures: array(string()),
+  message: type$1({
+    accountKeys: array(type$1({
+      pubkey: PublicKeyFromString,
+      signer: boolean(),
+      writable: boolean()
+    })),
+    instructions: array(ParsedOrRawInstruction),
+    recentBlockhash: string()
+  })
+});
+const TokenBalanceResult = type$1({
+  accountIndex: number(),
+  mint: string(),
+  owner: optional(string()),
+  uiTokenAmount: TokenAmountResult
+});
+/**
+ * @internal
+ */
+
+const ConfirmedTransactionMetaResult = type$1({
+  err: TransactionErrorResult,
+  fee: number(),
+  innerInstructions: optional(nullable(array(type$1({
+    index: number(),
+    instructions: array(type$1({
+      accounts: array(number()),
+      data: string(),
+      programIdIndex: number()
+    }))
+  })))),
+  preBalances: array(number()),
+  postBalances: array(number()),
+  logMessages: optional(nullable(array(string()))),
+  preTokenBalances: optional(nullable(array(TokenBalanceResult))),
+  postTokenBalances: optional(nullable(array(TokenBalanceResult)))
+});
+/**
+ * @internal
+ */
+
+const ParsedConfirmedTransactionMetaResult = type$1({
+  err: TransactionErrorResult,
+  fee: number(),
+  innerInstructions: optional(nullable(array(type$1({
+    index: number(),
+    instructions: array(ParsedOrRawInstruction)
+  })))),
+  preBalances: array(number()),
+  postBalances: array(number()),
+  logMessages: optional(nullable(array(string()))),
+  preTokenBalances: optional(nullable(array(TokenBalanceResult))),
+  postTokenBalances: optional(nullable(array(TokenBalanceResult)))
+});
+/**
+ * Expected JSON RPC response for the "getBlock" message
+ */
+
+jsonRpcResult(nullable(type$1({
+  blockhash: string(),
+  previousBlockhash: string(),
+  parentSlot: number(),
+  transactions: array(type$1({
+    transaction: ConfirmedTransactionResult,
+    meta: nullable(ConfirmedTransactionMetaResult)
+  })),
+  rewards: optional(array(type$1({
+    pubkey: string(),
+    lamports: number(),
+    postBalance: nullable(number()),
+    rewardType: nullable(string())
+  }))),
+  blockTime: nullable(number()),
+  blockHeight: nullable(number())
+})));
+/**
+ * Expected JSON RPC response for the "getConfirmedBlock" message
+ *
+ * @deprecated Deprecated since Solana v1.8.0. Please use {@link GetBlockRpcResult} instead.
+ */
+
+jsonRpcResult(nullable(type$1({
+  blockhash: string(),
+  previousBlockhash: string(),
+  parentSlot: number(),
+  transactions: array(type$1({
+    transaction: ConfirmedTransactionResult,
+    meta: nullable(ConfirmedTransactionMetaResult)
+  })),
+  rewards: optional(array(type$1({
+    pubkey: string(),
+    lamports: number(),
+    postBalance: nullable(number()),
+    rewardType: nullable(string())
+  }))),
+  blockTime: nullable(number())
+})));
+/**
+ * Expected JSON RPC response for the "getBlock" message
+ */
+
+jsonRpcResult(nullable(type$1({
+  blockhash: string(),
+  previousBlockhash: string(),
+  parentSlot: number(),
+  signatures: array(string()),
+  blockTime: nullable(number())
+})));
+/**
+ * Expected JSON RPC response for the "getTransaction" message
+ */
+
+jsonRpcResult(nullable(type$1({
+  slot: number(),
+  meta: ConfirmedTransactionMetaResult,
+  blockTime: optional(nullable(number())),
+  transaction: ConfirmedTransactionResult
+})));
+/**
+ * Expected parsed JSON RPC response for the "getTransaction" message
+ */
+
+jsonRpcResult(nullable(type$1({
+  slot: number(),
+  transaction: ParsedConfirmedTransactionResult,
+  meta: nullable(ParsedConfirmedTransactionMetaResult),
+  blockTime: optional(nullable(number()))
+})));
+/**
+ * Expected JSON RPC response for the "getRecentBlockhash" message
+ *
+ * @deprecated Deprecated since Solana v1.8.0. Please use {@link GetLatestBlockhashRpcResult} instead.
+ */
+
+jsonRpcResultAndContext(type$1({
+  blockhash: string(),
+  feeCalculator: type$1({
+    lamportsPerSignature: number()
+  })
+}));
+/**
+ * Expected JSON RPC response for the "getLatestBlockhash" message
+ */
+
+jsonRpcResultAndContext(type$1({
+  blockhash: string(),
+  lastValidBlockHeight: number()
+}));
+const PerfSampleResult = type$1({
+  slot: number(),
+  numTransactions: number(),
+  numSlots: number(),
+  samplePeriodSecs: number()
+});
+/*
+ * Expected JSON RPC response for "getRecentPerformanceSamples" message
+ */
+
+jsonRpcResult(array(PerfSampleResult));
+/**
+ * Expected JSON RPC response for the "getFeeCalculatorForBlockhash" message
+ */
+
+jsonRpcResultAndContext(nullable(type$1({
+  feeCalculator: type$1({
+    lamportsPerSignature: number()
+  })
+})));
+/**
+ * Expected JSON RPC response for the "requestAirdrop" message
+ */
+
+jsonRpcResult(string());
+/**
+ * Expected JSON RPC response for the "sendTransaction" message
+ */
+
+jsonRpcResult(string());
+/**
+ * Information about the latest slot being processed by a node
+ */
+
+/**
+ * @internal
+ */
+const LogsResult = type$1({
+  err: TransactionErrorResult,
+  logs: array(string()),
+  signature: string()
+});
+/**
+ * Logs result.
+ */
+
+/**
+ * Expected JSON RPC response for the "logsNotification" message.
+ */
+type$1({
+  result: notificationResultAndContext(LogsResult),
+  subscription: number()
+});
+/**
+ * Params for creating an ed25519 instruction using a public key
+ */
+
+struct([u8('numSignatures'), u8('padding'), u16('signatureOffset'), u16('signatureInstructionIndex'), u16('publicKeyOffset'), u16('publicKeyInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u16('messageInstructionIndex')]);
+new PublicKey('Ed25519SigVerify111111111111111111111111111');
+
+/**
+ * Address of the stake config account which configures the rate
+ * of stake warmup and cooldown as well as the slashing penalty.
+ */
+
+new PublicKey('StakeConfig11111111111111111111111111111111');
+
+/**
+ * Stake account lockup info
+ */
+class Lockup {
+  /** Unix timestamp of lockup expiration */
+
+  /** Epoch of lockup expiration */
+
+  /** Lockup custodian authority */
+
+  /**
+   * Create a new Lockup object
+   */
+  constructor(unixTimestamp, epoch, custodian) {
+    this.unixTimestamp = void 0;
+    this.epoch = void 0;
+    this.custodian = void 0;
+    this.unixTimestamp = unixTimestamp;
+    this.epoch = epoch;
+    this.custodian = custodian;
+  }
+  /**
+   * Default, inactive Lockup value
+   */
+
+
+}
+Lockup.default = new Lockup(0, 0, PublicKey.default);
+/**
+ * An enumeration of valid StakeInstructionType's
+ */
+
+/**
+ * An enumeration of valid stake InstructionType's
+ * @internal
+ */
+Object.freeze({
+  Initialize: {
+    index: 0,
+    layout: struct([u32('instruction'), authorized(), lockup()])
+  },
+  Authorize: {
+    index: 1,
+    layout: struct([u32('instruction'), publicKey('newAuthorized'), u32('stakeAuthorizationType')])
+  },
+  Delegate: {
+    index: 2,
+    layout: struct([u32('instruction')])
+  },
+  Split: {
+    index: 3,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  },
+  Withdraw: {
+    index: 4,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  },
+  Deactivate: {
+    index: 5,
+    layout: struct([u32('instruction')])
+  },
+  Merge: {
+    index: 7,
+    layout: struct([u32('instruction')])
+  },
+  AuthorizeWithSeed: {
+    index: 8,
+    layout: struct([u32('instruction'), publicKey('newAuthorized'), u32('stakeAuthorizationType'), rustString('authoritySeed'), publicKey('authorityOwner')])
+  }
+});
+/**
+ * Stake authorization type
+ */
+
+/**
+ * An enumeration of valid StakeAuthorizationLayout's
+ */
+Object.freeze({
+  Staker: {
+    index: 0
+  },
+  Withdrawer: {
+    index: 1
+  }
+});
+new PublicKey('Stake11111111111111111111111111111111111111');
+/**
+ * Params for creating an secp256k1 instruction using a public key
+ */
+
+struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
+new PublicKey('KeccakSecp256k11111111111111111111111111111');
+
+new PublicKey('Va1idator1nfo111111111111111111111111111111');
+/**
+ * @internal
+ */
+
+type$1({
+  name: string(),
+  website: optional(string()),
+  details: optional(string()),
+  keybaseUsername: optional(string())
+});
+
+new PublicKey('Vote111111111111111111111111111111111111111');
+
+/**
+ * See https://github.com/solana-labs/solana/blob/8a12ed029cfa38d4a45400916c2463fb82bbec8c/programs/vote_api/src/vote_state.rs#L68-L88
+ *
+ * @internal
+ */
+struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
+seq(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
+seq(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
+seq(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
+/**
+ * An enumeration of valid VoteInstructionType's
+ */
+
+Object.freeze({
+  InitializeAccount: {
+    index: 0,
+    layout: struct([u32('instruction'), voteInit()])
+  },
+  Authorize: {
+    index: 1,
+    layout: struct([u32('instruction'), publicKey('newAuthorized'), u32('voteAuthorizationType')])
+  },
+  Withdraw: {
+    index: 3,
+    layout: struct([u32('instruction'), ns64('lamports')])
+  }
+});
+/**
+ * VoteAuthorize type
+ */
+
+/**
+ * An enumeration of valid VoteAuthorization layouts.
+ */
+Object.freeze({
+  Voter: {
+    index: 0
+  },
+  Withdrawer: {
+    index: 1
+  }
+});
+new PublicKey('Vote111111111111111111111111111111111111111');
+
+/** Address of the SPL Token program */
+const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+/** Address of the SPL Associated Token Account program */
+new PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL');
+/** Address of the special mint for wrapped native SOL */
+new PublicKey('So11111111111111111111111111111111111111112');
+
+/** Base class for errors */
+class TokenError extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+/** Thrown if an account is not found at the expected address */
+class TokenAccountNotFoundError extends TokenError {
+    constructor() {
+        super(...arguments);
+        this.name = 'TokenAccountNotFoundError';
+    }
+}
+/** Thrown if a program state account is not owned by the expected token program */
+class TokenInvalidAccountOwnerError extends TokenError {
+    constructor() {
+        super(...arguments);
+        this.name = 'TokenInvalidAccountOwnerError';
+    }
+}
+/** Thrown if the byte length of an program state account doesn't match the expected size */
+class TokenInvalidAccountSizeError extends TokenError {
+    constructor() {
+        super(...arguments);
+        this.name = 'TokenInvalidAccountSizeError';
+    }
+}
+
+/** Token account state as stored by the program */
+var AccountState;
+(function (AccountState) {
+    AccountState[AccountState["Uninitialized"] = 0] = "Uninitialized";
+    AccountState[AccountState["Initialized"] = 1] = "Initialized";
+    AccountState[AccountState["Frozen"] = 2] = "Frozen";
+})(AccountState || (AccountState = {}));
+/** Buffer layout for de/serializing a token account */
+const AccountLayout = struct([
+    publicKey$1('mint'),
+    publicKey$1('owner'),
+    u64$2('amount'),
+    u32('delegateOption'),
+    publicKey$1('delegate'),
+    u8('state'),
+    u32('isNativeOption'),
+    u64$2('isNative'),
+    u64$2('delegatedAmount'),
+    u32('closeAuthorityOption'),
+    publicKey$1('closeAuthority'),
+]);
+/** Byte length of a token account */
+const ACCOUNT_SIZE = AccountLayout.span;
+/**
+ * Retrieve information about a token account
+ *
+ * @param connection Connection to use
+ * @param address    Token account
+ * @param commitment Desired level of commitment for querying the state
+ * @param programId  SPL Token program account
+ *
+ * @return Token account information
+ */
+async function getAccount(connection, address, commitment, programId = TOKEN_PROGRAM_ID) {
+    const info = await connection.getAccountInfo(address, commitment);
+    if (!info)
+        throw new TokenAccountNotFoundError();
+    if (!info.owner.equals(programId))
+        throw new TokenInvalidAccountOwnerError();
+    if (info.data.length != ACCOUNT_SIZE)
+        throw new TokenInvalidAccountSizeError();
+    const rawAccount = AccountLayout.decode(info.data);
+    return {
+        address,
+        mint: rawAccount.mint,
+        owner: rawAccount.owner,
+        amount: rawAccount.amount,
+        delegate: rawAccount.delegateOption ? rawAccount.delegate : null,
+        delegatedAmount: rawAccount.delegatedAmount,
+        isInitialized: rawAccount.state !== AccountState.Uninitialized,
+        isFrozen: rawAccount.state === AccountState.Frozen,
+        isNative: !!rawAccount.isNativeOption,
+        rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
+        closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null,
+    };
+}
+
+const Buffer$1 = require$$0$7.Buffer;
 const BN = bn$2.exports;
 
 var array$1 = lib.array;
@@ -58896,7 +65321,7 @@ var i64 = lib.i64;
 var i8 = lib.i8;
 var map$2 = lib.map;
 var option = lib.option;
-var publicKey$1 = lib.publicKey;
+var publicKey$4 = lib.publicKey;
 var rustEnum = lib.rustEnum;
 var str = lib.str;
 var struct$1 = lib.struct;
@@ -58904,8 +65329,8 @@ var tagged = lib.tagged;
 var u128 = lib.u128;
 var u16$1 = lib.u16;
 var u32$1 = lib.u32;
-var u64$1 = lib.u64;
+var u64$4 = lib.u64;
 var u8$1 = lib.u8;
 var vec = lib.vec;
 var vecU8 = lib.vecU8;
-export { BN, Buffer, Connection, LAMPORTS_PER_SOL, PublicKey, array$1 as array, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
+export { BN, Buffer$1 as Buffer, Connection, LAMPORTS_PER_SOL, PublicKey$2 as PublicKey, array$1 as array, bool, getAccount, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$4 as publicKey, rustEnum, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$4 as u64, u8$1 as u8, vec, vecU8 };

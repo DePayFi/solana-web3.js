@@ -34,6 +34,7 @@ import {
   map,
   Buffer,
   BN,
+  getAccount
 } from "@depay/solana-web3.js"
 ```
 
