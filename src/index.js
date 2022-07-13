@@ -33,6 +33,7 @@ import {
 
 import {
   getAccount,
+  TOKEN_PROGRAM_ID,
 } from "@solana/spl-token"
 
 export {
@@ -63,4 +64,5 @@ export {
   Buffer,
   BN,
   getAccount,
+  TOKEN_PROGRAM_ID,
 }

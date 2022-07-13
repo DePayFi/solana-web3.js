@@ -65323,6 +65323,7 @@
 	exports.Connection = Connection;
 	exports.LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
 	exports.PublicKey = PublicKey$2;
+	exports.TOKEN_PROGRAM_ID = TOKEN_PROGRAM_ID;
 	exports.array = lib.array;
 	exports.bool = lib.bool;
 	exports.getAccount = getAccount;
