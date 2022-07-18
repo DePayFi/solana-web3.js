@@ -6,6 +6,7 @@ import {
 
 const Buffer = require('buffer/').Buffer
 const BN = require('bn.js')
+const bs58 = require('bs58')
 
 import {
   u8,
@@ -58,4 +59,5 @@ export {
   map,
   Buffer,
   BN,
+  bs58
 }

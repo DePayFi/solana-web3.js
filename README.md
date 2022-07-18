@@ -34,6 +34,7 @@ import {
   map,
   Buffer,
   BN,
+  bs58
 } from "@depay/solana-web3.js"
 ```
 
