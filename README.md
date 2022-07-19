@@ -10,6 +10,7 @@ yarn add "@depay/solana-web3.js"
 import {
   Connection,
   Transaction,
+  SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
   u8,

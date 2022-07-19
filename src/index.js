@@ -1,6 +1,7 @@
 import {
   Connection,
   Transaction,
+  SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
 } from "@solana/web3.js"
@@ -35,6 +36,7 @@ import {
 export {
   Connection,
   Transaction,
+  SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
   u8,

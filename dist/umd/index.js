@@ -58898,6 +58898,7 @@
 	exports.Connection = Connection;
 	exports.LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
 	exports.PublicKey = PublicKey;
+	exports.SystemProgram = SystemProgram;
 	exports.Transaction = Transaction;
 	exports.array = lib.array;
 	exports.bool = lib.bool;
