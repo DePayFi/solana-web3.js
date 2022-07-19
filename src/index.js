@@ -1,12 +1,12 @@
 import {
   Connection,
+  Transaction,
   LAMPORTS_PER_SOL,
   PublicKey,
 } from "@solana/web3.js"
 
 const Buffer = require('buffer/').Buffer
 const BN = require('bn.js')
-const bs58 = require('bs58')
 
 import {
   u8,
@@ -34,6 +34,7 @@ import {
 
 export {
   Connection,
+  Transaction,
   LAMPORTS_PER_SOL,
   PublicKey,
   u8,
@@ -58,6 +59,5 @@ export {
   array,
   map,
   Buffer,
-  BN,
-  bs58
+  BN
 }

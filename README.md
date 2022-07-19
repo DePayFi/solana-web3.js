@@ -9,6 +9,7 @@ yarn add "@depay/solana-web3.js"
 ```
 import {
   Connection,
+  Transaction,
   LAMPORTS_PER_SOL,
   PublicKey,
   u8,
@@ -33,8 +34,7 @@ import {
   array,
   map,
   Buffer,
-  BN,
-  bs58
+  BN
 } from "@depay/solana-web3.js"
 ```
 
