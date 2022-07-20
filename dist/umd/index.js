@@ -58892,7 +58892,9 @@
 
 	const Buffer = require$$0$7.Buffer;
 	const BN = bn$2.exports;
+	const ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
 
+	exports.ACCOUNT_LAYOUT = ACCOUNT_LAYOUT;
 	exports.BN = BN;
 	exports.Buffer = Buffer;
 	exports.Connection = Connection;

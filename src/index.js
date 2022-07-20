@@ -34,12 +34,27 @@ import {
   map,
 } from "@project-serum/borsh"
 
+const ACCOUNT_LAYOUT = struct([
+  publicKey('mint'),
+  publicKey('owner'),
+  u64('amount'),
+  u32('delegateOption'),
+  publicKey('delegate'),
+  u8('state'),
+  u32('isNativeOption'),
+  u64('isNative'),
+  u64('delegatedAmount'),
+  u32('closeAuthorityOption'),
+  publicKey('closeAuthority')
+])
+
 export {
   Connection,
   Transaction,
   TransactionInstruction,
   SystemProgram,
   LAMPORTS_PER_SOL,
+  ACCOUNT_LAYOUT,
   PublicKey,
   u8,
   i8,
