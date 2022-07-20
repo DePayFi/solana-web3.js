@@ -58900,6 +58900,7 @@
 	exports.PublicKey = PublicKey;
 	exports.SystemProgram = SystemProgram;
 	exports.Transaction = Transaction;
+	exports.TransactionInstruction = TransactionInstruction;
 	exports.array = lib.array;
 	exports.bool = lib.bool;
 	exports.i128 = lib.i128;

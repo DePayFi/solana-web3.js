@@ -1,6 +1,7 @@
 import {
   Connection,
   Transaction,
+  TransactionInstruction,
   SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -36,6 +37,7 @@ import {
 export {
   Connection,
   Transaction,
+  TransactionInstruction,
   SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
