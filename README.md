@@ -36,7 +36,6 @@ import {
   rustEnum,
   array,
   map,
-  blob,
   seq,
   Buffer,
   BN

@@ -9092,7 +9092,7 @@ var Layout$3 = {};
  */
 Object.defineProperty(Layout$3, "__esModule", { value: true });
 Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
-Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = blob = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = seq = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
+Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = blob = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = seq$1 = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
 const buffer_1 = require$$0$7;
 /* Check if a value is a Uint8Array.
  *
@@ -11335,7 +11335,7 @@ var struct = Layout$3.struct = ((fields, property, decodePrefixes) => new Struct
 /** Factory for {@link BitStructure} values. */
 Layout$3.bits = ((word, msb, property) => new BitStructure$1(word, msb, property));
 /** Factory for {@link Sequence} values. */
-var seq = Layout$3.seq = ((elementLayout, count, property) => new Sequence$1(elementLayout, count, property));
+var seq$1 = Layout$3.seq = ((elementLayout, count, property) => new Sequence$1(elementLayout, count, property));
 /** Factory for {@link Union} values. */
 Layout$3.union = ((discr, defaultLayout, property) => new Union$1(discr, defaultLayout, property));
 /** Factory for {@link UnionLayoutDiscriminator} values. */
@@ -44993,12 +44993,12 @@ class Message {
     Buffer$1.from(instructionCount).copy(instructionBuffer);
     let instructionBufferLength = instructionCount.length;
     instructions.forEach(instruction => {
-      const instructionLayout = struct([u8('programIdIndex'), blob(instruction.keyIndicesCount.length, 'keyIndicesCount'), seq(u8('keyIndex'), instruction.keyIndices.length, 'keyIndices'), blob(instruction.dataLength.length, 'dataLength'), seq(u8('userdatum'), instruction.data.length, 'data')]);
+      const instructionLayout = struct([u8('programIdIndex'), blob(instruction.keyIndicesCount.length, 'keyIndicesCount'), seq$1(u8('keyIndex'), instruction.keyIndices.length, 'keyIndices'), blob(instruction.dataLength.length, 'dataLength'), seq$1(u8('userdatum'), instruction.data.length, 'data')]);
       const length = instructionLayout.encode(instruction, instructionBuffer, instructionBufferLength);
       instructionBufferLength += length;
     });
     instructionBuffer = instructionBuffer.slice(0, instructionBufferLength);
-    const signDataLayout = struct([blob(1, 'numRequiredSignatures'), blob(1, 'numReadonlySignedAccounts'), blob(1, 'numReadonlyUnsignedAccounts'), blob(keyCount.length, 'keyCount'), seq(publicKey('key'), numKeys, 'keys'), publicKey('recentBlockhash')]);
+    const signDataLayout = struct([blob(1, 'numRequiredSignatures'), blob(1, 'numReadonlySignedAccounts'), blob(1, 'numReadonlyUnsignedAccounts'), blob(keyCount.length, 'keyCount'), seq$1(publicKey('key'), numKeys, 'keys'), publicKey('recentBlockhash')]);
     const transaction = {
       numRequiredSignatures: Buffer$1.from([this.header.numRequiredSignatures]),
       numReadonlySignedAccounts: Buffer$1.from([this.header.numReadonlySignedAccounts]),
@@ -46783,7 +46783,7 @@ class Loader {
         });
       }
     }
-    const dataLayout = struct([u32('instruction'), u32('offset'), u32('bytesLength'), u32('bytesLengthPadding'), seq(u8('byte'), offset(u32(), -8), 'bytes')]);
+    const dataLayout = struct([u32('instruction'), u32('offset'), u32('bytesLength'), u32('bytesLengthPadding'), seq$1(u8('byte'), offset(u32(), -8), 'bytes')]);
     const chunkSize = Loader.chunkSize;
     let offset$1 = 0;
     let array = data;
@@ -52165,9 +52165,9 @@ const VOTE_PROGRAM_ID = new PublicKey('Vote1111111111111111111111111111111111111
  * @internal
  */
 const VoteAccountLayout = struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
-seq(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
-seq(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
-seq(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
+seq$1(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
+seq$1(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq$1(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
+seq$1(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
 
 /**
  * VoteAccount class
@@ -52729,8 +52729,6 @@ var index_browser_esm = /*#__PURE__*/Object.freeze({
 	sendAndConfirmRawTransaction: sendAndConfirmRawTransaction,
 	sendAndConfirmTransaction: sendAndConfirmTransaction
 });
-
-var lib = {};
 
 var Layout$1 = {};
 
@@ -55293,7 +55291,7 @@ Layout$1.struct = ((fields, property, decodePrefixes) => new Structure(fields, p
 Layout$1.bits = ((word, msb, property) => new BitStructure(word, msb, property));
 
 /** Factory for {@link Sequence} values. */
-Layout$1.seq = ((elementLayout, count, property) => new Sequence(elementLayout, count, property));
+var seq = Layout$1.seq = ((elementLayout, count, property) => new Sequence(elementLayout, count, property));
 
 /** Factory for {@link Union} values. */
 Layout$1.union = ((discr, defaultLayout, property) => new Union(discr, defaultLayout, property));
@@ -55312,6 +55310,8 @@ Layout$1.utf8 = ((maxSpan, property) => new UTF8(maxSpan, property));
 
 /** Factory for {@link Constant} values. */
 Layout$1.const = ((value, property) => new Constant(value, property));
+
+var lib = {};
 
 var require$$1 = /*@__PURE__*/getAugmentedNamespace(index_browser_esm);
 
@@ -58909,4 +58909,4 @@ var u64$1 = lib.u64;
 var u8$1 = lib.u8;
 var vec = lib.vec;
 var vecU8 = lib.vecU8;
-export { ACCOUNT_LAYOUT, BN, Buffer, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionInstruction, array$1 as array, blob, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
+export { ACCOUNT_LAYOUT, BN, Buffer, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionInstruction, array$1 as array, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
