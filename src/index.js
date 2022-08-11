@@ -8,7 +8,8 @@ import {
 } from "@solana/web3.js"
 
 import {
-  seq
+  Layout,
+  seq,
 } from "@solana/buffer-layout"
 
 const Buffer = require('buffer/').Buffer
@@ -81,6 +82,7 @@ export {
   rustEnum,
   array,
   map,
+  Layout,
   seq,
   Buffer,
   BN
