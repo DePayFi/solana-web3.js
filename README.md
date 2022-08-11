@@ -36,6 +36,7 @@ import {
   rustEnum,
   array,
   map,
+  sec,
   Buffer,
   BN
 } from "@depay/solana-web3.js"

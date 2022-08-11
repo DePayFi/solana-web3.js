@@ -32,6 +32,7 @@ import {
   rustEnum,
   array,
   map,
+  sec,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([
@@ -77,6 +78,7 @@ export {
   rustEnum,
   array,
   map,
+  sec,
   Buffer,
   BN
 }
