@@ -38,8 +38,6 @@ import {
   map,
   blob,
   seq,
-  Layout,
-  BNLayout,
   Buffer,
   BN
 } from "@depay/solana-web3.js"

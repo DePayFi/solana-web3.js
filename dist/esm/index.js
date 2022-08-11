@@ -9091,7 +9091,7 @@ var Layout$3 = {};
  * THE SOFTWARE.
  */
 Object.defineProperty(Layout$3, "__esModule", { value: true });
-Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = Layout_2 = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
+Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
 Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = blob = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = seq = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
 const buffer_1 = require$$0$7;
 /* Check if a value is a Uint8Array.
@@ -9238,7 +9238,7 @@ class Layout$2 {
         return undefined;
     }
 }
-var Layout_2 = Layout$3.Layout = Layout$2;
+Layout$3.Layout = Layout$2;
 /* Provide text that carries a name (such as for a function that will
  * be throwing an error) annotated with the property of a given layout
  * (such as one for which the value was unacceptable).
@@ -58888,35 +58888,6 @@ const Buffer = require$$0$7.Buffer;
 const BN = bn$2.exports;
 const ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
 
-class BNLayout extends Layout_2 {
-  constructor(span, signed, property) {
-    super(span, property);
-    this.blob = blob(span);
-    this.signed = signed;
-  }
-
-  decode(b, offset = 0) {
-    const num = new BN(this.blob.decode(b, offset), 10, "le");
-
-    if (this.signed) {
-      return num.fromTwos(this.span * 8).clone();
-    }
-
-    return num;
-  }
-
-  encode(src, b, offset = 0) {
-    if (typeof src === "number") src = new BN(src);
-
-    if (this.signed) {
-      src = src.toTwos(this.span * 8);
-    }
-
-    return this.blob.encode(src.toArrayLike(Buffer, "le", this.span), b, offset);
-  }
-
-}
-
 var array$1 = lib.array;
 var bool = lib.bool;
 var i128 = lib.i128;
@@ -58938,4 +58909,4 @@ var u64$1 = lib.u64;
 var u8$1 = lib.u8;
 var vec = lib.vec;
 var vecU8 = lib.vecU8;
-export { ACCOUNT_LAYOUT, BN, BNLayout, Buffer, Connection, LAMPORTS_PER_SOL, Layout_2 as Layout, PublicKey, SystemProgram, Transaction, TransactionInstruction, array$1 as array, blob, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
+export { ACCOUNT_LAYOUT, BN, Buffer, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionInstruction, array$1 as array, blob, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
