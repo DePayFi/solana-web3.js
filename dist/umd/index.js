@@ -58914,7 +58914,7 @@
 	exports.option = lib.option;
 	exports.publicKey = lib.publicKey;
 	exports.rustEnum = lib.rustEnum;
-	exports.sec = lib.sec;
+	exports.seq = lib.seq;
 	exports.str = lib.str;
 	exports.struct = lib.struct;
 	exports.tagged = lib.tagged;
