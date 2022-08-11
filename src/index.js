@@ -9,6 +9,7 @@ import {
 
 import {
   Layout,
+  blob,
   seq,
 } from "@solana/buffer-layout"
 
@@ -53,6 +54,31 @@ const ACCOUNT_LAYOUT = struct([
   publicKey('closeAuthority')
 ])
 
+class BNLayout extends Layout {
+
+  constructor(span, signed, property) {
+    super(span, property)
+    this.blob = blob(span)
+    this.signed = signed
+  }
+
+  decode(b, offset = 0) {
+    const num = new BN(this.blob.decode(b, offset), 10, "le")
+    if (this.signed) {
+      return num.fromTwos(this.span * 8).clone()
+    }
+    return num;
+  }
+
+  encode(src, b, offset = 0) {
+    if (typeof src === "number") src = new BN(src)
+    if (this.signed) {
+      src = src.toTwos(this.span * 8)
+    }
+    return this.blob.encode(src.toArrayLike(Buffer, "le", this.span), b, offset)
+  }
+}
+
 export {
   Connection,
   Transaction,
@@ -82,8 +108,10 @@ export {
   rustEnum,
   array,
   map,
-  Layout,
+  blob,
   seq,
+  Layout,
+  BNLayout,
   Buffer,
   BN
 }

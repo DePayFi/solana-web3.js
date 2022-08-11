@@ -58888,6 +58888,35 @@ const Buffer = require$$0$7.Buffer;
 const BN = bn$2.exports;
 const ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
 
+class BNLayout extends Layout_2 {
+  constructor(span, signed, property) {
+    super(span, property);
+    this.blob = blob(span);
+    this.signed = signed;
+  }
+
+  decode(b, offset = 0) {
+    const num = new BN(this.blob.decode(b, offset), 10, "le");
+
+    if (this.signed) {
+      return num.fromTwos(this.span * 8).clone();
+    }
+
+    return num;
+  }
+
+  encode(src, b, offset = 0) {
+    if (typeof src === "number") src = new BN(src);
+
+    if (this.signed) {
+      src = src.toTwos(this.span * 8);
+    }
+
+    return this.blob.encode(src.toArrayLike(Buffer, "le", this.span), b, offset);
+  }
+
+}
+
 var array$1 = lib.array;
 var bool = lib.bool;
 var i128 = lib.i128;
@@ -58909,4 +58938,4 @@ var u64$1 = lib.u64;
 var u8$1 = lib.u8;
 var vec = lib.vec;
 var vecU8 = lib.vecU8;
-export { ACCOUNT_LAYOUT, BN, Buffer, Connection, LAMPORTS_PER_SOL, Layout_2 as Layout, PublicKey, SystemProgram, Transaction, TransactionInstruction, array$1 as array, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };
+export { ACCOUNT_LAYOUT, BN, BNLayout, Buffer, Connection, LAMPORTS_PER_SOL, Layout_2 as Layout, PublicKey, SystemProgram, Transaction, TransactionInstruction, array$1 as array, blob, bool, i128, i16, i32, i64, i8, map$2 as map, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, u128, u16$1 as u16, u32$1 as u32, u64$1 as u64, u8$1 as u8, vec, vecU8 };

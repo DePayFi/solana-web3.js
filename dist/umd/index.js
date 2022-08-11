@@ -9098,7 +9098,7 @@
 	 */
 	Object.defineProperty(Layout$3, "__esModule", { value: true });
 	Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = exports.Layout = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
-	Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = blob = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = exports.seq = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
+	Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = exports.blob = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = exports.seq = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
 	const buffer_1 = require$$0$7;
 	/* Check if a value is a Uint8Array.
 	 *
@@ -11347,7 +11347,7 @@
 	/** Factory for {@link UnionLayoutDiscriminator} values. */
 	Layout$3.unionLayoutDiscriminator = ((layout, property) => new UnionLayoutDiscriminator$1(layout, property));
 	/** Factory for {@link Blob} values. */
-	var blob = Layout$3.blob = ((length, property) => new Blob$1(length, property));
+	exports.blob = Layout$3.blob = ((length, property) => new Blob$1(length, property));
 	/** Factory for {@link CString} values. */
 	Layout$3.cstr = ((property) => new CString$1(property));
 	/** Factory for {@link UTF8} values. */
@@ -44828,14 +44828,14 @@
 	 */
 
 	const publicKey = (property = 'publicKey') => {
-	  return blob(32, property);
+	  return exports.blob(32, property);
 	};
 
 	/**
 	 * Layout for a Rust String type
 	 */
 	const rustString = (property = 'string') => {
-	  const rsl = struct([u32('length'), u32('lengthPadding'), blob(offset(u32(), -8), 'chars')], property);
+	  const rsl = struct([u32('length'), u32('lengthPadding'), exports.blob(offset(u32(), -8), 'chars')], property);
 
 	  const _decode = rsl.decode.bind(rsl);
 
@@ -44999,12 +44999,12 @@
 	    Buffer$1.from(instructionCount).copy(instructionBuffer);
 	    let instructionBufferLength = instructionCount.length;
 	    instructions.forEach(instruction => {
-	      const instructionLayout = struct([u8('programIdIndex'), blob(instruction.keyIndicesCount.length, 'keyIndicesCount'), exports.seq(u8('keyIndex'), instruction.keyIndices.length, 'keyIndices'), blob(instruction.dataLength.length, 'dataLength'), exports.seq(u8('userdatum'), instruction.data.length, 'data')]);
+	      const instructionLayout = struct([u8('programIdIndex'), exports.blob(instruction.keyIndicesCount.length, 'keyIndicesCount'), exports.seq(u8('keyIndex'), instruction.keyIndices.length, 'keyIndices'), exports.blob(instruction.dataLength.length, 'dataLength'), exports.seq(u8('userdatum'), instruction.data.length, 'data')]);
 	      const length = instructionLayout.encode(instruction, instructionBuffer, instructionBufferLength);
 	      instructionBufferLength += length;
 	    });
 	    instructionBuffer = instructionBuffer.slice(0, instructionBufferLength);
-	    const signDataLayout = struct([blob(1, 'numRequiredSignatures'), blob(1, 'numReadonlySignedAccounts'), blob(1, 'numReadonlyUnsignedAccounts'), blob(keyCount.length, 'keyCount'), exports.seq(publicKey('key'), numKeys, 'keys'), publicKey('recentBlockhash')]);
+	    const signDataLayout = struct([exports.blob(1, 'numRequiredSignatures'), exports.blob(1, 'numReadonlySignedAccounts'), exports.blob(1, 'numReadonlyUnsignedAccounts'), exports.blob(keyCount.length, 'keyCount'), exports.seq(publicKey('key'), numKeys, 'keys'), publicKey('recentBlockhash')]);
 	    const transaction = {
 	      numRequiredSignatures: Buffer$1.from([this.header.numRequiredSignatures]),
 	      numReadonlySignedAccounts: Buffer$1.from([this.header.numReadonlySignedAccounts]),
@@ -45953,7 +45953,7 @@
 	};
 
 	const bigInt = length => property => {
-	  const layout = blob(length, property);
+	  const layout = exports.blob(length, property);
 	  const {
 	    encode,
 	    decode
@@ -51949,7 +51949,7 @@
 	 * Params for creating an secp256k1 instruction using a public key
 	 */
 
-	const SECP256K1_INSTRUCTION_LAYOUT = struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), blob(20, 'ethAddress'), blob(64, 'signature'), u8('recoveryId')]);
+	const SECP256K1_INSTRUCTION_LAYOUT = struct([u8('numSignatures'), u16('signatureOffset'), u8('signatureInstructionIndex'), u16('ethAddressOffset'), u8('ethAddressInstructionIndex'), u16('messageDataOffset'), u16('messageDataSize'), u8('messageInstructionIndex'), exports.blob(20, 'ethAddress'), exports.blob(64, 'signature'), u8('recoveryId')]);
 	class Secp256k1Program {
 	  /**
 	   * @internal
@@ -58894,8 +58894,38 @@
 	const BN = bn$2.exports;
 	const ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
 
+	class BNLayout extends exports.Layout {
+	  constructor(span, signed, property) {
+	    super(span, property);
+	    this.blob = exports.blob(span);
+	    this.signed = signed;
+	  }
+
+	  decode(b, offset = 0) {
+	    const num = new BN(this.blob.decode(b, offset), 10, "le");
+
+	    if (this.signed) {
+	      return num.fromTwos(this.span * 8).clone();
+	    }
+
+	    return num;
+	  }
+
+	  encode(src, b, offset = 0) {
+	    if (typeof src === "number") src = new BN(src);
+
+	    if (this.signed) {
+	      src = src.toTwos(this.span * 8);
+	    }
+
+	    return this.blob.encode(src.toArrayLike(Buffer, "le", this.span), b, offset);
+	  }
+
+	}
+
 	exports.ACCOUNT_LAYOUT = ACCOUNT_LAYOUT;
 	exports.BN = BN;
+	exports.BNLayout = BNLayout;
 	exports.Buffer = Buffer;
 	exports.Connection = Connection;
 	exports.LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
