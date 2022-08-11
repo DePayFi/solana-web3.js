@@ -7,6 +7,10 @@ import {
   PublicKey,
 } from "@solana/web3.js"
 
+import {
+  seq
+} from "@solana/buffer-layout"
+
 const Buffer = require('buffer/').Buffer
 const BN = require('bn.js')
 
@@ -32,7 +36,6 @@ import {
   rustEnum,
   array,
   map,
-  seq,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([
