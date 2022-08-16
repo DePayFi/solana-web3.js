@@ -47,11 +47,10 @@ import {
 In case you need to load this pre-built into a node test environment (like jest), make sure you supply globals for `crypto` and `fetch` and `XMLHttpRequest`:
 
 ```
-import { Crypto } from "@peculiar/webcrypto"
-global.crypto = new Crypto()
-import fetch from 'cross-fetch'
-global.fetch = fetch
+global.crypto = require('@peculiar/webcrypto').Crypto
+global.fetch = require('cross-fetch')
 global.XMLHttpRequest = require('xhr2')
+global.location = {}
 ```
 
 Make sure you install `@peculiar/webcrypto`, `cross-fetch` and `xhr2` as dev dependencies:
@@ -65,11 +64,10 @@ yarn add @peculiar/webcrypto cross-fetch xhr2 --dev
 In case you need to load this pre-built into a node production environment, make sure you supply globals for `crypto` and `fetch` and `XMLHttpRequest`:
 
 ```
-import { Crypto } from "@peculiar/webcrypto"
-global.crypto = new Crypto()
-import fetch from 'cross-fetch'
-global.fetch = fetch
+global.crypto = require('@peculiar/webcrypto').Crypto
+global.fetch = require('cross-fetch')
 global.XMLHttpRequest = require('xhr2')
+global.location = {}
 ```
 
 Make sure you install `@peculiar/webcrypto`, `cross-fetch` and `xhr2` as dependencies:
