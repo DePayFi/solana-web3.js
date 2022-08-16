@@ -52,11 +52,6 @@ const ACCOUNT_LAYOUT = struct([
   publicKey('closeAuthority')
 ])
 
-const XMLHttpRequest = require('xhr2')
-if (typeof global !== "undefined") {
-  global.XMLHttpRequest = XMLHttpRequest
-}
-
 export {
   Connection,
   Transaction,
