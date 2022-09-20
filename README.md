@@ -37,6 +37,7 @@ import {
   array,
   map,
   seq,
+  blob,
   Buffer,
   BN
 } from "@depay/solana-web3.js"

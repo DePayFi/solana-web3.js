@@ -9,6 +9,7 @@ import {
 
 import {
   seq,
+  blob,
 } from "buffer-layout"
 
 const Buffer = require('buffer/').Buffer
@@ -82,6 +83,7 @@ export {
   array,
   map,
   seq,
+  blob,
   Buffer,
   BN
 }
