@@ -5,6 +5,7 @@ import {
   SystemProgram,
   LAMPORTS_PER_SOL,
   PublicKey,
+  Keypair,
 } from "@solana/web3.js"
 
 import {
@@ -85,5 +86,6 @@ export {
   seq,
   blob,
   Buffer,
-  BN
+  BN,
+  Keypair,
 }

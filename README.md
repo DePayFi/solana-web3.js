@@ -39,7 +39,8 @@ import {
   seq,
   blob,
   Buffer,
-  BN
+  BN,
+  Keypair
 } from "@depay/solana-web3.js"
 ```
 

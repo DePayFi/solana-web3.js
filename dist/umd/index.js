@@ -58898,6 +58898,7 @@
 	exports.BN = BN;
 	exports.Buffer = Buffer;
 	exports.Connection = Connection;
+	exports.Keypair = Keypair;
 	exports.LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
 	exports.PublicKey = PublicKey;
 	exports.SystemProgram = SystemProgram;
