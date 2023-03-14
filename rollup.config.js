@@ -19,7 +19,7 @@ export default {
 var _global$1 = (typeof global !== "undefined" ? global :
   typeof self !== "undefined" ? self :
   typeof window !== "undefined" ? window : {});
-if(_global$1.XMLHttpRequest == undefined) { Object }
+if(_global$1.XMLHttpRequest == undefined) { _global$1.XMLHttpRequest = Object }
 if(_global$1.location == undefined) { _global$1.location = {} }
       `
     },
@@ -32,7 +32,7 @@ if(_global$1.location == undefined) { _global$1.location = {} }
 var _global$1 = (typeof global !== "undefined" ? global :
   typeof self !== "undefined" ? self :
   typeof window !== "undefined" ? window : {});
-if(_global$1.XMLHttpRequest == undefined) { Object }
+if(_global$1.XMLHttpRequest == undefined) { _global$1.XMLHttpRequest = Object }
 if(_global$1.location == undefined) { _global$1.location = {} }
       `
     },
