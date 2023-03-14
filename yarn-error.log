@@ -1,8 +1,8 @@
 Arguments: 
-  /Users/sebastian/.nvm/versions/node/v16.13.0/bin/node /Users/sebastian/.yarn/bin/yarn.js build
+  /Users/sebastian/.nvm/versions/node/v16.13.0/bin/node /Users/sebastian/.yarn/bin/yarn.js add @rollup/plugin-banner --dev
 
 PATH: 
-  /Users/sebastian/.rvm/gems/ruby-3.0.2/bin:/Users/sebastian/.rvm/gems/ruby-3.0.2@global/bin:/Users/sebastian/.rvm/rubies/ruby-3.0.2/bin:/Users/sebastian/.yarn/bin:/Users/sebastian/.config/yarn/global/node_modules/.bin:/Users/sebastian/.nvm/versions/node/v16.13.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Applications/Sublime Text.app/Contents/SharedSupport/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/MacGPG2/bin:/Library/Apple/usr/bin:/Users/sebastian/.rvm/bin
+  /Users/sebastian/.rvm/gems/ruby-3.1.3/bin:/Users/sebastian/.rvm/gems/ruby-3.1.3@global/bin:/Users/sebastian/.rvm/rubies/ruby-3.1.3/bin:/Users/sebastian/.gem/bin:/Users/sebastian/.yarn/bin:/Users/sebastian/.config/yarn/global/node_modules/.bin:/Users/sebastian/.local/share/solana/install/active_release/bin:/Users/sebastian/.nvm/versions/node/v16.13.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Applications/Sublime Text.app/Contents/SharedSupport/bin:/usr/local/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/MacGPG2/bin:/Library/Apple/usr/bin:/Users/sebastian/.cargo/bin:/Users/sebastian/.rvm/bin:/Users/sebastian/.gem/ruby/2.6.0/bin
 
 Yarn version: 
   1.22.18
@@ -14,18 +14,23 @@ Platform:
   darwin arm64
 
 Trace: 
-  SyntaxError: /Users/sebastian/Work/DePay/solana-web3.js/package.json: Unexpected token } in JSON at position 1481
-      at JSON.parse (<anonymous>)
-      at /Users/sebastian/.yarn/lib/cli.js:1625:59
-      at Generator.next (<anonymous>)
-      at step (/Users/sebastian/.yarn/lib/cli.js:310:30)
-      at /Users/sebastian/.yarn/lib/cli.js:321:13
+  Error: https://registry.yarnpkg.com/@rollup%2fplugin-banner: Not found
+      at Request.params.callback [as _callback] (/Users/sebastian/.yarn/lib/cli.js:66138:18)
+      at Request.self.callback (/Users/sebastian/.yarn/lib/cli.js:140883:22)
+      at Request.emit (node:events:390:28)
+      at Request.<anonymous> (/Users/sebastian/.yarn/lib/cli.js:141855:10)
+      at Request.emit (node:events:390:28)
+      at IncomingMessage.<anonymous> (/Users/sebastian/.yarn/lib/cli.js:141777:12)
+      at Object.onceWrapper (node:events:509:28)
+      at IncomingMessage.emit (node:events:402:35)
+      at endReadableNT (node:internal/streams/readable:1343:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
 
 npm manifest: 
   {
     "name": "@depay/solana-web3.js",
     "moduleName": "SolanaWeb3js",
-    "version": "1.0.35",
+    "version": "1.19.0",
     "description": "Solana Web3.js browser pre-built usable in rollup bundles.",
     "main": "dist/umd/index.js",
     "module": "dist/esm/index.js",
@@ -41,37 +46,37 @@ npm manifest:
       "web3js",
       "rollup"
     ],
-    "author": "https://depay.fi",
+    "author": "https://depay.com",
     "license": "MIT",
     "bugs": {
       "url": "https://github.com/DePayFi/solana-web3.js/issues"
     },
-    "homepage": "https://github.com/DePayFi/solana-web3.js#readme",
+    "homepage": "https://depay.com",
     "devDependencies": {
       "@babel/core": "^7.18.6",
       "@ethersproject/sha2": "^5.5.0",
+      "@project-serum/borsh": "^0.2.5",
       "@rollup/plugin-babel": "^5.3.1",
       "@rollup/plugin-commonjs": "^22.0.1",
       "@rollup/plugin-json": "^4.1.0",
       "@rollup/plugin-node-resolve": "^13.3.0",
       "@rollup/plugin-replace": "^4.0.0",
       "@rollup/plugin-sucrase": "^4.0.4",
-      "@solana/buffer-layout": "^4.0.0",
       "@solana/web3.js": "^1.47.3",
       "bigint-buffer": "^1.1.5",
       "bn.js": "^5.0.0",
       "borsh": "^0.7.0",
-      "bs58": "^4.0.1",
       "buffer": "6.0.1",
+      "buffer-layout": "^1.2.0",
       "fast-stable-stringify": "^1.0.0",
       "jayson": "^3.4.4",
       "js-sha3": "^0.8.0",
-      "rollup": "^2.75.7",
+      "rollup": "^2.76.0",
       "rollup-plugin-polyfill-node": "^0.10.1",
       "rpc-websockets": "^7.5.0",
       "secp256k1": "^4.0.2",
       "superstruct": "^0.14.2",
-      "tweetnacl": "^1.0.0",
+      "tweetnacl": "^1.0.0"
     }
   }
 
@@ -319,7 +324,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/@jridgewell/set-array/-/set-array-1.1.2.tgz#7c6cf998d6d20b914c0a55a91ae928ff25965e72"
     integrity sha512-xnkseuNADM0gt2bs+BvhO0p78Mk762YnZdsuzFV018NoG1Sj1SCQvpSqa7XUaTam5vAGasABV9qXASMKnFMwMw==
   
-  "@jridgewell/sourcemap-codec@^1.4.10":
+  "@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.13":
     version "1.4.14"
     resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.14.tgz#add4c98d341472a289190b424efbdb096991bb24"
     integrity sha512-XPSJHWmi394fuUuzDnGz1wiKqWfo1yXecHQMRf2l6hztTO+nPru658AyDngaBe7isIxEkRsPR3FZh+s7iVa4Uw==
@@ -331,6 +336,14 @@ Lockfile:
     dependencies:
       "@jridgewell/resolve-uri" "^3.0.3"
       "@jridgewell/sourcemap-codec" "^1.4.10"
+  
+  "@project-serum/borsh@^0.2.5":
+    version "0.2.5"
+    resolved "https://registry.yarnpkg.com/@project-serum/borsh/-/borsh-0.2.5.tgz#6059287aa624ecebbfc0edd35e4c28ff987d8663"
+    integrity sha512-UmeUkUoKdQ7rhx6Leve1SssMR/Ghv8qrEiyywyxSWg7ooV7StdpPBhciiy5eB3T0qU1BXvdRNC8TdrkxK7WC5Q==
+    dependencies:
+      bn.js "^5.1.2"
+      buffer-layout "^1.2.0"
   
   "@rollup/plugin-babel@^5.3.1":
     version "5.3.1"
@@ -361,6 +374,15 @@ Lockfile:
       "@rollup/pluginutils" "^3.1.0"
       estree-walker "^2.0.1"
       magic-string "^0.25.7"
+  
+  "@rollup/plugin-inject@^5.0.3":
+    version "5.0.3"
+    resolved "https://registry.yarnpkg.com/@rollup/plugin-inject/-/plugin-inject-5.0.3.tgz#0783711efd93a9547d52971db73b2fb6140a67b1"
+    integrity sha512-411QlbL+z2yXpRWFXSmw/teQRMkXcAAC8aYTemc15gwJRpvEVDQwoe+N/HTFD8RFG8+88Bme9DK2V9CVm7hJdA==
+    dependencies:
+      "@rollup/pluginutils" "^5.0.1"
+      estree-walker "^2.0.2"
+      magic-string "^0.27.0"
   
   "@rollup/plugin-json@^4.1.0":
     version "4.1.0"
@@ -397,14 +419,6 @@ Lockfile:
       "@rollup/pluginutils" "^4.1.1"
       sucrase "^3.20.0"
   
-  "@rollup/plugin-typescript@^8.3.3":
-    version "8.3.3"
-    resolved "https://registry.yarnpkg.com/@rollup/plugin-typescript/-/plugin-typescript-8.3.3.tgz#eee7edab9cfc064f1cfd16570492693cf1432215"
-    integrity sha512-55L9SyiYu3r/JtqdjhwcwaECXP7JeJ9h1Sg1VWRJKIutla2MdZQodTgcCNybXLMCnqpNLEhS2vGENww98L1npg==
-    dependencies:
-      "@rollup/pluginutils" "^3.1.0"
-      resolve "^1.17.0"
-  
   "@rollup/pluginutils@^3.0.8", "@rollup/pluginutils@^3.1.0":
     version "3.1.0"
     resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-3.1.0.tgz#706b4524ee6dc8b103b3c995533e5ad680c02b9b"
@@ -421,6 +435,15 @@ Lockfile:
     dependencies:
       estree-walker "^2.0.1"
       picomatch "^2.2.2"
+  
+  "@rollup/pluginutils@^5.0.1":
+    version "5.0.2"
+    resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-5.0.2.tgz#012b8f53c71e4f6f9cb317e311df1404f56e7a33"
+    integrity sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==
+    dependencies:
+      "@types/estree" "^1.0.0"
+      estree-walker "^2.0.2"
+      picomatch "^2.3.1"
   
   "@solana/buffer-layout@^4.0.0":
     version "4.0.0"
@@ -467,6 +490,11 @@ Lockfile:
     version "0.0.39"
     resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
     integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
+  
+  "@types/estree@^1.0.0":
+    version "1.0.0"
+    resolved "https://registry.yarnpkg.com/@types/estree/-/estree-1.0.0.tgz#5fb2e536c1ae9bf35366eed879e827fa59ca41c2"
+    integrity sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==
   
   "@types/express-serve-static-core@^4.17.9":
     version "4.17.29"
@@ -577,6 +605,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.0.tgz#358860674396c6997771a9d051fcc1b57d4ae002"
     integrity sha512-D7iWRBvnZE8ecXiLj/9wbxH7Tk79fAh8IHaTNq1RWRixsS02W+5qS+iE9yq6RYl0asXx5tw0bLhmT5pIfbSquw==
   
+  bn.js@^5.1.2:
+    version "5.2.1"
+    resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.1.tgz#0bc527a6a0d18d0aa8d5b0538ce4a77dccfa7b70"
+    integrity sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==
+  
   borsh@^0.7.0:
     version "0.7.0"
     resolved "https://registry.yarnpkg.com/borsh/-/borsh-0.7.0.tgz#6e9560d719d86d90dc589bca60ffc8a6c51fec2a"
@@ -615,6 +648,11 @@ Lockfile:
     integrity sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==
     dependencies:
       base-x "^3.0.2"
+  
+  buffer-layout@^1.2.0:
+    version "1.2.2"
+    resolved "https://registry.yarnpkg.com/buffer-layout/-/buffer-layout-1.2.2.tgz#b9814e7c7235783085f9ca4966a0cfff112259d5"
+    integrity sha512-kWSuLN694+KTk8SrYvCqwP2WcgQjoRCiF5b4QDvkkz8EmgD+aWAIceGFKMIAdmF/pH+vpgNV3d3kAKorcdAmWA==
   
   buffer@6.0.1:
     version "6.0.1"
@@ -759,7 +797,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-1.0.1.tgz#31bc5d612c96b704106b477e6dd5d8aa138cb700"
     integrity sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==
   
-  estree-walker@^2.0.1:
+  estree-walker@^2.0.1, estree-walker@^2.0.2:
     version "2.0.2"
     resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-2.0.2.tgz#52f010178c2a4c117a7757cfe942adb7d2da4cac"
     integrity sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==
@@ -979,6 +1017,13 @@ Lockfile:
     dependencies:
       sourcemap-codec "^1.4.8"
   
+  magic-string@^0.27.0:
+    version "0.27.0"
+    resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.27.0.tgz#e4a3413b4bab6d98d2becffd48b4a257effdbbf3"
+    integrity sha512-8UnnX2PeRAPZuN12svgR9j7M1uWMovg/CEnIwIG0LFkXSJJe4PdfUGiTGl8V9bsBHFUtfVINcSyYxd7q+kx9fA==
+    dependencies:
+      "@jridgewell/sourcemap-codec" "^1.4.13"
+  
   minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz#2e194de044626d4a10e7f7fbc00ce73e83e4d5c7"
@@ -1064,7 +1109,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/picocolors/-/picocolors-1.0.0.tgz#cb5bdc74ff3f51892236eaf79d68bc44564ab81c"
     integrity sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==
   
-  picomatch@^2.2.2:
+  picomatch@^2.2.2, picomatch@^2.3.1:
     version "2.3.1"
     resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
     integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
@@ -1095,10 +1140,10 @@ Lockfile:
     dependencies:
       "@rollup/plugin-inject" "^4.0.0"
   
-  rollup@^2.75.7:
-    version "2.75.7"
-    resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.75.7.tgz#221ff11887ae271e37dcc649ba32ce1590aaa0b9"
-    integrity sha512-VSE1iy0eaAYNCxEXaleThdFXqZJ42qDBatAwrfnPlENEZ8erQ+0LYX4JXOLPceWfZpV1VtZwZ3dFCuOZiSyFtQ==
+  rollup@^2.76.0:
+    version "2.76.0"
+    resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.76.0.tgz#c69fe03db530ac53fcb9523b3caa0d3c0b9491a1"
+    integrity sha512-9jwRIEY1jOzKLj3nsY/yot41r19ITdQrhs+q3ggNWhr9TQgduHqANvPpS32RNpzGklJu3G1AJfvlZLi/6wFgWA==
     optionalDependencies:
       fsevents "~2.3.2"
   
@@ -1216,11 +1261,6 @@ Lockfile:
     version "1.0.3"
     resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
     integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
-  
-  typescript@^4.7.4:
-    version "4.7.4"
-    resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
-    integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
   
   update-browserslist-db@^1.0.4:
     version "1.0.4"

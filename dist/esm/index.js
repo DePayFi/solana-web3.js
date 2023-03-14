@@ -1,3 +1,10 @@
+
+var _global$1 = (typeof global !== "undefined" ? global :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window : {});
+if(_global$1.XMLHttpRequest == undefined) { Object }
+if(_global$1.location == undefined) { _global$1.location = {} }
+      
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 function getAugmentedNamespace(n) {
@@ -16665,7 +16672,7 @@ function parse$1(self, url, parseQueryString, slashesDenoteHost) {
 function urlFileURLToPath(path) {
   if (typeof path === 'string')
     path = new Url().parse(path);
-  else if (!(url instanceof Url))
+  else if (!(path instanceof Url))
     throw new TypeError('The "path" argument must be of type string or an instance of URL. Received type ' + (typeof path) + String(path));
   if (path.protocol !== 'file:')
     throw new TypeError('The URL must be of scheme file');

@@ -68,14 +68,12 @@ In case you need to load this pre-built into a node production environment, make
 ```
 global.crypto = new (require('@peculiar/webcrypto').Crypto)()
 global.fetch = require('cross-fetch')
-global.XMLHttpRequest = require('xhr2')
-global.location = {}
 ```
 
-Make sure you install `@peculiar/webcrypto`, `cross-fetch` and `xhr2` as dependencies:
+Make sure you install `@peculiar/webcrypto`, `cross-fetch`
 
 ```
-yarn add @peculiar/webcrypto cross-fetch xhr2
+yarn add @peculiar/webcrypto cross-fetch
 ```
 
 ## Development

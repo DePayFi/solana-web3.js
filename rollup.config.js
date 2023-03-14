@@ -14,13 +14,27 @@ export default {
     {
       format: 'es',
       globals: globals,
-      file: 'dist/esm/index.js'
+      file: 'dist/esm/index.js',
+      banner: `
+var _global$1 = (typeof global !== "undefined" ? global :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window : {});
+if(_global$1.XMLHttpRequest == undefined) { Object }
+if(_global$1.location == undefined) { _global$1.location = {} }
+      `
     },
     {
       format: 'umd',
       name: pkg.moduleName,
       globals: globals,
-      file: 'dist/umd/index.js'
+      file: 'dist/umd/index.js',
+      banner: `
+var _global$1 = (typeof global !== "undefined" ? global :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window : {});
+if(_global$1.XMLHttpRequest == undefined) { Object }
+if(_global$1.location == undefined) { _global$1.location = {} }
+      `
     },
   ],
   external: [
