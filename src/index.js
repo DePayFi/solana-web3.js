@@ -3,7 +3,7 @@ var global = (typeof global !== "undefined" ? global :
   typeof globalThis !== "undefined" ? globalThis :
   typeof window !== "undefined" ? window : {});
 
-if(global.fetch == undefined) {
+if(global._polyfillFetch) {
   global.fetch = require('cross-fetch')
 }
 
