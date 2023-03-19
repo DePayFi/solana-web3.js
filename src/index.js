@@ -1,4 +1,8 @@
-require('cross-fetch/polyfill');
+var global = (typeof global !== "undefined" ? global :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window : {});
+
+global._getCrossFetch = ()=> { return require('cross-fetch') }
 
 import {
   Connection,
