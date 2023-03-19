@@ -6,7 +6,6 @@ if(_global$1.XMLHttpRequest == undefined) { _global$1.XMLHttpRequest = class XML
 if(_global$1.location == undefined) { _global$1.location = {} }
 if(_global$1.crypto == undefined) { _global$1.crypto = {} }
 if(_global$1.crypto.getRandomValues == undefined) { _global$1.crypto.getRandomValues = function(abv) { var l = abv.length; while (l--) { abv[l] = parseInt(Math.random().toString().replace('0.', ''), 10) }; return abv } }
-if(_global$1.fetch == undefined) { _global$1.fetch = _global$1._getCrossFetch() }
       
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -140593,9 +140592,9 @@ if(_global$1.fetch == undefined) { _global$1.fetch = _global$1._getCrossFetch() 
 
 	var global$1 = typeof global$1 !== "undefined" ? global$1 : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
 
-	global$1._getCrossFetch = () => {
-	  return requireNodePonyfill();
-	};
+	if (global$1.fetch == undefined) {
+	  global$1.fetch = requireNodePonyfill();
+	}
 	const Buffer$1 = require$$1$4.Buffer;
 	const BN = bn$2.exports;
 	const ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
