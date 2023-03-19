@@ -94030,7 +94030,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = async ()=>{ return _global$
 	}
 
 	// expose Promise
-	Body.Promise = global.Promise;
+	Body.Promise = _global$1.Promise;
 
 	/**
 	 * headers.js
@@ -95056,7 +95056,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = async ()=>{ return _global$
 	};
 
 	// expose Promise
-	fetch.Promise = global.Promise;
+	fetch.Promise = _global$1.Promise;
 
 	var lib$3 = /*#__PURE__*/Object.freeze({
 		__proto__: null,

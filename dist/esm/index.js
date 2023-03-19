@@ -94024,7 +94024,7 @@ function writeToStream(dest, instance) {
 }
 
 // expose Promise
-Body.Promise = global.Promise;
+Body.Promise = _global$1.Promise;
 
 /**
  * headers.js
@@ -95050,7 +95050,7 @@ fetch.isRedirect = function (code) {
 };
 
 // expose Promise
-fetch.Promise = global.Promise;
+fetch.Promise = _global$1.Promise;
 
 var lib$3 = /*#__PURE__*/Object.freeze({
 	__proto__: null,

@@ -67,6 +67,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = async ()=>{ return _global$
     }),
     replace({
       preventAssignment: true,
+      'global.Promise': '_global$1.Promise',
       'process.env.NODE_ENV': JSON.stringify('product'),
       'process.env.BROWSER': JSON.stringify('true'),
       'process.env.npm_package_version': JSON.stringify(
