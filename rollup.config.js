@@ -43,8 +43,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = _global$1._crossFetch }
       `
     },
   ],
-  external: [
-  ],
+  external: [],
   treeshake: {
     moduleSideEffects: false,
   },

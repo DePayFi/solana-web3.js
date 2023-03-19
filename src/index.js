@@ -1,9 +1,7 @@
-import fetch from 'cross-fetch'
-
 var global = (typeof global !== "undefined" ? global :
   typeof self !== "undefined" ? self :
   typeof window !== "undefined" ? window : {});
-global._crossFetch = fetch
+global._crossFetch = require('cross-fetch');
 
 import {
   Connection,
