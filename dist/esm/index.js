@@ -31,7 +31,7 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
-var global$1 = (typeof global !== "undefined" ? global :
+var global$2 = (typeof global !== "undefined" ? global :
   typeof self !== "undefined" ? self :
   typeof window !== "undefined" ? window : {});
 
@@ -269,8 +269,8 @@ var INSPECT_MAX_BYTES = 50;
  * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they
  * get the Object implementation, which is slower but behaves correctly.
  */
-Buffer$2.TYPED_ARRAY_SUPPORT = global$1.TYPED_ARRAY_SUPPORT !== undefined
-  ? global$1.TYPED_ARRAY_SUPPORT
+Buffer$2.TYPED_ARRAY_SUPPORT = global$2.TYPED_ARRAY_SUPPORT !== undefined
+  ? global$2.TYPED_ARRAY_SUPPORT
   : true;
 
 /*
@@ -5872,10 +5872,10 @@ function defaultClearTimeout () {
 }
 var cachedSetTimeout = defaultSetTimout;
 var cachedClearTimeout = defaultClearTimeout;
-if (typeof global$1.setTimeout === 'function') {
+if (typeof global$2.setTimeout === 'function') {
     cachedSetTimeout = setTimeout;
 }
-if (typeof global$1.clearTimeout === 'function') {
+if (typeof global$2.clearTimeout === 'function') {
     cachedClearTimeout = clearTimeout;
 }
 
@@ -6024,7 +6024,7 @@ function chdir (dir) {
 }function umask() { return 0; }
 
 // from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
-var performance = global$1.performance || {};
+var performance = global$2.performance || {};
 var performanceNow =
   performance.now        ||
   performance.mozNow     ||
@@ -6152,7 +6152,7 @@ function format$1(f) {
 // If --no-deprecation is set, then it is a no-op.
 function deprecate(fn, msg) {
   // Allow for deprecating things in the process of starting up.
-  if (isUndefined(global$1.process)) {
+  if (isUndefined(global$2.process)) {
     return function() {
       return deprecate(fn, msg).apply(this, arguments);
     };
@@ -8500,7 +8500,7 @@ var _polyfillNode_stream = /*#__PURE__*/Object.freeze({
 	Stream: Stream$1
 });
 
-var hasFetch = isFunction(global$1.fetch) && isFunction(global$1.ReadableStream);
+var hasFetch = isFunction(global$2.fetch) && isFunction(global$2.ReadableStream);
 
 var _blobConstructor;
 function blobConstructor() {
@@ -8508,7 +8508,7 @@ function blobConstructor() {
     return _blobConstructor;
   }
   try {
-    new global$1.Blob([new ArrayBuffer(1)]);
+    new global$2.Blob([new ArrayBuffer(1)]);
     _blobConstructor = true;
   } catch (e) {
     _blobConstructor = false;
@@ -8519,10 +8519,10 @@ var xhr;
 
 function checkTypeSupport(type) {
   if (!xhr) {
-    xhr = new global$1.XMLHttpRequest();
+    xhr = new global$2.XMLHttpRequest();
     // If location.host is empty, e.g. if this page/worker was loaded
     // from a Blob, then use example.com to avoid an error
-    xhr.open('GET', global$1.location.host ? '/' : 'https://example.com');
+    xhr.open('GET', global$2.location.host ? '/' : 'https://example.com');
   }
   try {
     xhr.responseType = type;
@@ -8535,8 +8535,8 @@ function checkTypeSupport(type) {
 
 // For some strange reason, Safari 7.0 reports typeof global.ArrayBuffer === 'object'.
 // Safari 7.1 appears to have fixed this bug.
-var haveArrayBuffer = typeof global$1.ArrayBuffer !== 'undefined';
-var haveSlice = haveArrayBuffer && isFunction(global$1.ArrayBuffer.prototype.slice);
+var haveArrayBuffer = typeof global$2.ArrayBuffer !== 'undefined';
+var haveSlice = haveArrayBuffer && isFunction(global$2.ArrayBuffer.prototype.slice);
 
 var arraybuffer = haveArrayBuffer && checkTypeSupport('arraybuffer');
   // These next two tests unavoidably show warnings in Chrome. Since fetch will always
@@ -8545,7 +8545,7 @@ var msstream = !hasFetch && haveSlice && checkTypeSupport('ms-stream');
 var mozchunkedarraybuffer = !hasFetch && haveArrayBuffer &&
   checkTypeSupport('moz-chunked-arraybuffer');
 var overrideMimeType = isFunction(xhr.overrideMimeType);
-var vbArray = isFunction(global$1.VBArray);
+var vbArray = isFunction(global$2.VBArray);
 
 function isFunction(value) {
   return typeof value === 'function'
@@ -8665,7 +8665,7 @@ IncomingMessage.prototype._onXHRProgress = function() {
       break
     try {
       // This fails in IE8
-      response = new global$1.VBArray(xhr.responseBody).toArray();
+      response = new global$2.VBArray(xhr.responseBody).toArray();
     } catch (e) {
       // pass
     }
@@ -8711,7 +8711,7 @@ IncomingMessage.prototype._onXHRProgress = function() {
     response = xhr.response;
     if (xhr.readyState !== rStates.LOADING)
       break
-    var reader = new global$1.MSStreamReader();
+    var reader = new global$2.MSStreamReader();
     reader.onprogress = function() {
       if (reader.result.byteLength > self._pos) {
         self.push(new Buffer$2(new Uint8Array(reader.result.slice(self._pos))));
@@ -8875,7 +8875,7 @@ ClientRequest.prototype._onFinish = function() {
   var body;
   if (opts.method === 'POST' || opts.method === 'PUT' || opts.method === 'PATCH') {
     if (blobConstructor()) {
-      body = new global$1.Blob(self._body.map(function(buffer) {
+      body = new global$2.Blob(self._body.map(function(buffer) {
         return toArrayBuffer(buffer)
       }), {
         type: (headersObj['content-type'] || {}).value || ''
@@ -8891,7 +8891,7 @@ ClientRequest.prototype._onFinish = function() {
       return [headersObj[name].name, headersObj[name].value]
     });
 
-    global$1.fetch(self._opts.url, {
+    global$2.fetch(self._opts.url, {
       method: self._opts.method,
       headers: headers,
       body: body,
@@ -8904,7 +8904,7 @@ ClientRequest.prototype._onFinish = function() {
       self.emit('error', reason);
     });
   } else {
-    var xhr = self._xhr = new global$1.XMLHttpRequest();
+    var xhr = self._xhr = new global$2.XMLHttpRequest();
     try {
       xhr.open(self._opts.method, self._opts.url, true);
     } catch (err) {
@@ -10419,7 +10419,7 @@ function request$1(opts, cb) {
   // Normally, the page is loaded from http or https, so not specifying a protocol
   // will result in a (valid) protocol-relative url. However, this won't work if
   // the protocol is something else, like 'file:'
-  var defaultProtocol = global$1.location.protocol.search(/^https?:$/) === -1 ? 'http:' : '';
+  var defaultProtocol = global$2.location.protocol.search(/^https?:$/) === -1 ? 'http:' : '';
 
   var protocol = opts.protocol || defaultProtocol;
   var host = opts.hostname || opts.host;
@@ -90336,7 +90336,7 @@ function request(opts, cb) {
   // Normally, the page is loaded from http or https, so not specifying a protocol
   // will result in a (valid) protocol-relative url. However, this won't work if
   // the protocol is something else, like 'file:'
-  var defaultProtocol = global$1.location.protocol.search(/^https?:$/) === -1 ? 'http:' : '';
+  var defaultProtocol = global$2.location.protocol.search(/^https?:$/) === -1 ? 'http:' : '';
 
   var protocol = opts.protocol || defaultProtocol;
   var host = opts.hostname || opts.host;
@@ -105670,8 +105670,8 @@ function endianness() {
 }
 
 function hostname() {
-  if (typeof global$1.location !== 'undefined') {
-    return global$1.location.hostname
+  if (typeof global$2.location !== 'undefined') {
+    return global$2.location.hostname
   } else return '';
 }
 
@@ -105700,8 +105700,8 @@ function type() {
 }
 
 function release () {
-  if (typeof global$1.navigator !== 'undefined') {
-    return global$1.navigator.appVersion;
+  if (typeof global$2.navigator !== 'undefined') {
+    return global$2.navigator.appVersion;
   }
   return '';
 }
@@ -140580,7 +140580,8 @@ var bn = {exports: {}};
 	
 } (lib));
 
-window._crossFetch = fetch;
+var global$1 = typeof global$1 !== "undefined" ? global$1 : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
+global$1._crossFetch = fetch;
 const Buffer$1 = require$$0$9.Buffer;
 const BN = bn$2.exports;
 const ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
