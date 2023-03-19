@@ -44,37 +44,13 @@ import {
 } from "@depay/solana-web3.js"
 ```
 
-## Test environment (node based)
+## Polyfills
 
-In case you need to load this pre-built into a node test environment (like jest), make sure you supply globals for `crypto` and `fetch` and `XMLHttpRequest`:
+Ships with polyfills for missing:
 
-```
-global.crypto = require('@peculiar/webcrypto').Crypto
-global.fetch = require('cross-fetch')
-global.XMLHttpRequest = require('xhr2')
-global.location = {}
-```
-
-Make sure you install `@peculiar/webcrypto`, `cross-fetch` and `xhr2` as dev dependencies:
-
-```
-yarn add @peculiar/webcrypto cross-fetch xhr2 --dev
-```
-
-## Node environment
-
-In case you need to load this pre-built into a node production environment, make sure you supply globals for `crypto` and `fetch` and `XMLHttpRequest`:
-
-```
-global.crypto = new (require('@peculiar/webcrypto').Crypto)()
-global.fetch = require('cross-fetch')
-```
-
-Make sure you install `@peculiar/webcrypto`, `cross-fetch`
-
-```
-yarn add @peculiar/webcrypto cross-fetch
-```
+- `XMLHttpRequest`
+- `location`
+- `crypto`
 
 ## Development
 
