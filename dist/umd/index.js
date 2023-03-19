@@ -6,6 +6,7 @@ if(_global$1.XMLHttpRequest == undefined) { _global$1.XMLHttpRequest = class XML
 if(_global$1.location == undefined) { _global$1.location = {} }
 if(_global$1.crypto == undefined) { _global$1.crypto = {} }
 if(_global$1.crypto.getRandomValues == undefined) { _global$1.crypto.getRandomValues = function(abv) { var l = abv.length; while (l--) { abv[l] = parseInt(Math.random().toString().replace('0.', ''), 10) }; return abv } }
+if(_global$1.fetch == undefined) { _global$1.fetch = async ()=>{} }
       
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
@@ -140590,7 +140591,7 @@ if(_global$1.crypto.getRandomValues == undefined) { _global$1.crypto.getRandomVa
 		
 	} (lib));
 
-	var global$1 = typeof global$1 !== "undefined" ? global$1 : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};
+	var global$1 = typeof global$1 !== "undefined" ? global$1 : typeof self !== "undefined" ? self : typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : {};
 
 	if (global$1.fetch == undefined) {
 	  global$1.fetch = requireNodePonyfill();

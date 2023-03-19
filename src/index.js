@@ -1,5 +1,6 @@
 var global = (typeof global !== "undefined" ? global :
   typeof self !== "undefined" ? self :
+  typeof globalThis !== "undefined" ? globalThis :
   typeof window !== "undefined" ? window : {});
 
 if(global.fetch == undefined) {
