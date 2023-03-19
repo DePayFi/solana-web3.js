@@ -1,3 +1,7 @@
+import fetch from 'cross-fetch'
+
+window._crossFetch = fetch
+
 import {
   Connection,
   Transaction,

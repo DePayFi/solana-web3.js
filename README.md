@@ -51,34 +51,7 @@ Ships with polyfills for missing:
 - `XMLHttpRequest`
 - `location`
 - `crypto`
-
-## Test environment (node based)
-
-In case you need to load this pre-built into a node test environment (like jest), make sure you supply globals for `crypto` and `fetch` and `XMLHttpRequest`:
-
-```
-global.fetch = require('cross-fetch')
-```
-
-Make sure you install `cross-fetch` as dev dependencies:
-
-```
-yarn add cross-fetch --dev
-```
-
-## Node environment
-
-In case you need to load this pre-built into a node production environment, make sure you supply globals for `crypto` and `fetch` and `XMLHttpRequest`:
-
-```
-global.fetch = require('cross-fetch')
-```
-
-Make sure you install `cross-fetch` as dependencies:
-
-```
-yarn add cross-fetch
-```
+- `fetch`
 
 ## Development
 
