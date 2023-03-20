@@ -86,6 +86,8 @@ if (!globalThis.fetch) {
 
 https://github.com/node-fetch/node-fetch
 
+Example: https://github.com/DePayFi/web3-mock/blob/main/tests/setup.js
+
 
 ## Development
 
