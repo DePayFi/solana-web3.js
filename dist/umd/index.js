@@ -37,8 +37,6 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 		return a;
 	}
 
-	var nodePonyfill = {exports: {}};
-
 	var domain;
 
 	// This constructor is used to store event handlers. Instantiating this is
@@ -94788,6 +94786,20 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 	};
 
 	/**
+	 * isSameProtocol reports whether the two provided URLs use the same protocol.
+	 *
+	 * Both domains must already be in canonical form.
+	 * @param {string|URL} original
+	 * @param {string|URL} destination
+	 */
+	const isSameProtocol = function isSameProtocol(destination, original) {
+		const orig = new URL$1$1(original).protocol;
+		const dest = new URL$1$1(destination).protocol;
+
+		return orig === dest;
+	};
+
+	/**
 	 * Fetch function
 	 *
 	 * @param   Mixed    url   Absolute url or Request instance
@@ -94818,7 +94830,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 				let error = new AbortError('The user aborted a request.');
 				reject(error);
 				if (request.body && request.body instanceof Stream$1.Readable) {
-					request.body.destroy(error);
+					destroyStream(request.body, error);
 				}
 				if (!response || !response.body) return;
 				response.body.emit('error', error);
@@ -94859,8 +94871,42 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 
 			req.on('error', function (err) {
 				reject(new FetchError(`request to ${request.url} failed, reason: ${err.message}`, 'system', err));
+
+				if (response && response.body) {
+					destroyStream(response.body, err);
+				}
+
 				finalize();
 			});
+
+			fixResponseChunkedTransferBadEnding(req, function (err) {
+				if (signal && signal.aborted) {
+					return;
+				}
+
+				if (response && response.body) {
+					destroyStream(response.body, err);
+				}
+			});
+
+			/* c8 ignore next 18 */
+			if (parseInt(process.version.substring(1)) < 14) {
+				// Before Node.js 14, pipeline() does not fully support async iterators and does not always
+				// properly handle when the socket close/end events are out of order.
+				req.on('socket', function (s) {
+					s.addListener('close', function (hadError) {
+						// if a data listener is still present we didn't end cleanly
+						const hasDataListener = s.listenerCount('data') > 0;
+
+						// if end happened before close but the socket didn't emit an error, do it now
+						if (response && hasDataListener && !hadError && !(signal && signal.aborted)) {
+							const err = new Error('Premature close');
+							err.code = 'ERR_STREAM_PREMATURE_CLOSE';
+							response.body.emit('error', err);
+						}
+					});
+				});
+			}
 
 			req.on('response', function (res) {
 				clearTimeout(reqTimeout);
@@ -94933,7 +94979,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 								size: request.size
 							};
 
-							if (!isDomainOrSubdomain(request.url, locationURL)) {
+							if (!isDomainOrSubdomain(request.url, locationURL) || !isSameProtocol(request.url, locationURL)) {
 								for (const name of ['authorization', 'www-authenticate', 'cookie', 'cookie2']) {
 									requestOpts.headers.delete(name);
 								}
@@ -95026,6 +95072,13 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 						response = new Response(body, response_options);
 						resolve(response);
 					});
+					raw.on('end', function () {
+						// some old IIS servers return zero-length OK deflate responses, so 'data' is never emitted.
+						if (!response) {
+							response = new Response(body, response_options);
+							resolve(response);
+						}
+					});
 					return;
 				}
 
@@ -95045,6 +95098,41 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 			writeToStream(req, request);
 		});
 	}
+	function fixResponseChunkedTransferBadEnding(request, errorCallback) {
+		let socket;
+
+		request.on('socket', function (s) {
+			socket = s;
+		});
+
+		request.on('response', function (response) {
+			const headers = response.headers;
+
+			if (headers['transfer-encoding'] === 'chunked' && !headers['content-length']) {
+				response.once('close', function (hadError) {
+					// if a data listener is still present we didn't end cleanly
+					const hasDataListener = socket.listenerCount('data') > 0;
+
+					if (hasDataListener && !hadError) {
+						const err = new Error('Premature close');
+						err.code = 'ERR_STREAM_PREMATURE_CLOSE';
+						errorCallback(err);
+					}
+				});
+			}
+		});
+	}
+
+	function destroyStream(stream, err) {
+		if (stream.destroy) {
+			stream.destroy(err);
+		} else {
+			// node < 8
+			stream.emit('error', err);
+			stream.end();
+		}
+	}
+
 	/**
 	 * Redirect code matching
 	 *
@@ -95068,38 +95156,6 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 	});
 
 	var require$$0$7 = /*@__PURE__*/getAugmentedNamespace(lib$3);
-
-	var hasRequiredNodePonyfill;
-
-	function requireNodePonyfill () {
-		if (hasRequiredNodePonyfill) return nodePonyfill.exports;
-		hasRequiredNodePonyfill = 1;
-		(function (module, exports) {
-			const nodeFetch = require$$0$7;
-			const realFetch = nodeFetch.default || nodeFetch;
-
-			const fetch = function (url, options) {
-			  // Support schemaless URIs on the server for parity with the browser.
-			  // Ex: //github.com/ -> https://github.com/
-			  if (/^\/\//.test(url)) {
-			    url = 'https:' + url;
-			  }
-			  return realFetch.call(this, url, options)
-			};
-
-			fetch.ponyfill = true;
-
-			module.exports = exports = fetch;
-			exports.fetch = fetch;
-			exports.Headers = nodeFetch.Headers;
-			exports.Request = nodeFetch.Request;
-			exports.Response = nodeFetch.Response;
-
-			// Needed for TypeScript consumers without esModuleInterop.
-			exports.default = fetch;
-	} (nodePonyfill, nodePonyfill.exports));
-		return nodePonyfill.exports;
-	}
 
 	var require$$1$4 = /*@__PURE__*/getAugmentedNamespace(_polyfillNode_buffer);
 
@@ -140594,7 +140650,7 @@ if(_global$1.fetch == undefined) { _global$1.fetch = (...args)=>{ return _global
 	var global$1 = typeof global$1 !== "undefined" ? global$1 : typeof self !== "undefined" ? self : typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : {};
 
 	if (global$1._polyfillFetch) {
-	  global$1.fetch = requireNodePonyfill();
+	  global$1.fetch = require$$0$7;
 	}
 	const Buffer$1 = require$$1$4.Buffer;
 	const BN = bn$2.exports;

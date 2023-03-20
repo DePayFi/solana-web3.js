@@ -4,7 +4,7 @@ var global = (typeof global !== "undefined" ? global :
   typeof window !== "undefined" ? window : {});
 
 if(global._polyfillFetch) {
-  global.fetch = require('cross-fetch')
+  global.fetch = require('node-fetch')
 }
 
 import {
