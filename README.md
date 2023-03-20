@@ -51,7 +51,41 @@ Ships with polyfills for missing:
 - `XMLHttpRequest`
 - `location`
 - `crypto`
-- `fetch`
+
+### polyfill fetch
+
+If you see the following error:
+
+```
+Please polyfill .fetch | See: https://github.com/DePayFi/solana-web3.js#polyfill-fetch
+```
+
+You will need to add `node-fetch` to your environment and make sure `global.fetch` is polyfilled before executing this library:
+
+```javascript
+import fetch, {
+  Blob,
+  blobFrom,
+  blobFromSync,
+  File,
+  fileFrom,
+  fileFromSync,
+  FormData,
+  Headers,
+  Request,
+  Response,
+} from 'node-fetch'
+
+if (!globalThis.fetch) {
+  globalThis.fetch = fetch
+  globalThis.Headers = Headers
+  globalThis.Request = Request
+  globalThis.Response = Response
+}
+```
+
+https://github.com/node-fetch/node-fetch
+
 
 ## Development
 
