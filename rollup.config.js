@@ -55,9 +55,8 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
     nodePolyfills(),
     resolve(),
     babel({
-      exclude: '**/node_modules/**',
-      extensions: ['.js','.ts'],
-      babelHelpers: 'bundled'
+      babelHelpers: 'bundled',
+      presets: ["@babel/preset-env"]
     }),
     nodeResolve({
       browser: true,
