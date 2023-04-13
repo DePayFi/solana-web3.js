@@ -1,6 +1,7 @@
 import {
   Connection,
   Transaction,
+  TransactionMessage,
   VersionedTransaction,
   TransactionInstruction,
   SystemProgram,
@@ -57,8 +58,9 @@ const ACCOUNT_LAYOUT = struct([
 
 export {
   Connection,
-  VersionedTransaction,
   Transaction,
+  TransactionMessage,
+  VersionedTransaction,
   TransactionInstruction,
   SystemProgram,
   LAMPORTS_PER_SOL,

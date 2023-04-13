@@ -30379,6 +30379,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	exports.SystemProgram = SystemProgram;
 	exports.Transaction = Transaction;
 	exports.TransactionInstruction = TransactionInstruction;
+	exports.TransactionMessage = TransactionMessage;
 	exports.VersionedTransaction = VersionedTransaction;
 	exports.array = lib.array;
 	exports.blob = blob;

@@ -9,8 +9,9 @@ yarn add "@depay/solana-web3.js"
 ```
 import {
   Connection,
-  VersionedTransaction,
   Transaction,
+  TransactionMessage,
+  VersionedTransaction,
   TransactionInstruction,
   SystemProgram,
   LAMPORTS_PER_SOL,
