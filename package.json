@@ -1,7 +1,7 @@
 {
   "name": "@depay/solana-web3.js",
   "moduleName": "SolanaWeb3js",
-  "version": "1.20.15",
+  "version": "1.21.0",
   "description": "Solana Web3.js browser pre-built usable in rollup bundles.",
   "main": "dist/umd/index.js",
   "module": "dist/esm/index.js",
@@ -33,7 +33,7 @@
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",
     "@rollup/plugin-sucrase": "^4.0.4",
-    "@solana/web3.js": "^1.47.3",
+    "@solana/web3.js": "^1.75.0",
     "bigint-buffer": "^1.1.5",
     "bn.js": "^5.0.0",
     "borsh": "^0.7.0",
