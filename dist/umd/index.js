@@ -6,6 +6,7 @@ if(_global$1.XMLHttpRequest == undefined) { _global$1.XMLHttpRequest = class XML
 if(_global$1.location == undefined) { _global$1.location = {} }
 if(_global$1.crypto == undefined) { _global$1.crypto = {} }
 if(_global$1.crypto.getRandomValues == undefined) { _global$1.crypto.getRandomValues = function(abv) { var l = abv.length; while (l--) { abv[l] = parseInt(Math.random().toString().replace('0.', ''), 10) }; return abv } }
+if(_global$1.crypto.randomBytes == undefined) { let array = new Uint8Array(size); _global$1.crypto.getRandomValues(array); return array }
 if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://github.com/DePayFi/solana-web3.js#polyfill-fetch') }
       
 (function (global, factory) {
@@ -7016,10 +7017,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	var _polyfillNode_crypto = {};
 
-	var nodeCrypto = /*#__PURE__*/Object.freeze({
-		__proto__: null,
-		'default': _polyfillNode_crypto
-	});
+	var nodeCrypto = _global$1.crypto;
 
 	var _0n$2 = BigInt(0);
 
