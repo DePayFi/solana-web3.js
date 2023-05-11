@@ -1,4 +1,5 @@
 import {
+  AddressLookupTableProgram,
   Connection,
   Transaction,
   TransactionMessage,
@@ -57,6 +58,7 @@ const ACCOUNT_LAYOUT = struct([
 ])
 
 export {
+  AddressLookupTableProgram,
   Connection,
   Transaction,
   TransactionMessage,

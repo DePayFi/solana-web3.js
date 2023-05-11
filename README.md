@@ -8,6 +8,7 @@ yarn add "@depay/solana-web3.js"
 
 ```
 import {
+  AddressLookupTableProgram,
   Connection,
   Transaction,
   TransactionMessage,
