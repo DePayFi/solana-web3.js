@@ -40695,6 +40695,8 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	exports.i64 = lib.i64;
 	exports.i8 = lib.i8;
 	exports.map = lib.map;
+	exports.nu64 = lib.nu64;
+	exports.offset = lib.offset;
 	exports.option = lib.option;
 	exports.publicKey = lib.publicKey;
 	exports.rustEnum = lib.rustEnum;

@@ -28,6 +28,7 @@ import {
   i32,
   u64,
   i64,
+  nu64,
   u128,
   i128,
   publicKey,
@@ -41,6 +42,7 @@ import {
   rustEnum,
   array,
   map,
+  offset,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([
@@ -76,11 +78,13 @@ export {
   i32,
   u64,
   i64,
+  nu64,
   u128,
   i128,
   publicKey,
   struct,
   option,
+  offset,
   bool,
   vec,
   vecU8,
