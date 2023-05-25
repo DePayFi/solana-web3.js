@@ -14,6 +14,8 @@ import {
 import {
   seq,
   blob,
+  nu64,
+  offset,
 } from "buffer-layout"
 
 const Buffer = require('buffer/').Buffer
@@ -28,7 +30,6 @@ import {
   i32,
   u64,
   i64,
-  nu64,
   u128,
   i128,
   publicKey,
@@ -42,7 +43,6 @@ import {
   rustEnum,
   array,
   map,
-  offset,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([

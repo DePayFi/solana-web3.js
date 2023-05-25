@@ -9794,7 +9794,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	Object.defineProperty(Layout$3, "__esModule", {
 	  value: true
 	});
-	Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
+	Layout$3.s16 = Layout$3.s8 = Layout$3.nu64be = Layout$3.u48be = Layout$3.u40be = Layout$3.u32be = Layout$3.u24be = Layout$3.u16be = nu64$1 = Layout$3.nu64 = Layout$3.u48 = Layout$3.u40 = u32 = Layout$3.u32 = Layout$3.u24 = u16 = Layout$3.u16 = u8 = Layout$3.u8 = offset$1 = Layout$3.offset = Layout$3.greedy = Layout$3.Constant = Layout$3.UTF8 = Layout$3.CString = Layout$3.Blob = Layout$3.Boolean = Layout$3.BitField = Layout$3.BitStructure = Layout$3.VariantLayout = Layout$3.Union = Layout$3.UnionLayoutDiscriminator = Layout$3.UnionDiscriminator = Layout$3.Structure = Layout$3.Sequence = Layout$3.DoubleBE = Layout$3.Double = Layout$3.FloatBE = Layout$3.Float = Layout$3.NearInt64BE = Layout$3.NearInt64 = Layout$3.NearUInt64BE = Layout$3.NearUInt64 = Layout$3.IntBE = Layout$3.Int = Layout$3.UIntBE = Layout$3.UInt = Layout$3.OffsetLayout = Layout$3.GreedyCount = Layout$3.ExternalLayout = Layout$3.bindConstructorLayout = Layout$3.nameWithProperty = Layout$3.Layout = Layout$3.uint8ArrayToBuffer = Layout$3.checkUint8Array = void 0;
 	Layout$3.constant = Layout$3.utf8 = Layout$3.cstr = blob$1 = Layout$3.blob = Layout$3.unionLayoutDiscriminator = Layout$3.union = seq$1 = Layout$3.seq = Layout$3.bits = struct = Layout$3.struct = Layout$3.f64be = Layout$3.f64 = Layout$3.f32be = Layout$3.f32 = Layout$3.ns64be = Layout$3.s48be = Layout$3.s40be = Layout$3.s32be = Layout$3.s24be = Layout$3.s16be = ns64 = Layout$3.ns64 = Layout$3.s48 = Layout$3.s40 = Layout$3.s32 = Layout$3.s24 = void 0;
 	var buffer_1 = require$$0$1;
 	/* Check if a value is a Uint8Array.
@@ -12915,7 +12915,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	/** Factory for {@link OffsetLayout}. */
 
 
-	var offset = Layout$3.offset = function (layout, offset, property) {
+	var offset$1 = Layout$3.offset = function (layout, offset, property) {
 	  return new OffsetLayout$1(layout, offset, property);
 	};
 	/** Factory for {@link UInt|unsigned int layouts} spanning one
@@ -12964,7 +12964,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	 * layouts} interpreted as Numbers. */
 
 
-	var nu64 = Layout$3.nu64 = function (property) {
+	var nu64$1 = Layout$3.nu64 = function (property) {
 	  return new NearUInt64$1(property);
 	};
 	/** Factory for {@link UInt|big-endian unsigned int layouts}
@@ -19499,7 +19499,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	var rustString = function rustString() {
 	  var property = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'string';
-	  var rsl = struct([u32('length'), u32('lengthPadding'), blob$1(offset(u32(), -8), 'chars')], property);
+	  var rsl = struct([u32('length'), u32('lengthPadding'), blob$1(offset$1(u32(), -8), 'chars')], property);
 
 	  var _decode = rsl.decode.bind(rsl);
 
@@ -21766,7 +21766,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	 */
 
 
-	var FeeCalculatorLayout = nu64('lamportsPerSignature');
+	var FeeCalculatorLayout = nu64$1('lamportsPerSignature');
 	/**
 	 * Calculator for transaction fees.
 	 *
@@ -22681,7 +22681,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	    key: "load",
 	    value: function () {
 	      var _load = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(connection, payer, program, programId, data) {
-	        var balanceNeeded, programInfo, transaction, dataLayout, chunkSize, offset$1, array, transactions, bytes, _data, _transaction, REQUESTS_PER_SECOND, _dataLayout, _data2, _transaction2;
+	        var balanceNeeded, programInfo, transaction, dataLayout, chunkSize, offset, array, transactions, bytes, _data, _transaction, REQUESTS_PER_SECOND, _dataLayout, _data2, _transaction2;
 
 	        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
 	          while (1) switch (_context5.prev = _context5.next) {
@@ -22761,9 +22761,9 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	              });
 
 	            case 20:
-	              dataLayout = struct([u32('instruction'), u32('offset'), u32('bytesLength'), u32('bytesLengthPadding'), seq$1(u8('byte'), offset(u32(), -8), 'bytes')]);
+	              dataLayout = struct([u32('instruction'), u32('offset'), u32('bytesLength'), u32('bytesLengthPadding'), seq$1(u8('byte'), offset$1(u32(), -8), 'bytes')]);
 	              chunkSize = Loader.chunkSize;
-	              offset$1 = 0;
+	              offset = 0;
 	              array = data;
 	              transactions = [];
 
@@ -22778,7 +22778,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	              dataLayout.encode({
 	                instruction: 0,
 	                // Load instruction
-	                offset: offset$1,
+	                offset: offset,
 	                bytes: bytes,
 	                bytesLength: 0,
 	                bytesLengthPadding: 0
@@ -22806,7 +22806,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	              return sleep(1000 / REQUESTS_PER_SECOND);
 
 	            case 35:
-	              offset$1 += chunkSize;
+	              offset += chunkSize;
 	              array = array.slice(chunkSize);
 	              _context5.next = 25;
 	              break;
@@ -23352,8 +23352,8 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	var LookupTableMetaLayout = {
 	  index: 1,
-	  layout: struct([u32('typeIndex'), u64('deactivationSlot'), nu64('lastExtendedSlot'), u8('lastExtendedStartIndex'), u8(), // option
-	  seq$1(publicKey(), offset(u8(), -1), 'authority')])
+	  layout: struct([u32('typeIndex'), u64('deactivationSlot'), nu64$1('lastExtendedSlot'), u8('lastExtendedStartIndex'), u8(), // option
+	  seq$1(publicKey(), offset$1(u8(), -1), 'authority')])
 	};
 	var URL_RE = /^[^:]+:\/\/([^:[]+|\[[^\]]+\])(:\d+)?(.*)/i;
 
@@ -30902,7 +30902,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	  },
 	  ExtendLookupTable: {
 	    index: 2,
-	    layout: struct([u32('instruction'), u64(), seq$1(publicKey(), offset(u32(), -8), 'addresses')])
+	    layout: struct([u32('instruction'), u64(), seq$1(publicKey(), offset$1(u32(), -8), 'addresses')])
 	  },
 	  DeactivateLookupTable: {
 	    index: 3,
@@ -33030,10 +33030,10 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	 * @internal
 	 */
 
-	var VoteAccountLayout = struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64(), // votes.length
-	seq$1(struct([nu64('slot'), u32('confirmationCount')]), offset(u32(), -8), 'votes'), u8('rootSlotValid'), nu64('rootSlot'), nu64(), // authorizedVoters.length
-	seq$1(struct([nu64('epoch'), publicKey('authorizedVoter')]), offset(u32(), -8), 'authorizedVoters'), struct([seq$1(struct([publicKey('authorizedPubkey'), nu64('epochOfLastAuthorizedSwitch'), nu64('targetEpoch')]), 32, 'buf'), nu64('idx'), u8('isEmpty')], 'priorVoters'), nu64(), // epochCredits.length
-	seq$1(struct([nu64('epoch'), nu64('credits'), nu64('prevCredits')]), offset(u32(), -8), 'epochCredits'), struct([nu64('slot'), nu64('timestamp')], 'lastTimestamp')]);
+	var VoteAccountLayout = struct([publicKey('nodePubkey'), publicKey('authorizedWithdrawer'), u8('commission'), nu64$1(), // votes.length
+	seq$1(struct([nu64$1('slot'), u32('confirmationCount')]), offset$1(u32(), -8), 'votes'), u8('rootSlotValid'), nu64$1('rootSlot'), nu64$1(), // authorizedVoters.length
+	seq$1(struct([nu64$1('epoch'), publicKey('authorizedVoter')]), offset$1(u32(), -8), 'authorizedVoters'), struct([seq$1(struct([publicKey('authorizedPubkey'), nu64$1('epochOfLastAuthorizedSwitch'), nu64$1('targetEpoch')]), 32, 'buf'), nu64$1('idx'), u8('isEmpty')], 'priorVoters'), nu64$1(), // epochCredits.length
+	seq$1(struct([nu64$1('epoch'), nu64$1('credits'), nu64$1('prevCredits')]), offset$1(u32(), -8), 'epochCredits'), struct([nu64$1('slot'), nu64$1('timestamp')], 'lastTimestamp')]);
 	/**
 	 * VoteAccount class
 	 */
@@ -36579,7 +36579,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	/** Factory for {@link OffsetLayout}. */
 
 
-	Layout$1.offset = function (layout, offset, property) {
+	var offset = Layout$1.offset = function (layout, offset, property) {
 	  return new OffsetLayout(layout, offset, property);
 	};
 	/** Factory for {@link UInt|unsigned int layouts} spanning one
@@ -36628,7 +36628,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	 * layouts} interpreted as Numbers. */
 
 
-	Layout$1.nu64 = function (property) {
+	var nu64 = Layout$1.nu64 = function (property) {
 	  return new NearUInt64(property);
 	};
 	/** Factory for {@link UInt|big-endian unsigned int layouts}
@@ -40695,8 +40695,8 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	exports.i64 = lib.i64;
 	exports.i8 = lib.i8;
 	exports.map = lib.map;
-	exports.nu64 = lib.nu64;
-	exports.offset = lib.offset;
+	exports.nu64 = nu64;
+	exports.offset = offset;
 	exports.option = lib.option;
 	exports.publicKey = lib.publicKey;
 	exports.rustEnum = lib.rustEnum;
