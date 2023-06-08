@@ -18,6 +18,9 @@ import {
   offset,
 } from "buffer-layout"
 
+const Web3MobileWallet = require("@solana-mobile/mobile-wallet-adapter-protocol-web3js").Web3MobileWallet
+const transact = require("@solana-mobile/mobile-wallet-adapter-protocol-web3js").transact
+
 const Buffer = require('buffer/').Buffer
 const BN = require('bn.js')
 
@@ -98,4 +101,6 @@ export {
   Buffer,
   BN,
   Keypair,
+  transact,
+  Web3MobileWallet,
 }

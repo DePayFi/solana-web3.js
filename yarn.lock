@@ -1204,6 +1204,20 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
+"@solana-mobile/mobile-wallet-adapter-protocol-web3js@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@solana-mobile/mobile-wallet-adapter-protocol-web3js/-/mobile-wallet-adapter-protocol-web3js-2.0.0.tgz#5433705c174f59a177280f85396df051711be09d"
+  integrity sha512-cMADp/UIAN42QJVCM1oyj1wFM/9DTZNIa5z5eHXUXBksw/bNv2fWkiO+4ZUoQj1P4UoMoZJUBx9+qMVl18sPOA==
+  dependencies:
+    "@solana-mobile/mobile-wallet-adapter-protocol" "^2.0.0"
+    bs58 "^5.0.0"
+    js-base64 "^3.7.2"
+
+"@solana-mobile/mobile-wallet-adapter-protocol@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@solana-mobile/mobile-wallet-adapter-protocol/-/mobile-wallet-adapter-protocol-2.0.0.tgz#75a3e8163544f659803260cb1dd7aede6da96b36"
+  integrity sha512-mLK9B/AQgOxzbdRoOMH3G5wB5akWgGSBoVqIZ/6iDWY37uu/CuyX4lTwRyoRlOb8Cxs/tDwiovIGobkti2qF/w==
+
 "@solana/buffer-layout@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@solana/buffer-layout/-/buffer-layout-4.0.0.tgz#75b1b11adc487234821c81dfae3119b73a5fd734"
@@ -1363,6 +1377,11 @@ base-x@^3.0.2:
   dependencies:
     safe-buffer "^5.0.1"
 
+base-x@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/base-x/-/base-x-4.0.0.tgz#d0e3b7753450c73f8ad2389b5c018a4af7b2224a"
+  integrity sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==
+
 base64-js@^1.3.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
@@ -1445,6 +1464,13 @@ bs58@^4.0.0, bs58@^4.0.1:
   integrity sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==
   dependencies:
     base-x "^3.0.2"
+
+bs58@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/bs58/-/bs58-5.0.0.tgz#865575b4d13c09ea2a84622df6c8cbeb54ffc279"
+  integrity sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==
+  dependencies:
+    base-x "^4.0.0"
 
 buffer-layout@^1.2.0:
   version "1.2.2"
@@ -1807,6 +1833,11 @@ jayson@^3.4.4:
     lodash "^4.17.20"
     uuid "^8.3.2"
     ws "^7.4.5"
+
+js-base64@^3.7.2:
+  version "3.7.5"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-3.7.5.tgz#21e24cf6b886f76d6f5f165bfcd69cc55b9e3fca"
+  integrity sha512-3MEt5DTINKqfScXKfJFrRbxkrnk2AxPWGBL/ycjz4dK8iqiSJ06UxD8jh8xuh6p10TX4t2+7FsBYVxxQbMg+qA==
 
 js-sha3@^0.8.0:
   version "0.8.0"

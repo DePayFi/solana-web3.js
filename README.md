@@ -45,7 +45,9 @@ import {
   blob,
   Buffer,
   BN,
-  Keypair
+  Keypair,
+  transact,
+  Web3MobileWallet
 } from "@depay/solana-web3.js"
 ```
 
