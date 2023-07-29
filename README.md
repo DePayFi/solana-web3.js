@@ -47,7 +47,9 @@ import {
   BN,
   Keypair,
   transact,
-  Web3MobileWallet
+  Web3MobileWallet,
+  bs58,
+  deserialize
 } from "@depay/solana-web3.js"
 ```
 

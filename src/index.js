@@ -23,6 +23,7 @@ const transact = require("@solana-mobile/mobile-wallet-adapter-protocol-web3js")
 
 const Buffer = require('buffer/').Buffer
 const BN = require('bn.js')
+const bs58 = require('bs58')
 
 import {
   u8,
@@ -46,6 +47,7 @@ import {
   rustEnum,
   array,
   map,
+  deserialize,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([
@@ -103,4 +105,6 @@ export {
   Keypair,
   transact,
   Web3MobileWallet,
+  bs58,
+  deserialize,
 }
