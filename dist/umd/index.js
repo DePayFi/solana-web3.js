@@ -42401,7 +42401,6 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	exports.blob = blob;
 	exports.bool = lib.bool;
 	exports.bs58 = bs58;
-	exports.deserialize = lib.deserialize;
 	exports.i128 = lib.i128;
 	exports.i16 = lib.i16;
 	exports.i32 = lib.i32;

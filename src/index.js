@@ -47,7 +47,6 @@ import {
   rustEnum,
   array,
   map,
-  deserialize,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([
@@ -106,5 +105,4 @@ export {
   transact,
   Web3MobileWallet,
   bs58,
-  deserialize,
 }

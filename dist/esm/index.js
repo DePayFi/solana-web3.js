@@ -42379,7 +42379,6 @@ var ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), 
 
 var array$1 = lib.array;
 var bool$1 = lib.bool;
-var deserialize$1 = lib.deserialize;
 var i128 = lib.i128;
 var i16 = lib.i16;
 var i32 = lib.i32;
@@ -42399,4 +42398,4 @@ var u64$3 = lib.u64;
 var u8$1 = lib.u8;
 var vec = lib.vec;
 var vecU8 = lib.vecU8;
-export { ACCOUNT_LAYOUT, AddressLookupTableProgram, BN, Buffer, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionInstruction, TransactionMessage, VersionedTransaction, Web3MobileWallet, array$1 as array, blob, bool$1 as bool, bs58, deserialize$1 as deserialize, i128, i16, i32, i64, i8, map, nu64, offset, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, transact, u128, u16$1 as u16, u32$2 as u32, u64$3 as u64, u8$1 as u8, vec, vecU8 };
+export { ACCOUNT_LAYOUT, AddressLookupTableProgram, BN, Buffer, Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionInstruction, TransactionMessage, VersionedTransaction, Web3MobileWallet, array$1 as array, blob, bool$1 as bool, bs58, i128, i16, i32, i64, i8, map, nu64, offset, option, publicKey$1 as publicKey, rustEnum, seq, str, struct$1 as struct, tagged, transact, u128, u16$1 as u16, u32$2 as u32, u64$3 as u64, u8$1 as u8, vec, vecU8 };
