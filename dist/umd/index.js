@@ -18846,7 +18846,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	  byteToHex.push((i + 0x100).toString(16).substr(1));
 	}
 
-	function stringify$1(arr) {
+	function stringify(arr) {
 	  var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0; // Note: Be careful editing this code!  It's been tuned for performance
 	  // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
 
@@ -18952,7 +18952,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	    b[i + n] = node[n];
 	  }
 
-	  return buf || stringify$1(b);
+	  return buf || stringify(b);
 	}
 
 	function parse(uuid) {
@@ -19035,7 +19035,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	      return buf;
 	    }
 
-	    return stringify$1(bytes);
+	    return stringify(bytes);
 	  } // Function#name is not settable on some platforms (#270)
 
 
@@ -19283,7 +19283,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	    return buf;
 	  }
 
-	  return stringify$1(rnds);
+	  return stringify(rnds);
 	}
 
 	// Adapted from Chris Veness' SHA1 code at
@@ -19403,7 +19403,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 		NIL: nil,
 		version: version,
 		validate: validate,
-		stringify: stringify$1,
+		stringify: stringify,
 		parse: parse
 	});
 
@@ -27040,100 +27040,110 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 	}
 
-	var objToString = Object.prototype.toString;
+	var fastStableStringify$1;
+	var hasRequiredFastStableStringify;
 
-	var objKeys = Object.keys || function (obj) {
-	  var keys = [];
+	function requireFastStableStringify() {
+	  if (hasRequiredFastStableStringify) return fastStableStringify$1;
+	  hasRequiredFastStableStringify = 1;
+	  var objToString = Object.prototype.toString;
 
-	  for (var name in obj) {
-	    keys.push(name);
-	  }
+	  var objKeys = Object.keys || function (obj) {
+	    var keys = [];
 
-	  return keys;
-	};
+	    for (var name in obj) {
+	      keys.push(name);
+	    }
 
-	function stringify(val, isArrayProp) {
-	  var i, max, str, keys, key, propVal, toStr;
+	    return keys;
+	  };
 
-	  if (val === true) {
-	    return "true";
-	  }
+	  function stringify(val, isArrayProp) {
+	    var i, max, str, keys, key, propVal, toStr;
 
-	  if (val === false) {
-	    return "false";
-	  }
+	    if (val === true) {
+	      return "true";
+	    }
 
-	  switch (_typeof(val)) {
-	    case "object":
-	      if (val === null) {
-	        return null;
-	      } else if (val.toJSON && typeof val.toJSON === "function") {
-	        return stringify(val.toJSON(), isArrayProp);
-	      } else {
-	        toStr = objToString.call(val);
+	    if (val === false) {
+	      return "false";
+	    }
 
-	        if (toStr === "[object Array]") {
-	          str = '[';
-	          max = val.length - 1;
+	    switch (_typeof(val)) {
+	      case "object":
+	        if (val === null) {
+	          return null;
+	        } else if (val.toJSON && typeof val.toJSON === "function") {
+	          return stringify(val.toJSON(), isArrayProp);
+	        } else {
+	          toStr = objToString.call(val);
 
-	          for (i = 0; i < max; i++) {
-	            str += stringify(val[i], true) + ',';
-	          }
+	          if (toStr === "[object Array]") {
+	            str = '[';
+	            max = val.length - 1;
 
-	          if (max > -1) {
-	            str += stringify(val[i], true);
-	          }
-
-	          return str + ']';
-	        } else if (toStr === "[object Object]") {
-	          // only object is left
-	          keys = objKeys(val).sort();
-	          max = keys.length;
-	          str = "";
-	          i = 0;
-
-	          while (i < max) {
-	            key = keys[i];
-	            propVal = stringify(val[key], false);
-
-	            if (propVal !== undefined) {
-	              if (str) {
-	                str += ',';
-	              }
-
-	              str += JSON.stringify(key) + ':' + propVal;
+	            for (i = 0; i < max; i++) {
+	              str += stringify(val[i], true) + ',';
 	            }
 
-	            i++;
+	            if (max > -1) {
+	              str += stringify(val[i], true);
+	            }
+
+	            return str + ']';
+	          } else if (toStr === "[object Object]") {
+	            // only object is left
+	            keys = objKeys(val).sort();
+	            max = keys.length;
+	            str = "";
+	            i = 0;
+
+	            while (i < max) {
+	              key = keys[i];
+	              propVal = stringify(val[key], false);
+
+	              if (propVal !== undefined) {
+	                if (str) {
+	                  str += ',';
+	                }
+
+	                str += JSON.stringify(key) + ':' + propVal;
+	              }
+
+	              i++;
+	            }
+
+	            return '{' + str + '}';
+	          } else {
+	            return JSON.stringify(val);
 	          }
-
-	          return '{' + str + '}';
-	        } else {
-	          return JSON.stringify(val);
 	        }
-	      }
 
-	    case "function":
-	    case "undefined":
-	      return isArrayProp ? null : undefined;
+	      case "function":
+	      case "undefined":
+	        return isArrayProp ? null : undefined;
 
-	    case "string":
-	      return JSON.stringify(val);
+	      case "string":
+	        return JSON.stringify(val);
 
-	    default:
-	      return isFinite(val) ? val : null;
+	      default:
+	        return isFinite(val) ? val : null;
+	    }
 	  }
+
+	  fastStableStringify$1 = function fastStableStringify$1(val) {
+	    var returnVal = stringify(val, false);
+
+	    if (returnVal !== undefined) {
+	      return '' + returnVal;
+	    }
+	  };
+
+	  return fastStableStringify$1;
 	}
 
-	var fastStableStringify = function fastStableStringify(val) {
-	  var returnVal = stringify(val, false);
-
-	  if (returnVal !== undefined) {
-	    return '' + returnVal;
-	  }
-	};
-
-	var fastStableStringify$1 = /*@__PURE__*/getDefaultExportFromCjs(fastStableStringify);
+	var fastStableStringifyExports = /*@__PURE__*/requireFastStableStringify();
+	var fastStableStringify = /*@__PURE__*/getDefaultExportFromCjs(fastStableStringifyExports);
 	var MINIMUM_SLOT_PER_EPOCH = 32; // Returns the number of trailing zeros in the binary representation of self.
 
 	function trailingZeros(n) {
@@ -29230,7 +29240,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	                args = _this16._buildArgs([], commitment, undefined
 	                /* encoding */
 	                , config);
-	                requestHash = fastStableStringify$1(args);
+	                requestHash = fastStableStringify(args);
 	                requestPromises[requestHash] = (_requestPromises$requ = requestPromises[requestHash]) !== null && _requestPromises$requ !== void 0 ? _requestPromises$requ : _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
 	                  var unsafeRes, res;
 	                  return _regeneratorRuntime().wrap(function _callee9$(_context9) {
@@ -34581,10 +34591,10 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	                              case 12:
 	                                _context97.prev = 12;
 	                                _context97.t0 = _context97["catch"](1);
-
-	                                if (_context97.t0 instanceof Error) {
-	                                  console.error("".concat(method, " error for argument"), args, _context97.t0.message);
-	                                }
+	                                console.error("Received ".concat(_context97.t0 instanceof Error ? '' : 'JSON-RPC ', "error calling `").concat(method, "`"), {
+	                                  args: args,
+	                                  error: _context97.t0
+	                                });
 
 	                                if (isCurrentConnectionStillActive()) {
 	                                  _context97.next = 17;
@@ -34801,7 +34811,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	      var _this28 = this;
 
 	      var clientSubscriptionId = this._nextClientSubscriptionId++;
-	      var hash = fastStableStringify$1([subscriptionConfig.method, args]);
+	      var hash = fastStableStringify([subscriptionConfig.method, args]);
 	      var existingSubscription = this._subscriptionsByHash[hash];
 
 	      if (existingSubscription === undefined) {
@@ -42955,6 +42965,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	var SolanaMobileWalletAdapterErrorCode = {
 	  ERROR_ASSOCIATION_PORT_OUT_OF_RANGE: 'ERROR_ASSOCIATION_PORT_OUT_OF_RANGE',
+	  ERROR_REFLECTOR_ID_OUT_OF_RANGE: 'ERROR_REFLECTOR_ID_OUT_OF_RANGE',
 	  ERROR_FORBIDDEN_WALLET_BASE_URL: 'ERROR_FORBIDDEN_WALLET_BASE_URL',
 	  ERROR_SECURE_CONTEXT_REQUIRED: 'ERROR_SECURE_CONTEXT_REQUIRED',
 	  ERROR_SESSION_CLOSED: 'ERROR_SESSION_CLOSED',
@@ -43711,6 +43722,30 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	  });
 	}
 
+	function getRandomReflectorId() {
+	  return assertReflectorId(getRandomInt(0, 9007199254740991)); // 0 < id < 2^53 - 1
+	}
+
+	function getRandomInt(min, max) {
+	  var randomBuffer = new Uint32Array(1);
+	  window.crypto.getRandomValues(randomBuffer);
+	  var randomNumber = randomBuffer[0] / (0xffffffff + 1);
+	  min = Math.ceil(min);
+	  max = Math.floor(max);
+	  return Math.floor(randomNumber * (max - min + 1)) + min;
+	}
+
+	function assertReflectorId(id) {
+	  if (id < 0 || id > 9007199254740991) {
+	    // 0 < id < 2^53 - 1
+	    throw new SolanaMobileWalletAdapterError(SolanaMobileWalletAdapterErrorCode.ERROR_REFLECTOR_ID_OUT_OF_RANGE, "Association port number must be between 49152 and 65535. ".concat(id, " given."), {
+	      id: id
+	    });
+	  }
+
+	  return id;
+	}
+
 	var INTENT_NAME = 'solana-wallet';
 
 	function getPathParts(pathString) {
@@ -43768,6 +43803,37 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	      }
 	    }, _callee12);
 	  }));
+	}
+
+	function getRemoteAssociateAndroidIntentURL(associationPublicKey, hostAuthority, putativeId, associationURLBase) {
+	  var protocolVersions = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : ['v1'];
+	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+	    var reflectorId, exportedKey, encodedKey, url;
+	    return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+	      while (1) switch (_context13.prev = _context13.next) {
+	        case 0:
+	          reflectorId = assertReflectorId(putativeId);
+	          _context13.next = 3;
+	          return crypto.subtle.exportKey('raw', associationPublicKey);
+
+	        case 3:
+	          exportedKey = _context13.sent;
+	          encodedKey = arrayBufferToBase64String(exportedKey);
+	          url = getIntentURL('v1/associate/remote', associationURLBase);
+	          url.searchParams.set('association', getStringWithURLUnsafeCharactersReplaced(encodedKey));
+	          url.searchParams.set('reflector', "".concat(hostAuthority));
+	          url.searchParams.set('id', "".concat(reflectorId));
+	          protocolVersions.forEach(function (version) {
+	            url.searchParams.set('v', version);
+	          });
+	          return _context13.abrupt("return", url);
+
+	        case 11:
+	        case "end":
+	          return _context13.stop();
+	      }
+	    }, _callee13);
+	  }));
 	} // Typescript `enums` thwart tree-shaking. See https://bargsten.org/jsts/enums/
 
 
@@ -43816,21 +43882,14 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	  _frame.contentWindow.location.href = url.toString();
 	}
 
-	function startSession(associationPublicKey, associationURLBase) {
-	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
-	    var randomAssociationPort, associationUrl, browser, detectionPromise;
-	    return _regeneratorRuntime().wrap(function _callee13$(_context13) {
-	      while (1) switch (_context13.prev = _context13.next) {
+	function launchAssociation(associationUrl) {
+	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+	    var browser, detectionPromise;
+	    return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+	      while (1) switch (_context14.prev = _context14.next) {
 	        case 0:
-	          randomAssociationPort = getRandomAssociationPort();
-	          _context13.next = 3;
-	          return getAssociateAndroidIntentURL(associationPublicKey, randomAssociationPort, associationURLBase);
-
-	        case 3:
-	          associationUrl = _context13.sent;
-
 	          if (!(associationUrl.protocol === 'https:')) {
-	            _context13.next = 8;
+	            _context14.next = 4;
 	            break;
 	          }
 
@@ -43838,50 +43897,98 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	          // These are regular web URLs that are designed to launch an app if it
 	          // is installed or load the actual target webpage if not.
 	          window.location.assign(associationUrl);
-	          _context13.next = 26;
+	          _context14.next = 22;
 	          break;
 
-	        case 8:
-	          _context13.prev = 8;
+	        case 4:
+	          _context14.prev = 4;
 	          browser = getBrowser();
-	          _context13.t0 = browser;
-	          _context13.next = _context13.t0 === Browser.Firefox ? 13 : _context13.t0 === Browser.Other ? 15 : 20;
+	          _context14.t0 = browser;
+	          _context14.next = _context14.t0 === Browser.Firefox ? 9 : _context14.t0 === Browser.Other ? 11 : 16;
 	          break;
 
-	        case 13:
+	        case 9:
 	          // If a custom protocol is not supported in Firefox, it throws.
 	          launchUrlThroughHiddenFrame(associationUrl); // If we reached this line, it's supported.
 
-	          return _context13.abrupt("break", 21);
+	          return _context14.abrupt("break", 17);
 
-	        case 15:
+	        case 11:
 	          detectionPromise = getDetectionPromise();
 	          window.location.assign(associationUrl);
-	          _context13.next = 19;
+	          _context14.next = 15;
 	          return detectionPromise;
 
-	        case 19:
-	          return _context13.abrupt("break", 21);
+	        case 15:
+	          return _context14.abrupt("break", 17);
 
-	        case 20:
+	        case 16:
 
-	        case 21:
-	          _context13.next = 26;
+	        case 17:
+	          _context14.next = 22;
 	          break;
 
-	        case 23:
-	          _context13.prev = 23;
-	          _context13.t1 = _context13["catch"](8);
+	        case 19:
+	          _context14.prev = 19;
+	          _context14.t1 = _context14["catch"](4);
 	          throw new SolanaMobileWalletAdapterError(SolanaMobileWalletAdapterErrorCode.ERROR_WALLET_NOT_FOUND, 'Found no installed wallet that supports the mobile wallet protocol.');
 
-	        case 26:
-	          return _context13.abrupt("return", randomAssociationPort);
-
-	        case 27:
+	        case 22:
 	        case "end":
-	          return _context13.stop();
+	          return _context14.stop();
 	      }
-	    }, _callee13, null, [[8, 23]]);
+	    }, _callee14, null, [[4, 19]]);
+	  }));
+	}
+
+	function startSession(associationPublicKey, associationURLBase) {
+	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+	    var randomAssociationPort, associationUrl;
+	    return _regeneratorRuntime().wrap(function _callee15$(_context15) {
+	      while (1) switch (_context15.prev = _context15.next) {
+	        case 0:
+	          randomAssociationPort = getRandomAssociationPort();
+	          _context15.next = 3;
+	          return getAssociateAndroidIntentURL(associationPublicKey, randomAssociationPort, associationURLBase);
+
+	        case 3:
+	          associationUrl = _context15.sent;
+	          _context15.next = 6;
+	          return launchAssociation(associationUrl);
+
+	        case 6:
+	          return _context15.abrupt("return", randomAssociationPort);
+
+	        case 7:
+	        case "end":
+	          return _context15.stop();
+	      }
+	    }, _callee15);
+	  }));
+	}
+
+	function getRemoteSessionUrl(associationPublicKey, hostAuthority, associationURLBase) {
+	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
+	    var randomReflectorId, associationUrl;
+	    return _regeneratorRuntime().wrap(function _callee16$(_context16) {
+	      while (1) switch (_context16.prev = _context16.next) {
+	        case 0:
+	          randomReflectorId = getRandomReflectorId();
+	          _context16.next = 3;
+	          return getRemoteAssociateAndroidIntentURL(associationPublicKey, hostAuthority, randomReflectorId, associationURLBase);
+
+	        case 3:
+	          associationUrl = _context16.sent;
+	          return _context16.abrupt("return", {
+	            associationUrl: associationUrl,
+	            reflectorId: randomReflectorId
+	          });
+
+	        case 5:
+	        case "end":
+	          return _context16.stop();
+	      }
+	    }, _callee16);
 	  }));
 	}
 
@@ -43929,24 +44036,24 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	}
 
 	function transact$2(callback, config) {
-	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
+	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
 	    var _this3 = this;
 
 	    var associationKeypair, sessionPort, websocketURL, connectionStartTime, getNextRetryDelayMs, nextJsonRpcMessageId, lastKnownInboundSequenceNumber, state;
-	    return _regeneratorRuntime().wrap(function _callee19$(_context19) {
-	      while (1) switch (_context19.prev = _context19.next) {
+	    return _regeneratorRuntime().wrap(function _callee22$(_context22) {
+	      while (1) switch (_context22.prev = _context22.next) {
 	        case 0:
 	          assertSecureContext();
-	          _context19.next = 3;
+	          _context22.next = 3;
 	          return generateAssociationKeypair();
 
 	        case 3:
-	          associationKeypair = _context19.sent;
-	          _context19.next = 6;
+	          associationKeypair = _context22.sent;
+	          _context22.next = 6;
 	          return startSession(associationKeypair.publicKey, config === null || config === void 0 ? void 0 : config.baseUri);
 
 	        case 6:
-	          sessionPort = _context19.sent;
+	          sessionPort = _context22.sent;
 	          websocketURL = "ws://localhost:".concat(sessionPort, "/solana-wallet");
 
 	          getNextRetryDelayMs = function () {
@@ -43962,42 +44069,48 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	          state = {
 	            __type: 'disconnected'
 	          };
-	          return _context19.abrupt("return", new Promise(function (resolve, reject) {
+	          return _context22.abrupt("return", new Promise(function (resolve, reject) {
 	            var socket; // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 	            var jsonRpcResponsePromises = {};
 
 	            var handleOpen = function handleOpen() {
-	              return __awaiter$1(_this3, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+	              return __awaiter$1(_this3, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
 	                var _state, associationKeypair, ecdhKeypair;
 
-	                return _regeneratorRuntime().wrap(function _callee14$(_context14) {
-	                  while (1) switch (_context14.prev = _context14.next) {
+	                return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+	                  while (1) switch (_context17.prev = _context17.next) {
 	                    case 0:
 	                      if (!(state.__type !== 'connecting')) {
-	                        _context14.next = 3;
+	                        _context17.next = 3;
 	                        break;
 	                      }
 
 	                      console.warn('Expected adapter state to be `connecting` at the moment the websocket opens. ' + "Got `".concat(state.__type, "`."));
-	                      return _context14.abrupt("return");
+	                      return _context17.abrupt("return");
 
 	                    case 3:
+	                      socket.removeEventListener('open', handleOpen); // previous versions of this library and walletlib incorrectly implemented the MWA session 
+	                      // establishment protocol for local connections. The dapp is supposed to wait for the 
+	                      // APP_PING message before sending the HELLO_REQ. Instead, the dapp was sending the HELLO_REQ 
+	                      // immediately upon connection to the websocket server regardless of wether or not an 
+	                      // APP_PING was sent by the wallet/websocket server. We must continue to support this behavior 
+	                      // in case the user is using a wallet that has not updated their walletlib implementation. 
+
 	                      _state = state, associationKeypair = _state.associationKeypair;
-	                      socket.removeEventListener('open', handleOpen);
-	                      _context14.next = 7;
+	                      _context17.next = 7;
 	                      return generateECDHKeypair();
 
 	                    case 7:
-	                      ecdhKeypair = _context14.sent;
-	                      _context14.t0 = socket;
-	                      _context14.next = 11;
+	                      ecdhKeypair = _context17.sent;
+	                      _context17.t0 = socket;
+	                      _context17.next = 11;
 	                      return createHelloReq(ecdhKeypair.publicKey, associationKeypair.privateKey);
 
 	                    case 11:
-	                      _context14.t1 = _context14.sent;
+	                      _context17.t1 = _context17.sent;
 
-	                      _context14.t0.send.call(_context14.t0, _context14.t1);
+	                      _context17.t0.send.call(_context17.t0, _context17.t1);
 
 	                      state = {
 	                        __type: 'hello_req_sent',
@@ -44007,9 +44120,9 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	                    case 14:
 	                    case "end":
-	                      return _context14.stop();
+	                      return _context17.stop();
 	                  }
-	                }, _callee14);
+	                }, _callee17);
 	              }));
 	            };
 
@@ -44028,23 +44141,23 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	            };
 
 	            var handleError = function handleError(_evt) {
-	              return __awaiter$1(_this3, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
-	                return _regeneratorRuntime().wrap(function _callee15$(_context15) {
-	                  while (1) switch (_context15.prev = _context15.next) {
+	              return __awaiter$1(_this3, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+	                return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+	                  while (1) switch (_context18.prev = _context18.next) {
 	                    case 0:
 	                      disposeSocket();
 
 	                      if (!(Date.now() - connectionStartTime >= WEBSOCKET_CONNECTION_CONFIG.timeoutMs)) {
-	                        _context15.next = 5;
+	                        _context18.next = 5;
 	                        break;
 	                      }
 
-	                      reject(new SolanaMobileWalletAdapterError(SolanaMobileWalletAdapterErrorCode.ERROR_SESSION_TIMEOUT, "Failed to connect to the wallet websocket on port ".concat(sessionPort, ".")));
-	                      _context15.next = 8;
+	                      reject(new SolanaMobileWalletAdapterError(SolanaMobileWalletAdapterErrorCode.ERROR_SESSION_TIMEOUT, "Failed to connect to the wallet websocket at ".concat(websocketURL, ".")));
+	                      _context18.next = 8;
 	                      break;
 
 	                    case 5:
-	                      _context15.next = 7;
+	                      _context18.next = 7;
 	                      return new Promise(function (resolve) {
 	                        var retryDelayMs = getNextRetryDelayMs();
 	                        retryWaitTimeoutId = window.setTimeout(resolve, retryDelayMs);
@@ -44055,103 +44168,160 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	                    case 8:
 	                    case "end":
-	                      return _context15.stop();
+	                      return _context18.stop();
 	                  }
-	                }, _callee15);
+	                }, _callee18);
 	              }));
 	            };
 
 	            var handleMessage = function handleMessage(evt) {
-	              return __awaiter$1(_this3, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+	              return __awaiter$1(_this3, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
 	                var _this4 = this;
 
-	                var responseBuffer, sequenceNumberVector, sequenceNumber, jsonRpcMessage, responsePromise, _responsePromise, sharedSecret, sessionPropertiesBuffer, sessionProperties, wallet;
+	                var responseBuffer, ecdhKeypair, sequenceNumberVector, sequenceNumber, jsonRpcMessage, responsePromise, _responsePromise, _ecdhKeypair, sharedSecret, sessionPropertiesBuffer, sessionProperties, wallet;
 
-	                return _regeneratorRuntime().wrap(function _callee18$(_context18) {
-	                  while (1) switch (_context18.prev = _context18.next) {
+	                return _regeneratorRuntime().wrap(function _callee21$(_context21) {
+	                  while (1) switch (_context21.prev = _context21.next) {
 	                    case 0:
-	                      _context18.next = 2;
+	                      _context21.next = 2;
 	                      return evt.data.arrayBuffer();
 
 	                    case 2:
-	                      responseBuffer = _context18.sent;
-	                      _context18.t0 = state.__type;
-	                      _context18.next = _context18.t0 === 'connected' ? 6 : _context18.t0 === 'hello_req_sent' ? 30 : 60;
+	                      responseBuffer = _context21.sent;
+	                      _context21.t0 = state.__type;
+	                      _context21.next = _context21.t0 === 'connecting' ? 6 : _context21.t0 === 'connected' ? 18 : _context21.t0 === 'hello_req_sent' ? 42 : 83;
 	                      break;
 
 	                    case 6:
-	                      _context18.prev = 6;
+	                      if (!(responseBuffer.byteLength !== 0)) {
+	                        _context21.next = 8;
+	                        break;
+	                      }
+
+	                      throw new Error('Encountered unexpected message while connecting');
+
+	                    case 8:
+	                      _context21.next = 10;
+	                      return generateECDHKeypair();
+
+	                    case 10:
+	                      ecdhKeypair = _context21.sent;
+	                      _context21.t1 = socket;
+	                      _context21.next = 14;
+	                      return createHelloReq(ecdhKeypair.publicKey, associationKeypair.privateKey);
+
+	                    case 14:
+	                      _context21.t2 = _context21.sent;
+
+	                      _context21.t1.send.call(_context21.t1, _context21.t2);
+
+	                      state = {
+	                        __type: 'hello_req_sent',
+	                        associationPublicKey: associationKeypair.publicKey,
+	                        ecdhPrivateKey: ecdhKeypair.privateKey
+	                      };
+	                      return _context21.abrupt("break", 83);
+
+	                    case 18:
+	                      _context21.prev = 18;
 	                      sequenceNumberVector = responseBuffer.slice(0, SEQUENCE_NUMBER_BYTES);
 	                      sequenceNumber = getSequenceNumberFromByteArray(sequenceNumberVector);
 
 	                      if (!(sequenceNumber !== lastKnownInboundSequenceNumber + 1)) {
-	                        _context18.next = 11;
+	                        _context21.next = 23;
 	                        break;
 	                      }
 
 	                      throw new Error('Encrypted message has invalid sequence number');
 
-	                    case 11:
+	                    case 23:
 	                      lastKnownInboundSequenceNumber = sequenceNumber;
-	                      _context18.next = 14;
+	                      _context21.next = 26;
 	                      return decryptJsonRpcMessage(responseBuffer, state.sharedSecret);
 
-	                    case 14:
-	                      jsonRpcMessage = _context18.sent;
+	                    case 26:
+	                      jsonRpcMessage = _context21.sent;
 	                      responsePromise = jsonRpcResponsePromises[jsonRpcMessage.id];
 	                      delete jsonRpcResponsePromises[jsonRpcMessage.id];
 	                      responsePromise.resolve(jsonRpcMessage.result);
-	                      _context18.next = 29;
+	                      _context21.next = 41;
 	                      break;
 
-	                    case 20:
-	                      _context18.prev = 20;
-	                      _context18.t1 = _context18["catch"](6);
+	                    case 32:
+	                      _context21.prev = 32;
+	                      _context21.t3 = _context21["catch"](18);
 
-	                      if (!(_context18.t1 instanceof SolanaMobileWalletAdapterProtocolError)) {
-	                        _context18.next = 28;
+	                      if (!(_context21.t3 instanceof SolanaMobileWalletAdapterProtocolError)) {
+	                        _context21.next = 40;
 	                        break;
 	                      }
 
-	                      _responsePromise = jsonRpcResponsePromises[_context18.t1.jsonRpcMessageId];
-	                      delete jsonRpcResponsePromises[_context18.t1.jsonRpcMessageId];
+	                      _responsePromise = jsonRpcResponsePromises[_context21.t3.jsonRpcMessageId];
+	                      delete jsonRpcResponsePromises[_context21.t3.jsonRpcMessageId];
 
-	                      _responsePromise.reject(_context18.t1);
+	                      _responsePromise.reject(_context21.t3);
 
-	                      _context18.next = 29;
+	                      _context21.next = 41;
 	                      break;
 
-	                    case 28:
-	                      throw _context18.t1;
+	                    case 40:
+	                      throw _context21.t3;
 
-	                    case 29:
-	                      return _context18.abrupt("break", 60);
+	                    case 41:
+	                      return _context21.abrupt("break", 83);
 
-	                    case 30:
-	                      _context18.next = 32;
+	                    case 42:
+	                      if (!(responseBuffer.byteLength === 0)) {
+	                        _context21.next = 53;
+	                        break;
+	                      }
+
+	                      _context21.next = 45;
+	                      return generateECDHKeypair();
+
+	                    case 45:
+	                      _ecdhKeypair = _context21.sent;
+	                      _context21.t4 = socket;
+	                      _context21.next = 49;
+	                      return createHelloReq(_ecdhKeypair.publicKey, associationKeypair.privateKey);
+
+	                    case 49:
+	                      _context21.t5 = _context21.sent;
+
+	                      _context21.t4.send.call(_context21.t4, _context21.t5);
+
+	                      state = {
+	                        __type: 'hello_req_sent',
+	                        associationPublicKey: associationKeypair.publicKey,
+	                        ecdhPrivateKey: _ecdhKeypair.privateKey
+	                      };
+	                      return _context21.abrupt("break", 83);
+
+	                    case 53:
+	                      _context21.next = 55;
 	                      return parseHelloRsp(responseBuffer, state.associationPublicKey, state.ecdhPrivateKey);
 
-	                    case 32:
-	                      sharedSecret = _context18.sent;
+	                    case 55:
+	                      sharedSecret = _context21.sent;
 	                      sessionPropertiesBuffer = responseBuffer.slice(ENCODED_PUBLIC_KEY_LENGTH_BYTES);
 
 	                      if (!(sessionPropertiesBuffer.byteLength !== 0)) {
-	                        _context18.next = 40;
+	                        _context21.next = 63;
 	                        break;
 	                      }
 
-	                      _context18.next = 37;
+	                      _context21.next = 60;
 	                      return function () {
-	                        return __awaiter$1(_this4, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
+	                        return __awaiter$1(_this4, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
 	                          var sequenceNumberVector, sequenceNumber;
-	                          return _regeneratorRuntime().wrap(function _callee16$(_context16) {
-	                            while (1) switch (_context16.prev = _context16.next) {
+	                          return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+	                            while (1) switch (_context19.prev = _context19.next) {
 	                              case 0:
 	                                sequenceNumberVector = sessionPropertiesBuffer.slice(0, SEQUENCE_NUMBER_BYTES);
 	                                sequenceNumber = getSequenceNumberFromByteArray(sequenceNumberVector);
 
 	                                if (!(sequenceNumber !== lastKnownInboundSequenceNumber + 1)) {
-	                                  _context16.next = 4;
+	                                  _context19.next = 4;
 	                                  break;
 	                                }
 
@@ -44159,42 +44329,42 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	                              case 4:
 	                                lastKnownInboundSequenceNumber = sequenceNumber;
-	                                return _context16.abrupt("return", parseSessionProps(sessionPropertiesBuffer, sharedSecret));
+	                                return _context19.abrupt("return", parseSessionProps(sessionPropertiesBuffer, sharedSecret));
 
 	                              case 6:
 	                              case "end":
-	                                return _context16.stop();
+	                                return _context19.stop();
 	                            }
-	                          }, _callee16);
+	                          }, _callee19);
 	                        }));
 	                      }();
 
-	                    case 37:
-	                      _context18.t2 = _context18.sent;
-	                      _context18.next = 41;
+	                    case 60:
+	                      _context21.t6 = _context21.sent;
+	                      _context21.next = 64;
 	                      break;
 
-	                    case 40:
-	                      _context18.t2 = {
+	                    case 63:
+	                      _context21.t6 = {
 	                        protocol_version: 'legacy'
 	                      };
 
-	                    case 41:
-	                      sessionProperties = _context18.t2;
+	                    case 64:
+	                      sessionProperties = _context21.t6;
 	                      state = {
 	                        __type: 'connected',
 	                        sharedSecret: sharedSecret,
 	                        sessionProperties: sessionProperties
 	                      };
 	                      wallet = createMobileWalletProxy(sessionProperties.protocol_version, function (method, params) {
-	                        return __awaiter$1(_this4, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
+	                        return __awaiter$1(_this4, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
 	                          var id;
-	                          return _regeneratorRuntime().wrap(function _callee17$(_context17) {
-	                            while (1) switch (_context17.prev = _context17.next) {
+	                          return _regeneratorRuntime().wrap(function _callee20$(_context20) {
+	                            while (1) switch (_context20.prev = _context20.next) {
 	                              case 0:
 	                                id = nextJsonRpcMessageId++;
-	                                _context17.t0 = socket;
-	                                _context17.next = 4;
+	                                _context20.t0 = socket;
+	                                _context20.next = 4;
 	                                return encryptJsonRpcMessage({
 	                                  id: id,
 	                                  jsonrpc: '2.0',
@@ -44203,11 +44373,11 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	                                }, sharedSecret);
 
 	                              case 4:
-	                                _context17.t1 = _context17.sent;
+	                                _context20.t1 = _context20.sent;
 
-	                                _context17.t0.send.call(_context17.t0, _context17.t1);
+	                                _context20.t0.send.call(_context20.t0, _context20.t1);
 
-	                                return _context17.abrupt("return", new Promise(function (_resolve, reject) {
+	                                return _context20.abrupt("return", new Promise(function (_resolve, reject) {
 	                                  jsonRpcResponsePromises[id] = {
 	                                    resolve: function resolve(result) {
 	                                      switch (method) {
@@ -44237,41 +44407,41 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	                              case 7:
 	                              case "end":
-	                                return _context17.stop();
+	                                return _context20.stop();
 	                            }
-	                          }, _callee17);
+	                          }, _callee20);
 	                        }));
 	                      });
-	                      _context18.prev = 44;
-	                      _context18.t3 = resolve;
-	                      _context18.next = 48;
+	                      _context21.prev = 67;
+	                      _context21.t7 = resolve;
+	                      _context21.next = 71;
 	                      return callback(wallet);
 
-	                    case 48:
-	                      _context18.t4 = _context18.sent;
-	                      (0, _context18.t3)(_context18.t4);
-	                      _context18.next = 55;
+	                    case 71:
+	                      _context21.t8 = _context21.sent;
+	                      (0, _context21.t7)(_context21.t8);
+	                      _context21.next = 78;
 	                      break;
 
-	                    case 52:
-	                      _context18.prev = 52;
-	                      _context18.t5 = _context18["catch"](44);
-	                      reject(_context18.t5);
+	                    case 75:
+	                      _context21.prev = 75;
+	                      _context21.t9 = _context21["catch"](67);
+	                      reject(_context21.t9);
 
-	                    case 55:
-	                      _context18.prev = 55;
+	                    case 78:
+	                      _context21.prev = 78;
 	                      disposeSocket();
 	                      socket.close();
-	                      return _context18.finish(55);
+	                      return _context21.finish(78);
 
-	                    case 59:
-	                      return _context18.abrupt("break", 60);
+	                    case 82:
+	                      return _context21.abrupt("break", 83);
 
-	                    case 60:
+	                    case 83:
 	                    case "end":
-	                      return _context18.stop();
+	                      return _context21.stop();
 	                  }
-	                }, _callee18, null, [[6, 20], [44, 52, 55, 59]]);
+	                }, _callee21, null, [[18, 32], [67, 75, 78, 82]]);
 	              }));
 	            };
 
@@ -44312,9 +44482,415 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 
 	        case 13:
 	        case "end":
-	          return _context19.stop();
+	          return _context22.stop();
 	      }
-	    }, _callee19);
+	    }, _callee22);
+	  }));
+	}
+
+	function transactRemote$1(callback, config) {
+	  return __awaiter$1(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee28() {
+	    var _this5 = this;
+
+	    var associationKeypair, _yield$getRemoteSessi, associationUrl, reflectorId, websocketURL, connectionStartTime, getNextRetryDelayMs, nextJsonRpcMessageId, lastKnownInboundSequenceNumber, state;
+
+	    return _regeneratorRuntime().wrap(function _callee28$(_context28) {
+	      while (1) switch (_context28.prev = _context28.next) {
+	        case 0:
+	          assertSecureContext();
+	          _context28.next = 3;
+	          return generateAssociationKeypair();
+
+	        case 3:
+	          associationKeypair = _context28.sent;
+	          _context28.next = 6;
+	          return getRemoteSessionUrl(associationKeypair.publicKey, config.remoteHostAuthority, config === null || config === void 0 ? void 0 : config.baseUri);
+
+	        case 6:
+	          _yield$getRemoteSessi = _context28.sent;
+	          associationUrl = _yield$getRemoteSessi.associationUrl;
+	          reflectorId = _yield$getRemoteSessi.reflectorId;
+	          websocketURL = "wss://".concat(config === null || config === void 0 ? void 0 : config.remoteHostAuthority, "/reflect?id=").concat(reflectorId);
+
+	          getNextRetryDelayMs = function () {
+	            var schedule = _toConsumableArray(WEBSOCKET_CONNECTION_CONFIG.retryDelayScheduleMs);
+
+	            return function () {
+	              return schedule.length > 1 ? schedule.shift() : schedule[0];
+	            };
+	          }();
+
+	          nextJsonRpcMessageId = 1;
+	          lastKnownInboundSequenceNumber = 0;
+	          state = {
+	            __type: 'disconnected'
+	          };
+	          return _context28.abrupt("return", {
+	            associationUrl: associationUrl,
+	            result: new Promise(function (resolve, reject) {
+	              var socket; // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+	              var jsonRpcResponsePromises = {};
+
+	              var handleOpen = function handleOpen() {
+	                return __awaiter$1(_this5, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
+	                  return _regeneratorRuntime().wrap(function _callee23$(_context23) {
+	                    while (1) switch (_context23.prev = _context23.next) {
+	                      case 0:
+	                        if (!(state.__type !== 'connecting')) {
+	                          _context23.next = 3;
+	                          break;
+	                        }
+
+	                        console.warn('Expected adapter state to be `connecting` at the moment the websocket opens. ' + "Got `".concat(state.__type, "`."));
+	                        return _context23.abrupt("return");
+
+	                      case 3:
+	                        socket.removeEventListener('open', handleOpen);
+
+	                      case 4:
+	                      case "end":
+	                        return _context23.stop();
+	                    }
+	                  }, _callee23);
+	                }));
+	              };
+
+	              var handleClose = function handleClose(evt) {
+	                if (evt.wasClean) {
+	                  state = {
+	                    __type: 'disconnected'
+	                  };
+	                } else {
+	                  reject(new SolanaMobileWalletAdapterError(SolanaMobileWalletAdapterErrorCode.ERROR_SESSION_CLOSED, "The wallet session dropped unexpectedly (".concat(evt.code, ": ").concat(evt.reason, ")."), {
+	                    closeEvent: evt
+	                  }));
+	                }
+
+	                disposeSocket();
+	              };
+
+	              var handleError = function handleError(_evt) {
+	                return __awaiter$1(_this5, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
+	                  return _regeneratorRuntime().wrap(function _callee24$(_context24) {
+	                    while (1) switch (_context24.prev = _context24.next) {
+	                      case 0:
+	                        disposeSocket();
+
+	                        if (!(Date.now() - connectionStartTime >= WEBSOCKET_CONNECTION_CONFIG.timeoutMs)) {
+	                          _context24.next = 5;
+	                          break;
+	                        }
+
+	                        reject(new SolanaMobileWalletAdapterError(SolanaMobileWalletAdapterErrorCode.ERROR_SESSION_TIMEOUT, "Failed to connect to the wallet websocket at ".concat(websocketURL, ".")));
+	                        _context24.next = 8;
+	                        break;
+
+	                      case 5:
+	                        _context24.next = 7;
+	                        return new Promise(function (resolve) {
+	                          var retryDelayMs = getNextRetryDelayMs();
+	                          retryWaitTimeoutId = window.setTimeout(resolve, retryDelayMs);
+	                        });
+
+	                      case 7:
+	                        attemptSocketConnection();
+
+	                      case 8:
+	                      case "end":
+	                        return _context24.stop();
+	                    }
+	                  }, _callee24);
+	                }));
+	              };
+
+	              var handleMessage = function handleMessage(evt) {
+	                return __awaiter$1(_this5, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee27() {
+	                  var _this6 = this;
+
+	                  var responseBuffer, ecdhKeypair, sequenceNumberVector, sequenceNumber, jsonRpcMessage, responsePromise, _responsePromise2, sharedSecret, sessionPropertiesBuffer, sessionProperties, wallet;
+
+	                  return _regeneratorRuntime().wrap(function _callee27$(_context27) {
+	                    while (1) switch (_context27.prev = _context27.next) {
+	                      case 0:
+	                        _context27.next = 2;
+	                        return evt.data.arrayBuffer();
+
+	                      case 2:
+	                        responseBuffer = _context27.sent;
+	                        _context27.t0 = state.__type;
+	                        _context27.next = _context27.t0 === 'connecting' ? 6 : _context27.t0 === 'connected' ? 18 : _context27.t0 === 'hello_req_sent' ? 42 : 68;
+	                        break;
+
+	                      case 6:
+	                        if (!(responseBuffer.byteLength !== 0)) {
+	                          _context27.next = 8;
+	                          break;
+	                        }
+
+	                        throw new Error('Encountered unexpected message while connecting');
+
+	                      case 8:
+	                        _context27.next = 10;
+	                        return generateECDHKeypair();
+
+	                      case 10:
+	                        ecdhKeypair = _context27.sent;
+	                        _context27.t1 = socket;
+	                        _context27.next = 14;
+	                        return createHelloReq(ecdhKeypair.publicKey, associationKeypair.privateKey);
+
+	                      case 14:
+	                        _context27.t2 = _context27.sent;
+
+	                        _context27.t1.send.call(_context27.t1, _context27.t2);
+
+	                        state = {
+	                          __type: 'hello_req_sent',
+	                          associationPublicKey: associationKeypair.publicKey,
+	                          ecdhPrivateKey: ecdhKeypair.privateKey
+	                        };
+	                        return _context27.abrupt("break", 68);
+
+	                      case 18:
+	                        _context27.prev = 18;
+	                        sequenceNumberVector = responseBuffer.slice(0, SEQUENCE_NUMBER_BYTES);
+	                        sequenceNumber = getSequenceNumberFromByteArray(sequenceNumberVector);
+
+	                        if (!(sequenceNumber !== lastKnownInboundSequenceNumber + 1)) {
+	                          _context27.next = 23;
+	                          break;
+	                        }
+
+	                        throw new Error('Encrypted message has invalid sequence number');
+
+	                      case 23:
+	                        lastKnownInboundSequenceNumber = sequenceNumber;
+	                        _context27.next = 26;
+	                        return decryptJsonRpcMessage(responseBuffer, state.sharedSecret);
+
+	                      case 26:
+	                        jsonRpcMessage = _context27.sent;
+	                        responsePromise = jsonRpcResponsePromises[jsonRpcMessage.id];
+	                        delete jsonRpcResponsePromises[jsonRpcMessage.id];
+	                        responsePromise.resolve(jsonRpcMessage.result);
+	                        _context27.next = 41;
+	                        break;
+
+	                      case 32:
+	                        _context27.prev = 32;
+	                        _context27.t3 = _context27["catch"](18);
+
+	                        if (!(_context27.t3 instanceof SolanaMobileWalletAdapterProtocolError)) {
+	                          _context27.next = 40;
+	                          break;
+	                        }
+
+	                        _responsePromise2 = jsonRpcResponsePromises[_context27.t3.jsonRpcMessageId];
+	                        delete jsonRpcResponsePromises[_context27.t3.jsonRpcMessageId];
+
+	                        _responsePromise2.reject(_context27.t3);
+
+	                        _context27.next = 41;
+	                        break;
+
+	                      case 40:
+	                        throw _context27.t3;
+
+	                      case 41:
+	                        return _context27.abrupt("break", 68);
+
+	                      case 42:
+	                        _context27.next = 44;
+	                        return parseHelloRsp(responseBuffer, state.associationPublicKey, state.ecdhPrivateKey);
+
+	                      case 44:
+	                        sharedSecret = _context27.sent;
+	                        sessionPropertiesBuffer = responseBuffer.slice(ENCODED_PUBLIC_KEY_LENGTH_BYTES);
+
+	                        if (!(sessionPropertiesBuffer.byteLength !== 0)) {
+	                          _context27.next = 52;
+	                          break;
+	                        }
+
+	                        _context27.next = 49;
+	                        return function () {
+	                          return __awaiter$1(_this6, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
+	                            var sequenceNumberVector, sequenceNumber;
+	                            return _regeneratorRuntime().wrap(function _callee25$(_context25) {
+	                              while (1) switch (_context25.prev = _context25.next) {
+	                                case 0:
+	                                  sequenceNumberVector = sessionPropertiesBuffer.slice(0, SEQUENCE_NUMBER_BYTES);
+	                                  sequenceNumber = getSequenceNumberFromByteArray(sequenceNumberVector);
+
+	                                  if (!(sequenceNumber !== lastKnownInboundSequenceNumber + 1)) {
+	                                    _context25.next = 4;
+	                                    break;
+	                                  }
+
+	                                  throw new Error('Encrypted message has invalid sequence number');
+
+	                                case 4:
+	                                  lastKnownInboundSequenceNumber = sequenceNumber;
+	                                  return _context25.abrupt("return", parseSessionProps(sessionPropertiesBuffer, sharedSecret));
+
+	                                case 6:
+	                                case "end":
+	                                  return _context25.stop();
+	                              }
+	                            }, _callee25);
+	                          }));
+	                        }();
+
+	                      case 49:
+	                        _context27.t4 = _context27.sent;
+	                        _context27.next = 53;
+	                        break;
+
+	                      case 52:
+	                        _context27.t4 = {
+	                          protocol_version: 'legacy'
+	                        };
+
+	                      case 53:
+	                        sessionProperties = _context27.t4;
+	                        state = {
+	                          __type: 'connected',
+	                          sharedSecret: sharedSecret,
+	                          sessionProperties: sessionProperties
+	                        };
+	                        wallet = createMobileWalletProxy(sessionProperties.protocol_version, function (method, params) {
+	                          return __awaiter$1(_this6, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee26() {
+	                            var id;
+	                            return _regeneratorRuntime().wrap(function _callee26$(_context26) {
+	                              while (1) switch (_context26.prev = _context26.next) {
+	                                case 0:
+	                                  id = nextJsonRpcMessageId++;
+	                                  _context26.t0 = socket;
+	                                  _context26.next = 4;
+	                                  return encryptJsonRpcMessage({
+	                                    id: id,
+	                                    jsonrpc: '2.0',
+	                                    method: method,
+	                                    params: params !== null && params !== void 0 ? params : {}
+	                                  }, sharedSecret);
+
+	                                case 4:
+	                                  _context26.t1 = _context26.sent;
+
+	                                  _context26.t0.send.call(_context26.t0, _context26.t1);
+
+	                                  return _context26.abrupt("return", new Promise(function (_resolve2, reject) {
+	                                    jsonRpcResponsePromises[id] = {
+	                                      resolve: function resolve(result) {
+	                                        switch (method) {
+	                                          case 'authorize':
+	                                          case 'reauthorize':
+	                                            {
+	                                              var wallet_uri_base = result.wallet_uri_base;
+
+	                                              if (wallet_uri_base != null) {
+	                                                try {
+	                                                  assertSecureEndpointSpecificURI(wallet_uri_base);
+	                                                } catch (e) {
+	                                                  reject(e);
+	                                                  return;
+	                                                }
+	                                              }
+
+	                                              break;
+	                                            }
+	                                        }
+
+	                                        _resolve2(result);
+	                                      },
+	                                      reject: reject
+	                                    };
+	                                  }));
+
+	                                case 7:
+	                                case "end":
+	                                  return _context26.stop();
+	                              }
+	                            }, _callee26);
+	                          }));
+	                        });
+	                        _context27.prev = 56;
+	                        _context27.t5 = resolve;
+	                        _context27.next = 60;
+	                        return callback(new Proxy(wallet, {
+	                          get: function get(target, p) {
+	                            if (p === 'terminateSession') {
+	                              disposeSocket();
+	                              socket.close();
+	                              return;
+	                            } else return target[p];
+	                          }
+	                        }));
+
+	                      case 60:
+	                        _context27.t6 = _context27.sent;
+	                        (0, _context27.t5)(_context27.t6);
+	                        _context27.next = 67;
+	                        break;
+
+	                      case 64:
+	                        _context27.prev = 64;
+	                        _context27.t7 = _context27["catch"](56);
+	                        reject(_context27.t7);
+
+	                      case 67:
+	                        return _context27.abrupt("break", 68);
+
+	                      case 68:
+	                      case "end":
+	                        return _context27.stop();
+	                    }
+	                  }, _callee27, null, [[18, 32], [56, 64]]);
+	                }));
+	              };
+
+	              var disposeSocket;
+	              var retryWaitTimeoutId;
+
+	              var attemptSocketConnection = function attemptSocketConnection() {
+	                if (disposeSocket) {
+	                  disposeSocket();
+	                }
+
+	                state = {
+	                  __type: 'connecting',
+	                  associationKeypair: associationKeypair
+	                };
+
+	                if (connectionStartTime === undefined) {
+	                  connectionStartTime = Date.now();
+	                }
+
+	                socket = new WebSocket(websocketURL, [WEBSOCKET_PROTOCOL]);
+	                socket.addEventListener('open', handleOpen);
+	                socket.addEventListener('close', handleClose);
+	                socket.addEventListener('error', handleError);
+	                socket.addEventListener('message', handleMessage);
+
+	                disposeSocket = function disposeSocket() {
+	                  window.clearTimeout(retryWaitTimeoutId);
+	                  socket.removeEventListener('open', handleOpen);
+	                  socket.removeEventListener('close', handleClose);
+	                  socket.removeEventListener('error', handleError);
+	                  socket.removeEventListener('message', handleMessage);
+	                };
+	              };
+
+	              attemptSocketConnection();
+	            })
+	          });
+
+	        case 15:
+	        case "end":
+	          return _context28.stop();
+	      }
+	    }, _callee28);
 	  }));
 	}
 
@@ -44326,6 +44902,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	cjs$2.SolanaSignInWithSolana = SolanaSignInWithSolana;
 	cjs$2.SolanaSignTransactions = SolanaSignTransactions;
 	cjs$2.transact = transact$2;
+	cjs$2.transactRemote = transactRemote$1;
 
 	// Copyright (c) 2018 base-x contributors
 	// Copyright (c) 2014-2018 The Bitcoin Core developers (base58.cpp)
@@ -44782,7 +45359,169 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	  }));
 	}
 
+	function transactRemote(callback, config) {
+	  return __awaiter(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+	    var augmentedCallback;
+	    return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+	      while (1) switch (_context8.prev = _context8.next) {
+	        case 0:
+	          augmentedCallback = function augmentedCallback(wallet) {
+	            var augmentedAPI = new Proxy({}, {
+	              get: function get(target, p) {
+	                if (target[p] == null) {
+	                  switch (p) {
+	                    case 'signAndSendTransactions':
+	                      target[p] = function (_a) {
+	                        var minContextSlot = _a.minContextSlot,
+	                            commitment = _a.commitment,
+	                            skipPreflight = _a.skipPreflight,
+	                            maxRetries = _a.maxRetries,
+	                            waitForCommitmentToSendNextTransaction = _a.waitForCommitmentToSendNextTransaction,
+	                            transactions = _a.transactions,
+	                            rest = __rest(_a, ["minContextSlot", "commitment", "skipPreflight", "maxRetries", "waitForCommitmentToSendNextTransaction", "transactions"]);
+
+	                        return __awaiter(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+	                          var payloads, options, _yield$wallet$signAnd2, base64EncodedSignatures, signatures;
+
+	                          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+	                            while (1) switch (_context5.prev = _context5.next) {
+	                              case 0:
+	                                payloads = transactions.map(getPayloadFromTransaction);
+	                                options = {
+	                                  min_context_slot: minContextSlot,
+	                                  commitment: commitment,
+	                                  skip_preflight: skipPreflight,
+	                                  max_retries: maxRetries,
+	                                  wait_for_commitment_to_send_next_transaction: waitForCommitmentToSendNextTransaction
+	                                };
+	                                _context5.next = 4;
+	                                return wallet.signAndSendTransactions(Object.assign(Object.assign(Object.assign({}, rest), Object.values(options).some(function (element) {
+	                                  return element != null;
+	                                }) ? {
+	                                  options: options
+	                                } : null), {
+	                                  payloads: payloads
+	                                }));
+
+	                              case 4:
+	                                _yield$wallet$signAnd2 = _context5.sent;
+	                                base64EncodedSignatures = _yield$wallet$signAnd2.signatures;
+	                                signatures = base64EncodedSignatures.map(toUint8Array).map(bs58__default["default"].encode);
+	                                return _context5.abrupt("return", signatures);
+
+	                              case 8:
+	                              case "end":
+	                                return _context5.stop();
+	                            }
+	                          }, _callee5);
+	                        }));
+	                      };
+
+	                      break;
+
+	                    case 'signMessages':
+	                      target[p] = function (_a) {
+	                        var payloads = _a.payloads,
+	                            rest = __rest(_a, ["payloads"]);
+
+	                        return __awaiter(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+	                          var base64EncodedPayloads, _yield$wallet$signMes2, base64EncodedSignedMessages, signedMessages;
+
+	                          return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+	                            while (1) switch (_context6.prev = _context6.next) {
+	                              case 0:
+	                                base64EncodedPayloads = payloads.map(fromUint8Array);
+	                                _context6.next = 3;
+	                                return wallet.signMessages(Object.assign(Object.assign({}, rest), {
+	                                  payloads: base64EncodedPayloads
+	                                }));
+
+	                              case 3:
+	                                _yield$wallet$signMes2 = _context6.sent;
+	                                base64EncodedSignedMessages = _yield$wallet$signMes2.signed_payloads;
+	                                signedMessages = base64EncodedSignedMessages.map(toUint8Array);
+	                                return _context6.abrupt("return", signedMessages);
+
+	                              case 7:
+	                              case "end":
+	                                return _context6.stop();
+	                            }
+	                          }, _callee6);
+	                        }));
+	                      };
+
+	                      break;
+
+	                    case 'signTransactions':
+	                      target[p] = function (_a) {
+	                        var transactions = _a.transactions,
+	                            rest = __rest(_a, ["transactions"]);
+
+	                        return __awaiter(this, void 0, void 0, /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+	                          var payloads, _yield$wallet$signTra2, base64EncodedCompiledTransactions, compiledTransactions, signedTransactions;
+
+	                          return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+	                            while (1) switch (_context7.prev = _context7.next) {
+	                              case 0:
+	                                payloads = transactions.map(getPayloadFromTransaction);
+	                                _context7.next = 3;
+	                                return wallet.signTransactions(Object.assign(Object.assign({}, rest), {
+	                                  payloads: payloads
+	                                }));
+
+	                              case 3:
+	                                _yield$wallet$signTra2 = _context7.sent;
+	                                base64EncodedCompiledTransactions = _yield$wallet$signTra2.signed_payloads;
+	                                compiledTransactions = base64EncodedCompiledTransactions.map(toUint8Array);
+	                                signedTransactions = compiledTransactions.map(getTransactionFromWireMessage);
+	                                return _context7.abrupt("return", signedTransactions);
+
+	                              case 8:
+	                              case "end":
+	                                return _context7.stop();
+	                            }
+	                          }, _callee7);
+	                        }));
+	                      };
+
+	                      break;
+
+	                    default:
+	                      {
+	                        target[p] = wallet[p];
+	                        break;
+	                      }
+	                  }
+	                }
+
+	                return target[p];
+	              },
+	              defineProperty: function defineProperty() {
+	                return false;
+	              },
+	              deleteProperty: function deleteProperty() {
+	                return false;
+	              }
+	            });
+	            return callback(augmentedAPI);
+	          };
+
+	          _context8.next = 3;
+	          return mobileWalletAdapterProtocol.transactRemote(augmentedCallback, config);
+
+	        case 3:
+	          return _context8.abrupt("return", _context8.sent);
+
+	        case 4:
+	        case "end":
+	          return _context8.stop();
+	      }
+	    }, _callee8);
+	  }));
+	}
+
 	cjs$3.transact = transact$1;
+	cjs$3.transactRemote = transactRemote;
 
 	var Layout$1 = {};
 
