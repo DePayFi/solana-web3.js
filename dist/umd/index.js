@@ -52875,6 +52875,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	exports.AddressLookupTableProgram = AddressLookupTableProgram;
 	exports.BN = BN;
 	exports.Buffer = Buffer;
+	exports.ComputeBudgetProgram = ComputeBudgetProgram;
 	exports.Connection = Connection;
 	exports.Keypair = Keypair;
 	exports.LAMPORTS_PER_SOL = LAMPORTS_PER_SOL;
