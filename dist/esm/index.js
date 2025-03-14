@@ -28671,6 +28671,7 @@ var TokenBalanceResult = type({
   accountIndex: number$1(),
   mint: string(),
   owner: optional(string()),
+  programId: optional(string()),
   uiTokenAmount: TokenAmountResult
 });
 var LoadedAddressesResult = type({
@@ -28871,18 +28872,6 @@ var GetParsedTransactionRpcResult = jsonRpcResult(nullable(type({
   blockTime: optional(nullable(number$1())),
   version: optional(TransactionVersionStruct)
 })));
-/**
- * Expected JSON RPC response for the "getRecentBlockhash" message
- *
- * @deprecated Deprecated since RPC v1.8.0. Please use {@link GetLatestBlockhashRpcResult} instead.
- */
-
-var GetRecentBlockhashAndContextRpcResult = jsonRpcResultAndContext(type({
-  blockhash: string(),
-  feeCalculator: type({
-    lamportsPerSignature: number$1()
-  })
-}));
 /**
  * Expected JSON RPC response for the "getLatestBlockhash" message
  */
@@ -31814,27 +31803,37 @@ var Connection = /*#__PURE__*/function () {
     key: "getRecentBlockhashAndContext",
     value: function () {
       var _getRecentBlockhashAndContext = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee57(commitment) {
-        var args, unsafeRes, res;
+        var _yield$this$getLatest, context, blockhash, feeCalculator;
+
         return _regeneratorRuntime().wrap(function _callee57$(_context57) {
           while (1) switch (_context57.prev = _context57.next) {
             case 0:
-              args = this._buildArgs([], commitment);
-              _context57.next = 3;
-              return this._rpcRequest('getRecentBlockhash', args);
+              _context57.next = 2;
+              return this.getLatestBlockhashAndContext(commitment);
 
-            case 3:
-              unsafeRes = _context57.sent;
-              res = _create(unsafeRes, GetRecentBlockhashAndContextRpcResult);
+            case 2:
+              _yield$this$getLatest = _context57.sent;
+              context = _yield$this$getLatest.context;
+              blockhash = _yield$this$getLatest.value.blockhash;
 
-              if (!('error' in res)) {
-                _context57.next = 7;
-                break;
-              }
+              _context57.t0 = function toJSON() {
+                return {};
+              };
 
-              throw new SolanaJSONRPCError(res.error, 'failed to get recent blockhash');
+              feeCalculator = {
+                get lamportsPerSignature() {
+                  throw new Error('The capability to fetch `lamportsPerSignature` using the `getRecentBlockhash` API is ' + 'no longer offered by the network. Use the `getFeeForMessage` API to obtain the fee ' + 'for a given message.');
+                },
 
-            case 7:
-              return _context57.abrupt("return", res.result);
+                toJSON: _context57.t0
+              };
+              return _context57.abrupt("return", {
+                context: context,
+                value: {
+                  blockhash: blockhash,
+                  feeCalculator: feeCalculator
+                }
+              });
 
             case 8:
             case "end":
@@ -32840,7 +32839,7 @@ var Connection = /*#__PURE__*/function () {
             case 0:
               args = this._buildArgsAtLeastConfirmed([slot], commitment);
               _context75.next = 3;
-              return this._rpcRequest('getConfirmedBlock', args);
+              return this._rpcRequest('getBlock', args);
 
             case 3:
               unsafeRes = _context75.sent;
@@ -33019,7 +33018,7 @@ var Connection = /*#__PURE__*/function () {
                 rewards: false
               });
               _context78.next = 3;
-              return this._rpcRequest('getConfirmedBlock', args);
+              return this._rpcRequest('getBlock', args);
 
             case 3:
               unsafeRes = _context78.sent;
@@ -33074,7 +33073,7 @@ var Connection = /*#__PURE__*/function () {
             case 0:
               args = this._buildArgsAtLeastConfirmed([signature], commitment);
               _context79.next = 3;
-              return this._rpcRequest('getConfirmedTransaction', args);
+              return this._rpcRequest('getTransaction', args);
 
             case 3:
               unsafeRes = _context79.sent;
@@ -33133,7 +33132,7 @@ var Connection = /*#__PURE__*/function () {
             case 0:
               args = this._buildArgsAtLeastConfirmed([signature], commitment, 'jsonParsed');
               _context80.next = 3;
-              return this._rpcRequest('getConfirmedTransaction', args);
+              return this._rpcRequest('getTransaction', args);
 
             case 3:
               unsafeRes = _context80.sent;
@@ -33182,7 +33181,7 @@ var Connection = /*#__PURE__*/function () {
                 var args = _this23._buildArgsAtLeastConfirmed([signature], commitment, 'jsonParsed');
 
                 return {
-                  methodName: 'getConfirmedTransaction',
+                  methodName: 'getTransaction',
                   args: args
                 };
               });
