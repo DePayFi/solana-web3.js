@@ -1,5 +1,6 @@
 import {
   AddressLookupTableProgram,
+  AddressLookupTableAccount,
   Connection,
   Transaction,
   TransactionMessage,
@@ -48,6 +49,9 @@ import {
   rustEnum,
   array,
   map,
+  deserializeUnchecked,
+  BinaryReader,
+  BinaryWriter,
 } from "@project-serum/borsh"
 
 const ACCOUNT_LAYOUT = struct([
@@ -66,6 +70,7 @@ const ACCOUNT_LAYOUT = struct([
 
 export {
   AddressLookupTableProgram,
+  AddressLookupTableAccount,
   Connection,
   Transaction,
   TransactionMessage,
@@ -107,4 +112,7 @@ export {
   Web3MobileWallet,
   bs58,
   ComputeBudgetProgram,
+  deserializeUnchecked,
+  BinaryReader,
+  BinaryWriter,
 }

@@ -49,6 +49,10 @@ import {
   transact,
   Web3MobileWallet,
   bs58,
+  ComputeBudgetProgram,
+  deserializeUnchecked,
+  BinaryReader,
+  BinaryWriter,
 } from "@depay/solana-web3.js"
 ```
 

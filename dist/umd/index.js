@@ -52871,8 +52871,11 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	var ACCOUNT_LAYOUT = lib.struct([lib.publicKey('mint'), lib.publicKey('owner'), lib.u64('amount'), lib.u32('delegateOption'), lib.publicKey('delegate'), lib.u8('state'), lib.u32('isNativeOption'), lib.u64('isNative'), lib.u64('delegatedAmount'), lib.u32('closeAuthorityOption'), lib.publicKey('closeAuthority')]);
 
 	exports.ACCOUNT_LAYOUT = ACCOUNT_LAYOUT;
+	exports.AddressLookupTableAccount = AddressLookupTableAccount;
 	exports.AddressLookupTableProgram = AddressLookupTableProgram;
 	exports.BN = BN;
+	exports.BinaryReader = lib.BinaryReader;
+	exports.BinaryWriter = lib.BinaryWriter;
 	exports.Buffer = Buffer;
 	exports.ComputeBudgetProgram = ComputeBudgetProgram;
 	exports.Connection = Connection;
@@ -52889,6 +52892,7 @@ if(_global$1.fetch == undefined) { throw('Please polyfill .fetch | See: https://
 	exports.blob = blob;
 	exports.bool = lib.bool;
 	exports.bs58 = bs58;
+	exports.deserializeUnchecked = lib.deserializeUnchecked;
 	exports.i128 = lib.i128;
 	exports.i16 = lib.i16;
 	exports.i32 = lib.i32;
