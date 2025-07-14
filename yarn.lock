@@ -1208,19 +1208,19 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@solana-mobile/mobile-wallet-adapter-protocol-web3js@^2.1.4":
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/@solana-mobile/mobile-wallet-adapter-protocol-web3js/-/mobile-wallet-adapter-protocol-web3js-2.1.4.tgz#70b55f2dc62740f0a0fb445103f414ec63ef387d"
-  integrity sha512-eE0NfQ450TrjD20/gN9hDYLhm6ggYtA5Vrrp3kuzj2antC0t6UtCCHe3/ivHLU14ir6kPoQTsTJHQaKGIqcheQ==
+"@solana-mobile/mobile-wallet-adapter-protocol-web3js@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@solana-mobile/mobile-wallet-adapter-protocol-web3js/-/mobile-wallet-adapter-protocol-web3js-2.2.2.tgz#3172924d9bcbc983cc1a565a5909e6a2ab612c0c"
+  integrity sha512-XmLJrEdkAJ3CBV+bkYDKSBqF6QfjGTIeX+tFGPcwcc9rQ68sE1MPhpUKV9ehRwDLrZXcin2UDMOpWB/S6FJWBQ==
   dependencies:
-    "@solana-mobile/mobile-wallet-adapter-protocol" "^2.1.4"
+    "@solana-mobile/mobile-wallet-adapter-protocol" "^2.2.0"
     bs58 "^5.0.0"
     js-base64 "^3.7.5"
 
-"@solana-mobile/mobile-wallet-adapter-protocol@^2.1.4":
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/@solana-mobile/mobile-wallet-adapter-protocol/-/mobile-wallet-adapter-protocol-2.1.4.tgz#47f31e230aca8500b8715fe68ce0be59e5401851"
-  integrity sha512-o5C61cZbtvkuAyn5YxRxsl8jeTVpGO40xT7VjtgFSE9elxvLOZAlqxxrtxpqT4hiwFzQFDzjUGsp97cabij06A==
+"@solana-mobile/mobile-wallet-adapter-protocol@^2.2.0", "@solana-mobile/mobile-wallet-adapter-protocol@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@solana-mobile/mobile-wallet-adapter-protocol/-/mobile-wallet-adapter-protocol-2.2.2.tgz#805ba204e4f910f5f76bc63c28ecd0fdae82c972"
+  integrity sha512-ZJVwPVXmIfoqEhPRbpj/atnyIkcxOrJcLOqIQSaRfgmGGhCAcXmC8dTxlrtjVisxkZviXEshmBVxvOD/kqLQOw==
   dependencies:
     "@solana/wallet-standard" "^1.1.2"
     "@solana/wallet-standard-util" "^1.1.1"
